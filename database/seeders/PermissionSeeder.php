@@ -272,49 +272,49 @@ class PermissionSeeder extends Seeder
     {
         $roles = [
             [
-                'name' => 'Super Administrateur',
+                'name' => 'Super Administrateur', /** Pasteur */
                 'slug' => 'super-admin',
                 'description' => 'Accès complet au système',
                 'level' => 100,
                 'is_system_role' => true,
             ],
             [
-                'name' => 'Administrateur',
+                'name' => 'Administrateur',  /** Président du laïque */
                 'slug' => 'admin',
                 'description' => 'Administration générale du système',
                 'level' => 90,
                 'is_system_role' => true,
             ],
             [
-                'name' => 'Pasteur',
+                'name' => 'Pasteur', /** Prédicateur */
                 'slug' => 'pasteur',
                 'description' => 'Responsable pastoral',
                 'level' => 80,
                 'is_system_role' => true,
             ],
             [
-                'name' => 'Secrétaire',
+                'name' => 'Secrétaire', /** Responsable de FUMECO */
                 'slug' => 'secretaire',
                 'description' => 'Gestion administrative',
                 'level' => 70,
                 'is_system_role' => true,
             ],
             [
-                'name' => 'Trésorier',
+                'name' => 'Trésorier', /** PCFA */
                 'slug' => 'tresorier',
                 'description' => 'Gestion financière',
                 'level' => 70,
                 'is_system_role' => true,
             ],
             [
-                'name' => 'Responsable de classe',
+                'name' => 'Responsable de classe', /** Responsable de classe */
                 'slug' => 'responsable-classe',
                 'description' => 'Responsable d\'une classe d\'école du dimanche',
                 'level' => 60,
                 'is_system_role' => false,
             ],
             [
-                'name' => 'Enseignant',
+                'name' => 'Enseignant', /** Chargée de communication */
                 'slug' => 'enseignant',
                 'description' => 'Enseignant école du dimanche',
                 'level' => 50,

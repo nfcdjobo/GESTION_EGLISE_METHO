@@ -1,12 +1,13 @@
+
 <!-- Sidebar -->
 <aside id="sidebar" class="fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-2xl transform -translate-x-full transition-all duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0 border-r border-slate-200">
     <!-- Sidebar Header -->
     <div class="flex items-center justify-center h-16 bg-gradient-to-r from-blue-600 to-purple-600 border-b border-blue-700">
         <div class="flex items-center">
-            <div class="w-8 h-8 bg-white rounded-full flex items-center justify-center">
-                <img class="aspect-square w-10 rounded-full object-cover ring-2 ring-blue-500" src="https://www.cevaa.org/la-communaute/fiches-deglises/afrique-occidentale-centrafrique/logo-emci.png/image_preview" alt="Logo église" />
+            <div class="w-10 h-10 bg-white rounded-full flex items-center justify-center">
+                <img class="h-10 w-10 rounded-full object-cover ring-2 ring-blue-500" src="https://www.cevaa.org/la-communaute/fiches-deglises/afrique-occidentale-centrafrique/logo-emci.png/image_preview" alt="Logo église" />
             </div>
-            <span class="ml-2 text-white font-bold text-lg">Église Méthodiste</span>
+            <span class="ml-2 text-white font-bold text-lg">Méthodiste</span>
         </div>
     </div>
 
@@ -99,13 +100,18 @@
                 </a>
 
                 <!-- Cultes -->
-                <a href="#" class="flex items-center px-3 py-2.5 text-sm font-medium text-slate-700 rounded-xl hover:bg-gradient-to-r hover:from-amber-50 hover:to-yellow-50 hover:text-amber-600 transition-all duration-200 group">
+                <a href="{{route('private.cultes.index')}}" class="flex items-center px-3 py-2.5 text-sm font-medium text-slate-700 rounded-xl hover:bg-gradient-to-r hover:from-amber-50 hover:to-yellow-50 hover:text-amber-600 transition-all duration-200 group">
                     <i class="fas fa-church text-amber-500 mr-3 group-hover:text-amber-600"></i>
                     <span>Cultes</span>
                 </a>
 
+                <a href="{{route('private.participantscultes.index')}}" class="flex items-center px-3 py-2.5 text-sm font-medium text-slate-700 rounded-xl hover:bg-gradient-to-r hover:from-amber-50 hover:to-yellow-50 hover:text-amber-600 transition-all duration-200 group">
+                    <i class="fas fa-church text-amber-500 mr-3 group-hover:text-amber-600"></i>
+                    <span>Participants</span>
+                </a>
+
                 <!-- Événements -->
-                <a href="#" class="flex items-center px-3 py-2.5 text-sm font-medium text-slate-700 rounded-xl hover:bg-gradient-to-r hover:from-rose-50 hover:to-pink-50 hover:text-rose-600 transition-all duration-200 group">
+                <a href="{{route('private.events.index')}}" class="flex items-center px-3 py-2.5 text-sm font-medium text-slate-700 rounded-xl hover:bg-gradient-to-r hover:from-rose-50 hover:to-pink-50 hover:text-rose-600 transition-all duration-200 group">
                     <i class="fas fa-calendar-check text-rose-500 mr-3 group-hover:text-rose-600"></i>
                     <span>Événements</span>
                 </a>
@@ -116,13 +122,13 @@
                 </div>
 
                 <!-- Offrandes -->
-                <a href="#" class="flex items-center px-3 py-2.5 text-sm font-medium text-slate-700 rounded-xl hover:bg-gradient-to-r hover:from-emerald-50 hover:to-green-50 hover:text-emerald-600 transition-all duration-200 group">
+                <a href="{{route('private.fonds.index')}}" class="flex items-center px-3 py-2.5 text-sm font-medium text-slate-700 rounded-xl hover:bg-gradient-to-r hover:from-emerald-50 hover:to-green-50 hover:text-emerald-600 transition-all duration-200 group">
                     <i class="fas fa-donate text-emerald-500 mr-3 group-hover:text-emerald-600"></i>
                     <span>Offrandes</span>
                 </a>
 
                 <!-- Projets -->
-                <a href="#" class="flex items-center px-3 py-2.5 text-sm font-medium text-slate-700 rounded-xl hover:bg-gradient-to-r hover:from-violet-50 hover:to-purple-50 hover:text-violet-600 transition-all duration-200 group">
+                <a href="{{route('private.projets.index')}}" class="flex items-center px-3 py-2.5 text-sm font-medium text-slate-700 rounded-xl hover:bg-gradient-to-r hover:from-violet-50 hover:to-purple-50 hover:text-violet-600 transition-all duration-200 group">
                     <i class="fas fa-project-diagram text-violet-500 mr-3 group-hover:text-violet-600"></i>
                     <span>Projets</span>
                 </a>

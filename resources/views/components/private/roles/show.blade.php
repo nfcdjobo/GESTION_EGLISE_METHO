@@ -30,7 +30,7 @@
     </div>
 
     <!-- Actions principales -->
-    <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 p-6">
+    <div class="bg-white/80  rounded-2xl shadow-lg border border-white/20 p-6">
         <div class="flex flex-wrap justify-center gap-3">
             @can('roles.update')
                 <a href="{{ route('private.roles.edit', $role) }}" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-yellow-500 to-orange-500 text-white text-sm font-medium rounded-xl hover:from-yellow-600 hover:to-orange-600 transition-all duration-200 shadow-md hover:shadow-lg">
@@ -70,7 +70,7 @@
         <!-- Informations du rôle et Statistiques -->
         <div class="space-y-6">
             <!-- Informations du rôle -->
-            <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
+            <div class="bg-white/80  rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
                 <div class="p-6 border-b border-slate-200">
                     <h2 class="text-xl font-bold text-slate-800 flex items-center">
                         <i class="fas fa-info-circle text-blue-600 mr-2"></i>
@@ -168,7 +168,7 @@
             </div>
 
             <!-- Statistiques -->
-            <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
+            <div class="bg-white/80  rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
                 <div class="p-6 border-b border-slate-200">
                     <h2 class="text-xl font-bold text-slate-800 flex items-center">
                         <i class="fas fa-chart-bar text-purple-600 mr-2"></i>
@@ -231,7 +231,7 @@
 
         <!-- Permissions -->
         <div class="lg:col-span-2">
-            <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
+            <div class="bg-white/80  rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
                 <div class="p-6 border-b border-slate-200">
                     <div class="flex items-center justify-between">
                         <h2 class="text-xl font-bold text-slate-800 flex items-center">
@@ -313,7 +313,7 @@
     </div>
 
     <!-- Utilisateurs récents -->
-    <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
+    <div class="bg-white/80  rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
         <div class="p-6 border-b border-slate-200">
             <div class="flex items-center justify-between">
                 <h2 class="text-xl font-bold text-slate-800 flex items-center">

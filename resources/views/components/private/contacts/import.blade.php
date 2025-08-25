@@ -48,7 +48,7 @@
         <!-- Formulaire d'import -->
         <div class="lg:col-span-2">
             <!-- Étape 1: Télécharger le modèle -->
-            <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300 mb-8">
+            <div class="bg-white/80 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300 mb-8">
                 <div class="p-6 border-b border-slate-200">
                     <h2 class="text-xl font-bold text-slate-800 flex items-center">
                         <span class="inline-flex items-center justify-center w-8 h-8 bg-blue-100 text-blue-600 rounded-full mr-3 text-sm font-bold">1</span>
@@ -77,7 +77,7 @@
             </div>
 
             <!-- Étape 2: Préparer le fichier -->
-            <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300 mb-8">
+            <div class="bg-white/80 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300 mb-8">
                 <div class="p-6 border-b border-slate-200">
                     <h2 class="text-xl font-bold text-slate-800 flex items-center">
                         <span class="inline-flex items-center justify-center w-8 h-8 bg-amber-100 text-amber-600 rounded-full mr-3 text-sm font-bold">2</span>
@@ -121,7 +121,7 @@
             </div>
 
             <!-- Étape 3: Uploader le fichier -->
-            <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
+            <div class="bg-white/80 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
                 <div class="p-6 border-b border-slate-200">
                     <h2 class="text-xl font-bold text-slate-800 flex items-center">
                         <span class="inline-flex items-center justify-center w-8 h-8 bg-green-100 text-green-600 rounded-full mr-3 text-sm font-bold">3</span>
@@ -215,7 +215,7 @@
         <!-- Colonne de droite -->
         <div class="space-y-6">
             <!-- Aperçu du mapping -->
-            <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
+            <div class="bg-white/80 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
                 <div class="p-6 border-b border-slate-200">
                     <h3 class="text-xl font-bold text-slate-800 flex items-center">
                         <i class="fas fa-table text-purple-600 mr-2"></i>
@@ -261,7 +261,7 @@
             </div>
 
             <!-- Aide et support -->
-            <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
+            <div class="bg-white/80 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
                 <div class="p-6 border-b border-slate-200">
                     <h3 class="text-xl font-bold text-slate-800 flex items-center">
                         <i class="fas fa-question-circle text-amber-600 mr-2"></i>
@@ -291,7 +291,7 @@
             </div>
 
             <!-- Historique des imports -->
-            <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
+            <div class="bg-white/80 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
                 <div class="p-6 border-b border-slate-200">
                     <h3 class="text-xl font-bold text-slate-800 flex items-center">
                         <i class="fas fa-history text-slate-600 mr-2"></i>

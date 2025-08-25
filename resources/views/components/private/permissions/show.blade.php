@@ -25,7 +25,7 @@
     </div>
 
     <!-- Actions rapides -->
-    <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
+    <div class="bg-white/80 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
         <div class="p-6">
             <div class="flex flex-wrap gap-3">
                 @can('permissions.update')
@@ -66,7 +66,7 @@
         <!-- Informations principales -->
         <div class="lg:col-span-2 space-y-8">
             <!-- Détails de la permission -->
-            <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
+            <div class="bg-white/80 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
                 <div class="p-6 border-b border-slate-200">
                     <h2 class="text-xl font-bold text-slate-800 flex items-center">
                         <i class="fas fa-info-circle text-blue-600 mr-2"></i>
@@ -191,7 +191,7 @@
             </div>
 
             <!-- Rôles et utilisateurs -->
-            <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
+            <div class="bg-white/80 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
                 <div class="p-6 border-b border-slate-200">
                     <h2 class="text-xl font-bold text-slate-800 flex items-center">
                         <i class="fas fa-users text-purple-600 mr-2"></i>
@@ -285,7 +285,7 @@
         <!-- Sidebar -->
         <div class="space-y-6">
             <!-- Statistiques -->
-            <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
+            <div class="bg-white/80 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
                 <div class="p-6 border-b border-slate-200">
                     <h2 class="text-xl font-bold text-slate-800 flex items-center">
                         <i class="fas fa-chart-pie text-cyan-600 mr-2"></i>
@@ -315,7 +315,7 @@
             </div>
 
             <!-- Informations système -->
-            <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
+            <div class="bg-white/80 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
                 <div class="p-6 border-b border-slate-200">
                     <h2 class="text-xl font-bold text-slate-800 flex items-center">
                         <i class="fas fa-cog text-amber-600 mr-2"></i>
@@ -368,7 +368,7 @@
 
             <!-- Conditions supplémentaires -->
             @if($permission->conditions)
-                <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
+                <div class="bg-white/80 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
                     <div class="p-6 border-b border-slate-200">
                         <h2 class="text-xl font-bold text-slate-800 flex items-center">
                             <i class="fas fa-code text-purple-600 mr-2"></i>

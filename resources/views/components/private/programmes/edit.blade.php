@@ -37,7 +37,7 @@
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <!-- Informations générales -->
             <div class="lg:col-span-2">
-                <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
+                <div class="bg-white/80 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
                     <div class="p-6 border-b border-slate-200">
                         <h2 class="text-xl font-bold text-slate-800 flex items-center">
                             <i class="fas fa-info-circle text-blue-600 mr-2"></i>
@@ -115,7 +115,7 @@
                 </div>
 
                 <!-- Planification -->
-                <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300 mt-8">
+                <div class="bg-white/80 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300 mt-8">
                     <div class="p-6 border-b border-slate-200">
                         <h2 class="text-xl font-bold text-slate-800 flex items-center">
                             <i class="fas fa-clock text-green-600 mr-2"></i>
@@ -211,7 +211,7 @@
                 </div>
 
                 <!-- Organisation -->
-                <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300 mt-8">
+                <div class="bg-white/80 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300 mt-8">
                     <div class="p-6 border-b border-slate-200">
                         <h2 class="text-xl font-bold text-slate-800 flex items-center">
                             <i class="fas fa-users text-purple-600 mr-2"></i>
@@ -261,7 +261,7 @@
             <!-- Aperçu et informations -->
             <div class="space-y-6">
                 <!-- Aperçu -->
-                <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
+                <div class="bg-white/80 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
                     <div class="p-6 border-b border-slate-200">
                         <h2 class="text-xl font-bold text-slate-800 flex items-center">
                             <i class="fas fa-eye text-purple-600 mr-2"></i>
@@ -299,7 +299,7 @@
                 </div>
 
                 <!-- Informations de modification -->
-                <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
+                <div class="bg-white/80 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
                     <div class="p-6 border-b border-slate-200">
                         <h2 class="text-xl font-bold text-slate-800 flex items-center">
                             <i class="fas fa-info-circle text-green-600 mr-2"></i>
@@ -348,7 +348,7 @@
         </div>
 
         <!-- Statut -->
-        <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
+        <div class="bg-white/80 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
             <div class="p-6 border-b border-slate-200">
                 <h2 class="text-xl font-bold text-slate-800 flex items-center">
                     <i class="fas fa-toggle-on text-amber-600 mr-2"></i>
@@ -385,7 +385,7 @@
         </div>
 
         <!-- Actions -->
-        <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20">
+        <div class="bg-white/80 rounded-2xl shadow-lg border border-white/20">
             <div class="p-6">
                 <div class="flex flex-col sm:flex-row gap-4 justify-center">
                     <button type="submit" class="inline-flex items-center justify-center px-8 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-medium rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-200 shadow-md hover:shadow-lg">

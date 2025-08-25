@@ -82,6 +82,7 @@ return new class extends Migration {
             $table->decimal('latitude', 10, 8)->nullable()->comment('Latitude GPS');
             $table->decimal('longitude', 11, 8)->nullable()->comment('Longitude GPS');
 
+
             // Statut et progression
             $table->enum('statut', [
                 'conception',         // En conception
@@ -305,35 +306,7 @@ return new class extends Migration {
     ORDER BY nombre_projets DESC
 ");
 
-//         // Vue pour les projets nécessitant une action
-//         DB::statement("
-//     CREATE OR REPLACE VIEW projets_action_requise AS
-//     SELECT
-//         p.*,
-//         (resp.prenom || ' ' || resp.nom) AS nom_responsable,
-//         CASE
-//             WHEN p.statut = 'conception' AND p.necessite_approbation = true AND p.approuve_par IS NULL THEN 'Approbation requise'
-//             WHEN p.date_fin_prevue IS NOT NULL AND p.date_fin_prevue < CURRENT_DATE AND p.statut IN ('en_cours', 'planification') THEN 'Projet en retard'
-//             WHEN p.budget_collecte >= p.budget_prevu AND p.statut = 'recherche_financement' THEN 'Financement atteint - Peut démarrer'
-//             WHEN p.prochaine_evaluation IS NOT NULL AND p.prochaine_evaluation <= CURRENT_DATE THEN 'Évaluation due'
-//             WHEN p.derniere_mise_a_jour IS NULL OR p.derniere_mise_a_jour <= (CURRENT_DATE - INTERVAL '30 days') THEN 'Mise à jour requise'
-//             ELSE 'Autre'
-//         END AS action_requise,
-//         (CURRENT_DATE - COALESCE(p.derniere_mise_a_jour, p.created_at)) AS jours_sans_maj
-//     FROM projets p
-//     LEFT JOIN users resp ON p.responsable_id = resp.id
-//     WHERE p.deleted_at IS NULL
-//       AND p.statut NOT IN ('termine', 'annule', 'archive')
-//     HAVING action_requise != 'Autre'
-//     ORDER BY
-//         CASE action_requise
-//             WHEN 'Projet en retard' THEN 1
-//             WHEN 'Évaluation due' THEN 2
-//             WHEN 'Approbation requise' THEN 3
-//             ELSE 4
-//         END,
-//         jours_sans_maj DESC
-// ");
+
 
     }
 

@@ -68,7 +68,7 @@
         <!-- Informations principales -->
         <div class="lg:col-span-2 space-y-8">
             <!-- Informations générales -->
-            <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
+            <div class="bg-white/80 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
                 <div class="p-6 border-b border-slate-200">
                     <h2 class="text-xl font-bold text-slate-800 flex items-center">
                         <i class="fas fa-info-circle text-blue-600 mr-2"></i>
@@ -138,7 +138,7 @@
             </div>
 
             <!-- Planification -->
-            <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
+            <div class="bg-white/80 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
                 <div class="p-6 border-b border-slate-200">
                     <h2 class="text-xl font-bold text-slate-800 flex items-center">
                         <i class="fas fa-clock text-green-600 mr-2"></i>
@@ -233,7 +233,7 @@
 
             <!-- Notes -->
             @if($programme->notes)
-            <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
+            <div class="bg-white/80 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
                 <div class="p-6 border-b border-slate-200">
                     <h2 class="text-xl font-bold text-slate-800 flex items-center">
                         <i class="fas fa-sticky-note text-amber-600 mr-2"></i>
@@ -252,7 +252,7 @@
         <!-- Sidebar -->
         <div class="space-y-6">
             <!-- Responsable -->
-            <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
+            <div class="bg-white/80 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
                 <div class="p-6 border-b border-slate-200">
                     <h2 class="text-xl font-bold text-slate-800 flex items-center">
                         <i class="fas fa-user-tie text-purple-600 mr-2"></i>
@@ -286,7 +286,7 @@
             </div>
 
             <!-- Statistiques rapides -->
-            <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
+            <div class="bg-white/80 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
                 <div class="p-6 border-b border-slate-200">
                     <h2 class="text-xl font-bold text-slate-800 flex items-center">
                         <i class="fas fa-chart-line text-green-600 mr-2"></i>
@@ -323,7 +323,7 @@
             </div>
 
             <!-- Actions rapides -->
-            <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
+            <div class="bg-white/80 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
                 <div class="p-6 border-b border-slate-200">
                     <h2 class="text-xl font-bold text-slate-800 flex items-center">
                         <i class="fas fa-bolt text-yellow-600 mr-2"></i>

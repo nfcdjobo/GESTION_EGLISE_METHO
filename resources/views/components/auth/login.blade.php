@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Connexion - Plateforme de l'Église</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="icon" href="https://www.cevaa.org/la-communaute/fiches-deglises/afrique-occidentale-centrafrique/logo-emci.png/image_preview" type="image/png" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body class="bg-gradient-to-br from-blue-50 via-white to-purple-50 min-h-screen flex items-center justify-center p-4">
@@ -12,10 +13,11 @@
     <div class="w-full max-w-md">
         <!-- Logo et Titre -->
         <div class="text-center mb-8">
-            <div class="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-blue-600 to-purple-600 rounded-full mb-4 shadow-lg">
-                <i class="fas fa-church text-white text-3xl"></i>
-            </div>
-            <h1 class="text-3xl font-bold text-gray-800 mb-2">Bienvenue</h1>
+            <a href="{{route('public.accueil')}}" class="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-blue-600 to-purple-600 rounded-full mb-4 shadow-lg">
+                <img class="aspect-square w-[80px] rounded-full object-cover ring-2 ring-blue-500" src="https://www.cevaa.org/la-communaute/fiches-deglises/afrique-occidentale-centrafrique/logo-emci.png/image_preview" alt="Logo église" />
+                {{-- <i class="fas fa-church text-white text-3xl"></i> --}}
+            </a>
+            <h1 class="text-3xl font-bold text-gray-800 mb-2">Méthodiste Côte d'Ivoire</h1>
             <p class="text-gray-600" id="subtitle">Connectez-vous à votre espace membre</p>
         </div>
 
@@ -27,9 +29,9 @@
                 <button onclick="showSection('login')" id="loginTab" class="flex-1 py-2 px-4 rounded-md text-sm font-medium transition-all duration-200 bg-white text-blue-600 shadow-sm">
                     <i class="fas fa-sign-in-alt mr-2"></i>Connexion
                 </button>
-                <button onclick="showSection('register')" id="registerTab" class="flex-1 py-2 px-4 rounded-md text-sm font-medium transition-all duration-200 text-gray-600 hover:text-gray-800">
+                {{-- <button onclick="showSection('register')" id="registerTab" class="flex-1 py-2 px-4 rounded-md text-sm font-medium transition-all duration-200 text-gray-600 hover:text-gray-800">
                     <i class="fas fa-user-plus mr-2"></i>Inscription
-                </button>
+                </button> --}}
                 <button onclick="showSection('forgot')" id="forgotTab" class="flex-1 py-2 px-4 rounded-md text-sm font-medium transition-all duration-200 text-gray-600 hover:text-gray-800">
                     <i class="fas fa-key mr-2"></i>Récupération
                 </button>
@@ -203,30 +205,30 @@
                 </form>
 
                 <!-- Divider -->
-                <div class="relative my-6">
+                {{-- <div class="relative my-6">
                     <div class="absolute inset-0 flex items-center">
                         <div class="w-full border-t border-gray-300"></div>
                     </div>
                     <div class="relative flex justify-center text-sm">
                         <span class="px-2 bg-white text-gray-500">Ou</span>
                     </div>
-                </div>
+                </div> --}}
 
 
 
                 <!-- Lien d'inscription -->
-                <div class="mt-6 text-center">
+                {{-- <div class="mt-6 text-center">
                     <p class="text-gray-600">
                         Pas encore membre ?
                         <button type="button" onclick="showSection('register')" class="text-blue-600 hover:text-blue-800 font-semibold transition duration-200">
                             Créer un compte
                         </button>
                     </p>
-                </div>
+                </div> --}}
             </div>
 
             <!-- SECTION INSCRIPTION -->
-            <div id="registerSection" class="section hidden">
+            {{-- <div id="registerSection" class="section hidden">
                 <form method="POST" action="{{ route('security.register') }}" class="space-y-6">
                     @csrf
 
@@ -388,7 +390,7 @@
                         </button>
                     </p>
                 </div>
-            </div>
+            </div> --}}
 
             <!-- SECTION MOT DE PASSE OUBLIÉ -->
             <div id="forgotSection" class="section hidden">
@@ -511,7 +513,7 @@
             // Mettre à jour le sous-titre
             const subtitles = {
                 'login': 'Connectez-vous à votre espace membre',
-                'register': 'Créez votre compte membre',
+                // 'register': 'Créez votre compte membre',
                 'forgot': 'Récupérez votre mot de passe'
             };
             document.getElementById('subtitle').textContent = subtitles[section];
@@ -529,22 +531,25 @@
             const label = document.getElementById('loginLabelText');
             const icon = document.getElementById('loginIcon');
 
+
             // Réinitialiser les boutons
             emailBtn.className = 'flex-1 py-2 px-3 rounded-md text-sm font-medium transition-all duration-200 text-gray-600 hover:text-gray-800';
             phoneBtn.className = 'flex-1 py-2 px-3 rounded-md text-sm font-medium transition-all duration-200 text-gray-600 hover:text-gray-800';
-
+            // input.name = 'email';
             if (type === 'email') {
                 emailBtn.className = 'flex-1 py-2 px-3 rounded-md text-sm font-medium transition-all duration-200 bg-white text-blue-600 shadow-sm';
                 input.type = 'email';
                 input.placeholder = 'exemple@email.com';
-                input.name = 'email';
+                input.name = 'login';
+                input.value = '';
                 label.textContent = 'Adresse email';
                 icon.className = 'fas fa-envelope text-gray-400 mr-2';
             } else {
                 phoneBtn.className = 'flex-1 py-2 px-3 rounded-md text-sm font-medium transition-all duration-200 bg-white text-blue-600 shadow-sm';
                 input.type = 'tel';
                 input.placeholder = '+225 07 12 34 56 78';
-                input.name = 'phone';
+                input.name = 'login';
+                input.value = '';
                 label.textContent = 'Numéro de téléphone';
                 icon.className = 'fas fa-phone text-gray-400 mr-2';
             }

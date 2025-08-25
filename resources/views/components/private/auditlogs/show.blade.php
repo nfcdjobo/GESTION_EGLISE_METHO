@@ -28,7 +28,7 @@
         <!-- Informations principales -->
         <div class="lg:col-span-2 space-y-6">
             <!-- Vue d'ensemble -->
-            <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
+            <div class="bg-white/80 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
                 <div class="p-6 border-b border-slate-200">
                     <h2 class="text-xl font-bold text-slate-800 flex items-center">
                         <i class="fas fa-info-circle text-blue-600 mr-2"></i>
@@ -83,7 +83,7 @@
 
             <!-- Changements -->
             @if($auditLog->changes || $auditLog->original)
-                <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
+                <div class="bg-white/80 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
                     <div class="p-6 border-b border-slate-200">
                         <h2 class="text-xl font-bold text-slate-800 flex items-center">
                             <i class="fas fa-exchange-alt text-amber-600 mr-2"></i>
@@ -137,7 +137,7 @@
 
             <!-- Modèle associé -->
             @if($relatedModel)
-                <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
+                <div class="bg-white/80 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
                     <div class="p-6 border-b border-slate-200">
                         <h2 class="text-xl font-bold text-slate-800 flex items-center">
                             <i class="fas fa-link text-purple-600 mr-2"></i>
@@ -181,7 +181,7 @@
         <!-- Sidebar -->
         <div class="space-y-6">
             <!-- Informations utilisateur -->
-            <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
+            <div class="bg-white/80 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
                 <div class="p-6 border-b border-slate-200">
                     <h2 class="text-xl font-bold text-slate-800 flex items-center">
                         <i class="fas fa-user text-green-600 mr-2"></i>
@@ -225,7 +225,7 @@
 
             <!-- Utilisateur cible -->
             @if($auditLog->targetUser)
-                <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
+                <div class="bg-white/80 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
                     <div class="p-6 border-b border-slate-200">
                         <h2 class="text-xl font-bold text-slate-800 flex items-center">
                             <i class="fas fa-bullseye text-orange-600 mr-2"></i>
@@ -259,7 +259,7 @@
             @endif
 
             <!-- Informations techniques -->
-            <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
+            <div class="bg-white/80 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
                 <div class="p-6 border-b border-slate-200">
                     <h2 class="text-xl font-bold text-slate-800 flex items-center">
                         <i class="fas fa-cog text-cyan-600 mr-2"></i>
@@ -302,7 +302,7 @@
             </div>
 
             <!-- Actions rapides -->
-            <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
+            <div class="bg-white/80 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
                 <div class="p-6 border-b border-slate-200">
                     <h2 class="text-xl font-bold text-slate-800 flex items-center">
                         <i class="fas fa-bolt text-yellow-600 mr-2"></i>
@@ -333,7 +333,7 @@
 
     <!-- Logs connexes -->
     @if($relatedLogs && $relatedLogs->count() > 0)
-        <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
+        <div class="bg-white/80 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
             <div class="p-6 border-b border-slate-200">
                 <h2 class="text-xl font-bold text-slate-800 flex items-center">
                     <i class="fas fa-link text-indigo-600 mr-2"></i>

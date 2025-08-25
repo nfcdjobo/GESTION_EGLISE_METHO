@@ -60,12 +60,25 @@ class RoleController extends Controller
             $query->where('level', '<=', $request->max_level);
         }
 
+        if ($request->expectsJson()) {
+            $roles = $query->orderByRaw("LOWER(name) ASC")->get();
+            return response()->json([
+                'success' => true,
+                'data' => $roles,
+
+            ]);
+        }
+
         // Tri
         $sortField = $request->get('sort', 'level');
         $sortDirection = $request->get('direction', 'desc');
         $query->orderBy($sortField, $sortDirection);
 
+
+
         $roles = $query->paginate(15)->withQueryString();
+
+
 
         return view('components.private.roles.index', compact('roles'));
     }
@@ -276,13 +289,20 @@ class RoleController extends Controller
     /**
      * Gérer les permissions d'un rôle
      */
-    public function managePermissions(Role $role)
+    public function managePermissions(Request $request, Role $role)
     {
         $permissions = Permission::where('is_active', true)
             ->orderBy('category')
             ->orderBy('name')
             ->get()
             ->groupBy('category');
+
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'data' => $permissions,
+                ]);
+            }
 
         $rolePermissions = $role->permissions()
             ->withPivot('attribue_par', 'attribue_le', 'expire_le', 'actif')

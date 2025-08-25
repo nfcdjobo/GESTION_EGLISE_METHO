@@ -29,73 +29,154 @@ class AuthenteController extends Controller
     /**
      * Traiter la connexion
      */
+    // public function login(Request $request)
+    // {
+    //     try {
+    //         // Validation des données
+    //         $validator = Validator::make($request->all(), [
+    //             'login' => 'required|string', // Peut être email ou téléphone
+    //             'password' => 'required|string|min:6',
+    //             'remember' => 'boolean'
+    //         ], [
+    //             'login.required' => 'L\'email ou le numéro de téléphone est requis.',
+    //             'password.required' => 'Le mot de passe est requis.',
+    //             'password.min' => 'Le mot de passe doit contenir au moins 6 caractères.'
+    //         ]);
+
+    //         if ($validator->fails()) {
+    //             return back()->withErrors($validator)->withInput();
+    //         }
+
+    //         $credentials = $request->only('password');
+    //         $loginField = $request->input('login');
+    //         $remember = $request->boolean('remember');
+
+    //         // Déterminer si c'est un email ou un téléphone
+    //         if (filter_var($loginField, FILTER_VALIDATE_EMAIL)) {
+    //             // C'est un email
+    //             $credentials['email'] = $loginField;
+    //             $user = User::where('email', $loginField)->first();
+    //         } else {
+    //             // C'est un téléphone
+    //             $credentials['telephone_1'] = $loginField;
+    //             $user = User::where('telephone_1', $loginField)->first();
+    //         }
+
+    //         // Vérifier si l'utilisateur existe
+    //         if (!$user) {
+    //             return back()->withErrors([
+    //                 'login' => 'Aucun compte trouvé avec ces identifiants.'
+    //             ])->withInput();
+    //         }
+
+    //         // Vérifier si le compte est actif
+    //         if (!$user->actif) {
+    //             return back()->withErrors([
+    //                 'login' => 'Votre compte est désactivé. Contactez l\'administrateur.'
+    //             ])->withInput();
+    //         }
+
+    //         // Vérifier le mot de passe manuellement
+    //         if (!Hash::check($request->password, $user->password)) {
+    //             return back()->withErrors([
+    //                 'login' => 'Les identifiants fournis ne correspondent pas à nos enregistrements.'
+    //             ])->withInput();
+    //         }
+
+    //         // Connexion manuelle de l'utilisateur
+    //         Auth::login($user, $remember);
+    //         $request->session()->regenerate();
+
+    //         // Rediriger vers le dashboard ou la page prévue
+    //         return redirect()->intended(route('private.dashboard'))->with('success', 'Connexion réussie !');
+
+    //     } catch (\Exception $e) {
+    //         return back()->withErrors([
+    //             'login' => 'Une erreur est survenue lors de la connexion. Veuillez réessayer.'
+    //         ])->withInput();
+    //     }
+    // }
+
     public function login(Request $request)
-    {
-        try {
-            // Validation des données
-            $validator = Validator::make($request->all(), [
-                'login' => 'required|string', // Peut être email ou téléphone
-                'password' => 'required|string|min:6',
-                'remember' => 'boolean'
-            ], [
-                'login.required' => 'L\'email ou le numéro de téléphone est requis.',
-                'password.required' => 'Le mot de passe est requis.',
-                'password.min' => 'Le mot de passe doit contenir au moins 6 caractères.'
-            ]);
+{
+    try {
+        // Validation des données
+        $validator = Validator::make($request->all(), [
+            'login' => 'required|string', // Peut être email ou téléphone
+            'password' => 'required|string|min:6',
+            'remember' => 'boolean'
+        ], [
+            'login.required' => 'L\'email ou le numéro de téléphone est requis.',
+            'password.required' => 'Le mot de passe est requis.',
+            'password.min' => 'Le mot de passe doit contenir au moins 6 caractères.'
+        ]);
 
-            if ($validator->fails()) {
-                return back()->withErrors($validator)->withInput();
-            }
+        if ($validator->fails()) {
+            return back()->withErrors($validator)->withInput();
+        }
 
-            $credentials = $request->only('password');
-            $loginField = $request->input('login');
-            $remember = $request->boolean('remember');
+        $credentials = $request->only('password');
+        $loginField = $request->input('login');
 
-            // Déterminer si c'est un email ou un téléphone
-            if (filter_var($loginField, FILTER_VALIDATE_EMAIL)) {
-                // C'est un email
-                $credentials['email'] = $loginField;
-                $user = User::where('email', $loginField)->first();
+        // Normaliser le champ login : supprimer les espaces et convertir en minuscules
+        $normalizedLogin = strtolower(trim(str_replace(' ', '', $loginField)));
+
+        $remember = $request->boolean('remember');
+
+        // Déterminer si c'est un email ou un téléphone
+        if (filter_var($normalizedLogin, FILTER_VALIDATE_EMAIL)) {
+            // C'est un email - rechercher en ignorant la casse et les espaces
+            $credentials['email'] = $normalizedLogin;
+            $user = User::whereRaw("LOWER(REPLACE(email, ' ', '')) = ?", [$normalizedLogin])->first();
+        } else {
+            // C'est un téléphone - nettoyer tous les caractères non numériques (sauf le + initial)
+            $cleanPhone = preg_replace('/[^\d+]/', '', $loginField);
+            // Si le numéro commence par +, on le garde, sinon on supprime tout caractère non numérique
+            if (strpos($loginField, '+') === 0) {
+                $cleanPhone = '+' . preg_replace('/[^\d]/', '', substr($loginField, 1));
             } else {
-                // C'est un téléphone
-                $credentials['telephone_1'] = $loginField;
-                $user = User::where('telephone_1', $loginField)->first();
+                $cleanPhone = preg_replace('/[^\d]/', '', $loginField);
             }
 
-            // Vérifier si l'utilisateur existe
-            if (!$user) {
-                return back()->withErrors([
-                    'login' => 'Aucun compte trouvé avec ces identifiants.'
-                ])->withInput();
-            }
+            $credentials['telephone_1'] = $cleanPhone;
+            // Rechercher en nettoyant aussi le téléphone en base
+            $user = User::whereRaw("REGEXP_REPLACE(telephone_1, '[^0-9+]', '', 'g') = ?", [$cleanPhone])->first();
+        }
 
-            // Vérifier si le compte est actif
-            if (!$user->actif) {
-                return back()->withErrors([
-                    'login' => 'Votre compte est désactivé. Contactez l\'administrateur.'
-                ])->withInput();
-            }
-
-            // Vérifier le mot de passe manuellement
-            if (!Hash::check($request->password, $user->password)) {
-                return back()->withErrors([
-                    'login' => 'Les identifiants fournis ne correspondent pas à nos enregistrements.'
-                ])->withInput();
-            }
-
-            // Connexion manuelle de l'utilisateur
-            Auth::login($user, $remember);
-            $request->session()->regenerate();
-
-            // Rediriger vers le dashboard ou la page prévue
-            return redirect()->intended(route('private.dashboard'))->with('success', 'Connexion réussie !');
-
-        } catch (\Exception $e) {
+        // Vérifier si l'utilisateur existe
+        if (!$user) {
             return back()->withErrors([
-                'login' => 'Une erreur est survenue lors de la connexion. Veuillez réessayer.'
+                'login' => 'Aucun compte trouvé avec ces identifiants.'
             ])->withInput();
         }
+
+        // Vérifier si le compte est actif
+        if (!$user->actif) {
+            return back()->withErrors([
+                'login' => 'Votre compte est désactivé. Contactez l\'administrateur.'
+            ])->withInput();
+        }
+
+        // Vérifier le mot de passe manuellement
+        if (!Hash::check($request->password, $user->password)) {
+            return back()->withErrors([
+                'login' => 'Les identifiants fournis ne correspondent pas à nos enregistrements.'
+            ])->withInput();
+        }
+
+        // Connexion manuelle de l'utilisateur
+        Auth::login($user, $remember);
+        $request->session()->regenerate();
+
+        // Rediriger vers le dashboard ou la page prévue
+        return redirect()->intended(route('private.dashboard'))->with('success', 'Connexion réussie !');
+
+    } catch (\Exception $e) {
+        return back()->withErrors([
+            'login' => 'Une erreur est survenue lors de la connexion. Veuillez réessayer.'
+        ])->withInput();
     }
+}
 
     /**
      * Afficher le formulaire d'inscription
@@ -369,7 +450,7 @@ class AuthenteController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return redirect()->route('security.login')->with('success', 'Vous avez été déconnecté avec succès.');
+        return redirect()->route('public.accueil')->with('success', 'Vous avez été déconnecté avec succès.');
     }
 
     /**

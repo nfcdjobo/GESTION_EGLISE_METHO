@@ -36,7 +36,7 @@
     </div>
 
     <!-- Informations du rôle -->
-    <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
+    <div class="bg-white/80  rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
         <div class="p-6 border-b border-slate-200">
             <h2 class="text-xl font-bold text-slate-800 flex items-center">
                 <i class="fas fa-info-circle text-blue-600 mr-2"></i>
@@ -81,7 +81,7 @@
     </div>
 
     <!-- Actions et filtres -->
-    <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
+    <div class="bg-white/80  rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
         <div class="p-6 border-b border-slate-200">
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <h2 class="text-xl font-bold text-slate-800 flex items-center">
@@ -165,7 +165,7 @@
     </div>
 
     <!-- Résumé des modifications -->
-    <div id="changes-summary" class="hidden bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
+    <div id="changes-summary" class="hidden bg-white/80  rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
         <div class="p-6 border-b border-slate-200">
             <h2 class="text-xl font-bold text-slate-800 flex items-center">
                 <i class="fas fa-chart-line text-amber-600 mr-2"></i>
@@ -191,7 +191,7 @@
     </div>
 
     <!-- Liste des permissions par catégorie -->
-    <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
+    <div class="bg-white/80  rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
         <div class="p-6 border-b border-slate-200">
             <h2 class="text-xl font-bold text-slate-800 flex items-center">
                 <i class="fas fa-key text-indigo-600 mr-2"></i>
@@ -289,7 +289,7 @@
     </div>
 
     <!-- Actions finales -->
-    <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 p-6">
+    <div class="bg-white/80  rounded-2xl shadow-lg border border-white/20 p-6">
         <div class="flex flex-col sm:flex-row gap-4 justify-center">
             <button type="button" onclick="savePermissions()" class="inline-flex items-center justify-center px-8 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white font-medium rounded-xl hover:from-green-700 hover:to-emerald-700 transition-all duration-200 shadow-md hover:shadow-lg">
                 <i class="fas fa-save mr-2"></i> Enregistrer les Permissions
@@ -578,11 +578,13 @@ function copyFromRole() {
         }
     })
     .then(response => response.json())
-    .then(roles => {
+    .then(data => {
         const select = document.getElementById('source_role');
         select.innerHTML = '<option value="">Sélectionnez un rôle...</option>';
 
-        roles.forEach(role => {
+        if(data.success){
+            const roles = data.data;
+            roles.forEach(role => {
             if (role.id !== "{{ $role->id }}") {
                 const option = document.createElement('option');
                 option.value = role.id;
@@ -590,6 +592,9 @@ function copyFromRole() {
                 select.appendChild(option);
             }
         });
+        }
+
+
     });
 
     document.getElementById('copyFromRoleModal').classList.remove('hidden');
@@ -604,7 +609,7 @@ function executeRoleCopy() {
         alert('Veuillez sélectionner un rôle source');
         return;
     }
-alert()
+
     fetch( `{{route('private.roles.permissions', ':roleid')}}`.replace(':roleid', sourceRoleId), {
         headers: {
             'Accept': 'application/json',
@@ -612,18 +617,25 @@ alert()
         }
     })
     .then(response => response.json())
-    .then(permissions => {
+    .then(data => {
         if (replacePermissions) {
             clearAllPermissions();
         }
 
-        permissions.forEach(permission => {
-            const checkbox = document.querySelector(`[value="${permission.id}"]`);
-            if (checkbox) {
-                checkbox.checked = true;
-                updatePermissionState(checkbox);
+        if(data.success){
+            const permissions = data.data;
+
+            for(let key in permissions){
+                permissions[key].forEach(permission => {
+                    const checkbox = document.querySelector(`[value="${permission.id}"]`);
+                    if (checkbox) {
+                        checkbox.checked = true;
+                        updatePermissionState(checkbox);
+                    }
+                });
             }
-        });
+
+        }
 
         closeCopyRoleModal();
     });

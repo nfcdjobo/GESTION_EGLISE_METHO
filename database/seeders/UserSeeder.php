@@ -37,7 +37,7 @@ class UserSeeder extends Seeder
                 'statut_membre' => 'actif',
                 'statut_bapteme' => 'confirme',
                 'date_bapteme' => '2000-01-01',
-                'password' => Hash::make('password'),
+                'password' => Hash::make('Metho-bv-2025'),
                 'actif' => true,
                 'notes_admin' => 'Super administrateur du système - Accès complet',
                 'dons_spirituels' => 'Administration, Leadership',
@@ -85,7 +85,7 @@ class UserSeeder extends Seeder
                 'contact_urgence_relation' => 'Épouse',
                 'temoignage' => 'Appelé au ministère pastoral en 1994, converti depuis l\'adolescence.',
                 'dons_spirituels' => 'Prédication, Enseignement, Leadership pastoral, Conseil spirituel',
-                'password' => Hash::make('password'),
+                'password' => Hash::make('Metho-bv-2025'),
                 'actif' => true,
                 'notes_admin' => 'Pasteur principal - Responsabilité pastorale complète',
             ]
@@ -127,7 +127,7 @@ class UserSeeder extends Seeder
                 'contact_urgence_telephone' => '+225 07 09 10 11 12',
                 'contact_urgence_relation' => 'Époux',
                 'dons_spirituels' => 'Administration, Organisation, Accueil',
-                'password' => Hash::make('password'),
+                'password' => Hash::make('Metho-bv-2025'),
                 'actif' => true,
                 'notes_admin' => 'Secrétaire générale - Gestion administrative',
             ]
@@ -169,7 +169,7 @@ class UserSeeder extends Seeder
                 'contact_urgence_telephone' => '+225 07 13 14 15 16',
                 'contact_urgence_relation' => 'Épouse',
                 'dons_spirituels' => 'Administration financière, Intendance',
-                'password' => Hash::make('password'),
+                'password' => Hash::make('Metho-bv-2025'),
                 'actif' => true,
                 'notes_admin' => 'Trésorier - Gestion financière de l\'église',
             ]
@@ -244,7 +244,7 @@ class UserSeeder extends Seeder
                     'contact_urgence_telephone' => $enseignantData['telephone_urgence'],
                     'contact_urgence_relation' => $index % 2 === 0 ? 'Parent' : 'Conjoint(e)',
                     'dons_spirituels' => 'Enseignement, Patience avec les ' . strtolower($enseignantData['age_groupe']),
-                    'password' => Hash::make('password'),
+                    'password' => Hash::make('Metho-bv-2025'),
                     'actif' => true,
                     'notes_admin' => 'Enseignant(e) - ' . $enseignantData['specialite'] . ' (' . $enseignantData['age_groupe'] . ')',
                 ]
@@ -315,7 +315,7 @@ class UserSeeder extends Seeder
                     'statut_membre' => $membreData['statut'],
                     'statut_bapteme' => $membreData['statut'] === 'visiteur' ? 'non_baptise' : ($membreData['statut'] === 'nouveau_converti' ? 'baptise' : 'confirme'),
                     'date_bapteme' => $membreData['statut'] !== 'visiteur' && $membreData['statut'] !== 'nouveau_converti' ? '202' . ($index + 1) . '-02-20' : null,
-                    'password' => Hash::make('password'),
+                    'password' => Hash::make('Metho-bv-2025'),
                     'actif' => true,
                     'notes_admin' => 'Membre - Statut: ' . $membreData['statut'],
                 ]

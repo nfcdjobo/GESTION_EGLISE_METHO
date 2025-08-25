@@ -2,7 +2,7 @@
 @section('title', 'Tableau de bord')
 @section('content')
 
-<div class="w-full">
+<div class="space-y-8">
     <!-- Page Header -->
     <div class="mb-8">
         <div class="bg-white rounded-xl shadow-lg p-6 border border-slate-200">

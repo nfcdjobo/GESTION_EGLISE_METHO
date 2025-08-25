@@ -28,7 +28,7 @@
         <!-- Formulaire de recherche -->
         <div class="lg:col-span-3 space-y-6">
             <!-- Recherche textuelle -->
-            <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
+            <div class="bg-white/80 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
                 <div class="p-6 border-b border-slate-200">
                     <h2 class="text-xl font-bold text-slate-800 flex items-center">
                         <i class="fas fa-search text-blue-600 mr-2"></i>
@@ -71,7 +71,7 @@
             </div>
 
             <!-- Filtres par catégorie -->
-            <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
+            <div class="bg-white/80 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
                 <div class="p-6 border-b border-slate-200">
                     <h2 class="text-xl font-bold text-slate-800 flex items-center">
                         <i class="fas fa-filter text-green-600 mr-2"></i>
@@ -133,7 +133,7 @@
             </div>
 
             <!-- Recherche géographique -->
-            <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
+            <div class="bg-white/80 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
                 <div class="p-6 border-b border-slate-200">
                     <h2 class="text-xl font-bold text-slate-800 flex items-center">
                         <i class="fas fa-map-marker-alt text-red-600 mr-2"></i>
@@ -217,7 +217,7 @@
             </div>
 
             <!-- Critères avancés -->
-            <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
+            <div class="bg-white/80 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
                 <div class="p-6 border-b border-slate-200">
                     <h2 class="text-xl font-bold text-slate-800 flex items-center">
                         <i class="fas fa-cogs text-purple-600 mr-2"></i>
@@ -268,7 +268,7 @@
             </div>
 
             <!-- Boutons d'action -->
-            <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20">
+            <div class="bg-white/80 rounded-2xl shadow-lg border border-white/20">
                 <div class="p-6">
                     <div class="flex flex-col sm:flex-row gap-4 justify-center">
                         <button type="button" onclick="executeSearch()" class="inline-flex items-center justify-center px-8 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-medium rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-200 shadow-md hover:shadow-lg">
@@ -288,7 +288,7 @@
         <!-- Colonne de droite -->
         <div class="space-y-6">
             <!-- Recherches sauvegardées -->
-            <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
+            <div class="bg-white/80 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
                 <div class="p-6 border-b border-slate-200">
                     <h3 class="text-xl font-bold text-slate-800 flex items-center">
                         <i class="fas fa-bookmark text-amber-600 mr-2"></i>
@@ -337,7 +337,7 @@
             </div>
 
             <!-- Résultats en temps réel -->
-            <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
+            <div class="bg-white/80 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
                 <div class="p-6 border-b border-slate-200">
                     <h3 class="text-xl font-bold text-slate-800 flex items-center">
                         <i class="fas fa-chart-bar text-green-600 mr-2"></i>
@@ -356,7 +356,7 @@
             </div>
 
             <!-- Statistiques de recherche -->
-            <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
+            <div class="bg-white/80 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
                 <div class="p-6 border-b border-slate-200">
                     <h3 class="text-xl font-bold text-slate-800 flex items-center">
                         <i class="fas fa-info-circle text-blue-600 mr-2"></i>
@@ -388,7 +388,7 @@
             </div>
 
             <!-- Aide -->
-            <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
+            <div class="bg-white/80 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
                 <div class="p-6 border-b border-slate-200">
                     <h3 class="text-xl font-bold text-slate-800 flex items-center">
                         <i class="fas fa-question-circle text-slate-600 mr-2"></i>

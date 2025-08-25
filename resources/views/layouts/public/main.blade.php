@@ -8,6 +8,7 @@
     <title>@yield('title', isset($appAcronym) ? $appAcronym : "Église Méthodiste Unie - Côte d'Ivoire")</title>
     <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="icon" href="https://www.cevaa.org/la-communaute/fiches-deglises/afrique-occidentale-centrafrique/logo-emci.png/image_preview" type="image/png" />
     <style>
         * {
             margin: 0;
@@ -160,7 +161,7 @@
         /* Hero Section */
         .hero {
             background: linear-gradient(rgba(45, 90, 45, 0.5), rgba(74, 124, 89, 0.5)),
-                url('./hero.png');
+                url('https://www.yeclo.com/wp-content/uploads/2021/02/featured_aip_214907.jpg');
             background-repeat: no-repeat;
             background-size: cover;
             height: 100vh;

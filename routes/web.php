@@ -38,6 +38,11 @@ require __DIR__.'/private/web/classes.php';
 require __DIR__.'/private/web/contacts.php';
 require __DIR__.'/private/web/auditlog.php';
 require __DIR__.'/private/web/programmes.php';
+require __DIR__.'/private/web/cultes.php';
+require __DIR__.'/private/web/participantcultes.php';
+require __DIR__.'/private/web/events.php';
+require __DIR__.'/private/web/fonds.php';
+require __DIR__.'/private/web/projets.php';
 require __DIR__.'/auth/index.php';
 
 Route::get('/', function () {

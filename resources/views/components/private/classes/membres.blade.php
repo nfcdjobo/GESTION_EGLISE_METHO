@@ -67,7 +67,7 @@
     </div>
 
     <!-- Informations de la classe -->
-    <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
+    <div class="bg-white/80 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
         <div class="p-6">
             <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
                 <div class="text-center p-4 bg-blue-50 rounded-xl">
@@ -91,7 +91,7 @@
     </div>
 
     <!-- Filtres et recherche -->
-    <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
+    <div class="bg-white/80 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
         <div class="p-6 border-b border-slate-200">
             <h2 class="text-xl font-bold text-slate-800 flex items-center">
                 <i class="fas fa-filter text-blue-600 mr-2"></i>
@@ -138,7 +138,7 @@
     </div>
 
     <!-- Liste des membres -->
-    <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
+    <div class="bg-white/80 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
         <div class="p-6 border-b border-slate-200">
             <div class="flex items-center justify-between">
                 <h2 class="text-xl font-bold text-slate-800 flex items-center">

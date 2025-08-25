@@ -41,7 +41,7 @@
 
     <!-- Statistiques globales -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg p-6 border border-white/20 hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+        <div class="bg-white/80 rounded-2xl shadow-lg p-6 border border-white/20 hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
             <div class="flex items-center">
                 <div class="flex-shrink-0">
                     <div class="w-12 h-12 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-xl flex items-center justify-center shadow-lg">
@@ -59,7 +59,7 @@
             </div>
         </div>
 
-        <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg p-6 border border-white/20 hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+        <div class="bg-white/80 rounded-2xl shadow-lg p-6 border border-white/20 hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
             <div class="flex items-center">
                 <div class="flex-shrink-0">
                     <div class="w-12 h-12 bg-gradient-to-r from-green-500 to-emerald-500 rounded-xl flex items-center justify-center shadow-lg">
@@ -76,7 +76,7 @@
             </div>
         </div>
 
-        <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg p-6 border border-white/20 hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+        <div class="bg-white/80 rounded-2xl shadow-lg p-6 border border-white/20 hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
             <div class="flex items-center">
                 <div class="flex-shrink-0">
                     <div class="w-12 h-12 bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl flex items-center justify-center shadow-lg">
@@ -94,7 +94,7 @@
             </div>
         </div>
 
-        <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg p-6 border border-white/20 hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+        <div class="bg-white/80 rounded-2xl shadow-lg p-6 border border-white/20 hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
             <div class="flex items-center">
                 <div class="flex-shrink-0">
                     <div class="w-12 h-12 bg-gradient-to-r from-yellow-500 to-orange-500 rounded-xl flex items-center justify-center shadow-lg">
@@ -114,7 +114,7 @@
 
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <!-- Répartition par tranche d'âge -->
-        <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
+        <div class="bg-white/80 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
             <div class="p-6 border-b border-slate-200">
                 <h3 class="text-xl font-bold text-slate-800 flex items-center">
                     <i class="fas fa-child text-green-600 mr-2"></i>
@@ -167,7 +167,7 @@
         </div>
 
         <!-- Classes par statut -->
-        <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
+        <div class="bg-white/80 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
             <div class="p-6 border-b border-slate-200">
                 <h3 class="text-xl font-bold text-slate-800 flex items-center">
                     <i class="fas fa-chart-pie text-blue-600 mr-2"></i>
@@ -202,7 +202,7 @@
     <!-- Graphiques détaillés -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <!-- Évolution des inscriptions -->
-        <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
+        <div class="bg-white/80 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
             <div class="p-6 border-b border-slate-200">
                 <h3 class="text-xl font-bold text-slate-800 flex items-center">
                     <i class="fas fa-line-chart text-purple-600 mr-2"></i>
@@ -220,7 +220,7 @@
         </div>
 
         <!-- Taux de remplissage -->
-        <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
+        <div class="bg-white/80 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
             <div class="p-6 border-b border-slate-200">
                 <h3 class="text-xl font-bold text-slate-800 flex items-center">
                     <i class="fas fa-chart-bar text-amber-600 mr-2"></i>
@@ -256,7 +256,7 @@
     <!-- Analyses détaillées -->
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <!-- Top 5 des classes les plus actives -->
-        <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
+        <div class="bg-white/80 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
             <div class="p-6 border-b border-slate-200">
                 <h3 class="text-xl font-bold text-slate-800 flex items-center">
                     <i class="fas fa-trophy text-yellow-600 mr-2"></i>
@@ -290,7 +290,7 @@
         </div>
 
         <!-- Responsables les plus actifs -->
-        <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
+        <div class="bg-white/80 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
             <div class="p-6 border-b border-slate-200">
                 <h3 class="text-xl font-bold text-slate-800 flex items-center">
                     <i class="fas fa-star text-amber-600 mr-2"></i>
@@ -326,7 +326,7 @@
         </div>
 
         <!-- Statistiques rapides -->
-        <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
+        <div class="bg-white/80 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
             <div class="p-6 border-b border-slate-200">
                 <h3 class="text-xl font-bold text-slate-800 flex items-center">
                     <i class="fas fa-bolt text-yellow-600 mr-2"></i>
@@ -378,7 +378,7 @@
     </div>
 
     <!-- Actions et recommandations -->
-    <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
+    <div class="bg-white/80 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
         <div class="p-6 border-b border-slate-200">
             <h3 class="text-xl font-bold text-slate-800 flex items-center">
                 <i class="fas fa-lightbulb text-amber-600 mr-2"></i>

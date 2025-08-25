@@ -25,7 +25,7 @@
     </div>
 
     <!-- Actions et filtres -->
-    <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
+    <div class="bg-white/80  rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
         <div class="p-6 border-b border-slate-200">
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <h2 class="text-xl font-bold text-slate-800 flex items-center">
@@ -80,7 +80,7 @@
     </div>
 
     <!-- Statistiques générales -->
-    <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
+    <div class="bg-white/80  rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
         <div class="p-6 border-b border-slate-200">
             <h2 class="text-xl font-bold text-slate-800 flex items-center">
                 <i class="fas fa-chart-bar text-amber-600 mr-2"></i>
@@ -159,7 +159,7 @@
                 elseif (strpos($levelName, '10-19') !== false) $levelRange = '10-19';
                 else $levelRange = '0-9';
             @endphp
-            <div class="level-section bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300" data-level-range="{{ $levelRange }}">
+            <div class="level-section bg-white/80  rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300" data-level-range="{{ $levelRange }}">
                 <div class="p-6 border-b border-slate-200">
                     <div class="flex items-center justify-between">
                         <div class="flex items-center space-x-3">
@@ -332,7 +332,7 @@
 
     <!-- Vue graphique -->
     <div id="graph-view" class="hidden">
-        <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
+        <div class="bg-white/80  rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
             <div class="p-6 border-b border-slate-200">
                 <h2 class="text-xl font-bold text-slate-800 flex items-center">
                     <i class="fas fa-project-diagram text-indigo-600 mr-2"></i>
@@ -351,7 +351,7 @@
     </div>
 
     <!-- Guide des niveaux -->
-    <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
+    <div class="bg-white/80  rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
         <div class="p-6 border-b border-slate-200">
             <h2 class="text-xl font-bold text-slate-800 flex items-center">
                 <i class="fas fa-layer-group text-green-600 mr-2"></i>

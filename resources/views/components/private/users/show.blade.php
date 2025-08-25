@@ -11,7 +11,7 @@
         </div>
 
         <!-- En-tête du profil -->
-        <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 overflow-hidden">
+        <div class="bg-white/80 rounded-2xl shadow-xl border border-white/20 overflow-hidden">
             <div class="bg-gradient-to-r from-indigo-500 to-purple-600 px-6 py-8">
                 <div class="flex items-center justify-between">
                     <div class="flex items-center space-x-6">
@@ -49,7 +49,7 @@
                         </div>
                     </div>
                     <div class="flex space-x-3">
-                        <a href="{{ route('private.users.index') }}" class="inline-flex items-center px-4 py-2.5 bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl font-medium text-white hover:bg-white/20 transition-all duration-200">
+                        <a href="{{ route('private.users.index') }}" class="inline-flex items-center px-4 py-2.5 bg-white/10border border-white/20 rounded-xl font-medium text-white hover:bg-white/20 transition-all duration-200">
                             <i class="fas fa-arrow-left mr-2"></i>Retour
                         </a>
                         @can('users.update')
@@ -107,7 +107,7 @@
             <!-- Colonne principale -->
             <div class="lg:col-span-2 space-y-8">
                 <!-- Informations personnelles -->
-                <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
+                <div class="bg-white/80 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
                     <div class="p-6 border-b border-slate-200">
                         <h3 class="text-lg font-bold text-slate-800 flex items-center">
                             <div class="w-10 h-10 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-xl flex items-center justify-center mr-3 shadow-lg">
@@ -159,7 +159,7 @@
                 </div>
 
                 <!-- Contact -->
-                <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
+                <div class="bg-white/80 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
                     <div class="p-6 border-b border-slate-200">
                         <h3 class="text-lg font-bold text-slate-800 flex items-center">
                             <div class="w-10 h-10 bg-gradient-to-r from-green-500 to-emerald-500 rounded-xl flex items-center justify-center mr-3 shadow-lg">
@@ -204,7 +204,7 @@
                 </div>
 
                 <!-- Adresse -->
-                <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
+                <div class="bg-white/80 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
                     <div class="p-6 border-b border-slate-200">
                         <h3 class="text-lg font-bold text-slate-800 flex items-center">
                             <div class="w-10 h-10 bg-gradient-to-r from-red-500 to-pink-500 rounded-xl flex items-center justify-center mr-3 shadow-lg">
@@ -237,7 +237,7 @@
 
                 <!-- Informations professionnelles -->
                 @if($user->profession || $user->employeur)
-                <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
+                <div class="bg-white/80 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
                     <div class="p-6 border-b border-slate-200">
                         <h3 class="text-lg font-bold text-slate-800 flex items-center">
                             <div class="w-10 h-10 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-xl flex items-center justify-center mr-3 shadow-lg">
@@ -267,7 +267,7 @@
 
                 <!-- Contact d'urgence -->
                 @if($user->contact_urgence_nom || $user->contact_urgence_telephone)
-                <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
+                <div class="bg-white/80 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
                     <div class="p-6 border-b border-slate-200">
                         <h3 class="text-lg font-bold text-slate-800 flex items-center">
                             <div class="w-10 h-10 bg-gradient-to-r from-orange-500 to-red-500 rounded-xl flex items-center justify-center mr-3 shadow-lg">
@@ -310,7 +310,7 @@
             <!-- Colonne latérale -->
             <div class="space-y-8">
                 <!-- Informations d'église -->
-                <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
+                <div class="bg-white/80 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
                     <div class="p-6 border-b border-slate-200">
                         <h3 class="text-lg font-bold text-slate-800 flex items-center">
                             <div class="w-10 h-10 bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl flex items-center justify-center mr-3 shadow-lg">
@@ -378,7 +378,7 @@
                 </div>
 
                 <!-- Rôles et permissions -->
-                <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
+                <div class="bg-white/80 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
                     <div class="p-6 border-b border-slate-200">
                         <h3 class="text-lg font-bold text-slate-800 flex items-center">
                             <div class="w-10 h-10 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-xl flex items-center justify-center mr-3 shadow-lg">
@@ -430,7 +430,7 @@
                 </div>
 
                 <!-- Actions rapides -->
-                <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
+                <div class="bg-white/80 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
                     <div class="p-6 border-b border-slate-200">
                         <h3 class="text-lg font-bold text-slate-800">Actions rapides</h3>
                     </div>
@@ -474,7 +474,7 @@
 
                 <!-- Activité récente -->
                 @if($recentActivity->count() > 0)
-                <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
+                <div class="bg-white/80 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
                     <div class="p-6 border-b border-slate-200">
                         <h3 class="text-lg font-bold text-slate-800 flex items-center">
                             <div class="w-10 h-10 bg-gradient-to-r from-yellow-500 to-orange-500 rounded-xl flex items-center justify-center mr-3 shadow-lg">

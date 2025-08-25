@@ -25,7 +25,7 @@
     </div>
 
     <!-- Filtres et contrôles -->
-    <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
+    <div class="bg-white/80 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
         <div class="p-6 border-b border-slate-200">
             <h2 class="text-xl font-bold text-slate-800 flex items-center">
                 <i class="fas fa-filter text-blue-600 mr-2"></i>
@@ -93,7 +93,7 @@
 
     <!-- Statistiques rapides de la carte -->
     <div class="grid grid-cols-1 sm:grid-cols-4 gap-4">
-        <div class="bg-white/80 backdrop-blur-sm rounded-xl shadow-lg p-4 border border-white/20">
+        <div class="bg-white/80 rounded-xl shadow-lg p-4 border border-white/20">
             <div class="flex items-center">
                 <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center mr-3">
                     <i class="fas fa-map-marker-alt text-blue-600"></i>
@@ -105,7 +105,7 @@
             </div>
         </div>
 
-        <div class="bg-white/80 backdrop-blur-sm rounded-xl shadow-lg p-4 border border-white/20">
+        <div class="bg-white/80 rounded-xl shadow-lg p-4 border border-white/20">
             <div class="flex items-center">
                 <div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center mr-3">
                     <i class="fas fa-check-circle text-green-600"></i>
@@ -117,7 +117,7 @@
             </div>
         </div>
 
-        <div class="bg-white/80 backdrop-blur-sm rounded-xl shadow-lg p-4 border border-white/20">
+        <div class="bg-white/80 rounded-xl shadow-lg p-4 border border-white/20">
             <div class="flex items-center">
                 <div class="w-8 h-8 bg-amber-100 rounded-lg flex items-center justify-center mr-3">
                     <i class="fas fa-clock text-amber-600"></i>
@@ -129,7 +129,7 @@
             </div>
         </div>
 
-        <div class="bg-white/80 backdrop-blur-sm rounded-xl shadow-lg p-4 border border-white/20">
+        <div class="bg-white/80 rounded-xl shadow-lg p-4 border border-white/20">
             <div class="flex items-center">
                 <div class="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center mr-3">
                     <i class="fas fa-eye text-purple-600"></i>
@@ -143,7 +143,7 @@
     </div>
 
     <!-- Carte -->
-    <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
+    <div class="bg-white/80 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
         <div class="p-6 border-b border-slate-200">
             <div class="flex items-center justify-between">
                 <h2 class="text-xl font-bold text-slate-800 flex items-center">
@@ -236,7 +236,7 @@
     </div>
 
     <!-- Liste des contacts visibles -->
-    <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
+    <div class="bg-white/80 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
         <div class="p-6 border-b border-slate-200">
             <h2 class="text-xl font-bold text-slate-800 flex items-center">
                 <i class="fas fa-list text-purple-600 mr-2"></i>

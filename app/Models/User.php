@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Hash;
 
 class User extends Authenticatable
 {
-    // use HasFactory, HasUuids, SoftDeletes, Notifiable;
+
     use HasFactory, HasUuids, SoftDeletes, Notifiable, HasPermissions;
 
     /**
@@ -192,6 +192,23 @@ class User extends Authenticatable
     {
         return $this->hasMany(Programme::class, 'responsable_principal_id');
     }
+
+
+
+    /**
+     * Retourne tous les utilisateurs qui possèdent le rôle donné.
+     *
+     * @param string $roleName  Le nom du rôle recherché.
+     * @return \Illuminate\Database\Eloquent\Collection|User[]
+     */
+    public static function withRole(string $roleName)
+    {
+        return static::whereHas('roles', function ($query) use ($roleName) {
+            $query->where('name', $roleName);
+        })->orderBy('nom')->get();
+    }
+
+
 
     /**
      * Scope pour les utilisateurs actifs

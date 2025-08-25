@@ -2,19 +2,24 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use App\Traits\HasCKEditorFields;
 
 class Culte extends Model
 {
-    use HasFactory, HasUuids, SoftDeletes;
+    use HasFactory, SoftDeletes, HasUuids, HasCKEditorFields;
+
+    protected $table = 'cultes';
 
     /**
-     * Les attributs qui peuvent être assignés en masse.
+     * Les attributs assignables en masse
      */
     protected $fillable = [
+        'programme_id',
         'titre',
         'description',
         'date_culte',
@@ -49,10 +54,10 @@ class Culte extends Model
         'nombre_nouveaux',
         'nombre_conversions',
         'nombre_baptemes',
+        'detail_offrandes',
         'offrande_totale',
         'dime_totale',
-        'detail_offrandes',
-        'responsable_finances',
+        'responsable_finances_id',
         'est_enregistre',
         'lien_enregistrement_audio',
         'lien_enregistrement_video',
@@ -75,11 +80,16 @@ class Culte extends Model
         'note_message',
         'note_organisation',
         'cree_par',
-        'modifie_par',
+        'modifie_par'
     ];
 
     /**
-     * Les attributs qui doivent être castés.
+     * Les attributs qui doivent être cachés pour la sérialisation
+     */
+    protected $hidden = [];
+
+    /**
+     * Les attributs qui doivent être castés
      */
     protected $casts = [
         'date_culte' => 'date',
@@ -98,6 +108,12 @@ class Culte extends Model
         'nombre_nouveaux' => 'integer',
         'nombre_conversions' => 'integer',
         'nombre_baptemes' => 'integer',
+        'equipe_culte' => 'array',
+        'versets_cles' => 'array',
+        'ordre_service' => 'array',
+        'cantiques_chantes' => 'array',
+        'detail_offrandes' => 'array',
+        'photos_culte' => 'array',
         'offrande_totale' => 'decimal:2',
         'dime_totale' => 'decimal:2',
         'note_globale' => 'decimal:1',
@@ -108,18 +124,74 @@ class Culte extends Model
         'diffusion_en_ligne' => 'boolean',
         'est_public' => 'boolean',
         'necessite_invitation' => 'boolean',
-        'equipe_culte' => 'array',
-        'versets_cles' => 'array',
-        'ordre_service' => 'array',
-        'cantiques_chantes' => 'array',
-        'detail_offrandes' => 'array',
-        'photos_culte' => 'array',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
+        'deleted_at' => 'datetime',
     ];
+
+    /**
+     * Constantes pour les énumérations
+     */
+    const TYPE_CULTE = [
+        'dimanche_matin' => 'Dimanche Matin',
+        'dimanche_soir' => 'Dimanche Soir',
+        'mercredi' => 'Mercredi',
+        'vendredi' => 'Vendredi',
+        'samedi_jeunes' => 'Samedi Jeunes',
+        'special' => 'Spécial',
+        'conference' => 'Conférence',
+        'seminaire' => 'Séminaire',
+        'retraite' => 'Retraite',
+        'mariage' => 'Mariage',
+        'funerailles' => 'Funérailles',
+        'bapteme' => 'Baptême',
+        'communion' => 'Communion',
+        'noel' => 'Noël',
+        'paques' => 'Pâques',
+        'nouvel_an' => 'Nouvel An'
+    ];
+
+    const CATEGORIE = [
+        'regulier' => 'Régulier',
+        'special' => 'Spécial',
+        'ceremonial' => 'Cérémonial',
+        'formation' => 'Formation',
+        'evangelisation' => 'Évangélisation'
+    ];
+
+    const STATUT = [
+        'planifie' => 'Planifié',
+        'en_preparation' => 'En Préparation',
+        'en_cours' => 'En Cours',
+        'termine' => 'Terminé',
+        'annule' => 'Annulé',
+        'reporte' => 'Reporté'
+    ];
+
+    const ATMOSPHERE = [
+        'excellent' => 'Excellent',
+        'tres_bon' => 'Très Bon',
+        'bon' => 'Bon',
+        'moyen' => 'Moyen',
+        'difficile' => 'Difficile'
+    ];
+
+    /**
+     * Relations
+     */
+
+    /**
+     * Relation avec le programme
+     */
+    public function programme(): BelongsTo
+    {
+        return $this->belongsTo(Programme::class, 'programme_id');
+    }
 
     /**
      * Relation avec le pasteur principal
      */
-    public function pasteurPrincipal()
+    public function pasteurPrincipal(): BelongsTo
     {
         return $this->belongsTo(User::class, 'pasteur_principal_id');
     }
@@ -127,7 +199,7 @@ class Culte extends Model
     /**
      * Relation avec le prédicateur
      */
-    public function predicateur()
+    public function predicateur(): BelongsTo
     {
         return $this->belongsTo(User::class, 'predicateur_id');
     }
@@ -135,7 +207,7 @@ class Culte extends Model
     /**
      * Relation avec le responsable du culte
      */
-    public function responsableCulte()
+    public function responsableCulte(): BelongsTo
     {
         return $this->belongsTo(User::class, 'responsable_culte_id');
     }
@@ -143,41 +215,138 @@ class Culte extends Model
     /**
      * Relation avec le dirigeant de louange
      */
-    public function dirigeantLouange()
+    public function dirigeantLouange(): BelongsTo
     {
         return $this->belongsTo(User::class, 'dirigeant_louange_id');
     }
 
     /**
-     * Relation avec les transactions spirituelles
+     * Relation avec le responsable des finances
      */
-    public function transactionsSpirituelless()
+    public function responsableFinances(): BelongsTo
     {
-        return $this->hasMany(TransactionSpirituelle::class, 'culte_id');
+        return $this->belongsTo(User::class, 'responsable_finances_id');
     }
 
     /**
-     * Relation avec les interventions
+     * Relation avec l'utilisateur créateur
      */
-    public function interventions()
-    {
-        return $this->hasMany(Intervention::class, 'culte_id');
-    }
-
-    /**
-     * Utilisateur qui a créé le culte
-     */
-    public function createur()
+    public function createur(): BelongsTo
     {
         return $this->belongsTo(User::class, 'cree_par');
     }
 
     /**
-     * Dernier utilisateur qui a modifié le culte
+     * Relation avec l'utilisateur modificateur
      */
-    public function modificateur()
+    public function modificateur(): BelongsTo
     {
         return $this->belongsTo(User::class, 'modifie_par');
+    }
+
+    /**
+     * Mutateurs
+     */
+
+    /**
+     * Mutateur pour le titre (nettoyer les espaces)
+     */
+    public function setTitreAttribute($value)
+    {
+        $this->attributes['titre'] = trim($value);
+    }
+
+    /**
+     * Mutateur pour automatiquement définir modifie_par
+     */
+    public function setModifieParAttribute($value)
+    {
+        $this->attributes['modifie_par'] = $value ?? auth()->id();
+    }
+
+    /**
+     * Accesseurs
+     */
+
+    /**
+     * Accesseur pour le libellé du type de culte
+     */
+    public function getTypeCulteLibelleAttribute(): string
+    {
+        return self::TYPE_CULTE[$this->type_culte] ?? $this->type_culte;
+    }
+
+    /**
+     * Accesseur pour le libellé de la catégorie
+     */
+    public function getCategorieLibelleAttribute(): string
+    {
+        return self::CATEGORIE[$this->categorie] ?? $this->categorie;
+    }
+
+    /**
+     * Accesseur pour le libellé du statut
+     */
+    public function getStatutLibelleAttribute(): string
+    {
+        return self::STATUT[$this->statut] ?? $this->statut;
+    }
+
+    /**
+     * Accesseur pour le libellé de l'atmosphère
+     */
+    public function getAtmosphereLibelleAttribute(): ?string
+    {
+        return $this->atmosphere ? (self::ATMOSPHERE[$this->atmosphere] ?? $this->atmosphere) : null;
+    }
+
+    /**
+     * Calculer la durée totale du culte
+     */
+    public function getDureeTotaleAttribute(): ?string
+    {
+        if ($this->heure_debut_reelle && $this->heure_fin_reelle) {
+            $debut = \Carbon\Carbon::parse($this->heure_debut_reelle);
+            $fin = \Carbon\Carbon::parse($this->heure_fin_reelle);
+            return $debut->diff($fin)->format('%H:%I:%S');
+        }
+
+        if ($this->heure_debut && $this->heure_fin) {
+            $debut = \Carbon\Carbon::parse($this->heure_debut);
+            $fin = \Carbon\Carbon::parse($this->heure_fin);
+            return $debut->diff($fin)->format('%H:%I:%S');
+        }
+
+        return null;
+    }
+
+    /**
+     * Vérifier si le culte est terminé
+     */
+    public function getIsTermineAttribute(): bool
+    {
+        return $this->statut === 'termine';
+    }
+
+    /**
+     * Vérifier si le culte est à venir
+     */
+    public function getIsAVenirAttribute(): bool
+    {
+        return in_array($this->statut, ['planifie', 'en_preparation']) &&
+               $this->date_culte >= now()->toDateString();
+    }
+
+    /**
+     * Scopes
+     */
+
+    /**
+     * Scope pour les cultes publics
+     */
+    public function scopePublic($query)
+    {
+        return $query->where('est_public', true);
     }
 
     /**
@@ -186,7 +355,7 @@ class Culte extends Model
     public function scopeAVenir($query)
     {
         return $query->where('date_culte', '>=', now()->toDateString())
-                     ->whereIn('statut', ['planifie', 'planifie']);
+                    ->whereIn('statut', ['planifie', 'en_preparation']);
     }
 
     /**
@@ -195,14 +364,6 @@ class Culte extends Model
     public function scopeTermines($query)
     {
         return $query->where('statut', 'termine');
-    }
-
-    /**
-     * Scope pour les cultes publics
-     */
-    public function scopePublics($query)
-    {
-        return $query->where('est_public', true);
     }
 
     /**
@@ -222,72 +383,108 @@ class Culte extends Model
     }
 
     /**
-     * Scope pour les cultes du dimanche
+     * Scope pour filtrer par période
      */
-    public function scopeDimanche($query)
+    public function scopeParPeriode($query, $dateDebut, $dateFin)
     {
-        return $query->whereIn('type_culte', ['dimanche_matin', 'dimanche_soir']);
+        return $query->whereBetween('date_culte', [$dateDebut, $dateFin]);
     }
 
     /**
-     * Accesseur pour la durée totale du culte
+     * Boot du modèle
      */
-    public function getDureeTotaleAttribute()
+    protected static function boot()
     {
-        if ($this->heure_debut_reelle && $this->heure_fin_reelle) {
-            return $this->heure_debut_reelle->diffInMinutes($this->heure_fin_reelle);
+        parent::boot();
+
+        // Automatiquement définir cree_par lors de la création
+        static::creating(function ($model) {
+            if (!$model->cree_par) {
+                $model->cree_par = auth()->id();
+            }
+        });
+
+        // Automatiquement définir modifie_par lors de la mise à jour
+        static::updating(function ($model) {
+            $model->modifie_par = auth()->id();
+        });
+    }
+
+
+
+    // Nouveaux accessors pour CKEditor
+    public function getDescriptionFormattedAttribute()
+    {
+        return $this->getFormattedContent('description');
+    }
+
+    public function getResumeMessageFormattedAttribute()
+    {
+        return $this->getFormattedContent('resume_message');
+    }
+
+    public function getPlanMessageFormattedAttribute()
+    {
+        return $this->getFormattedContent('plan_message');
+    }
+
+    public function getNotesFormattedAttribute()
+    {
+        return [
+            'pasteur' => $this->getFormattedContent('notes_pasteur'),
+            'organisateur' => $this->getFormattedContent('notes_organisateur')
+        ];
+    }
+
+    public function getPointsFormattedAttribute()
+    {
+        return [
+            'forts' => $this->getFormattedContent('points_forts'),
+            'amelioration' => $this->getFormattedContent('points_amelioration')
+        ];
+    }
+
+    public function getTemoignagesFormattedAttribute()
+    {
+        return $this->getFormattedContent('temoignages');
+    }
+
+    // Méthodes utilitaires
+    public function getMessageWordCount()
+    {
+        return $this->getWordCount('resume_message') + $this->getWordCount('plan_message');
+    }
+
+    public function getMessageReadingTime()
+    {
+        $totalWords = $this->getWordCount('resume_message') + $this->getWordCount('plan_message');
+        return max(1, ceil($totalWords / 200));
+    }
+
+    public function hasRichContent()
+    {
+        foreach ($this->getCKEditorFields() as $field) {
+            $content = $this->getAttribute($field);
+            if (!empty($content) && $content !== strip_tags($content)) {
+                return true;
+            }
         }
-
-        if ($this->heure_debut && $this->heure_fin) {
-            return $this->heure_debut->diffInMinutes($this->heure_fin);
-        }
-
-        return null;
+        return false;
     }
 
-    /**
-     * Accesseur pour le total des offrandes et dîmes
-     */
-    public function getTotalFinancesAttribute()
+    // Scopes
+    public function scopeWithContent($query)
     {
-        return ($this->offrande_totale ?? 0) + ($this->dime_totale ?? 0);
+        return $query->where(function ($q) {
+            foreach ($this->getCKEditorFields() as $field) {
+                $q->orWhereNotNull($field)
+                  ->orWhere($field, '!=', '');
+            }
+        });
     }
 
-    /**
-     * Vérifier si le culte est en cours
-     */
-    public function isEnCours()
+    public function scopeSearchContent($query, $search)
     {
-        return $this->statut === 'en_cours';
-    }
-
-    /**
-     * Vérifier si le culte est terminé
-     */
-    public function isTermine()
-    {
-        return $this->statut === 'termine';
-    }
-
-    /**
-     * Marquer le culte comme commencé
-     */
-    public function commencer()
-    {
-        $this->update([
-            'statut' => 'en_cours',
-            'heure_debut_reelle' => now()->format('H:i'),
-        ]);
-    }
-
-    /**
-     * Marquer le culte comme terminé
-     */
-    public function terminer()
-    {
-        $this->update([
-            'statut' => 'termine',
-            'heure_fin_reelle' => now()->format('H:i'),
-        ]);
+        return $this->scopeSearchInCKEditorFields($query, $search);
     }
 }

@@ -60,7 +60,7 @@
         <!-- Informations principales -->
         <div class="lg:col-span-2 space-y-8">
             <!-- Carte principale -->
-            <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300 overflow-hidden">
+            <div class="bg-white/80 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300 overflow-hidden">
                 <!-- Image de couverture -->
                 <div class="relative h-64 bg-gradient-to-br from-blue-400 to-purple-500">
                     @if($classe->image_classe)
@@ -144,7 +144,7 @@
             </div>
 
             <!-- Responsables -->
-            <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
+            <div class="bg-white/80 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
                 <div class="p-6 border-b border-slate-200">
                     <h3 class="text-xl font-bold text-slate-800 flex items-center">
                         <i class="fas fa-users text-green-600 mr-2"></i>
@@ -211,7 +211,7 @@
             </div>
 
             <!-- Membres de la classe -->
-            <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
+            <div class="bg-white/80 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
                 <div class="p-6 border-b border-slate-200">
                     <div class="flex items-center justify-between">
                         <h3 class="text-xl font-bold text-slate-800 flex items-center">
@@ -295,7 +295,7 @@
 
             <!-- Programme -->
             @if($classe->programme && is_array($classe->programme) && count($classe->programme) > 0)
-                <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
+                <div class="bg-white/80 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
                     <div class="p-6 border-b border-slate-200">
                         <h3 class="text-xl font-bold text-slate-800 flex items-center">
                             <i class="fas fa-book text-amber-600 mr-2"></i>
@@ -333,7 +333,7 @@
         <!-- Sidebar avec statistiques -->
         <div class="space-y-6">
             <!-- Statistiques -->
-            <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
+            <div class="bg-white/80 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
                 <div class="p-6 border-b border-slate-200">
                     <h3 class="text-xl font-bold text-slate-800 flex items-center">
                         <i class="fas fa-chart-pie text-indigo-600 mr-2"></i>
@@ -381,7 +381,7 @@
             </div>
 
             <!-- Actions rapides -->
-            <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
+            <div class="bg-white/80 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
                 <div class="p-6 border-b border-slate-200">
                     <h3 class="text-xl font-bold text-slate-800 flex items-center">
                         <i class="fas fa-lightning-bolt text-yellow-600 mr-2"></i>
@@ -425,7 +425,7 @@
             </div>
 
             <!-- Informations système -->
-            <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
+            <div class="bg-white/80 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
                 <div class="p-6 border-b border-slate-200">
                     <h3 class="text-xl font-bold text-slate-800 flex items-center">
                         <i class="fas fa-info-circle text-slate-600 mr-2"></i>
