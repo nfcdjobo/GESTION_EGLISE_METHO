@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Intervention extends Model
@@ -12,7 +13,7 @@ class Intervention extends Model
     use HasFactory, HasUuids, SoftDeletes;
 
     /**
-     * Les attributs qui peuvent être assignés en masse.
+     * The attributes that are mass assignable.
      */
     protected $fillable = [
         'culte_id',
@@ -21,55 +22,62 @@ class Intervention extends Model
         'titre',
         'type_intervention',
         'heure_debut',
-        'heure_fin',
         'duree_minutes',
         'ordre_passage',
         'description',
         'passage_biblique',
-        'points_cles',
-        'qualite',
-        'commentaires',
-        'notes_responsable',
         'statut',
-        'assignee_par',
-        'assignee_le',
     ];
 
     /**
-     * Les attributs qui doivent être castés.
+     * The attributes that should be cast.
      */
     protected $casts = [
+        'id' => 'string',
+        'culte_id' => 'string',
+        'reunion_id' => 'string',
+        'intervenant_id' => 'string',
         'heure_debut' => 'datetime:H:i',
-        'heure_fin' => 'datetime:H:i',
         'duree_minutes' => 'integer',
         'ordre_passage' => 'integer',
-        'assignee_le' => 'datetime',
+        'type_intervention' => 'string',
+        'statut' => 'string',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
+        'deleted_at' => 'datetime',
     ];
 
     /**
-     * Validation pour s'assurer qu'au moins culte_id ou reunion_id est rempli
+     * Les types d'intervention disponibles
      */
-    protected static function boot()
-    {
-        parent::boot();
+    public const TYPES_INTERVENTION = [
+        'predication' => 'Prédication',
+        'temoignage' => 'Témoignage',
+        'priere' => 'Prière',
+        'louange' => 'Louange',
+        'lecture' => 'Lecture',
+        'annonce' => 'Annonce',
+        'offrande' => 'Offrande',
+        'accueil' => 'Accueil',
+        'benediction' => 'Bénédiction',
+        'presentation' => 'Présentation',
+        'animation' => 'Animation',
+        'autre' => 'Autre'
+    ];
 
-        static::creating(function ($intervention) {
-            if (!$intervention->culte_id && !$intervention->reunion_id) {
-                throw new \InvalidArgumentException('Une intervention doit être associée soit à un culte soit à une réunion');
-            }
-        });
-
-        static::updating(function ($intervention) {
-            if (!$intervention->culte_id && !$intervention->reunion_id) {
-                throw new \InvalidArgumentException('Une intervention doit être associée soit à un culte soit à une réunion');
-            }
-        });
-    }
+    /**
+     * Les statuts disponibles
+     */
+    public const STATUTS = [
+        'prevue' => 'Prévue',
+        'terminee' => 'Terminée',
+        'annulee' => 'Annulée'
+    ];
 
     /**
      * Relation avec le culte
      */
-    public function culte()
+    public function culte(): BelongsTo
     {
         return $this->belongsTo(Culte::class, 'culte_id');
     }
@@ -77,57 +85,33 @@ class Intervention extends Model
     /**
      * Relation avec la réunion
      */
-    public function reunion()
+    public function reunion(): BelongsTo
     {
         return $this->belongsTo(Reunion::class, 'reunion_id');
     }
 
     /**
-     * Relation avec l'intervenant
+     * Relation avec l'intervenant (User)
      */
-    public function intervenant()
+    public function intervenant(): BelongsTo
     {
         return $this->belongsTo(User::class, 'intervenant_id');
     }
 
     /**
-     * Relation avec l'utilisateur qui a assigné l'intervention
+     * Scope pour filtrer par type d'événement
      */
-    public function assignePar()
+    public function scopePourCulte($query, $culteId)
     {
-        return $this->belongsTo(User::class, 'assignee_par');
+        return $query->where('culte_id', $culteId);
     }
 
     /**
-     * Scope pour les interventions prévues
+     * Scope pour filtrer par réunion
      */
-    public function scopePrevues($query)
+    public function scopePourReunion($query, $reunionId)
     {
-        return $query->where('statut', 'prevue');
-    }
-
-    /**
-     * Scope pour les interventions terminées
-     */
-    public function scopeTerminees($query)
-    {
-        return $query->where('statut', 'terminee');
-    }
-
-    /**
-     * Scope pour les interventions en cours
-     */
-    public function scopeEnCours($query)
-    {
-        return $query->where('statut', 'en_cours');
-    }
-
-    /**
-     * Scope pour filtrer par type d'intervention
-     */
-    public function scopeParType($query, $type)
-    {
-        return $query->where('type_intervention', $type);
+        return $query->where('reunion_id', $reunionId);
     }
 
     /**
@@ -139,233 +123,109 @@ class Intervention extends Model
     }
 
     /**
+     * Scope pour filtrer par statut
+     */
+    public function scopeStatut($query, $statut)
+    {
+        return $query->where('statut', $statut);
+    }
+
+    /**
+     * Scope pour filtrer par type d'intervention
+     */
+    public function scopeType($query, $type)
+    {
+        return $query->where('type_intervention', $type);
+    }
+
+    /**
      * Scope pour ordonner par ordre de passage
      */
-    public function scopeParOrdre($query)
+    public function scopeOrdonneesParPassage($query)
     {
-        return $query->orderBy('ordre_passage');
+        return $query->orderBy('ordre_passage')->orderBy('heure_debut');
     }
 
     /**
-     * Scope pour les interventions d'un culte spécifique
+     * Accessor pour obtenir l'heure de fin calculée
      */
-    public function scopePourCulte($query, $culteId)
+    public function getHeureFinAttribute()
     {
-        return $query->where('culte_id', $culteId);
-    }
-
-    /**
-     * Scope pour les interventions d'une réunion spécifique
-     */
-    public function scopePourReunion($query, $reunionId)
-    {
-        return $query->where('reunion_id', $reunionId);
-    }
-
-    /**
-     * Scope pour les prédications
-     */
-    public function scopePredications($query)
-    {
-        return $query->where('type_intervention', 'predication');
-    }
-
-    /**
-     * Scope pour les témoignages
-     */
-    public function scopeTemoignages($query)
-    {
-        return $query->where('type_intervention', 'temoignage');
-    }
-
-    /**
-     * Obtenir l'événement associé (culte ou réunion)
-     */
-    public function getEvenementAttribute()
-    {
-        return $this->culte ?: $this->reunion;
-    }
-
-    /**
-     * Obtenir le type d'événement
-     */
-    public function getTypeEvenementAttribute()
-    {
-        return $this->culte_id ? 'culte' : 'reunion';
-    }
-
-    /**
-     * Obtenir le titre de l'événement
-     */
-    public function getTitreEvenementAttribute()
-    {
-        $evenement = $this->getEvenementAttribute();
-        return $evenement ? $evenement->titre : null;
-    }
-
-    /**
-     * Obtenir la date de l'événement
-     */
-    public function getDateEvenementAttribute()
-    {
-        if ($this->culte) {
-            return $this->culte->date_culte;
-        }
-
-        if ($this->reunion) {
-            return $this->reunion->date_reunion;
-        }
-
-        return null;
-    }
-
-    /**
-     * Calculer la durée de l'intervention
-     */
-    public function calculerDuree()
-    {
-        if ($this->heure_debut && $this->heure_fin) {
-            $duree = $this->heure_debut->diffInMinutes($this->heure_fin);
-            $this->update(['duree_minutes' => $duree]);
-            return $duree;
-        }
-
-        return $this->duree_minutes;
-    }
-
-    /**
-     * Commencer l'intervention
-     */
-    public function commencer()
-    {
-        $this->update([
-            'statut' => 'en_cours',
-            'heure_debut' => now()->format('H:i'),
-        ]);
-    }
-
-    /**
-     * Terminer l'intervention
-     */
-    public function terminer()
-    {
-        $this->update([
-            'statut' => 'terminee',
-            'heure_fin' => now()->format('H:i'),
-        ]);
-
-        $this->calculerDuree();
-    }
-
-    /**
-     * Annuler l'intervention
-     */
-    public function annuler()
-    {
-        $this->update(['statut' => 'annulee']);
-    }
-
-    /**
-     * Vérifier si l'intervention peut être modifiée
-     */
-    public function canBeModified()
-    {
-        return $this->statut === 'prevue';
-    }
-
-    /**
-     * Vérifier si l'intervention peut être supprimée
-     */
-    public function canBeDeleted()
-    {
-        return in_array($this->statut, ['prevue', 'annulee']);
-    }
-
-    /**
-     * Obtenir la prochaine intervention dans l'ordre
-     */
-    public function getSuivanteAttribute()
-    {
-        $query = static::where('ordre_passage', '>', $this->ordre_passage);
-
-        if ($this->culte_id) {
-            $query->where('culte_id', $this->culte_id);
-        } else {
-            $query->where('reunion_id', $this->reunion_id);
-        }
-
-        return $query->orderBy('ordre_passage')->first();
-    }
-
-    /**
-     * Obtenir l'intervention précédente dans l'ordre
-     */
-    public function getPrecedenteAttribute()
-    {
-        $query = static::where('ordre_passage', '<', $this->ordre_passage);
-
-        if ($this->culte_id) {
-            $query->where('culte_id', $this->culte_id);
-        } else {
-            $query->where('reunion_id', $this->reunion_id);
-        }
-
-        return $query->orderBy('ordre_passage', 'desc')->first();
-    }
-
-    /**
-     * Réorganiser l'ordre des interventions
-     */
-    public static function reorganiserOrdre($evenementId, $typeEvenement, $nouvelOrdre)
-    {
-        $interventions = static::when($typeEvenement === 'culte', function($query) use ($evenementId) {
-                return $query->where('culte_id', $evenementId);
-            })
-            ->when($typeEvenement === 'reunion', function($query) use ($evenementId) {
-                return $query->where('reunion_id', $evenementId);
-            })
-            ->orderBy('ordre_passage')
-            ->get();
-
-        foreach ($nouvelOrdre as $index => $interventionId) {
-            $intervention = $interventions->firstWhere('id', $interventionId);
-            if ($intervention) {
-                $intervention->update(['ordre_passage' => $index + 1]);
-            }
-        }
-    }
-
-    /**
-     * Obtenir les statistiques de qualité pour un intervenant
-     */
-    public static function getStatistiquesQualite($intervenantId)
-    {
-        $interventions = static::where('intervenant_id', $intervenantId)
-            ->where('statut', 'terminee')
-            ->whereNotNull('qualite')
-            ->get();
-
-        if ($interventions->isEmpty()) {
+        if (!$this->heure_debut) {
             return null;
         }
 
-        $qualites = $interventions->pluck('qualite');
-        $mapping = [
-            'excellente' => 4,
-            'bonne' => 3,
-            'satisfaisante' => 2,
-            'a_ameliorer' => 1
-        ];
+        return $this->heure_debut->copy()->addMinutes($this->duree_minutes);
+    }
 
-        $notes = $qualites->map(function($qualite) use ($mapping) {
-            return $mapping[$qualite] ?? 0;
+    /**
+     * Accessor pour obtenir le libellé du type d'intervention
+     */
+    public function getTypeInterventionLabelAttribute()
+    {
+        return self::TYPES_INTERVENTION[$this->type_intervention] ?? $this->type_intervention;
+    }
+
+    /**
+     * Accessor pour obtenir le libellé du statut
+     */
+    public function getStatutLabelAttribute()
+    {
+        return self::STATUTS[$this->statut] ?? $this->statut;
+    }
+
+    /**
+     * Mutator pour s'assurer qu'au moins culte_id ou reunion_id est défini
+     */
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::saving(function ($intervention) {
+            if (empty($intervention->culte_id) && empty($intervention->reunion_id)) {
+                throw new \InvalidArgumentException('Une intervention doit être liée soit à un culte, soit à une réunion.');
+            }
         });
+    }
 
-        return [
-            'total_interventions' => $interventions->count(),
-            'note_moyenne' => $notes->avg(),
-            'repartition' => $qualites->countBy(),
-            'derniere_intervention' => $interventions->max('created_at'),
-        ];
+    /**
+     * Méthode pour déterminer le type d'événement parent
+     */
+    public function getEvenementParent()
+    {
+        return $this->culte ?? $this->reunion;
+    }
+
+    /**
+     * Méthode pour obtenir le nom de l'événement parent
+     */
+    public function getNomEvenementParent()
+    {
+        $evenement = $this->getEvenementParent();
+        return $evenement ? $evenement->nom ?? $evenement->titre : null;
+    }
+
+    /**
+     * Méthode pour vérifier si l'intervention est terminée
+     */
+    public function estTerminee(): bool
+    {
+        return $this->statut === 'terminee';
+    }
+
+    /**
+     * Méthode pour vérifier si l'intervention est annulée
+     */
+    public function estAnnulee(): bool
+    {
+        return $this->statut === 'annulee';
+    }
+
+    /**
+     * Méthode pour vérifier si l'intervention est prévue
+     */
+    public function estPrevue(): bool
+    {
+        return $this->statut === 'prevue';
     }
 }

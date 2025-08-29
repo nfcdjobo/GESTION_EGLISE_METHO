@@ -542,7 +542,7 @@ document.getElementById('selectAllSuivi').addEventListener('change', function() 
 
 // Fonctions d'action sur les suivis
 function updateSuivi(suiviId, nouveauStatut) {
-    fetch(`/private/suivi-pastoral/${suiviId}/statut`, {
+    fetch(`/dashboard/suivi-pastoral/${suiviId}/statut`, {
         method: 'PATCH',
         headers: {
             'X-CSRF-TOKEN': '{{ csrf_token() }}',
@@ -574,7 +574,7 @@ function planifierSuivi(suiviId) {
 function ajouterNote(suiviId) {
     const note = prompt('Ajouter une note de suivi:');
     if (note) {
-        fetch(`/private/suivi-pastoral/${suiviId}/note`, {
+        fetch(`/dashboard/suivi-pastoral/${suiviId}/note`, {
             method: 'POST',
             headers: {
                 'X-CSRF-TOKEN': '{{ csrf_token() }}',
@@ -653,7 +653,7 @@ function savePlanification() {
     const form = document.getElementById('planificationForm');
     const formData = new FormData(form);
 
-    fetch('/private/suivi-pastoral/planifier', {
+    fetch('/dashboard/suivi-pastoral/planifier', {
         method: 'POST',
         headers: {
             'X-CSRF-TOKEN': '{{ csrf_token() }}',

@@ -290,4 +290,39 @@ class User extends Authenticatable
     {
         return Hash::check($password, $this->password);
     }
+
+
+
+
+    /**
+     * Relation avec les rapports rédigés par cet utilisateur
+     */
+    public function rapportsRediges()
+    {
+        return $this->hasMany(RapportReunion::class, 'redacteur_id');
+    }
+
+    /**
+     * Relation avec les rapports validés par cet utilisateur
+     */
+    public function rapportsValides()
+    {
+        return $this->hasMany(RapportReunion::class, 'validateur_id');
+    }
+
+    /**
+     * Relation avec les rapports créés par cet utilisateur
+     */
+    public function rapportsCrees()
+    {
+        return $this->hasMany(RapportReunion::class, 'cree_par');
+    }
+
+    /**
+     * Relation avec les rapports modifiés par cet utilisateur
+     */
+    public function rapportsModifies()
+    {
+        return $this->hasMany(RapportReunion::class, 'modifie_par');
+    }
 }

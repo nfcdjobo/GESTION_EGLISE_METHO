@@ -15,7 +15,7 @@ use App\Http\Controllers\Private\Web\ParticipantCulteController;
 |
 */
 
-Route::prefix('private/cultes')->name('private.cultes.')->middleware(['auth', 'verified', 'user.status'])->group(function () {
+Route::prefix('dashboard/cultes')->name('private.cultes.')->middleware(['auth', 'verified', 'user.status'])->group(function () {
 
     Route::get('/', [CulteController::class, 'index'])->name('index');
 

@@ -351,7 +351,7 @@ function updateSort() {
 // Confirmer présence
 function confirmerPresence(participantId, culteId) {
     if (confirm('Confirmer la présence de ce participant ?')) {
-        fetch(`/private/participants-cultes/${participantId}/${culteId}/confirmer`, {
+        fetch(`{{route('private.participantscultes.confirmer-presence', [':participant', ':culte'])}}`.replace(':participant', participantId).replace(':culte', culteId), {
             method: 'PATCH',
             headers: {
                 'X-CSRF-TOKEN': '{{ csrf_token() }}',
@@ -376,7 +376,7 @@ function confirmerPresence(participantId, culteId) {
 // Supprimer participation
 function deleteParticipation(participantId, culteId) {
     if (confirm('Êtes-vous sûr de vouloir supprimer cette participation ?')) {
-        fetch(`/private/participants-cultes/${participantId}/${culteId}`, {
+        fetch(`{{route('private.participantscultes.destroy', [':participant', ':culte'])}}`.replace(':participant', participantId).replace(':culte', culteId), {
             method: 'DELETE',
             headers: {
                 'X-CSRF-TOKEN': '{{ csrf_token() }}',

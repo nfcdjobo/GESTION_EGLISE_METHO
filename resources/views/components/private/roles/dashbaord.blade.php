@@ -655,63 +655,63 @@ new Chart(levelCtx, {
 
 // Mise à jour des graphiques
 function updateCharts() {
-    const period = document.getElementById('chartPeriod').value;
+    // const period = document.getElementById('chartPeriod').value;
 
-    fetch(`{{ route('private.roles.dashboard') }}?period=${period}&ajax=1`, {
-        headers: {
-            'Accept': 'application/json',
-            'X-CSRF-TOKEN': '{{ csrf_token() }}'
-        }
-    })
-    .then(response => response.json())
-    .then(data => {
-        // Mettre à jour les données du graphique d'évolution
-        evolutionChart.data.labels = data.evolution.labels;
-        evolutionChart.data.datasets[0].data = data.evolution.roles;
-        evolutionChart.data.datasets[1].data = data.evolution.users;
-        evolutionChart.data.datasets[2].data = data.evolution.permissions;
-        evolutionChart.update();
-    })
-    .catch(error => {
-        console.error('Erreur lors de la mise à jour:', error);
-    });
+    // fetch(`{..{ route('private.roles.dashboard') }..}?period=${period}&ajax=1`, {
+    //     headers: {
+    //         'Accept': 'application/json',
+    //         'X-CSRF-TOKEN': '{{ csrf_token() }}'
+    //     }
+    // })
+    // .then(response => response.json())
+    // .then(data => {
+    //     // Mettre à jour les données du graphique d'évolution
+    //     evolutionChart.data.labels = data.evolution.labels;
+    //     evolutionChart.data.datasets[0].data = data.evolution.roles;
+    //     evolutionChart.data.datasets[1].data = data.evolution.users;
+    //     evolutionChart.data.datasets[2].data = data.evolution.permissions;
+    //     evolutionChart.update();
+    // })
+    // .catch(error => {
+    //     console.error('Erreur lors de la mise à jour:', error);
+    // });
 }
 
 // Actualisation des alertes
 function refreshAlerts() {
-    fetch('{{ route("private.roles.dashboard") }}?alerts=1', {
-        headers: {
-            'Accept': 'application/json',
-            'X-CSRF-TOKEN': '{{ csrf_token() }}'
-        }
-    })
-    .then(response => response.json())
-    .then(data => {
-        document.querySelector('.alerts-container').innerHTML = data.alerts_html;
-    })
-    .catch(error => {
-        console.error('Erreur lors de l\'actualisation des alertes:', error);
-    });
+    // fetch('{..{ route("private.roles.dashboard") }..}?alerts=1', {
+    //     headers: {
+    //         'Accept': 'application/json',
+    //         'X-CSRF-TOKEN': '{{ csrf_token() }}'
+    //     }
+    // })
+    // .then(response => response.json())
+    // .then(data => {
+    //     document.querySelector('.alerts-container').innerHTML = data.alerts_html;
+    // })
+    // .catch(error => {
+    //     console.error('Erreur lors de l\'actualisation des alertes:', error);
+    // });
 }
 
 // Supprimer une alerte
 function dismissAlert(alertId) {
-    fetch(`/admin/alerts/${alertId}/dismiss`, {
-        method: 'POST',
-        headers: {
-            'X-CSRF-TOKEN': '{{ csrf_token() }}',
-            'Accept': 'application/json'
-        }
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (!data.success) {
-            console.error('Erreur lors de la suppression de l\'alerte');
-        }
-    })
-    .catch(error => {
-        console.error('Erreur:', error);
-    });
+    // fetch(`/admin/alerts/${alertId}/dismiss`, {
+    //     method: 'POST',
+    //     headers: {
+    //         'X-CSRF-TOKEN': '{{ csrf_token() }}',
+    //         'Accept': 'application/json'
+    //     }
+    // })
+    // .then(response => response.json())
+    // .then(data => {
+    //     if (!data.success) {
+    //         console.error('Erreur lors de la suppression de l\'alerte');
+    //     }
+    // })
+    // .catch(error => {
+    //     console.error('Erreur:', error);
+    // });
 }
 
 // Fonctions des raccourcis
@@ -745,25 +745,25 @@ function animateHealthScore() {
 
 // Actualisation automatique des métriques
 function refreshMetrics() {
-    fetch('{{ route("private.roles.dashboard") }}?metrics=1', {
-        headers: {
-            'Accept': 'application/json',
-            'X-CSRF-TOKEN': '{{ csrf_token() }}'
-        }
-    })
-    .then(response => response.json())
-    .then(data => {
-        // Mettre à jour les métriques principales
-        Object.keys(data.metrics).forEach(key => {
-            const element = document.querySelector(`[data-metric="${key}"]`);
-            if (element) {
-                element.textContent = data.metrics[key];
-            }
-        });
-    })
-    .catch(error => {
-        console.error('Erreur lors de l\'actualisation des métriques:', error);
-    });
+    // fetch('{...{ route("private.roles.dashboard") }...}?metrics=1', {
+    //     headers: {
+    //         'Accept': 'application/json',
+    //         'X-CSRF-TOKEN': '{{ csrf_token() }}'
+    //     }
+    // })
+    // .then(response => response.json())
+    // .then(data => {
+    //     // Mettre à jour les métriques principales
+    //     Object.keys(data.metrics).forEach(key => {
+    //         const element = document.querySelector(`[data-metric="${key}"]`);
+    //         if (element) {
+    //             element.textContent = data.metrics[key];
+    //         }
+    //     });
+    // })
+    // .catch(error => {
+    //     console.error('Erreur lors de l\'actualisation des métriques:', error);
+    // });
 }
 
 // Initialisation

@@ -43,102 +43,30 @@ require __DIR__.'/private/web/participantcultes.php';
 require __DIR__.'/private/web/events.php';
 require __DIR__.'/private/web/fonds.php';
 require __DIR__.'/private/web/projets.php';
+
+require __DIR__.'/private/web/typesreunions.php';
+require __DIR__.'/private/web/reunions.php';
+require __DIR__.'/private/web/rapportsreunions.php';
+require __DIR__.'/private/web/annonces.php';
+require __DIR__.'/private/web/interventions.php';
+require __DIR__.'/private/web/multimedia.php';
+require __DIR__.'/private/web/fimecos.php';
+
 require __DIR__.'/auth/index.php';
 
 Route::get('/', function () {
     return view('index');
 })->name('public.accueil');
 
-Route::get('dashboard', [DashboardController::class, 'index'])->name('private.dashboard');
 
+Route::prefix('dashboard')->name('private.')->middleware(['auth', 'verified', 'user.status'])->group(function () {
+    Route::get('', [DashboardController::class, 'index'])->name('dashboard');
 
-
-
-
-// Routes pour le dashboard (à ajouter dans web.php)
-
-Route::middleware(['auth'])->group(function () {
-
-    // Dashboard principal
-    Route::get('/dashboard', [DashboardController::class, 'index'])
-        ->name('private.dashboard');
-
-    // API pour les données de graphiques (AJAX)
-    Route::get('/dashboard/chart-data', [DashboardController::class, 'getChartData'])
-        ->name('dashboard.chart-data');
-
-    // Routes pour les autres modules (exemples)
-    Route::prefix('admin')->name('admin.')->group(function () {
-
-        // Membres/Utilisateurs
-        Route::resource('users', UserController::class);
-
-        // Cultes
-        Route::resource('cultes', CulteController::class);
-
-        // Événements
-        Route::resource('events', EventController::class);
-
-        // Réunions
-        Route::resource('reunions', ReunionController::class);
-
-        // Transactions spirituelles
-        Route::resource('transactions', TransactionController::class);
-
-        // Projets
-        Route::resource('projets', ProjetController::class);
-
-        // Annonces
-        Route::resource('annonces', AnnonceController::class);
-
-        // Programmes
-        Route::resource('programmes', ProgrammeController::class);
-
-        // Classes
-        Route::resource('classes', ClasseController::class);
-
-        // Contacts
-        Route::resource('contacts', ContactController::class);
-
-        // Rapports
-        Route::get('rapports', [RapportController::class, 'index'])
-            ->name('rapports.index');
-        Route::get('rapports/financier', [RapportController::class, 'financier'])
-            ->name('rapports.financier');
-        Route::get('rapports/membres', [RapportController::class, 'membres'])
-            ->name('rapports.membres');
-        Route::get('rapports/activites', [RapportController::class, 'activites'])
-            ->name('rapports.activites');
-    });
-
-    // Raccourcis directs pour le dashboard (sans préfixe admin)
-    Route::get('/reunions', [ReunionController::class, 'index'])
-        ->name('reunions.index');
-    Route::get('/transactions', [TransactionController::class, 'index'])
-        ->name('transactions.index');
-    Route::get('/projets', [ProjetController::class, 'index'])
-        ->name('projets.index');
-    Route::get('/annonces', [AnnonceController::class, 'index'])
-        ->name('annonces.index');
-
-    // APIs pour les widgets du dashboard
-    Route::prefix('api/dashboard')->name('api.dashboard.')->group(function () {
-        Route::get('stats', [DashboardController::class, 'getStats']);
-        Route::get('recent-activities', [DashboardController::class, 'getRecentActivities']);
-        Route::get('notifications', [DashboardController::class, 'getNotifications']);
-    });
+    Route::get('/periode', [DashboardController::class, 'getStatistiquesPeriode'])->name('getStatistiquesPeriode');
 });
 
-// // Route de redirection par défaut vers le dashboard pour les utilisateurs connectés
-// Route::get('/home', function () {
-//     return redirect()->route('private.dashboard');
-// });
 
-// Route::get('/', function () {
-//     if (auth()->check()) {
-//         return redirect()->route('private.dashboard');
-//     }
-//     return view('welcome'); // ou votre page d'accueil publique
-// });
+
+
 
 

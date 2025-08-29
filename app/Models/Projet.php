@@ -302,13 +302,13 @@ class Projet extends Model
     public function scopeEnAttenteApprobation($query)
     {
         return $query->where('necessite_approbation', true)
-                    ->whereNull('approuve_par');
+            ->whereNull('approuve_par');
     }
 
     public function scopeEnRetard($query)
     {
         return $query->where('date_fin_prevue', '<', now())
-                    ->whereNotIn('statut', ['termine', 'annule', 'archive']);
+            ->whereNotIn('statut', ['termine', 'annule', 'archive']);
     }
 
     public function scopeNecessitantSuivi($query)
@@ -328,24 +328,24 @@ class Projet extends Model
     }
 
     public function getPourcentageFinancementAttribute()
-{
-    if (!$this->budget_prevu || $this->budget_prevu == 0) {
-        return 0;
+    {
+        if (!$this->budget_prevu || $this->budget_prevu == 0) {
+            return 0;
+        }
+        return round(($this->budget_collecte / $this->budget_prevu) * 100, 2);
     }
-    return round(($this->budget_collecte / $this->budget_prevu) * 100, 2);
-}
 
 
-// AJOUTER ICI :
-public function getBudgetCollecteAttribute()
-{
-    return $this->fonds()->validees()->sum('montant');
-}
+    // AJOUTER ICI :
+    public function getBudgetCollecteAttribute()
+    {
+        return $this->fonds()->validees()->sum('montant');
+    }
 
 
     public function getStatutLibelleAttribute()
     {
-        return match($this->statut) {
+        return match ($this->statut) {
             'conception' => 'En conception',
             'planification' => 'En planification',
             'recherche_financement' => 'Recherche de financement',
@@ -361,7 +361,7 @@ public function getBudgetCollecteAttribute()
 
     public function getTypeProjetLibelleAttribute()
     {
-        return match($this->type_projet) {
+        return match ($this->type_projet) {
             'construction' => 'Construction',
             'renovation' => 'Rénovation',
             'social' => 'Social',
@@ -380,7 +380,7 @@ public function getBudgetCollecteAttribute()
 
     public function getPrioriteLibelleAttribute()
     {
-        return match($this->priorite) {
+        return match ($this->priorite) {
             'faible' => 'Faible',
             'normale' => 'Normale',
             'haute' => 'Haute',
@@ -427,8 +427,8 @@ public function getBudgetCollecteAttribute()
     public function getEstEnRetardAttribute()
     {
         return $this->date_fin_prevue
-               && $this->date_fin_prevue->isPast()
-               && !in_array($this->statut, ['termine', 'annule', 'archive']);
+            && $this->date_fin_prevue->isPast()
+            && !in_array($this->statut, ['termine', 'annule', 'archive']);
     }
 
     public function getEstApprouveAttribute()
@@ -481,215 +481,223 @@ public function getBudgetCollecteAttribute()
         $this->attributes['pourcentage_completion'] = max(0, min(100, floatval($value)));
     }
 
-/**
- * Vérifie si le projet peut être mis en recherche de financement
- */
-public function peutEtreEnRechercheFinancement(): bool
-{
-    return $this->statut === 'planification'
-           && $this->est_approuve
-           && $this->budget_prevu > 0
-           && $this->budget_collecte < $this->budget_prevu;
-}
+    /**
+     * Vérifie si le projet peut être mis en recherche de financement
+     */
+    public function peutEtreEnRechercheFinancement(): bool
+    {
+        return $this->statut === 'planification'
+            && $this->est_approuve
+            && $this->budget_prevu > 0
+            && $this->budget_collecte < $this->budget_prevu;
+    }
 
 
-/**
- * Vérifie si le projet peut passer en attente (prêt à démarrer)
- */
-public function peutEtreEnAttente(): bool
-{
-    // Depuis planification (si pas besoin de financement ou si financement atteint)
-    if ($this->statut === 'planification') {
+    /**
+     * Vérifie si le projet peut passer en attente (prêt à démarrer)
+     */
+    public function peutEtreEnAttente(): bool
+    {
+        // Depuis planification (si pas besoin de financement ou si financement atteint)
+        if ($this->statut === 'planification') {
 
-        return $this->est_approuve && (
-            !$this->budget_prevu || // Pas de budget défini
-            $this->budget_collecte >= ($this->budget_minimum ?? $this->budget_prevu) // Financement suffisant
+            return $this->est_approuve && (
+                !$this->budget_prevu || // Pas de budget défini
+                $this->budget_collecte >= ($this->budget_minimum ?? $this->budget_prevu) // Financement suffisant
+            );
+        }
+
+        // Depuis recherche_financement (si financement atteint)
+        if ($this->statut === 'recherche_financement') {
+            // dd(20, $this->budget_collecte, $this->budget_minimum);
+            return $this->budget_collecte >= ($this->budget_minimum ?? $this->budget_prevu);
+        }
+
+        return false;
+    }
+
+
+    /**
+     * Met le projet en recherche de financement
+     */
+    public function mettreEnRechercheFinancement(): bool
+    {
+        if (!$this->peutEtreEnRechercheFinancement()) {
+            return false;
+        }
+
+        return $this->update([
+            'statut' => 'recherche_financement',
+            'derniere_mise_a_jour' => now()->toDateString(),
+            'derniere_activite' => 'Projet mis en recherche de financement',
+            'derniere_activite_date' => now(),
+            'derniere_activite_par' => auth()->id(),
+        ]);
+    }
+
+
+    /**
+     * Met le projet en attente (prêt à démarrer)
+     */
+    public function mettreEnAttente(): bool
+    {
+        if (!$this->peutEtreEnAttente()) {
+            return false;
+        }
+
+        return $this->update([
+            'statut' => 'en_attente',
+            'derniere_mise_a_jour' => now()->toDateString(),
+            'derniere_activite' => 'Projet prêt à démarrer',
+            'derniere_activite_date' => now(),
+            'derniere_activite_par' => auth()->id(),
+        ]);
+    }
+
+
+    /**
+     * Vérifie si le projet peut sortir de la recherche de financement
+     */
+    public function peutSortirRechercheFinancement(): bool
+    {
+        return $this->statut === 'recherche_financement' && (
+            $this->est_finance || // Budget atteint
+            ($this->budget_minimum && $this->budget_collecte >= $this->budget_minimum) // Budget minimum atteint
         );
     }
 
-    // Depuis recherche_financement (si financement atteint)
-    if ($this->statut === 'recherche_financement') {
-        // dd(20, $this->budget_collecte, $this->budget_minimum);
-        return $this->budget_collecte >= ($this->budget_minimum ?? $this->budget_prevu);
+
+
+    /**
+     * Vérifie si le projet peut être démarré (en_cours)
+     */
+    public function peutEtreDemarre(): bool
+    {
+        return $this->statut === 'en_attente'
+            && $this->est_approuve;
     }
 
-    return false;
-}
-
-
-/**
- * Met le projet en recherche de financement
- */
-public function mettreEnRechercheFinancement(): bool
-{
-    if (!$this->peutEtreEnRechercheFinancement()) {
-        return false;
+    // Ajouter un scope pour les projets en recherche de financement
+    public function scopeEnRechercheFinancement($query)
+    {
+        return $query->where('statut', 'recherche_financement');
     }
 
-    return $this->update([
-        'statut' => 'recherche_financement',
-        'derniere_mise_a_jour' => now()->toDateString(),
-        'derniere_activite' => 'Projet mis en recherche de financement',
-        'derniere_activite_date' => now(),
-        'derniere_activite_par' => auth()->id(),
-    ]);
-}
-
-
-/**
- * Met le projet en attente (prêt à démarrer)
- */
-public function mettreEnAttente(): bool
-{
-    if (!$this->peutEtreEnAttente()) {
-        return false;
+    public function scopeEnAttenteDisponibles($query)
+    {
+        return $query->where('statut', 'en_attente');
     }
 
-    return $this->update([
-        'statut' => 'en_attente',
-        'derniere_mise_a_jour' => now()->toDateString(),
-        'derniere_activite' => 'Projet prêt à démarrer',
-        'derniere_activite_date' => now(),
-        'derniere_activite_par' => auth()->id(),
-    ]);
-}
+
+    /**
+     * Retourne la prochaine action logique possible
+     */
+    public function getProchainePossibleAction(): ?string
+    {
+        if ($this->peutEtreApprouve())
+            return 'approuver';
+        if ($this->peutEtrePlanifie())
+            return 'planifier';
+        if ($this->peutEtreEnRechercheFinancement())
+            return 'rechercher_financement';
+        if ($this->peutEtreEnAttente())
+            return 'mettre_en_attente';
+        if ($this->peutEtreDemarre())
+            return 'demarrer';
+        if ($this->peutEtreTermine())
+            return 'terminer';
+        if ($this->peutEtreSuspendu())
+            return 'suspendre';
+        if ($this->peutEtreRepris())
+            return 'reprendre';
+
+        return null;
+    }
 
 
-/**
- * Vérifie si le projet peut sortir de la recherche de financement
- */
-public function peutSortirRechercheFinancement(): bool
-{
-    return $this->statut === 'recherche_financement' && (
-        $this->est_finance || // Budget atteint
-        ($this->budget_minimum && $this->budget_collecte >= $this->budget_minimum) // Budget minimum atteint
-    );
-}
+    /**
+     * Retourne le workflow complet possible pour ce projet
+     */
+    public function getWorkflowPossible(): array
+    {
+        $workflow = [];
 
-
-
-/**
- * Vérifie si le projet peut être démarré (en_cours)
- */
-public function peutEtreDemarre(): bool
-{
-    return $this->statut === 'en_attente'
-           && $this->est_approuve;
-}
-
-// Ajouter un scope pour les projets en recherche de financement
-public function scopeEnRechercheFinancement($query)
-{
-    return $query->where('statut', 'recherche_financement');
-}
-
-public function scopeEnAttenteDisponibles($query)
-{
-    return $query->where('statut', 'en_attente');
-}
-
-
-/**
- * Retourne la prochaine action logique possible
- */
-public function getProchainePossibleAction(): ?string
-{
-    if ($this->peutEtreApprouve()) return 'approuver';
-    if ($this->peutEtrePlanifie()) return 'planifier';
-    if ($this->peutEtreEnRechercheFinancement()) return 'rechercher_financement';
-    if ($this->peutEtreEnAttente()) return 'mettre_en_attente';
-    if ($this->peutEtreDemarre()) return 'demarrer';
-    if ($this->peutEtreTermine()) return 'terminer';
-    if ($this->peutEtreSuspendu()) return 'suspendre';
-    if ($this->peutEtreRepris()) return 'reprendre';
-
-    return null;
-}
-
-
-/**
- * Retourne le workflow complet possible pour ce projet
- */
-public function getWorkflowPossible(): array
-{
-    $workflow = [];
-
-    // Depuis conception
-    if ($this->statut === 'conception') {
-        if ($this->peutEtreApprouve()) {
-            $workflow[] = 'approuver';
-        } elseif ($this->peutEtrePlanifie()) {
-            $workflow[] = 'planifier';
+        // Depuis conception
+        if ($this->statut === 'conception') {
+            if ($this->peutEtreApprouve()) {
+                $workflow[] = 'approuver';
+            } elseif ($this->peutEtrePlanifie()) {
+                $workflow[] = 'planifier';
+            }
         }
+
+        // Depuis planification
+        elseif ($this->statut === 'planification') {
+            if ($this->peutEtreEnRechercheFinancement()) {
+                $workflow[] = 'rechercher_financement';
+            }
+            if ($this->peutEtreEnAttente()) {
+                $workflow[] = 'mettre_en_attente';
+            }
+        }
+
+        // Depuis recherche_financement
+        elseif ($this->statut === 'recherche_financement') {
+            if ($this->peutEtreEnAttente()) {
+                $workflow[] = 'mettre_en_attente';
+            }
+        }
+
+        // Depuis en_attente
+        elseif ($this->statut === 'en_attente') {
+            if ($this->peutEtreDemarre()) {
+                $workflow[] = 'demarrer';
+            }
+        }
+
+        // Depuis en_cours
+        elseif ($this->statut === 'en_cours') {
+            $workflow[] = 'mettre_a_jour_progression';
+            if ($this->peutEtreTermine()) {
+                $workflow[] = 'terminer';
+            }
+            if ($this->peutEtreSuspendu()) {
+                $workflow[] = 'suspendre';
+            }
+        }
+
+        // Depuis suspendu
+        elseif ($this->statut === 'suspendu') {
+            if ($this->peutEtreRepris()) {
+                $workflow[] = 'reprendre';
+            }
+        }
+
+        // Actions toujours possibles (si applicable)
+        if ($this->peutEtreAnnule()) {
+            $workflow[] = 'annuler';
+        }
+
+        return $workflow;
     }
 
-    // Depuis planification
-    elseif ($this->statut === 'planification') {
-        if ($this->peutEtreEnRechercheFinancement()) {
-            $workflow[] = 'rechercher_financement';
-        }
-        if ($this->peutEtreEnAttente()) {
-            $workflow[] = 'mettre_en_attente';
-        }
+    /**
+     * Vérifie si le projet nécessite une action
+     */
+    public function necessiteAction(): bool
+    {
+        return $this->getProchainePossibleAction() !== null;
     }
 
-    // Depuis recherche_financement
-    elseif ($this->statut === 'recherche_financement') {
-        if ($this->peutEtreEnAttente()) {
-            $workflow[] = 'mettre_en_attente';
-        }
+    /**
+     * Vérifie si le projet peut être approuvé
+     */
+    public function peutEtreApprouve(): bool
+    {
+        return $this->statut === 'conception'
+            && $this->necessite_approbation
+            && !$this->est_approuve;
     }
-
-    // Depuis en_attente
-    elseif ($this->statut === 'en_attente') {
-        if ($this->peutEtreDemarre()) {
-            $workflow[] = 'demarrer';
-        }
-    }
-
-    // Depuis en_cours
-    elseif ($this->statut === 'en_cours') {
-        $workflow[] = 'mettre_a_jour_progression';
-        if ($this->peutEtreTermine()) {
-            $workflow[] = 'terminer';
-        }
-        if ($this->peutEtreSuspendu()) {
-            $workflow[] = 'suspendre';
-        }
-    }
-
-    // Depuis suspendu
-    elseif ($this->statut === 'suspendu') {
-        if ($this->peutEtreRepris()) {
-            $workflow[] = 'reprendre';
-        }
-    }
-
-    // Actions toujours possibles (si applicable)
-    if ($this->peutEtreAnnule()) {
-        $workflow[] = 'annuler';
-    }
-
-    return $workflow;
-}
-
-/**
- * Vérifie si le projet nécessite une action
- */
-public function necessiteAction(): bool
-{
-    return $this->getProchainePossibleAction() !== null;
-}
-
-/**
- * Vérifie si le projet peut être approuvé
- */
-public function peutEtreApprouve(): bool
-{
-    return $this->statut === 'conception'
-           && $this->necessite_approbation
-           && !$this->est_approuve;
-}
 
     public function peutEtreSuspendu(): bool
     {
@@ -716,151 +724,151 @@ public function peutEtreApprouve(): bool
         return $this->statut === 'conception' && $this->est_approuve;
     }
 
-/**
- * Vérifie si le projet peut passer en planification
- */
-public function peutEtrePlanifie(): bool
-{
-    return $this->statut === 'conception'
-           && $this->est_approuve;
-}
-
-
-
-
-/**
- * Approuve un projet
- */
-public function approuver($approbateurId = null, $commentaires = null): bool
-{
-    if (!$this->peutEtreApprouve()) {
-        return false;
+    /**
+     * Vérifie si le projet peut passer en planification
+     */
+    public function peutEtrePlanifie(): bool
+    {
+        return $this->statut === 'conception'
+            && $this->est_approuve;
     }
 
-    return $this->update([
-        'approuve_par' => $approbateurId ?? auth()->id(),
-        'approuve_le' => now(),
-        'commentaires_approbation' => $commentaires,
-        'derniere_mise_a_jour' => now()->toDateString(),
-    ]);
-}
 
-/**
- * Fait passer le projet en planification
- */
-public function planifier(): bool
-{
-    if (!$this->peutEtrePlanifie()) {
-        return false;
+
+
+    /**
+     * Approuve un projet
+     */
+    public function approuver($approbateurId = null, $commentaires = null): bool
+    {
+        if (!$this->peutEtreApprouve()) {
+            return false;
+        }
+
+        return $this->update([
+            'approuve_par' => $approbateurId ?? auth()->id(),
+            'approuve_le' => now(),
+            'commentaires_approbation' => $commentaires,
+            'derniere_mise_a_jour' => now()->toDateString(),
+        ]);
     }
 
-    return $this->update([
-        'statut' => 'planification',
-        'derniere_mise_a_jour' => now()->toDateString(),
-        'derniere_activite' => 'Projet planifié',
-        'derniere_activite_date' => now(),
-        'derniere_activite_par' => auth()->id(),
-    ]);
-}
+    /**
+     * Fait passer le projet en planification
+     */
+    public function planifier(): bool
+    {
+        if (!$this->peutEtrePlanifie()) {
+            return false;
+        }
 
-/**
- * Démarre le projet (passe en cours)
- */
-public function demarrer($dateDebut = null): bool
-{
-    if (!$this->peutEtreDemarre()) {
-        return false;
+        return $this->update([
+            'statut' => 'planification',
+            'derniere_mise_a_jour' => now()->toDateString(),
+            'derniere_activite' => 'Projet planifié',
+            'derniere_activite_date' => now(),
+            'derniere_activite_par' => auth()->id(),
+        ]);
     }
 
-    return $this->update([
-        'statut' => 'en_cours',
-        'date_debut' => $dateDebut ?? now()->toDateString(),
-        'derniere_mise_a_jour' => now()->toDateString(),
-        'derniere_activite' => 'Projet démarré',
-        'derniere_activite_date' => now(),
-        'derniere_activite_par' => auth()->id(),
-    ]);
-}
+    /**
+     * Démarre le projet (passe en cours)
+     */
+    public function demarrer($dateDebut = null): bool
+    {
+        if (!$this->peutEtreDemarre()) {
+            return false;
+        }
 
-/**
- * Suspend un projet
- */
-public function suspendre($motif = null): bool
-{
-    if (!$this->peutEtreSuspendu()) {
-        return false;
+        return $this->update([
+            'statut' => 'en_cours',
+            'date_debut' => $dateDebut ?? now()->toDateString(),
+            'derniere_mise_a_jour' => now()->toDateString(),
+            'derniere_activite' => 'Projet démarré',
+            'derniere_activite_date' => now(),
+            'derniere_activite_par' => auth()->id(),
+        ]);
     }
 
-    return $this->update([
-        'statut' => 'suspendu',
-        'derniere_activite' => $motif ?? 'Projet suspendu',
-        'derniere_mise_a_jour' => now()->toDateString(),
-        'derniere_activite_date' => now(),
-        'derniere_activite_par' => auth()->id(),
-    ]);
-}
+    /**
+     * Suspend un projet
+     */
+    public function suspendre($motif = null): bool
+    {
+        if (!$this->peutEtreSuspendu()) {
+            return false;
+        }
 
-/**
- * Reprend un projet suspendu
- */
-public function reprendre(): bool
-{
-    if (!$this->peutEtreRepris()) {
-        return false;
+        return $this->update([
+            'statut' => 'suspendu',
+            'derniere_activite' => $motif ?? 'Projet suspendu',
+            'derniere_mise_a_jour' => now()->toDateString(),
+            'derniere_activite_date' => now(),
+            'derniere_activite_par' => auth()->id(),
+        ]);
     }
 
-    return $this->update([
-        'statut' => 'en_cours',
-        'derniere_mise_a_jour' => now()->toDateString(),
-        'derniere_activite' => 'Projet repris',
-        'derniere_activite_date' => now(),
-        'derniere_activite_par' => auth()->id(),
-    ]);
-}
+    /**
+     * Reprend un projet suspendu
+     */
+    public function reprendre(): bool
+    {
+        if (!$this->peutEtreRepris()) {
+            return false;
+        }
 
-/**
- * Termine un projet
- */
-public function terminer($dateFin = null, $resultats = null): bool
-{
-    if (!$this->peutEtreTermine()) {
-        return false;
+        return $this->update([
+            'statut' => 'en_cours',
+            'derniere_mise_a_jour' => now()->toDateString(),
+            'derniere_activite' => 'Projet repris',
+            'derniere_activite_date' => now(),
+            'derniere_activite_par' => auth()->id(),
+        ]);
     }
 
-    $updateData = [
-        'statut' => 'termine',
-        'date_fin_reelle' => $dateFin ?? now()->toDateString(),
-        'pourcentage_completion' => 100,
-        'derniere_mise_a_jour' => now()->toDateString(),
-        'derniere_activite' => 'Projet terminé',
-        'derniere_activite_date' => now(),
-        'derniere_activite_par' => auth()->id(),
-    ];
+    /**
+     * Termine un projet
+     */
+    public function terminer($dateFin = null, $resultats = null): bool
+    {
+        if (!$this->peutEtreTermine()) {
+            return false;
+        }
 
-    if ($resultats) {
-        $updateData['resultats_obtenus'] = $resultats;
+        $updateData = [
+            'statut' => 'termine',
+            'date_fin_reelle' => $dateFin ?? now()->toDateString(),
+            'pourcentage_completion' => 100,
+            'derniere_mise_a_jour' => now()->toDateString(),
+            'derniere_activite' => 'Projet terminé',
+            'derniere_activite_date' => now(),
+            'derniere_activite_par' => auth()->id(),
+        ];
+
+        if ($resultats) {
+            $updateData['resultats_obtenus'] = $resultats;
+        }
+
+        return $this->update($updateData);
     }
 
-    return $this->update($updateData);
-}
+    /**
+     * Annule un projet
+     */
+    public function annuler($motif = null): bool
+    {
+        if (!$this->peutEtreAnnule()) {
+            return false;
+        }
 
-/**
- * Annule un projet
- */
-public function annuler($motif = null): bool
-{
-    if (!$this->peutEtreAnnule()) {
-        return false;
+        return $this->update([
+            'statut' => 'annule',
+            'derniere_activite' => $motif ?? 'Projet annulé',
+            'derniere_mise_a_jour' => now()->toDateString(),
+            'derniere_activite_date' => now(),
+            'derniere_activite_par' => auth()->id(),
+        ]);
     }
-
-    return $this->update([
-        'statut' => 'annule',
-        'derniere_activite' => $motif ?? 'Projet annulé',
-        'derniere_mise_a_jour' => now()->toDateString(),
-        'derniere_activite_date' => now(),
-        'derniere_activite_par' => auth()->id(),
-    ]);
-}
 
     public function mettreAJourProgression($pourcentage, $activite = null): bool
     {
@@ -1034,42 +1042,42 @@ public function annuler($motif = null): bool
     public static function statistiquesParStatut(): \Illuminate\Support\Collection
     {
         return static::selectRaw('statut, COUNT(*) as nombre')
-                    ->groupBy('statut')
-                    ->orderBy('nombre', 'desc')
-                    ->get();
+            ->groupBy('statut')
+            ->orderBy('nombre', 'desc')
+            ->get();
     }
 
     public static function statistiquesParType(): \Illuminate\Support\Collection
     {
         return static::selectRaw('type_projet, COUNT(*) as nombre, SUM(budget_prevu) as budget_total')
-                    ->groupBy('type_projet')
-                    ->orderBy('nombre', 'desc')
-                    ->get();
+            ->groupBy('type_projet')
+            ->orderBy('nombre', 'desc')
+            ->get();
     }
 
     public static function projetsEnRetard(): \Illuminate\Database\Eloquent\Collection
     {
         return static::where('date_fin_prevue', '<', now())
-                    ->whereNotIn('statut', ['termine', 'annule', 'archive'])
-                    ->with(['responsable', 'coordinateur'])
-                    ->get();
+            ->whereNotIn('statut', ['termine', 'annule', 'archive'])
+            ->with(['responsable', 'coordinateur'])
+            ->get();
     }
 
     public static function projetsNecessitantAction(): \Illuminate\Database\Eloquent\Collection
     {
         return static::where(function ($query) {
-                        $query->where('necessite_approbation', true)
-                              ->whereNull('approuve_par');
-                    })
-                    ->orWhere(function ($query) {
-                        $query->where('date_fin_prevue', '<', now())
-                              ->whereNotIn('statut', ['termine', 'annule', 'archive']);
-                    })
-                    ->orWhere(function ($query) {
-                        $query->where('prochaine_evaluation', '<=', now());
-                    })
-                    ->with(['responsable', 'coordinateur'])
-                    ->get();
+            $query->where('necessite_approbation', true)
+                ->whereNull('approuve_par');
+        })
+            ->orWhere(function ($query) {
+                $query->where('date_fin_prevue', '<', now())
+                    ->whereNotIn('statut', ['termine', 'annule', 'archive']);
+            })
+            ->orWhere(function ($query) {
+                $query->where('prochaine_evaluation', '<=', now());
+            })
+            ->with(['responsable', 'coordinateur'])
+            ->get();
     }
 
 
@@ -1147,7 +1155,7 @@ public function annuler($motif = null): bool
         return $query->where(function ($q) {
             foreach ($this->getCKEditorFields() as $field) {
                 $q->orWhereNotNull($field)
-                  ->orWhere($field, '!=', '');
+                    ->orWhere($field, '!=', '');
             }
         });
     }

@@ -2,417 +2,705 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Concerns\HasUuids;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Carbon\Carbon;
+use Illuminate\Support\Str;
+use App\Traits\HasCKEditorFields;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class RapportReunion extends Model
 {
-    use HasFactory, HasUuids, SoftDeletes;
+    use HasFactory, SoftDeletes, HasUuids, HasCKEditorFields;
 
     /**
-     * Le nom de la table
+     * Table associée au modèle
      */
     protected $table = 'rapport_reunions';
 
     /**
-     * Les attributs qui peuvent être assignés en masse.
+     * La clé primaire du modèle
+     */
+    protected $primaryKey = 'id';
+
+    /**
+     * Le type de la clé primaire
+     */
+    protected $keyType = 'string';
+
+    /**
+     * Indique si les IDs sont auto-incrémentés
+     */
+    public $incrementing = false;
+
+    /**
+     * Les attributs qui peuvent être assignés en masse
      */
     protected $fillable = [
         'reunion_id',
         'titre_rapport',
         'type_rapport',
-        'niveau_confidentialite',
-        'redacteur_principal_id',
+        'redacteur_id',
         'validateur_id',
-        'secretaire_id',
-        'contributeurs',
         'statut',
-        'date_limite_redaction',
-        'valide_le',
-        'publie_le',
-        'resume_executif',
-        'introduction',
-        'objectifs_reunion',
-        'deroulement_general',
-        'conclusion',
-        'ordre_jour_traite',
+        'resume',
+        'points_traites',
         'decisions_prises',
         'actions_decidees',
-        'responsabilites_attribuees',
-        'points_discussion',
-        'defis_rencontres',
-        'solutions_proposees',
-        'liste_presences',
-        'excuses_recues',
-        'absents_non_excuses',
-        'analyse_participation',
-        'taux_presence',
-        'temps_priere',
-        'temps_louange',
-        'message_partage',
-        'temoignages',
-        'demandes_priere',
-        'nombre_conversions',
-        'nombre_rededications',
-        'mouvements_esprit',
-        'offrandes_recoltees',
-        'detail_finances',
-        'rapport_tresorier',
-        'depenses_engagees',
-        'note_organisation',
-        'note_contenu',
-        'note_participation',
-        'note_spiritualite',
-        'satisfaction_generale',
-        'retours_positifs',
-        'critiques_constructives',
-        'suggestions_amelioration',
-        'lecons_apprises',
-        'bonnes_pratiques',
+        'presences',
+        'nombre_presents',
+        'montant_collecte',
         'actions_suivre',
         'recommandations',
-        'preparation_prochaine',
-        'prochaine_echeance',
-        'suivi_precedent',
-        'documents_annexes',
-        'photos_rapport',
-        'lien_enregistrement_audio',
-        'lien_enregistrement_video',
-        'presentations_utilisees',
-        'problemes_techniques',
-        'solutions_techniques',
-        'materiel_utilise',
-        'recommandations_techniques',
-        'conforme_procedures',
-        'ecarts_procedures',
-        'justification_ecarts',
-        'audit_requis',
-        'observations_audit',
-        'numero_version',
-        'version_precedente_id',
-        'modifications_version',
-        'derniere_modification',
-        'destinataires',
-        'envoye_conseil',
-        'envoye_leadership',
-        'date_diffusion',
-        'canal_diffusion',
-        'reference_archivage',
-        'date_archivage',
-        'duree_conservation',
+        'note_satisfaction',
+        'commentaires',
         'cree_par',
         'modifie_par',
-        'commentaires_redacteur',
-        'commentaires_validateur',
-        'historique_modifications',
     ];
 
     /**
-     * Les attributs qui doivent être castés.
+     * Les attributs qui doivent être cachés pour les tableaux
+     */
+    protected $hidden = [
+        'deleted_at',
+    ];
+
+    /**
+     * Les attributs qui doivent être castés
      */
     protected $casts = [
-        'date_limite_redaction' => 'date',
+        'points_traites' => 'array',
+        'presences' => 'array',
+        'actions_suivre' => 'array',
         'valide_le' => 'datetime',
         'publie_le' => 'datetime',
-        'derniere_modification' => 'datetime',
-        'date_diffusion' => 'datetime',
-        'date_archivage' => 'date',
-        'prochaine_echeance' => 'date',
-        'taux_presence' => 'decimal:2',
-        'nombre_conversions' => 'integer',
-        'nombre_rededications' => 'integer',
-        'offrandes_recoltees' => 'decimal:2',
-        'depenses_engagees' => 'decimal:2',
-        'note_organisation' => 'decimal:1',
-        'note_contenu' => 'decimal:1',
-        'note_participation' => 'decimal:1',
-        'note_spiritualite' => 'decimal:1',
-        'satisfaction_generale' => 'decimal:2',
-        'numero_version' => 'integer',
-        'conforme_procedures' => 'boolean',
-        'audit_requis' => 'boolean',
-        'envoye_conseil' => 'boolean',
-        'envoye_leadership' => 'boolean',
-        'contributeurs' => 'array',
-        'ordre_jour_traite' => 'array',
-        'responsabilites_attribuees' => 'array',
-        'liste_presences' => 'array',
-        'excuses_recues' => 'array',
-        'absents_non_excuses' => 'array',
-        'detail_finances' => 'array',
-        'actions_suivre' => 'array',
-        'suivi_precedent' => 'array',
-        'documents_annexes' => 'array',
-        'photos_rapport' => 'array',
-        'presentations_utilisees' => 'array',
-        'destinataires' => 'array',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
+        'deleted_at' => 'datetime',
+        'nombre_presents' => 'integer',
+        'montant_collecte' => 'decimal:2',
+        'note_satisfaction' => 'integer',
     ];
 
     /**
-     * Relation avec la réunion
+     * Les attributs qui doivent être mutés en dates
      */
-    public function reunion()
+    protected $dates = [
+        'valide_le',
+        'publie_le',
+        'created_at',
+        'updated_at',
+        'deleted_at',
+    ];
+
+    /**
+     * Les valeurs par défaut des attributs
+     */
+    protected $attributes = [
+        'statut' => 'brouillon',
+        'nombre_presents' => 0,
+    ];
+
+    // ================================
+    // CONSTANTES ENUM
+    // ================================
+
+    public const TYPES_RAPPORT = [
+        'PROCES_VERBAL' => 'proces_verbal',
+        'COMPTE_RENDU' => 'compte_rendu',
+        'RAPPORT_ACTIVITE' => 'rapport_activite',
+        'RAPPORT_FINANCIER' => 'rapport_financier',
+    ];
+
+    public const STATUTS = [
+        'BROUILLON' => 'brouillon',
+        'EN_REVISION' => 'en_revision',
+        'VALIDE' => 'valide',
+        'PUBLIE' => 'publie',
+    ];
+
+    public const WORKFLOW_ORDER = [
+        'brouillon' => 1,
+        'en_revision' => 2,
+        'valide' => 3,
+        'publie' => 4,
+    ];
+
+    // ================================
+    // UTILITAIRES DATABASE
+    // ================================
+
+    /**
+     * Génère la requête de différence en jours selon le driver de base de données
+     */
+    protected static function dateDiffQuery(string $laterDate, string $earlierDate): string
+    {
+        $driver = DB::connection()->getDriverName();
+
+        return match ($driver) {
+            'pgsql' => "EXTRACT(DAY FROM ({$laterDate} - {$earlierDate}))",
+            'sqlite' => "julianday({$laterDate}) - julianday({$earlierDate})",
+            'mysql', 'mariadb' => "DATEDIFF({$laterDate}, {$earlierDate})",
+            'sqlsrv' => "DATEDIFF(day, {$earlierDate}, {$laterDate})",
+            default => "EXTRACT(DAY FROM ({$laterDate} - {$earlierDate}))" // Fallback PostgreSQL
+        };
+    }
+
+    // ================================
+    // RELATIONS ELOQUENT
+    // ================================
+
+    /**
+     * Relation avec la réunion concernée
+     */
+    public function reunion(): BelongsTo
     {
         return $this->belongsTo(Reunion::class, 'reunion_id');
     }
 
     /**
-     * Relation avec le rédacteur principal
+     * Relation avec le rédacteur du rapport
      */
-    public function redacteurPrincipal()
+    public function redacteur(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'redacteur_principal_id');
+        return $this->belongsTo(User::class, 'redacteur_id');
     }
 
     /**
-     * Relation avec le validateur
+     * Relation avec le validateur du rapport
      */
-    public function validateur()
+    public function validateur(): BelongsTo
     {
         return $this->belongsTo(User::class, 'validateur_id');
     }
 
     /**
-     * Relation avec le secrétaire
+     * Relation avec l'utilisateur créateur
      */
-    public function secretaire()
-    {
-        return $this->belongsTo(User::class, 'secretaire_id');
-    }
-
-    /**
-     * Relation avec la version précédente
-     */
-    public function versionPrecedente()
-    {
-        return $this->belongsTo(RapportReunion::class, 'version_precedente_id');
-    }
-
-    /**
-     * Relation avec les versions suivantes
-     */
-    public function versionsSuivantes()
-    {
-        return $this->hasMany(RapportReunion::class, 'version_precedente_id');
-    }
-
-    /**
-     * Utilisateur qui a créé le rapport
-     */
-    public function createur()
+    public function createur(): BelongsTo
     {
         return $this->belongsTo(User::class, 'cree_par');
     }
 
     /**
-     * Dernier utilisateur qui a modifié le rapport
+     * Relation avec le dernier modificateur
      */
-    public function modificateur()
+    public function modificateur(): BelongsTo
     {
         return $this->belongsTo(User::class, 'modifie_par');
     }
 
-    /**
-     * Scope pour les rapports en attente
-     */
-    public function scopeEnAttente($query)
-    {
-        return $query->whereIn('statut', ['brouillon', 'en_revision', 'en_attente_validation']);
-    }
+    // ================================
+    // SCOPES DE REQUÊTE
+    // ================================
 
     /**
-     * Scope pour les rapports publiés
+     * Scope pour filtrer par statut
      */
-    public function scopePublies($query)
+    public function scopeParStatut(Builder $query, string $statut): Builder
     {
-        return $query->where('statut', 'publie');
-    }
-
-    /**
-     * Scope pour les rapports validés
-     */
-    public function scopeValides($query)
-    {
-        return $query->where('statut', 'valide');
+        return $query->where('statut', $statut);
     }
 
     /**
      * Scope pour filtrer par type de rapport
      */
-    public function scopeParType($query, $type)
+    public function scopeParType(Builder $query, string $type): Builder
     {
         return $query->where('type_rapport', $type);
     }
 
     /**
-     * Scope pour filtrer par niveau de confidentialité
+     * Scope pour les rapports en brouillon
      */
-    public function scopeParConfidentialite($query, $niveau)
+    public function scopeBrouillons(Builder $query): Builder
     {
-        return $query->where('niveau_confidentialite', $niveau);
+        return $query->where('statut', self::STATUTS['BROUILLON']);
     }
 
     /**
-     * Scope pour filtrer par rédacteur
+     * Scope pour les rapports en révision
      */
-    public function scopeParRedacteur($query, $redacteurId)
+    public function scopeEnRevision(Builder $query): Builder
     {
-        return $query->where('redacteur_principal_id', $redacteurId);
+        return $query->where('statut', self::STATUTS['EN_REVISION']);
     }
 
     /**
-     * Vérifier si le rapport peut être modifié
+     * Scope pour les rapports validés
      */
-    public function canBeModified()
+    public function scopeValides(Builder $query): Builder
+    {
+        return $query->where('statut', self::STATUTS['VALIDE']);
+    }
+
+    /**
+     * Scope pour les rapports publiés
+     */
+    public function scopePublies(Builder $query): Builder
+    {
+        return $query->where('statut', self::STATUTS['PUBLIE']);
+    }
+
+    /**
+     * Scope pour les rapports d'un rédacteur
+     */
+    public function scopeParRedacteur(Builder $query, string $redacteurId): Builder
+    {
+        return $query->where('redacteur_id', $redacteurId);
+    }
+
+    /**
+     * Scope pour les rapports récents
+     */
+    public function scopeRecents(Builder $query, int $jours = 30): Builder
+    {
+        return $query->where('created_at', '>=', Carbon::now()->subDays($jours));
+    }
+
+    /**
+     * Scope pour les rapports avec des actions en cours
+     */
+    public function scopeAvecActionsSuivre(Builder $query): Builder
+    {
+        return $query->whereNotNull('actions_suivre')
+                    ->where('actions_suivre', '!=', '[]');
+    }
+
+    /**
+     * Scope pour les rapports avec des notes de satisfaction élevées
+     */
+    public function scopeSatisfactionElevee(Builder $query, int $noteMin = 4): Builder
+    {
+        return $query->where('note_satisfaction', '>=', $noteMin);
+    }
+
+    // ================================
+    // MUTATORS & ACCESSORS
+    // ================================
+
+    /**
+     * Mutator pour le titre du rapport
+     */
+    public function setTitreRapportAttribute(string $value): void
+    {
+        $this->attributes['titre_rapport'] = trim($value);
+    }
+
+    /**
+     * Accessor pour le titre formaté
+     */
+    public function getTitreFormatAttribute(): string
+    {
+        return Str::title($this->titre_rapport);
+    }
+
+    /**
+     * Accessor pour le statut traduit
+     */
+    public function getStatutTraduitAttribute(): string
+    {
+        return match($this->statut) {
+            'brouillon' => 'Brouillon',
+            'en_revision' => 'En révision',
+            'valide' => 'Validé',
+            'publie' => 'Publié',
+            default => $this->statut,
+        };
+    }
+
+    /**
+     * Accessor pour le type traduit
+     */
+    public function getTypeRapportTraduitAttribute(): string
+    {
+        return match($this->type_rapport) {
+            'proces_verbal' => 'Procès-verbal',
+            'compte_rendu' => 'Compte-rendu',
+            'rapport_activite' => 'Rapport d\'activité',
+            'rapport_financier' => 'Rapport financier',
+            default => $this->type_rapport,
+        };
+    }
+
+    /**
+     * Accessor pour le nombre de jours depuis la création
+     */
+    public function getJoursDepuisCreationAttribute(): int
+    {
+        return $this->created_at->diffInDays(Carbon::now());
+    }
+
+    /**
+     * Accessor pour vérifier si le rapport est modifiable
+     */
+    public function getEstModifiableAttribute(): bool
     {
         return in_array($this->statut, ['brouillon', 'en_revision']);
     }
 
     /**
-     * Vérifier si le rapport peut être validé
+     * Accessor pour le pourcentage de completion
      */
-    public function canBeValidated()
+    public function getPourcentageCompletionAttribute(): int
     {
-        return $this->statut === 'en_attente_validation';
-    }
+        $champsObligatoires = [
+            'titre_rapport', 'resume', 'decisions_prises',
+            'actions_decidees', 'redacteur_id'
+        ];
 
-    /**
-     * Vérifier si le rapport peut être publié
-     */
-    public function canBePublished()
-    {
-        return $this->statut === 'valide';
-    }
-
-    /**
-     * Soumettre le rapport pour validation
-     */
-    public function soumettrePourValidation()
-    {
-        if ($this->statut !== 'en_revision') {
-            throw new \Exception('Le rapport doit être en révision pour être soumis');
+        $champsRemplis = 0;
+        foreach ($champsObligatoires as $champ) {
+            if (!empty($this->$champ)) {
+                $champsRemplis++;
+            }
         }
 
-        $this->update(['statut' => 'en_attente_validation']);
+        return round(($champsRemplis / count($champsObligatoires)) * 100);
+    }
+
+    // ================================
+    // MÉTHODES MÉTIER
+    // ================================
+
+    /**
+     * Passer le rapport en révision
+     */
+    public function passerEnRevision(string $userId = null): bool
+    {
+        if ($this->statut !== 'brouillon') {
+            return false;
+        }
+
+        $this->statut = 'en_revision';
+        if ($userId) {
+            $this->modifie_par = $userId;
+        }
+
+        return $this->save();
     }
 
     /**
      * Valider le rapport
      */
-    public function valider($validateurId = null, $commentaires = null)
+    public function valider(string $validateurId, string $commentaires = null): bool
     {
-        $this->update([
-            'statut' => 'valide',
-            'validateur_id' => $validateurId,
-            'valide_le' => now(),
-            'commentaires_validateur' => $commentaires,
-        ]);
-    }
+        if (!in_array($this->statut, ['en_revision', 'brouillon'])) {
+            return false;
+        }
 
-    /**
-     * Rejeter le rapport
-     */
-    public function rejeter($commentaires = null)
-    {
-        $this->update([
-            'statut' => 'rejete',
-            'commentaires_validateur' => $commentaires,
-        ]);
+        $this->statut = 'valide';
+        $this->validateur_id = $validateurId;
+        $this->valide_le = Carbon::now();
+        $this->modifie_par = $validateurId;
+
+        if ($commentaires) {
+            $this->commentaires = $commentaires;
+        }
+
+        return $this->save();
     }
 
     /**
      * Publier le rapport
      */
-    public function publier()
+    public function publier(string $userId = null): bool
     {
         if ($this->statut !== 'valide') {
-            throw new \Exception('Le rapport doit être validé pour être publié');
+            return false;
         }
 
-        $this->update([
-            'statut' => 'publie',
-            'publie_le' => now(),
-        ]);
-    }
-
-    /**
-     * Archiver le rapport
-     */
-    public function archiver()
-    {
-        $this->update([
-            'statut' => 'archive',
-            'date_archivage' => now()->toDateString(),
-        ]);
-    }
-
-    /**
-     * Créer une nouvelle version du rapport
-     */
-    public function creerNouvelleVersion($modifications = null)
-    {
-        $nouvelleVersion = $this->replicate();
-        $nouvelleVersion->version_precedente_id = $this->id;
-        $nouvelleVersion->numero_version = $this->numero_version + 1;
-        $nouvelleVersion->modifications_version = $modifications;
-        $nouvelleVersion->statut = 'brouillon';
-        $nouvelleVersion->valide_le = null;
-        $nouvelleVersion->publie_le = null;
-        $nouvelleVersion->validateur_id = null;
-        $nouvelleVersion->save();
-
-        return $nouvelleVersion;
-    }
-
-    /**
-     * Générer une référence d'archivage
-     */
-    public function genererReferenceArchivage()
-    {
-        $prefix = 'RPT';
-        $annee = $this->reunion->date_reunion->format('Y');
-        $mois = $this->reunion->date_reunion->format('m');
-        $compteur = str_pad($this->id, 6, '0', STR_PAD_LEFT);
-
-        return $prefix . $annee . $mois . $compteur;
-    }
-
-    /**
-     * Accesseur pour la note moyenne
-     */
-    public function getNoteMoyenneAttribute()
-    {
-        $notes = array_filter([
-            $this->note_organisation,
-            $this->note_contenu,
-            $this->note_participation,
-            $this->note_spiritualite,
-        ]);
-
-        return count($notes) > 0 ? array_sum($notes) / count($notes) : null;
-    }
-
-    /**
-     * Calculer le délai de rédaction
-     */
-    public function getDelaiRedaction()
-    {
-        if ($this->valide_le && $this->created_at) {
-            return $this->created_at->diffInDays($this->valide_le);
+        $this->statut = 'publie';
+        $this->publie_le = Carbon::now();
+        if ($userId) {
+            $this->modifie_par = $userId;
         }
 
-        return null;
+        return $this->save();
     }
 
     /**
-     * Vérifier si le rapport est en retard
+     * Rejeter le rapport
      */
-    public function isEnRetard()
+    public function rejeter(string $raison, string $userId = null): bool
     {
-        return $this->date_limite_redaction &&
-               $this->date_limite_redaction < now() &&
-               !in_array($this->statut, ['valide', 'publie', 'archive']);
+        if (!in_array($this->statut, ['en_revision', 'valide'])) {
+            return false;
+        }
+
+        $this->statut = 'brouillon';
+        $this->commentaires = "Rejeté: " . $raison;
+        $this->valide_le = null;
+        $this->publie_le = null;
+        if ($userId) {
+            $this->modifie_par = $userId;
+        }
+
+        return $this->save();
+    }
+
+    /**
+     * Ajouter une présence
+     */
+    public function ajouterPresence(array $presence): void
+    {
+        $presences = $this->presences ?? [];
+        $presences[] = $presence;
+        $this->presences = $presences;
+        $this->nombre_presents = count($presences);
+        $this->save();
+    }
+
+    /**
+     * Supprimer une présence
+     */
+    public function supprimerPresence(string $userId): void
+    {
+        $presences = collect($this->presences ?? [])->filter(function ($presence) use ($userId) {
+            return $presence['user_id'] !== $userId;
+        })->values()->toArray();
+
+        $this->presences = $presences;
+        $this->nombre_presents = count($presences);
+        $this->save();
+    }
+
+    /**
+     * Ajouter une action de suivi
+     */
+    public function ajouterActionSuivi(array $action): void
+    {
+        $actions = $this->actions_suivre ?? [];
+        $action['id'] = Str::uuid()->toString();
+        $action['created_at'] = Carbon::now()->toISOString();
+        $actions[] = $action;
+        $this->actions_suivre = $actions;
+        $this->save();
+    }
+
+    /**
+     * Marquer une action comme terminée
+     */
+    public function terminerAction(string $actionId): bool
+    {
+        $actions = collect($this->actions_suivre ?? []);
+
+        $actions = $actions->map(function ($action) use ($actionId) {
+            if ($action['id'] === $actionId) {
+                $action['terminee'] = true;
+                $action['terminee_le'] = Carbon::now()->toISOString();
+            }
+            return $action;
+        });
+
+        $this->actions_suivre = $actions->toArray();
+        return $this->save();
+    }
+
+    /**
+     * Calculer les statistiques du rapport (Compatible PostgreSQL)
+     */
+    public function getStatistiques(): array
+    {
+        // Calcul du taux de présence
+        $tauxPresence = null;
+        if ($this->reunion && $this->reunion->nombre_attendus > 0) {
+            $tauxPresence = round(($this->nombre_presents / $this->reunion->nombre_attendus) * 100, 2);
+        }
+
+        // Calcul des jours pour validation (utilise Carbon pour la portabilité)
+        $joursValidation = null;
+        if ($this->valide_le) {
+            $joursValidation = $this->created_at->diffInDays(Carbon::parse($this->valide_le));
+        }
+
+        // Calcul des jours pour publication
+        $joursPublication = null;
+        if ($this->publie_le && $this->valide_le) {
+            $joursPublication = Carbon::parse($this->valide_le)->diffInDays(Carbon::parse($this->publie_le));
+        }
+
+        return [
+            'nombre_points_traites' => count($this->points_traites ?? []),
+            'nombre_actions_suivre' => count($this->actions_suivre ?? []),
+            'actions_terminees' => collect($this->actions_suivre ?? [])
+                ->where('terminee', true)->count(),
+            'taux_presence' => $tauxPresence,
+            'jours_pour_validation' => $joursValidation,
+            'jours_pour_publication' => $joursPublication,
+        ];
+    }
+
+    /**
+     * Vérifier si l'utilisateur peut modifier ce rapport
+     */
+    public function peutEtreModifiePar(User $user): bool
+    {
+        // Le créateur ou rédacteur peut toujours modifier en brouillon/révision
+        if ($this->est_modifiable &&
+            ($this->cree_par === $user->id || $this->redacteur_id === $user->id)) {
+            return true;
+        }
+
+        // Les validateurs peuvent modifier en révision
+        if ($this->statut === 'en_revision' && $this->validateur_id === $user->id) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Générer un résumé automatique
+     */
+    public function genererResumeAuto(): string
+    {
+        $elements = [];
+
+        if ($this->reunion) {
+            $elements[] = "Rapport de {$this->type_rapport_traduit} pour la réunion '{$this->reunion->titre}'";
+            $elements[] = "tenue le " . $this->reunion->date_reunion->format('d/m/Y');
+        }
+
+        if ($this->nombre_presents > 0) {
+            $elements[] = "{$this->nombre_presents} participants présents";
+        }
+
+        if (!empty($this->points_traites)) {
+            $elements[] = count($this->points_traites) . " points traités";
+        }
+
+        if (!empty($this->actions_suivre)) {
+            $elements[] = count($this->actions_suivre) . " actions de suivi définies";
+        }
+
+        return implode(', ', $elements) . '.';
+    }
+
+    // ================================
+    // ÉVÉNEMENTS DU MODÈLE
+    // ================================
+
+    /**
+     * Les événements de démarrage du modèle
+     */
+    protected static function boot(): void
+    {
+        parent::boot();
+
+        // Génération automatique de l'UUID
+        static::creating(function (self $model) {
+            if (empty($model->id)) {
+                $model->id = Str::uuid()->toString();
+            }
+
+            // Générer un titre par défaut si vide
+            if (empty($model->titre_rapport) && $model->reunion) {
+                $model->titre_rapport = "Rapport - " . $model->reunion->titre;
+            }
+        });
+
+        // Mise à jour du modificateur
+        static::updating(function (self $model) {
+            if (auth()->check()) {
+                $model->modifie_par = auth()->id();
+            }
+        });
+
+        // Log des changements de statut
+        static::updated(function (self $model) {
+            if ($model->isDirty('statut')) {
+                Log::info("Rapport {$model->id} - Statut changé de {$model->getOriginal('statut')} vers {$model->statut}");
+            }
+        });
+    }
+
+    // ================================
+    // MÉTHODES STATIQUES UTILES
+    // ================================
+
+    /**
+     * Obtenir les rapports en attente de validation
+     */
+    public static function enAttenteValidation(): Builder
+    {
+        return static::whereIn('statut', ['en_revision']);
+    }
+
+    /**
+     * Obtenir les statistiques globales des rapports (Compatible PostgreSQL)
+     */
+    public static function getStatistiquesGlobales(): array
+    {
+        // Calcul du délai de validation avec support multi-DB
+        $dateDiffSql = static::dateDiffQuery('valide_le', 'created_at');
+        $delaiValidationMoyen = static::whereNotNull('valide_le')
+            ->selectRaw("AVG({$dateDiffSql}) as delai")
+            ->value('delai');
+
+        return [
+            'total' => static::count(),
+            'brouillons' => static::brouillons()->count(),
+            'en_revision' => static::enRevision()->count(),
+            'valides' => static::valides()->count(),
+            'publies' => static::publies()->count(),
+            'satisfaction_moyenne' => static::whereNotNull('note_satisfaction')
+                ->avg('note_satisfaction'),
+            'delai_validation_moyen' => $delaiValidationMoyen ? round($delaiValidationMoyen, 1) : null,
+        ];
+    }
+
+    // ================================
+    // VALIDATION RULES
+    // ================================
+
+    /**
+     * Règles de validation pour la création/mise à jour
+     */
+    public static function validationRules(string $id = null): array
+    {
+        return [
+            'reunion_id' => 'required|uuid|exists:reunions,id',
+            'titre_rapport' => 'required|string|max:200|min:5',
+            'type_rapport' => 'required|in:' . implode(',', self::TYPES_RAPPORT),
+            'redacteur_id' => 'nullable|uuid|exists:users,id',
+            'validateur_id' => 'nullable|uuid|exists:users,id',
+            // 'statut' => 'required|in:' . implode(',', array: self::STATUTS),
+            'resume' => 'nullable|string|max:2000',
+            'points_traites' => 'nullable|array',
+            'decisions_prises' => 'nullable|string',
+            'actions_decidees' => 'nullable|string',
+            'presences' => 'nullable|json',
+            'nombre_presents' => 'integer|min:0|max:1000',
+            'montant_collecte' => 'nullable|numeric|min:0|max:999999.99',
+            'actions_suivre' => 'nullable|json',
+            'recommandations' => 'nullable|string',
+            'note_satisfaction' => 'nullable|integer|between:1,5',
+            'commentaires' => 'nullable|string|max:1000',
+        ];
+    }
+
+    /**
+     * Messages de validation personnalisés
+     */
+    public static function validationMessages(): array
+    {
+        return [
+            'reunion_id.required' => 'La réunion est obligatoire.',
+            'reunion_id.exists' => 'Cette réunion n\'existe pas.',
+            'titre_rapport.required' => 'Le titre du rapport est obligatoire.',
+            'titre_rapport.min' => 'Le titre doit faire au moins 5 caractères.',
+            'titre_rapport.max' => 'Le titre ne peut pas dépasser 200 caractères.',
+            'type_rapport.in' => 'Le type de rapport n\'est pas valide.',
+            'nombre_presents.min' => 'Le nombre de présents ne peut pas être négatif.',
+            'montant_collecte.min' => 'Le montant ne peut pas être négatif.',
+            'note_satisfaction.between' => 'La note doit être comprise entre 1 et 5.',
+        ];
     }
 }

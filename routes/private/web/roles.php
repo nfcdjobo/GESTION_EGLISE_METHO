@@ -1,12 +1,11 @@
 <?php
 
-// routes/web.php - Ajouter ces routes
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\private\Web\RoleController;
 
 // Routes d'administration des permissions
-Route::middleware(['auth', 'user.status'])->prefix('private')->name('private.')->group(function () {
+Route::middleware(['auth', 'user.status'])->prefix('dashboard')->name('private.')->group(function () {
 
 
 

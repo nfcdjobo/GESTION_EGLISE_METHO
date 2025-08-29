@@ -424,7 +424,7 @@ function togglePermission() {
         return;
     }
 
-    fetch(`/admin/permissions/{{ $permission->id }}/toggle`, {
+    fetch(`{{route('private.permissions.toggle', $permission->id)}}`, {
         method: 'PATCH',
         headers: {
             'X-CSRF-TOKEN': '{{ csrf_token() }}',
@@ -449,7 +449,7 @@ function togglePermission() {
 // Cloner la permission
 function clonePermission() {
     if (confirm('Voulez-vous cloner cette permission ?')) {
-        window.location.href = `/admin/permissions/{{ $permission->id }}/clone`;
+        window.location.href = `{{route('private.permissions.clone', $permission->id)}}`;
     }
 }
 
@@ -457,7 +457,7 @@ function clonePermission() {
 function deletePermission() {
     showDeleteModal();
     document.getElementById('confirmDelete').onclick = function() {
-        fetch(`/admin/permissions/{{ $permission->id }}`, {
+        fetch(`{{route('private.permissions.destroy', $permission->id)}}`, {
             method: 'DELETE',
             headers: {
                 'X-CSRF-TOKEN': '{{ csrf_token() }}',

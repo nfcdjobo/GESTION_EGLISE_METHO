@@ -646,7 +646,7 @@ function validateAllPending() {
 // Traiter une récurrence
 function processRecurrence(transactionId) {
     if (confirm('Créer une nouvelle transaction pour cette récurrence ?')) {
-        fetch(`{{ url('private/fonds') }}/${transactionId}/duplicate`, {
+        fetch(`{{route('private.fonds.duplicate', ':fond')}}`.replace(':fond', transactionId), {
             method: 'POST',
             headers: {
                 'X-CSRF-TOKEN': '{{ csrf_token() }}',

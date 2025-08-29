@@ -14,7 +14,7 @@ use App\Http\Controllers\Private\UserPermissionController;
 |
 */
 
-Route::middleware(['auth', 'user.status'])->prefix('private')->name('private.')->group(function () {
+Route::middleware(['auth', 'user.status'])->prefix('dashboard')->name('private.')->group(function () {
 
     // ========== ROUTES CRUD PRINCIPALES ==========
 
@@ -111,7 +111,7 @@ Route::middleware(['auth', 'user.status', 'role:admin,pasteur'])->name('private.
     Route::get('/private/admin', [AdminController::class, 'index'])->name('admin.index');
 
     // Routes administratives avancées
-    Route::prefix('private/admin/users')->name('admin.users.')->group(function () {
+    Route::prefix('dashboard/admin/users')->name('admin.users.')->group(function () {
         // Gestion avancée des utilisateurs (super admin seulement)
         Route::middleware('role:super-admin')->group(function () {
             Route::get('/deleted', [UserController::class, 'deleted'])->name('deleted');
@@ -185,7 +185,7 @@ Route::pattern('id', '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{1
 */
 
 // Groupe pour les routes nécessitant des permissions spéciales
-Route::middleware(['auth', 'user.status', 'role:admin,pasteur,responsable'])->prefix('private')->name('private.')->group(function () {
+Route::middleware(['auth', 'user.status', 'role:admin,pasteur,responsable'])->prefix('dashboard')->name('private.')->group(function () {
 
     // Routes pour les responsables de classes
     Route::prefix('classes/{classe}/members')->name('classes.members.')->group(function () {
@@ -202,7 +202,7 @@ Route::middleware(['auth', 'user.status', 'role:admin,pasteur,responsable'])->pr
 });
 
 // Groupe pour les notifications et communications
-Route::middleware(['auth', 'user.status', 'permission:communications.send'])->prefix('private')->name('private.')->group(function () {
+Route::middleware(['auth', 'user.status', 'permission:communications.send'])->prefix('dashboard')->name('private.')->group(function () {
 
     Route::prefix('communications')->name('communications.')->group(function () {
         // Envoyer des notifications à des utilisateurs spécifiques
@@ -217,7 +217,7 @@ Route::middleware(['auth', 'user.status', 'permission:communications.send'])->pr
 });
 
 // Routes pour la synchronisation avec des systèmes externes
-Route::middleware(['auth', 'role:super-admin'])->prefix('private/sync')->name('private.sync.')->group(function () {
+Route::middleware(['auth', 'role:super-admin'])->prefix('dashboard/sync')->name('private.sync.')->group(function () {
     Route::post('/users/external-system', [UserController::class, 'syncWithExternalSystem'])->name('users.external-system');
     Route::get('/users/sync-status', [UserController::class, 'getSyncStatus'])->name('users.sync-status');
 });
@@ -229,7 +229,7 @@ Route::middleware(['auth', 'role:super-admin'])->prefix('private/sync')->name('p
 */
 
 // Routes pour l'aide et la documentation
-Route::middleware(['auth', 'user.status'])->prefix('private/help')->name('private.help.')->group(function () {
+Route::middleware(['auth', 'user.status'])->prefix('dashboard/help')->name('private.help.')->group(function () {
     Route::get('/users', [UserController::class, 'helpUsers'])->name('users');
     Route::get('/permissions', [UserController::class, 'helpPermissions'])->name('permissions');
     Route::get('/import-guide', [UserController::class, 'importGuide'])->name('import-guide');

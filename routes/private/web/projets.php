@@ -13,7 +13,7 @@ use App\Http\Controllers\Private\Web\ProjetController;
 |
 */
 
-Route::prefix('private/projets')->name('private.projets.')->middleware(['auth', 'verified', 'user.status'])->group(function () {
+Route::prefix('dashboard/projets')->name('private.projets.')->middleware(['auth', 'verified', 'user.status'])->group(function () {
 
     // Routes CRUD principales
     Route::get('/', [ProjetController::class, 'index'])->name('index');

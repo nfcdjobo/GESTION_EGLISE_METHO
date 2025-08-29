@@ -14,7 +14,7 @@ use App\Http\Controllers\Private\Web\InscriptionEventController;
 |
 */
 
-Route::prefix('private/events')->name('private.events.')->middleware(['auth', 'verified', 'user.status'])->group(function () {
+Route::prefix('dashboard/events')->name('private.events.')->middleware(['auth', 'verified', 'user.status'])->group(function () {
 
     // Liste et recherche des événements
     Route::get('/', [EventController::class, 'index'])->name('index');

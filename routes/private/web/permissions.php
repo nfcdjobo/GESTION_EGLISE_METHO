@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\private\Web\PermissionController;
 
 // Routes d'administration des permissions
-Route::middleware(['auth', 'user.status'])->prefix('private')->name('private.')->group(function () {
+Route::middleware(['auth', 'user.status'])->prefix('dashboard')->name('private.')->group(function () {
 
     // Gestion des permissions
     Route::prefix('permissions')->name('permissions.')->group(function () {

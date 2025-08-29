@@ -110,7 +110,7 @@
 
     <!-- Contact Section -->
     <section class="section contact" id="contact">
-        <h2>Contactez-Nous</h2>
+        <h2 style="color: #ffff">Contactez-Nous</h2>
         <div class="contact-grid">
             <div class="contact-item fade-in">
                 <div class="contact-icon"><i class="fas fa-map-marker-alt"></i></div>

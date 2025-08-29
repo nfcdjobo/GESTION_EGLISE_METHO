@@ -2,102 +2,52 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Concerns\HasUuids;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+namespace App\Models;
+
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Str;
 
 class TypeReunion extends Model
 {
-    use HasFactory, HasUuids, SoftDeletes;
+    use HasFactory, SoftDeletes;
 
-    /**
-     * Le nom de la table
-     */
     protected $table = 'type_reunions';
+    protected $keyType = 'string';
+    public $incrementing = false;
 
-    /**
-     * Les attributs qui peuvent être assignés en masse.
-     */
     protected $fillable = [
-        'nom',
-        'code',
-        'description',
-        'icone',
-        'couleur',
-        'categorie',
-        'niveau_acces',
-        'frequence_type',
-        'duree_standard',
-        'duree_min',
-        'duree_max',
-        'necessite_preparation',
-        'necessite_inscription',
-        'a_limite_participants',
-        'limite_participants',
-        'permet_enfants',
-        'age_minimum',
-        'equipements_requis',
-        'roles_requis',
-        'materiel_necessaire',
-        'preparation_requise',
-        'inclut_louange',
-        'inclut_message',
-        'inclut_priere',
-        'inclut_communion',
-        'permet_temoignages',
-        'collecte_offrandes',
-        'a_frais_participation',
-        'frais_standard',
-        'details_frais',
-        'permet_enregistrement',
-        'permet_diffusion_live',
-        'necessite_promotion',
-        'delai_annonce_jours',
-        'modele_ordre_service',
-        'instructions_organisateur',
-        'modele_invitation',
-        'modele_programme',
-        'necessite_evaluation',
-        'necessite_rapport',
-        'criteres_evaluation',
-        'questions_feedback',
-        'metriques_importantes',
-        'compte_conversions',
-        'compte_baptemes',
-        'compte_nouveaux',
-        'afficher_calendrier_public',
-        'afficher_site_web',
-        'nom_affichage_public',
-        'description_publique',
-        'actif',
-        'est_archive',
-        'ordre_affichage',
-        'priorite',
-        'regles_annulation',
-        'politique_remboursement',
-        'conditions_participation',
-        'code_vestimentaire',
-        'responsable_type_id',
-        'cree_par',
-        'modifie_par',
-        'derniere_utilisation',
-        'nombre_utilisations',
+        'nom', 'code', 'description', 'icone', 'couleur',
+        'categorie', 'niveau_acces', 'frequence_type',
+        'duree_standard', 'duree_min', 'duree_max',
+        'necessite_preparation', 'necessite_inscription', 'a_limite_participants',
+        'limite_participants', 'permet_enfants', 'age_minimum',
+        'equipements_requis', 'roles_requis', 'materiel_necessaire', 'preparation_requise',
+        'inclut_louange', 'inclut_message', 'inclut_priere', 'inclut_communion', 'permet_temoignages',
+        'collecte_offrandes', 'a_frais_participation', 'frais_standard', 'details_frais',
+        'permet_enregistrement', 'permet_diffusion_live', 'necessite_promotion', 'delai_annonce_jours',
+        'modele_ordre_service', 'instructions_organisateur', 'modele_invitation', 'modele_programme',
+        'necessite_evaluation', 'necessite_rapport', 'criteres_evaluation', 'questions_feedback',
+        'metriques_importantes', 'compte_conversions', 'compte_baptemes', 'compte_nouveaux',
+        'afficher_calendrier_public', 'afficher_site_web', 'nom_affichage_public', 'description_publique',
+        'actif', 'est_archive', 'ordre_affichage', 'priorite',
+        'regles_annulation', 'politique_remboursement', 'conditions_participation', 'code_vestimentaire',
+        'responsable_type_id', 'cree_par', 'modifie_par', 'derniere_utilisation', 'nombre_utilisations'
     ];
 
-    /**
-     * Les attributs qui doivent être castés.
-     */
     protected $casts = [
-        'duree_standard' => 'datetime:H:i',
-        'duree_min' => 'datetime:H:i',
-        'duree_max' => 'datetime:H:i',
-        'limite_participants' => 'integer',
-        'age_minimum' => 'integer',
-        'delai_annonce_jours' => 'integer',
-        'ordre_affichage' => 'integer',
-        'priorite' => 'integer',
-        'nombre_utilisations' => 'integer',
+        'equipements_requis' => 'array',
+        'roles_requis' => 'array',
+        'modele_ordre_service' => 'array',
+        'criteres_evaluation' => 'array',
+        'metriques_importantes' => 'array',
+        'duree_standard' => 'datetime',
+        'duree_min' => 'datetime',
+        'duree_max' => 'datetime',
+        'derniere_utilisation' => 'datetime',
         'frais_standard' => 'decimal:2',
         'necessite_preparation' => 'boolean',
         'necessite_inscription' => 'boolean',
@@ -122,163 +72,114 @@ class TypeReunion extends Model
         'afficher_site_web' => 'boolean',
         'actif' => 'boolean',
         'est_archive' => 'boolean',
-        'derniere_utilisation' => 'datetime',
-        'equipements_requis' => 'array',
-        'roles_requis' => 'array',
-        'modele_ordre_service' => 'array',
-        'criteres_evaluation' => 'array',
-        'metriques_importantes' => 'array',
     ];
 
-    /**
-     * Relation avec le responsable du type
-     */
-    public function responsableType()
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($model) {
+            if (empty($model->id)) {
+                $model->id = Str::uuid();
+            }
+            if (empty($model->code)) {
+                $model->code = Str::slug($model->nom);
+            }
+        });
+    }
+
+    // Relations
+    public function responsableType(): BelongsTo
     {
         return $this->belongsTo(User::class, 'responsable_type_id');
     }
 
-    /**
-     * Relation avec les réunions de ce type
-     */
-    public function reunions()
-    {
-        return $this->hasMany(Reunion::class, 'type_reunion_id');
-    }
-
-    /**
-     * Utilisateur qui a créé le type
-     */
-    public function createur()
+    public function createurType(): BelongsTo
     {
         return $this->belongsTo(User::class, 'cree_par');
     }
 
-    /**
-     * Dernier utilisateur qui a modifié le type
-     */
-    public function modificateur()
+    public function modificateur(): BelongsTo
     {
         return $this->belongsTo(User::class, 'modifie_par');
     }
 
-    /**
-     * Scope pour les types actifs
-     */
-    public function scopeActifs($query)
+    public function reunions(): HasMany
+    {
+        return $this->hasMany(Reunion::class, 'type_reunion_id');
+    }
+
+    // Scopes
+    public function scopeActif($query)
     {
         return $query->where('actif', true)->where('est_archive', false);
     }
 
-    /**
-     * Scope pour les types archivés
-     */
-    public function scopeArchives($query)
+    public function scopePublic($query)
     {
-        return $query->where('est_archive', true);
+        return $query->where('afficher_site_web', true)->actif();
     }
 
-    /**
-     * Scope pour filtrer par catégorie
-     */
     public function scopeParCategorie($query, $categorie)
     {
         return $query->where('categorie', $categorie);
     }
 
-    /**
-     * Scope pour les types publics
-     */
-    public function scopePublics($query)
+    public function scopeParNiveauAcces($query, $niveau)
     {
-        return $query->where('afficher_site_web', true);
+        return $query->where('niveau_acces', $niveau);
     }
 
-    /**
-     * Scope pour les types avec inscription requise
-     */
-    public function scopeAvecInscription($query)
-    {
-        return $query->where('necessite_inscription', true);
-    }
-
-    /**
-     * Scope pour ordonner par priorité
-     */
-    public function scopeParPriorite($query)
-    {
-        return $query->orderBy('priorite', 'desc')->orderBy('ordre_affichage');
-    }
-
-    /**
-     * Marquer comme utilisé
-     */
-    public function marquerUtilise()
-    {
-        $this->increment('nombre_utilisations');
-        $this->update(['derniere_utilisation' => now()]);
-    }
-
-    /**
-     * Vérifier si le type peut être supprimé
-     */
-    public function canBeDeleted()
-    {
-        return $this->reunions()->count() === 0;
-    }
-
-    /**
-     * Archiver le type
-     */
-    public function archiver()
-    {
-        $this->update([
-            'est_archive' => true,
-            'actif' => false,
-        ]);
-    }
-
-    /**
-     * Restaurer le type
-     */
-    public function restaurer()
-    {
-        $this->update([
-            'est_archive' => false,
-            'actif' => true,
-        ]);
-    }
-
-    /**
-     * Accesseur pour le nom d'affichage
-     */
+    // Accessors
     public function getNomAffichageAttribute()
     {
         return $this->nom_affichage_public ?: $this->nom;
     }
 
-    /**
-     * Accesseur pour la description d'affichage
-     */
     public function getDescriptionAffichageAttribute()
     {
         return $this->description_publique ?: $this->description;
     }
 
-    /**
-     * Obtenir les statistiques d'utilisation
-     */
-    public function getStatistiquesUtilisation()
+    // Mutators
+    public function setCodeAttribute($value)
     {
-        return [
-            'nombre_utilisations' => $this->nombre_utilisations,
-            'derniere_utilisation' => $this->derniere_utilisation,
-            'jours_depuis_utilisation' => $this->derniere_utilisation
-                ? $this->derniere_utilisation->diffInDays(now())
-                : null,
-            'nombre_reunions_prevues' => $this->reunions()
-                ->where('date_reunion', '>=', now())
-                ->count(),
-        ];
+        $this->attributes['code'] = Str::slug($value);
+    }
+
+    // Méthodes utilitaires
+    public function marquerUtilise()
+    {
+        $this->update([
+            'derniere_utilisation' => now(),
+            'nombre_utilisations' => $this->nombre_utilisations + 1
+        ]);
+    }
+
+    public function peutEtreUtilisePar($user)
+    {
+        return match($this->niveau_acces) {
+            'public' => true,
+            'membres' => $user->isMembre(),
+            'leadership' => $user->isLeadership(),
+            'invite' => $user->hasInvitation(),
+            'prive' => $user->isAdmin(),
+            default => false
+        };
+    }
+
+    public function getStatutUtilisation()
+    {
+        if (!$this->derniere_utilisation) {
+            return 'Jamais utilisé';
+        }
+
+        $jours = now()->diffInDays($this->derniere_utilisation);
+
+        return match(true) {
+            $jours <= 30 => 'Récent',
+            $jours <= 90 => 'Modéré',
+            default => 'Ancien'
+        };
     }
 }

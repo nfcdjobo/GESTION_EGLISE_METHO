@@ -1,0 +1,1 @@
+<?php /**PATH C:\Users\Dell\Desktop\MICRISERVICES\methodiste_belle_ville\resources\views/components/private/fimecos/dashbaord.blade.php ENDPATH**/ ?>

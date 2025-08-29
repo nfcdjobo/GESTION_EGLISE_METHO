@@ -444,7 +444,7 @@ function dupliquerProgramme() {
 // Supprimer le programme
 function supprimerProgramme() {
     showModal('Supprimer le programme', 'Cette action est irréversible. Voulez-vous vraiment supprimer ce programme ?', function() {
-        fetch('{{ route('private.programmes.destroy', $programme) }}', {
+        fetch('{{ route("private.programmes.destroy", $programme) }}', {
             method: 'DELETE',
             headers: {
                 'X-CSRF-TOKEN': '{{ csrf_token() }}',

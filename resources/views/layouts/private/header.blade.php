@@ -127,6 +127,11 @@
                     <span>Offrandes</span>
                 </a>
 
+                <a href="{{route('private.fimecos.bord')}}" class="flex items-center px-3 py-2.5 text-sm font-medium text-slate-700 rounded-xl hover:bg-gradient-to-r hover:from-emerald-50 hover:to-green-50 hover:text-emerald-600 transition-all duration-200 group">
+                    <i class="fas fa-donate text-emerald-500 mr-3 group-hover:text-emerald-600"></i>
+                    <span>FIMECO</span>
+                </a>
+
                 <!-- Projets -->
                 <a href="{{route('private.projets.index')}}" class="flex items-center px-3 py-2.5 text-sm font-medium text-slate-700 rounded-xl hover:bg-gradient-to-r hover:from-violet-50 hover:to-purple-50 hover:text-violet-600 transition-all duration-200 group">
                     <i class="fas fa-project-diagram text-violet-500 mr-3 group-hover:text-violet-600"></i>
@@ -139,25 +144,31 @@
                 </div>
 
                 <!-- Catégories de réunion -->
-                <a href="#" class="flex items-center px-3 py-2.5 text-sm font-medium text-slate-700 rounded-xl hover:bg-gradient-to-r hover:from-orange-50 hover:to-amber-50 hover:text-orange-600 transition-all duration-200 group">
+                <a href="{{route('private.types-reunions.index')}}" class="flex items-center px-3 py-2.5 text-sm font-medium text-slate-700 rounded-xl hover:bg-gradient-to-r hover:from-orange-50 hover:to-amber-50 hover:text-orange-600 transition-all duration-200 group">
                     <i class="fas fa-tags text-orange-500 mr-3 group-hover:text-orange-600"></i>
                     <span>Catégories de réunion</span>
                 </a>
 
                 <!-- Réunion -->
-                <a href="#" class="flex items-center px-3 py-2.5 text-sm font-medium text-slate-700 rounded-xl hover:bg-gradient-to-r hover:from-sky-50 hover:to-blue-50 hover:text-sky-600 transition-all duration-200 group">
+                <a href="{{route('private.reunions.index')}}" class="flex items-center px-3 py-2.5 text-sm font-medium text-slate-700 rounded-xl hover:bg-gradient-to-r hover:from-sky-50 hover:to-blue-50 hover:text-sky-600 transition-all duration-200 group">
                     <i class="fas fa-handshake text-sky-500 mr-3 group-hover:text-sky-600"></i>
                     <span>Réunions</span>
                 </a>
 
                 <!-- Rapports des réunions -->
-                <a href="#" class="flex items-center px-3 py-2.5 text-sm font-medium text-slate-700 rounded-xl hover:bg-gradient-to-r hover:from-slate-50 hover:to-gray-50 hover:text-slate-600 transition-all duration-200 group">
+                <a href="{{route('private.rapports-reunions.index')}}" class="flex items-center px-3 py-2.5 text-sm font-medium text-slate-700 rounded-xl hover:bg-gradient-to-r hover:from-slate-50 hover:to-gray-50 hover:text-slate-600 transition-all duration-200 group">
                     <i class="fas fa-file-alt text-slate-500 mr-3 group-hover:text-slate-600"></i>
                     <span>Rapports des réunions</span>
                 </a>
 
                 <!-- Interventions -->
-                <a href="#" class="flex items-center px-3 py-2.5 text-sm font-medium text-slate-700 rounded-xl hover:bg-gradient-to-r hover:from-red-50 hover:to-rose-50 hover:text-red-600 transition-all duration-200 group">
+                <a href="{{route('private.annonces.index')}}" class="flex items-center px-3 py-2.5 text-sm font-medium text-slate-700 rounded-xl hover:bg-gradient-to-r hover:from-red-50 hover:to-rose-50 hover:text-red-600 transition-all duration-200 group">
+                    <i class="fas fa-microphone text-red-500 mr-3 group-hover:text-red-600"></i>
+                    <span>Annonces</span>
+                </a>
+
+                <!-- Interventions -->
+                <a href="{{route('private.interventions.index')}}" class="flex items-center px-3 py-2.5 text-sm font-medium text-slate-700 rounded-xl hover:bg-gradient-to-r hover:from-red-50 hover:to-rose-50 hover:text-red-600 transition-all duration-200 group">
                     <i class="fas fa-microphone text-red-500 mr-3 group-hover:text-red-600"></i>
                     <span>Interventions</span>
                 </a>
@@ -168,7 +179,7 @@
                 </div>
 
                 <!-- Médias -->
-                <a href="#" class="flex items-center px-3 py-2.5 text-sm font-medium text-slate-700 rounded-xl hover:bg-gradient-to-r hover:from-pink-50 hover:to-rose-50 hover:text-pink-600 transition-all duration-200 group">
+                <a href="{{route('private.multimedia.index')}}" class="flex items-center px-3 py-2.5 text-sm font-medium text-slate-700 rounded-xl hover:bg-gradient-to-r hover:from-pink-50 hover:to-rose-50 hover:text-pink-600 transition-all duration-200 group">
                     <i class="fas fa-photo-video text-pink-500 mr-3 group-hover:text-pink-600"></i>
                     <span>Médias</span>
                 </a>
@@ -177,7 +188,7 @@
                 <div class="pt-4 space-y-1">
                     <button onclick="toggleDropdown('pages-menu')" class="flex items-center w-full px-3 py-2.5 text-sm font-medium text-white bg-gradient-to-r from-amber-500 to-orange-500 rounded-xl hover:from-amber-600 hover:to-orange-600 transition-all duration-200 shadow-md hover:shadow-lg">
                         <i class="fas fa-copy mr-3 text-yellow-200"></i>
-                        <span>Pages Additionnelles</span>
+                        <span>Gérer mon compte</span>
                         <i class="fas fa-chevron-down ml-auto transform transition-transform duration-200" id="pages-menu-icon"></i>
                     </button>
                     <div id="pages-menu" class="pl-6 space-y-1 max-h-0 overflow-hidden transition-all duration-300">

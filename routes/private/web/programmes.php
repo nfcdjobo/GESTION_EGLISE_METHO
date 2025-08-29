@@ -13,14 +13,14 @@ use App\Http\Controllers\Private\Web\ProgrammeController;
 |
 */
 // Routes d'administration des permissions
-Route::middleware(['auth', 'user.status'])->prefix('private')->name('private.programmes.')->group(function () {
+Route::middleware(['auth', 'user.status'])->prefix('dashboard')->name('private.programmes.')->group(function () {
 
     Route::get('programmes', [ProgrammeController::class, 'index'])->name('index');
 
     Route::get('programmes/create', [ProgrammeController::class, 'create'])->name('create');
 
     Route::post('programmes', [ProgrammeController::class, 'store'])->name('store');
-    
+
         // Routes pour les vues spécialisées
     Route::get('programmes-planning', [ProgrammeController::class, 'planning'])->name('planning');
 

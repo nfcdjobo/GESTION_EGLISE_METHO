@@ -2,606 +2,617 @@
 
 namespace App\Http\Controllers\Private\Web;
 
-use App\Http\Controllers\Controller;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Carbon\Carbon;
+use App\Services\PermissionService;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
 
 class DashboardController extends Controller
 {
-    /**
-     * Dashboard générale avec statistiques pour l'église.
-     */
-    public function index()
+     protected PermissionService $permissionService;
+
+    public function __construct(PermissionService $permissionService)
     {
-        // Statistiques principales
-        $stats = $this->getMainStats();
+        $this->permissionService = $permissionService;
 
-        // Statistiques des ministères/programmes
-        $ministryStats = $this->getMinistryStats();
-
-        // Données pour le graphique des offrandes
-        $offeringChart = $this->getOfferingChartData();
-
-        // Événements à venir
-        $upcomingEvents = $this->getUpcomingEvents();
-
-        // Dernières transactions
-        $recentTransactions = $this->getRecentTransactions();
-
-        // Réunions du jour
-        $todayMeetings = $this->getTodayMeetings();
-
-        // Cultes à venir
-        $upcomingCultes = $this->getUpcomingCultes();
-
-        // Annonces actives
-        $activeAnnouncements = $this->getActiveAnnouncements();
-
-        // Projets en cours
-        $activeProjects = $this->getActiveProjects();
-
-        // Indicateurs de performance
-        $performanceIndicators = $this->getPerformanceIndicators();
-
-        // Actions requises (alertes)
-        $actionsRequired = $this->getActionsRequired();
-
-        return view('dashboard', compact(
-            'stats',
-            'ministryStats',
-            'offeringChart',
-            'upcomingEvents',
-            'recentTransactions',
-            'todayMeetings',
-            'upcomingCultes',
-            'activeAnnouncements',
-            'activeProjects',
-            'performanceIndicators',
-            'actionsRequired'
-        ));
+        // Appliquer les middlewares de permissions
+        $this->middleware('auth');
+        $this->middleware('user.status');
+        $this->middleware('permission:users.read')->only(['index', 'show']);
+        $this->middleware('permission:users.create')->only(['create', 'store']);
+        $this->middleware('permission:users.update')->only(['edit', 'update']);
+        $this->middleware('permission:users.delete')->only(['destroy']);
+        $this->middleware('permission:users.export')->only(['export']);
+        $this->middleware('permission:users.import')->only(['import', 'processImport']);
+        $this->middleware('permission:users.validate')->only(['validate']);
+        $this->middleware('permission:users.archive')->only(['archive']);
+        $this->middleware('permission:users.restore')->only(['restore']);
     }
 
     /**
-     * Récupère les statistiques principales
+     * Afficher le tableau de bord principal
      */
-    private function getMainStats()
+    public function index(Request $request)
     {
-        $currentMonth = Carbon::now();
-        $currentYear = Carbon::now()->year;
+        try {
+            $dashboardData = [
+                'statistiques_generales' => $this->getStatistiquesGenerales(),
+                'activites_recentes' => $this->getActivitesRecentes(),
+                'finances' => $this->getStatistiquesFinancieres(),
+                'evenements_a_venir' => $this->getEvenementsAVenir(),
+                'cultes_recents' => $this->getCultesRecents(),
+                'membres_statistiques' => $this->getMembresStatistiques(),
+                'annonces_importantes' => $this->getAnnoncesImportantes(),
+                'notifications' => $this->getNotifications(),
+                'multimedia_recents' => $this->getMultimediaRecents(),
+                'performances_mensuelles' => $this->getPerformancesMensuelles()
+            ];
 
+             if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'data' => $dashboardData
+                ]);
+            }
+
+            return view('components.private.index', $dashboardData);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Erreur lors du chargement du dashboard',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Statistiques générales de l'église
+     */
+    private function getStatistiquesGenerales()
+    {
         return [
-            // Nombre total de membres actifs
-            'total_members' => DB::table('users')
+            // Membres
+            'total_membres' => DB::table('users')
+                ->whereNull('deleted_at')
+                ->where('actif', true)
+                ->count(),
+
+            'nouveaux_membres_mois' => DB::table('users')
+                ->whereNull('deleted_at')
+                ->where('actif', true)
+                ->whereMonth('created_at', Carbon::now()->month)
+                ->whereYear('created_at', Carbon::now()->year)
+                ->count(),
+
+            'membres_actifs' => DB::table('users')
+                ->whereNull('deleted_at')
                 ->where('actif', true)
                 ->where('statut_membre', 'actif')
-                ->whereNull('deleted_at')
                 ->count(),
 
-            // Nouveaux membres ce mois
-            'new_members_month' => DB::table('users')
-                ->where('actif', true)
-                ->whereMonth('created_at', $currentMonth->month)
-                ->whereYear('created_at', $currentYear)
+            // Cultes
+            'total_cultes_mois' => DB::table('cultes')
                 ->whereNull('deleted_at')
+                ->whereMonth('date_culte', Carbon::now()->month)
+                ->whereYear('date_culte', Carbon::now()->year)
                 ->count(),
 
-            // Événements ce mois
-            'monthly_events' => DB::table('events')
-                ->whereMonth('date_debut', $currentMonth->month)
-                ->whereYear('date_debut', $currentYear)
-                ->whereNotIn('statut', ['annule', 'archive'])
+            'moyenne_participants_culte' => DB::table('cultes')
                 ->whereNull('deleted_at')
+                ->whereNotNull('nombre_participants')
+                ->whereMonth('date_culte', Carbon::now()->month)
+                ->avg('nombre_participants'),
+
+            // Événements
+            'evenements_planifies' => DB::table('events')
+                ->whereNull('deleted_at')
+                ->where('date_debut', '>=', Carbon::now())
+                ->whereIn('statut', ['planifie', 'en_promotion', 'ouvert_inscription'])
                 ->count(),
 
-            // Total offrandes ce mois (en XOF)
-            'monthly_offerings' => DB::table('transactions_spirituelles')
+            // Finances
+            'offrandes_mois' => DB::table('fonds')
+                ->whereNull('deleted_at')
                 ->where('statut', 'validee')
-                ->whereMonth('date_transaction', $currentMonth->month)
-                ->whereYear('date_transaction', $currentYear)
-                ->where('devise', 'XOF')
-                ->whereNull('deleted_at')
-                ->sum('montant') ?? 0,
+                ->whereMonth('date_transaction', Carbon::now()->month)
+                ->whereYear('date_transaction', Carbon::now()->year)
+                ->sum('montant'),
 
-            // Réunions cette semaine
-            'weekly_meetings' => DB::table('reunions')
-                ->whereBetween('date_reunion', [
-                    Carbon::now()->startOfWeek(),
-                    Carbon::now()->endOfWeek()
-                ])
-                ->whereIn('statut', ['confirmee', 'planifie', 'en_cours'])
+            // Classes
+            'total_classes' => DB::table('classes')
                 ->whereNull('deleted_at')
                 ->count(),
 
-            // Projets actifs
-            'active_projects' => DB::table('projets')
-                ->where('statut', 'en_cours')
+            'total_inscrits_classes' => DB::table('classes')
                 ->whereNull('deleted_at')
-                ->count(),
-
-            // Classes actives
-            'active_classes' => DB::table('classes')
-                ->whereNull('deleted_at')
-                ->count(),
-
-            // Total étudiants dans les classes
-            'total_students' => DB::table('classes')
-                ->whereNull('deleted_at')
-                ->sum('nombre_inscrits') ?? 0
+                ->sum('nombre_inscrits')
         ];
     }
 
     /**
-     * Récupère les statistiques des ministères/programmes
+     * Activités récentes
      */
-    private function getMinistryStats()
+    private function getActivitesRecentes()
     {
-        return [
-            // Programmes jeunesse actifs
-            'youth_programs' => [
-                'count' => DB::table('programmes')
-                    ->where('type_programme', 'jeunesse')
-                    ->where('statut', 'actif')
-                    ->whereNull('deleted_at')
-                    ->count()
-                // 'participants' => DB::table('programmes')
-                //     ->where('type_programme', 'jeunesse')
-                //     ->where('statut', 'actif')
-                //     ->whereNull('deleted_at')
-                //     ->sum('participants_attendus') ?? 0
-            ],
+        $activites = [];
 
-            // Classes d'école du dimanche
-            'sunday_school' => [
-                'classes' => DB::table('classes')->whereNull('deleted_at')->count(),
-                'students' => DB::table('classes')->whereNull('deleted_at')->sum('nombre_inscrits') ?? 0
-            ],
-
-            // Formations en cours
-            'formations' => [
-                'active' => DB::table('programmes')
-                    ->where('type_programme', 'formation')
-                    ->where('statut', 'actif')
-                    ->whereNull('deleted_at')
-                    ->count()
-                // 'participants' => DB::table('programmes')
-                //     ->where('type_programme', 'formation')
-                //     ->where('statut', 'actif')
-                //     ->whereNull('deleted_at')
-                //     ->sum('participants_attendus') ?? 0
-            ],
-
-            // Missions et évangélisation
-            'missions' => [
-                'programs' => DB::table('programmes')
-                    ->whereIn('type_programme', ['mission', 'evangelisation'])
-                    ->where('statut', 'actif')
-                    ->whereNull('deleted_at')
-                    ->count(),
-                'events' => DB::table('events')
-                    ->where('type_evenement', 'evangelisation')
-                    ->where('date_debut', '>=', Carbon::now())
-                    ->whereNotIn('statut', ['annule', 'archive'])
-                    ->whereNull('deleted_at')
-                    ->count()
-            ],
-
-            // Cultes ce mois
-            'monthly_cultes' => [
-                'total' => DB::table('cultes')
-                    ->whereMonth('date_culte', Carbon::now()->month)
-                    ->whereYear('date_culte', Carbon::now()->year)
-                    ->whereNull('deleted_at')
-                    ->count(),
-                'participants_total' => DB::table('cultes')
-                    ->whereMonth('date_culte', Carbon::now()->month)
-                    ->whereYear('date_culte', Carbon::now()->year)
-                    ->where('statut', 'termine')
-                    ->whereNull('deleted_at')
-                    ->sum('nombre_participants') ?? 0
-            ]
-        ];
-    }
-
-    /**
-     * Données pour le graphique des offrandes (6 derniers mois)
-     */
-    private function getOfferingChartData()
-    {
-        $chartData = [];
-
-        for ($i = 5; $i >= 0; $i--) {
-            $date = Carbon::now()->subMonths($i);
-            $month = $date->format('M Y');
-
-            $amount = DB::table('transactions_spirituelles')
-                ->where('statut', 'validee')
-                ->whereMonth('date_transaction', $date->month)
-                ->whereYear('date_transaction', $date->year)
-                ->where('devise', 'XOF')
-                ->whereNull('deleted_at')
-                ->sum('montant') ?? 0;
-
-            $chartData[] = [
-                'month' => $month,
-                'amount' => $amount
-            ];
-        }
-
-        return $chartData;
-    }
-
-    /**
-     * Récupère les prochains événements
-     */
-    private function getUpcomingEvents()
-    {
-        return DB::table('events')
-            ->select(
-                'id', 'titre', 'date_debut', 'heure_debut',
-                'lieu_nom', 'type_evenement', 'nombre_inscrits',
-                'places_disponibles', 'statut'
-            )
-            ->where('date_debut', '>=', Carbon::now()->toDateString())
-            ->whereNotIn('statut', ['annule', 'archive'])
+        // Cultes récents
+        $cultes = DB::table('cultes')
+            ->select('id', 'titre', 'date_culte', 'nombre_participants', 'created_at')
             ->whereNull('deleted_at')
-            ->orderBy('date_debut')
-            ->orderBy('heure_debut')
+            ->orderBy('date_culte', 'desc')
             ->limit(5)
-            ->get();
+            ->get()
+            ->map(function ($culte) {
+                return [
+                    'type' => 'culte',
+                    'titre' => $culte->titre,
+                    'date' => $culte->date_culte,
+                    'details' => "{$culte->nombre_participants} participants",
+                    'timestamp' => $culte->created_at
+                ];
+            });
+
+        // Événements récents
+        $events = DB::table('events')
+            ->select('id', 'titre', 'date_debut', 'nombre_participants', 'created_at')
+            ->whereNull('deleted_at')
+            ->orderBy('created_at', 'desc')
+            ->limit(5)
+            ->get()
+            ->map(function ($event) {
+                return [
+                    'type' => 'evenement',
+                    'titre' => $event->titre,
+                    'date' => $event->date_debut,
+                    'details' => "Événement planifié",
+                    'timestamp' => $event->created_at
+                ];
+            });
+
+        // Nouveaux membres
+        $nouveaux_membres = DB::table('users')
+            ->select('prenom', 'nom', 'created_at')
+            ->whereNull('deleted_at')
+            ->where('created_at', '>=', Carbon::now()->subDays(7))
+            ->orderBy('created_at', 'desc')
+            ->limit(5)
+            ->get()
+            ->map(function ($membre) {
+                return [
+                    'type' => 'nouveau_membre',
+                    'titre' => "Nouveau membre: {$membre->prenom} {$membre->nom}",
+                    'date' => Carbon::parse($membre->created_at)->format('Y-m-d'),
+                    'details' => 'Inscription récente',
+                    'timestamp' => $membre->created_at
+                ];
+            });
+
+        return collect($activites)
+            ->merge($cultes)
+            ->merge($events)
+            ->merge($nouveaux_membres)
+            ->sortByDesc('timestamp')
+            ->take(10)
+            ->values();
     }
 
     /**
-     * Récupère les prochains cultes
+     * Statistiques financières
      */
-    private function getUpcomingCultes()
+    private function getStatistiquesFinancieres()
     {
-        return DB::table('cultes as c')
-            ->leftJoin('users as pasteur', 'c.pasteur_principal_id', '=', 'pasteur.id')
-            ->leftJoin('users as pred', 'c.predicateur_id', '=', 'pred.id')
-            ->select(
-                'c.id', 'c.titre', 'c.date_culte', 'c.heure_debut',
-                'c.type_culte', 'c.lieu', 'c.statut',
-                DB::raw("CONCAT(COALESCE(pasteur.prenom, ''), ' ', COALESCE(pasteur.nom, '')) as pasteur"),
-                DB::raw("CONCAT(COALESCE(pred.prenom, ''), ' ', COALESCE(pred.nom, '')) as predicateur")
-            )
-            ->where('c.date_culte', '>=', Carbon::now()->toDateString())
-            ->whereIn('c.statut', ['planifie', 'planifie'])
-            ->whereNull('c.deleted_at')
-            ->orderBy('c.date_culte')
-            ->orderBy('c.heure_debut')
-            ->limit(3)
-            ->get();
+        $moisActuel = Carbon::now();
+        $moisPrecedent = Carbon::now()->subMonth();
+
+        return [
+            // Mois actuel
+            'offrandes_mois_actuel' => DB::table('fonds')
+                ->whereNull('deleted_at')
+                ->where('statut', 'validee')
+                ->whereMonth('date_transaction', $moisActuel->month)
+                ->whereYear('date_transaction', $moisActuel->year)
+                ->where('type_transaction', 'like', 'offrande_%')
+                ->sum('montant'),
+
+            'dimes_mois_actuel' => DB::table('fonds')
+                ->whereNull('deleted_at')
+                ->where('statut', 'validee')
+                ->where('type_transaction', 'dime')
+                ->whereMonth('date_transaction', $moisActuel->month)
+                ->whereYear('date_transaction', $moisActuel->year)
+                ->sum('montant'),
+
+            // Mois précédent pour comparaison
+            'offrandes_mois_precedent' => DB::table('fonds')
+                ->whereNull('deleted_at')
+                ->where('statut', 'validee')
+                ->whereMonth('date_transaction', $moisPrecedent->month)
+                ->whereYear('date_transaction', $moisPrecedent->year)
+                ->where('type_transaction', 'like', 'offrande_%')
+                ->sum('montant'),
+
+            // Transactions en attente
+            'transactions_en_attente' => DB::table('fonds')
+                ->whereNull('deleted_at')
+                ->where('statut', 'en_attente')
+                ->count(),
+
+            // Donateurs réguliers
+            'donateurs_reguliers_count' => DB::table('donateurs_reguliers')->count(),
+
+            // Évolution par type
+            'repartition_par_type' => DB::table('fonds')
+                ->select('type_transaction', DB::raw('SUM(montant) as total'))
+                ->whereNull('deleted_at')
+                ->where('statut', 'validee')
+                ->whereMonth('date_transaction', $moisActuel->month)
+                ->whereYear('date_transaction', $moisActuel->year)
+                ->groupBy('type_transaction')
+                ->get()
+        ];
     }
 
     /**
-     * Récupère les dernières transactions
+     * Événements à venir
      */
-    private function getRecentTransactions()
+    private function getEvenementsAVenir()
     {
-        return DB::table('transactions_spirituelles as ts')
-            ->leftJoin('users as u', 'ts.donateur_id', '=', 'u.id')
+        return DB::table('events_a_venir')
             ->select(
-                'ts.id', 'ts.montant', 'ts.devise', 'ts.type_transaction',
-                'ts.date_transaction', 'ts.heure_transaction',
-                DB::raw("COALESCE(CONCAT(u.prenom, ' ', u.nom), ts.nom_donateur_anonyme, 'Anonyme') as donateur"),
-                'ts.est_anonyme'
+                'id',
+                'titre',
+                'date_debut',
+                'heure_debut',
+                'lieu_nom',
+                'type_evenement',
+                'nombre_inscrits',
+                'places_disponibles',
+                'statut_inscription',
+                'jours_restants'
             )
-            ->where('ts.statut', 'validee')
-            ->whereNull('ts.deleted_at')
-            ->orderBy('ts.date_transaction', 'desc')
-            ->orderBy('ts.heure_transaction', 'desc')
+            ->orderBy('date_debut')
             ->limit(10)
             ->get();
     }
 
     /**
-     * Récupère les réunions du jour
+     * Cultes récents avec statistiques
      */
-    private function getTodayMeetings()
+    private function getCultesRecents()
     {
-        return DB::table('reunions as r')
-            ->leftJoin('type_reunions as tr', 'r.type_reunion_id', '=', 'tr.id')
-            ->leftJoin('users as org', 'r.organisateur_principal_id', '=', 'org.id')
+        return DB::table('cultes')
             ->select(
-                'r.id', 'r.titre', 'r.heure_debut_prevue', 'r.heure_fin_prevue',
-                'r.lieu', 'r.statut', 'tr.nom as type_reunion',
-                DB::raw("CONCAT(COALESCE(org.prenom, ''), ' ', COALESCE(org.nom, '')) as organisateur")
+                'id',
+                'titre',
+                'date_culte',
+                'type_culte',
+                'nombre_participants',
+                'nombre_conversions',
+                'offrande_totale',
+                'statut'
             )
-            ->where('r.date_reunion', Carbon::now()->toDateString())
-            ->whereIn('r.statut', ['confirmee', 'planifie', 'en_cours'])
-            ->whereNull('r.deleted_at')
-            ->orderBy('r.heure_debut_prevue')
-            ->get();
-    }
-
-    /**
-     * Récupère les annonces actives
-     */
-    private function getActiveAnnouncements()
-    {
-        return DB::table('annonces as a')
-            ->leftJoin('users as u', 'a.contact_principal_id', '=', 'u.id')
-            ->select(
-                'a.id', 'a.titre', 'a.resume_court', 'a.niveau_priorite',
-                'a.date_evenement', 'a.publie_le', 'a.type_annonce',
-                DB::raw("CONCAT(COALESCE(u.prenom, ''), ' ', COALESCE(u.nom, '')) as contact")
-            )
-            ->where('a.statut', 'publiee')
-            ->where(function($query) {
-                $query->whereNull('expire_le')
-                      ->orWhere('expire_le', '>', Carbon::now());
-            })
-            ->whereNull('a.deleted_at')
-            ->orderBy('a.niveau_priorite', 'desc')
-            ->orderBy('a.publie_le', 'desc')
+            ->whereNull('deleted_at')
+            ->orderBy('date_culte', 'desc')
             ->limit(5)
             ->get();
     }
 
     /**
-     * Récupère les projets actifs
+     * Statistiques des membres
      */
-    private function getActiveProjects()
+    private function getMembresStatistiques()
     {
-        return DB::table('projets as p')
-            ->leftJoin('users as resp', 'p.responsable_id', '=', 'resp.id')
-            ->select(
-                'p.id', 'p.nom_projet', 'p.budget_prevu', 'p.budget_collecte',
-                'p.pourcentage_completion', 'p.statut', 'p.priorite',
-                DB::raw("CONCAT(COALESCE(resp.prenom, ''), ' ', COALESCE(resp.nom, '')) as responsable")
-            )
-            ->where('p.statut', 'en_cours')
-            ->whereNull('p.deleted_at')
-            ->orderBy('p.priorite', 'desc')
-            ->orderBy('p.pourcentage_completion', 'asc')
-            ->limit(5)
-            ->get();
-    }
-
-    /**
-     * Indicateurs de performance
-     */
-    private function getPerformanceIndicators()
-    {
-        $currentMonth = Carbon::now();
-        $lastMonth = Carbon::now()->subMonth();
-
-        // Évolution du nombre de membres
-        $currentMembers = DB::table('users')
-            ->where('actif', true)
-            ->whereMonth('created_at', $currentMonth->month)
-            ->whereYear('created_at', $currentMonth->year)
-            ->whereNull('deleted_at')
-            ->count();
-
-        $lastMonthMembers = DB::table('users')
-            ->where('actif', true)
-            ->whereMonth('created_at', $lastMonth->month)
-            ->whereYear('created_at', $lastMonth->year)
-            ->whereNull('deleted_at')
-            ->count();
-
-        // Évolution des offrandes
-        $currentOffrandes = DB::table('transactions_spirituelles')
-            ->where('statut', 'validee')
-            ->whereMonth('date_transaction', $currentMonth->month)
-            ->whereYear('date_transaction', $currentMonth->year)
-            ->whereNull('deleted_at')
-            ->sum('montant') ?? 0;
-
-        $lastMonthOffrandes = DB::table('transactions_spirituelles')
-            ->where('statut', 'validee')
-            ->whereMonth('date_transaction', $lastMonth->month)
-            ->whereYear('date_transaction', $lastMonth->year)
-            ->whereNull('deleted_at')
-            ->sum('montant') ?? 0;
-
-        // Calcul des pourcentages
-        $membersGrowth = $lastMonthMembers > 0
-            ? (($currentMembers - $lastMonthMembers) / $lastMonthMembers) * 100
-            : 0;
-
-        $offeringGrowth = $lastMonthOffrandes > 0
-            ? (($currentOffrandes - $lastMonthOffrandes) / $lastMonthOffrandes) * 100
-            : 0;
-
         return [
-            'members_growth' => round($membersGrowth, 1),
-            'offering_growth' => round($offeringGrowth, 1),
-            'attendance_rate' => $this->calculateAttendanceRate(),
-            'program_completion' => $this->calculateProgramCompletion(),
-            'project_completion' => $this->calculateProjectCompletion()
+            'par_statut' => DB::table('users')
+                ->select('statut_membre', DB::raw('count(*) as total'))
+                ->whereNull('deleted_at')
+                ->where('actif', true)
+                ->groupBy('statut_membre')
+                ->get(),
+
+            'par_tranche_age' => DB::table('users')
+                ->select(
+                    DB::raw("
+                        CASE
+                            WHEN EXTRACT(YEAR FROM AGE(COALESCE(date_naissance, CURRENT_DATE))) < 18 THEN 'Moins de 18 ans'
+                            WHEN EXTRACT(YEAR FROM AGE(COALESCE(date_naissance, CURRENT_DATE))) BETWEEN 18 AND 35 THEN '18-35 ans'
+                            WHEN EXTRACT(YEAR FROM AGE(COALESCE(date_naissance, CURRENT_DATE))) BETWEEN 36 AND 55 THEN '36-55 ans'
+                            ELSE 'Plus de 55 ans'
+                        END as tranche_age
+                    "),
+                    DB::raw('count(*) as total')
+                )
+                ->whereNull('deleted_at')
+                ->where('actif', true)
+                ->whereNotNull('date_naissance')
+                ->groupBy('tranche_age')
+                ->get(),
+
+            'par_sexe' => DB::table('users')
+                ->select('sexe', DB::raw('count(*) as total'))
+                ->whereNull('deleted_at')
+                ->where('actif', true)
+                ->groupBy('sexe')
+                ->get(),
+
+            'anniversaires_mois' => DB::table('anniversaires_du_mois')
+                ->count(),
+
+            'nouveaux_visiteurs' => DB::table('nouveaux_visiteurs_suivi')
+                ->where('date_inscription', '>=', Carbon::now()->subDays(30))
+                ->count()
         ];
     }
 
     /**
-     * Actions requises (alertes et notifications)
+     * Annonces importantes
      */
-    private function getActionsRequired()
+    private function getAnnoncesImportantes()
     {
-        $actions = [];
+        return DB::table('annonces_actives')
+            ->select(
+                'id',
+                'titre',
+                'contenu',
+                'type_annonce',
+                'niveau_priorite',
+                'date_evenement',
+                'lieu_evenement'
+            )
+            ->orderByRaw("
+                CASE niveau_priorite
+                    WHEN 'urgent' THEN 1
+                    WHEN 'important' THEN 2
+                    ELSE 3
+                END
+            ")
+            ->orderBy('publie_le', 'desc')
+            ->limit(5)
+            ->get();
+    }
 
-        // Réunions nécessitant une préparation
-        $unpreparedMeetings = DB::table('reunions')
-            ->where('date_reunion', '<=', Carbon::now()->addDays(3))
-            ->where('preparation_terminee', false)
-            ->whereIn('statut', ['confirmee', 'planifie'])
+    /**
+     * Notifications et alertes
+     */
+    private function getNotifications()
+    {
+        $notifications = [];
+
+        // Vérifier les cultes nécessitant une action
+        $cultesAction = DB::table('cultes')
             ->whereNull('deleted_at')
+            ->where('date_culte', '<=', Carbon::now()->addDays(7))
+            ->where('statut', 'planifie')
             ->count();
 
-        if ($unpreparedMeetings > 0) {
-            $actions[] = [
+        if ($cultesAction > 0) {
+            $notifications[] = [
                 'type' => 'warning',
-                'message' => "{$unpreparedMeetings} réunion(s) nécessitent une préparation",
-                'action' => 'Voir les réunions',
-                'link' => route('reunions.index')
+                'titre' => 'Cultes à confirmer',
+                'message' => "{$cultesAction} culte(s) nécessitent une confirmation",
+                'action_url' => '/cultes'
             ];
         }
 
-        // Projets en retard
-        $delayedProjects = DB::table('projets')
-            ->where('date_fin_prevue', '<', Carbon::now())
-            ->where('statut', 'en_cours')
+        // Vérifier les transactions en attente
+        $transactionsAttente = DB::table('fonds')
             ->whereNull('deleted_at')
+            ->where('statut', 'en_attente')
+            ->where('created_at', '<=', Carbon::now()->subDays(3))
             ->count();
 
-        if ($delayedProjects > 0) {
-            $actions[] = [
-                'type' => 'danger',
-                'message' => "{$delayedProjects} projet(s) en retard",
-                'action' => 'Voir les projets',
-                'link' => route('projets.index')
-            ];
-        }
-
-        // Annonces expirant bientôt
-        $expiringAnnouncements = DB::table('annonces')
-            ->where('expire_le', '<=', Carbon::now()->addDays(2))
-            ->where('statut', 'publiee')
-            ->whereNull('deleted_at')
-            ->count();
-
-        if ($expiringAnnouncements > 0) {
-            $actions[] = [
+        if ($transactionsAttente > 0) {
+            $notifications[] = [
                 'type' => 'info',
-                'message' => "{$expiringAnnouncements} annonce(s) expirent bientôt",
-                'action' => 'Voir les annonces',
-                'link' => route('annonces.index')
+                'titre' => 'Transactions en attente',
+                'message' => "{$transactionsAttente} transaction(s) en attente de validation",
+                'action_url' => '/finances'
             ];
         }
 
-        return $actions;
-    }
-
-    /**
-     * Calcule le taux de présence moyen
-     */
-    private function calculateAttendanceRate()
-    {
-        $totalMembers = DB::table('users')
-            ->where('actif', true)
-            ->where('statut_membre', 'actif')
+        // Vérifier les événements bientôt complets
+        $evenementsProchesComplets = DB::table('events')
             ->whereNull('deleted_at')
+            ->whereNotNull('capacite_totale')
+            ->whereRaw('nombre_inscrits >= (capacite_totale * 0.9)')
+            ->where('date_debut', '>=', Carbon::now())
             ->count();
 
-        if ($totalMembers == 0) return 0;
-
-        $averageAttendance = DB::table('cultes')
-            ->where('statut', 'termine')
-            ->whereMonth('date_culte', Carbon::now()->month)
-            ->whereYear('date_culte', Carbon::now()->year)
-            ->whereNull('deleted_at')
-            ->avg('nombre_participants') ?? 0;
-
-        return $totalMembers > 0 ? round(($averageAttendance / $totalMembers) * 100, 1) : 0;
-    }
-
-    /**
-     * Calcule le taux de completion des programmes
-     */
-    private function calculateProgramCompletion()
-    {
-        $totalPrograms = DB::table('programmes')
-            ->whereIn('statut', ['actif', 'termine'])
-            ->whereNull('deleted_at')
-            ->count();
-
-        if ($totalPrograms == 0) return 0;
-
-        $completedPrograms = DB::table('programmes')
-            ->where('statut', 'termine')
-            ->whereNull('deleted_at')
-            ->count();
-
-        return round(($completedPrograms / $totalPrograms) * 100, 1);
-    }
-
-    /**
-     * Calcule le taux de completion des projets
-     */
-    private function calculateProjectCompletion()
-    {
-        $averageCompletion = DB::table('projets')
-            ->where('statut', 'en_cours')
-            ->whereNull('deleted_at')
-            ->avg('pourcentage_completion') ?? 0;
-
-        return round($averageCompletion, 1);
-    }
-
-    /**
-     * Récupère les données pour les graphiques AJAX
-     */
-    public function getChartData(Request $request)
-    {
-        $type = $request->get('type', 'offerings');
-
-        switch ($type) {
-            case 'offerings':
-                return response()->json($this->getOfferingChartData());
-
-            case 'attendance':
-                return response()->json($this->getAttendanceChartData());
-
-            case 'growth':
-                return response()->json($this->getMemberGrowthData());
-
-            case 'projects':
-                return response()->json($this->getProjectsChartData());
-
-            default:
-                return response()->json([]);
+        if ($evenementsProchesComplets > 0) {
+            $notifications[] = [
+                'type' => 'success',
+                'titre' => 'Événements populaires',
+                'message' => "{$evenementsProchesComplets} événement(s) bientôt complets",
+                'action_url' => '/evenements'
+            ];
         }
+
+        // Nouveaux visiteurs nécessitant un suivi
+        $nouveauxVisiteurs = DB::table('nouveaux_visiteurs_suivi')
+            ->where('demande_contact_pastoral', true)
+            ->count();
+
+        if ($nouveauxVisiteurs > 0) {
+            $notifications[] = [
+                'type' => 'info',
+                'titre' => 'Suivi pastoral',
+                'message' => "{$nouveauxVisiteurs} nouveau(x) visiteur(s) demandent un contact pastoral",
+                'action_url' => '/membres'
+            ];
+        }
+
+        return $notifications;
     }
 
     /**
-     * Données pour le graphique de présence
+     * Médias récents
      */
-    private function getAttendanceChartData()
+    private function getMultimediaRecents()
     {
-        return DB::table('cultes')
+        return DB::table('multimedia')
             ->select(
-                'date_culte as date',
-                'nombre_participants as attendance'
+                'id',
+                'titre',
+                'type_media',
+                'categorie',
+                'miniature',
+                'nombre_vues',
+                'created_at'
             )
-            ->where('statut', 'termine')
-            ->where('date_culte', '>=', Carbon::now()->subDays(30))
             ->whereNull('deleted_at')
-            ->orderBy('date_culte')
+            ->where('est_visible', true)
+            ->where('statut_moderation', 'approuve')
+            ->orderBy('created_at', 'desc')
+            ->limit(6)
             ->get();
     }
 
     /**
-     * Données pour la croissance des membres
+     * Performances mensuelles
      */
-    private function getMemberGrowthData()
+    private function getPerformancesMensuelles()
     {
-        return DB::table('users')
-            ->select(
-                DB::raw('DATE(created_at) as date'),
-                DB::raw('COUNT(*) as new_members')
-            )
-            ->where('actif', true)
-            ->where('created_at', '>=', Carbon::now()->subDays(30))
-            ->whereNull('deleted_at')
-            ->groupBy('date')
-            ->orderBy('date')
-            ->get();
+        $moisActuel = Carbon::now();
+        $performances = [];
+
+        // Données des 6 derniers mois
+        for ($i = 5; $i >= 0; $i--) {
+            $mois = $moisActuel->copy()->subMonths($i);
+
+            $performances[] = [
+                'mois' => $mois->format('M Y'),
+                'cultes' => DB::table('cultes')
+                    ->whereNull('deleted_at')
+                    ->whereMonth('date_culte', $mois->month)
+                    ->whereYear('date_culte', $mois->year)
+                    ->count(),
+
+                'participants_moyens' => (int) DB::table('cultes')
+                    ->whereNull('deleted_at')
+                    ->whereMonth('date_culte', $mois->month)
+                    ->whereYear('date_culte', $mois->year)
+                    ->avg('nombre_participants'),
+
+                'offrandes' => (float) DB::table('fonds')
+                    ->whereNull('deleted_at')
+                    ->where('statut', 'validee')
+                    ->whereMonth('date_transaction', $mois->month)
+                    ->whereYear('date_transaction', $mois->year)
+                    ->sum('montant'),
+
+                'nouveaux_membres' => DB::table('users')
+                    ->whereNull('deleted_at')
+                    ->whereMonth('created_at', $mois->month)
+                    ->whereYear('created_at', $mois->year)
+                    ->count()
+            ];
+        }
+
+        return $performances;
     }
 
     /**
-     * Données pour les projets
+     * Statistiques détaillées pour une période
      */
-    private function getProjectsChartData()
+    public function getStatistiquesPeriode(Request $request)
     {
-        return DB::table('projets')
-            ->select(
-                'statut',
-                DB::raw('COUNT(*) as count')
-            )
-            ->whereNull('deleted_at')
-            ->groupBy('statut')
-            ->get();
+        $debut = Carbon::parse($request->input('debut', Carbon::now()->startOfMonth()));
+        $fin = Carbon::parse($request->input('fin', Carbon::now()->endOfMonth()));
+
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'periode' => [
+                    'debut' => $debut->format('Y-m-d'),
+                    'fin' => $fin->format('Y-m-d')
+                ],
+                'cultes' => $this->getStatistiquesCultesPeriode($debut, $fin),
+                'finances' => $this->getStatistiquesFinancesPeriode($debut, $fin),
+                'evenements' => $this->getStatistiquesEvenementsPeriode($debut, $fin),
+                'membres' => $this->getStatistiquesMembresPeriode($debut, $fin)
+            ]
+        ]);
+    }
+
+    private function getStatistiquesCultesPeriode($debut, $fin)
+    {
+        return [
+            'total_cultes' => DB::table('cultes')
+                ->whereNull('deleted_at')
+                ->whereBetween('date_culte', [$debut, $fin])
+                ->count(),
+
+            'total_participants' => DB::table('cultes')
+                ->whereNull('deleted_at')
+                ->whereBetween('date_culte', [$debut, $fin])
+                ->sum('nombre_participants'),
+
+            'total_conversions' => DB::table('cultes')
+                ->whereNull('deleted_at')
+                ->whereBetween('date_culte', [$debut, $fin])
+                ->sum('nombre_conversions')
+        ];
+    }
+
+    private function getStatistiquesFinancesPeriode($debut, $fin)
+    {
+        return [
+            'total_offrandes' => DB::table('fonds')
+                ->whereNull('deleted_at')
+                ->where('statut', 'validee')
+                ->where('type_transaction', 'like', 'offrande_%')
+                ->whereBetween('date_transaction', [$debut, $fin])
+                ->sum('montant'),
+
+            'total_dimes' => DB::table('fonds')
+                ->whereNull('deleted_at')
+                ->where('statut', 'validee')
+                ->where('type_transaction', 'dime')
+                ->whereBetween('date_transaction', [$debut, $fin])
+                ->sum('montant'),
+
+            'nombre_transactions' => DB::table('fonds')
+                ->whereNull('deleted_at')
+                ->where('statut', 'validee')
+                ->whereBetween('date_transaction', [$debut, $fin])
+                ->count()
+        ];
+    }
+
+    private function getStatistiquesEvenementsPeriode($debut, $fin)
+    {
+        return [
+            'total_evenements' => DB::table('events')
+                ->whereNull('deleted_at')
+                ->whereBetween('date_debut', [$debut, $fin])
+                ->count(),
+
+            'total_participants' => DB::table('events')
+                ->whereNull('deleted_at')
+                ->whereBetween('date_debut', [$debut, $fin])
+                ->sum('nombre_participants')
+        ];
+    }
+
+    private function getStatistiquesMembresPeriode($debut, $fin)
+    {
+        return [
+            'nouveaux_membres' => DB::table('users')
+                ->whereNull('deleted_at')
+                ->whereBetween('created_at', [$debut, $fin])
+                ->count(),
+
+            'nouvelles_inscriptions_culte' => DB::table('participant_cultes pc')
+                ->join('cultes c', 'pc.culte_id', '=', 'c.id')
+                ->whereNull('pc.deleted_at')
+                ->whereNull('c.deleted_at')
+                ->whereBetween('c.date_culte', [$debut, $fin])
+                ->where('pc.premiere_visite', true)
+                ->count()
+        ];
     }
 }

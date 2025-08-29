@@ -2,14 +2,16 @@
 
 namespace App\Console;
 
-use App\Jobs\CleanupExpiredPermissions;
-use App\Jobs\NotifyExpiringPermissions;
-use App\Jobs\GeneratePermissionReport;
-use App\Jobs\RefreshPermissionCache;
-use Illuminate\Console\Scheduling\Schedule;
-use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use App\Jobs\RefreshPermissionCache;
+use App\Jobs\EnvoyerRappelsPaiements;
+use App\Jobs\MettreAJourStatistiques;
+use App\Jobs\GeneratePermissionReport;
+use App\Jobs\CleanupExpiredPermissions;
+use App\Jobs\NotifyExpiringPermissions;
+use Illuminate\Console\Scheduling\Schedule;
+use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 
 class Kernel extends ConsoleKernel
 {
@@ -108,6 +110,25 @@ class Kernel extends ConsoleKernel
             DB::statement('OPTIMIZE TABLE permission_audit_logs');
             Log::info('Tables de permissions optimisées');
         })->weekly()->sundays()->at('04:00');
+
+
+
+
+        // Rappels de paiement à 8h00 chaque matin
+        $schedule->job(new EnvoyerRappelsPaiements(7))->dailyAt('08:00');
+        $schedule->job(new EnvoyerRappelsPaiements(3))->dailyAt('08:00');
+        $schedule->job(new EnvoyerRappelsPaiements(1))->dailyAt('08:00');
+
+        // Rappels pour paiements en retard à 8h00
+        $schedule->job(new EnvoyerRappelsPaiements(0))->dailyAt('08:00');
+
+        // Mise à jour des statistiques toutes les heures
+        $schedule->job(new MettreAJourStatistiques())->hourly();
+
+        // Nettoyage des logs anciens (90 jours)
+        $schedule->command('model:prune', ['--model' => 'App\Models\SubscriptionPaymentLog'])
+                 ->monthly()
+                 ->where('created_at', '<', now()->subDays(90));
 
         // ========================================
         // AUTRES TÂCHES DE L'APPLICATION

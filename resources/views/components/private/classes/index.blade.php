@@ -386,7 +386,7 @@ function closeMemberModal() {
 function deleteClasse(classeId) {
     showDeleteModal();
     document.getElementById('confirmDelete').onclick = function() {
-        fetch(`/private/classes/${classeId}`, {
+        fetch(`{{route('private.classes.destroy', ':classe')}}`.replace(':classe', classeId), {
             method: 'DELETE',
             headers: {
                 'X-CSRF-TOKEN': '{{ csrf_token() }}',

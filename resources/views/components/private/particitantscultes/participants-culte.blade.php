@@ -592,7 +592,7 @@ function addSelectedMembers() {
 
 function removeParticipant(participantId) {
     if (confirm('Retirer ce participant du culte ?')) {
-        fetch(`/private/participants-cultes/${participantId}/{{ $culte->id }}`, {
+        fetch(`{{route('private.participantscultes.destroy', [':participant', ':culte'])}}`.replace(':participant', participantId).replace(':culte', culteId), {
             method: 'DELETE',
             headers: {
                 'X-CSRF-TOKEN': '{{ csrf_token() }}',

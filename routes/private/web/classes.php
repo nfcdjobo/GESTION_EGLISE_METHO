@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\Request;
 */
 
 // ========== ROUTES WEB PROTÉGÉES ==========
-Route::middleware(['auth', 'user.status'])->prefix('private')->name('private.')->group(function () {
+Route::middleware(['auth', 'user.status'])->prefix('dashboard')->name('private.')->group(function () {
 
     // ========== ROUTES CRUD PRINCIPALES ==========
 
@@ -125,7 +125,7 @@ Route::patch('/classes/{classe}/restore', [ClasseController::class, 'restore'])
 
         // ========== ROUTES POUR LA GESTION DES MEMBRES ==========
 
-// Dans le groupe Route::middleware(['auth', 'user.status'])->prefix('private')->name('private.')
+// Dans le groupe Route::middleware(['auth', 'user.status'])->prefix('dashboard')->name('private.')
 
 // Récupérer tous les membres d'une classe
 Route::get('/classes/{classe}/membres', [ClasseController::class, 'getMembers'])

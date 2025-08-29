@@ -362,7 +362,7 @@ function closeDeleteModal() {
 function deleteRole(roleId) {
     showDeleteModal();
     document.getElementById('confirmDelete').onclick = function() {
-        fetch(`/admin/roles/${roleId}`, {
+        fetch(`{{route('private.roles.destroy', ':role')}}`.replace(':role', roleId), {
             method: 'DELETE',
             headers: {
                 'X-CSRF-TOKEN': '{{ csrf_token() }}',

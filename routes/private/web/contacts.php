@@ -5,7 +5,7 @@ use App\Http\Controllers\Private\Web\ContactController;
 
 // Routes pour la gestion des contacts d'église
 
-Route::prefix('private')->name('private.')->middleware(['auth', 'verified', 'user.status'])->group(function () {
+Route::prefix('dashboard')->name('private.')->middleware(['auth', 'verified', 'user.status'])->group(function () {
 
     // ========== ROUTES CRUD PRINCIPALES ==========
 

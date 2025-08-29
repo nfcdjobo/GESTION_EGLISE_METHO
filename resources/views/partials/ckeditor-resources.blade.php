@@ -15,7 +15,7 @@
 
     /* Style pour les éditeurs simples */
     .ck-editor--simple .ck-editor__editable {
-        min-height: 80px;
+        min-height: 300px;
         max-height: 200px;
     }
 
@@ -325,10 +325,154 @@ function initializeCulteFormEditors() {
             selector: '#contexte',
             type: 'simple',
             config: { placeholder: 'Contexte...' }
+        },
+
+        {
+            selector: '#message_principal',
+            type: 'simple',
+            config: { placeholder: 'Message principe...' }
+        },
+        {
+            selector: '#objectifs',
+            type: 'simple',
+            config: { placeholder: 'Objectifs...' }
+        },
+        {
+            selector: '#materiel_fourni',
+            type: 'simple',
+            config: { placeholder: 'Materiel fourni...' }
+        },
+        {
+            selector: '#materiel_apporter',
+            type: 'simple',
+            config: { placeholder: 'Materiel apporté...' }
+        },
+        {
+            selector: '#points_positifs',
+            type: 'simple',
+            config: { placeholder: 'Points positifs...' }
         }
+
+
+        ,
+        {
+            selector: '#motif_annulation',
+            type: 'simple',
+            config: { placeholder: "Motif d'annulation..." }
+        },
+        {
+            selector: '#message_participants',
+            type: 'simple',
+            config: { placeholder: 'Message participants...' }
+        },
+        {
+            selector: '#point_positif',
+            type: 'simple',
+            config: { placeholder: 'Points positifs...' }
+        },
+        {
+            selector: '#feedback_participants',
+            type: 'simple',
+            config: { placeholder: 'Points positifs...' }
+        },
+        {
+            selector: '#demande_priere',
+            type: 'simple',
+            config: { placeholder: 'Points positifs...' }
+        },
+        {
+            selector: '#instructions_priere',
+            type: 'simple',
+            config: { placeholder: 'Points positifs...' }
+        },
+        {
+            selector: '#message_rappel',
+            type: 'simple',
+            config: { placeholder: 'Points positifs...' }
+        },
+        {
+            selector: '#motif_annulation',
+            type: 'simple',
+            config: { placeholder: 'Points positifs...' }
+        },
+        {
+            selector: '#motif_suspension',
+            type: 'simple',
+            config: { placeholder: 'Points positifs...' }
+        }
+
+        ,
+        {
+            selector: '#contenu_temoignage',
+            type: 'simple',
+            config: { placeholder: 'Points positifs...' }
+        },
+        {
+            selector: '#details_complementaires',
+            type: 'simple',
+            config: { placeholder: 'Points positifs...' }
+        }
+
+        ,
+        {
+            selector: '#decisions_prises',
+            type: 'simple',
+            config: { placeholder: 'Décisions prises...' }
+        },
+        {
+            selector: '#actions_decidees',
+            type: 'simple',
+            config: { placeholder: 'Actions décidées...' }
+        },
+        {
+            selector: '#recommandations',
+            type: 'simple',
+            config: { placeholder: 'Recommandations...' }
+        },
+        {
+            selector: '#resume',
+            type: 'simple',
+            config: { placeholder: 'Resumé...' }
+        },
+        {
+            selector: '#contenu',
+            type: 'simple',
+            config: { placeholder: 'Contenu...' }
+        }
+
+        ,
+        {
+            selector: '#legende',
+            type: 'simple',
+            config: { placeholder: 'Legende...' }
+        }
+
+        ,
+        {
+            selector: '#avertissement',
+            type: 'simple',
+            config: { placeholder: 'Avertissement...' }
+        },
+        {
+            selector: '#restrictions_usage',
+            type: 'simple',
+            config: { placeholder: "Restrictions d'usage..." }
+        },
+        // {
+        //     selector: '#legende',
+        //     type: 'simple',
+        //     config: { placeholder: 'Legende...' }
+        // },
+        // {
+        //     selector: '#legende',
+        //     type: 'simple',
+        //     config: { placeholder: 'Legende...' }
+        // }
     ];
 
-    // Initialisation de tous les éditeurs présents sur la page
+
+
+
     editorConfigs.forEach(config => {
         if (document.querySelector(config.selector)) {
             initializeCKEditor(config.selector, config.type, config.config);
@@ -336,7 +480,7 @@ function initializeCulteFormEditors() {
     });
 }
 
-// Auto-initialisation au chargement de la page
+// Auto-initialisation au chargement de la page   , ,
 document.addEventListener('DOMContentLoaded', function() {
     // Attendre un court délai pour s'assurer que CKEditor est chargé
     setTimeout(initializeCulteFormEditors, 500);

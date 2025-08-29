@@ -120,8 +120,7 @@
                                     <i class="fas fa-align-left text-blue-600 mr-2"></i>
                                     Description
                                 </h3>
-                                <x-ckeditor-display :model="$culte" field="description" show-meta="true"
-                                    class="bg-slate-50 p-4 rounded-lg" />
+                                <x-ckeditor-display :model="$culte" field="description" show-meta="true" class="bg-slate-50 p-4 rounded-lg" />
                             </div>
                         @endif
 

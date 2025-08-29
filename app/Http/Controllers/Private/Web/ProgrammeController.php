@@ -82,9 +82,7 @@ class ProgrammeController extends Controller
         if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function ($q) use ($search) {
-                $q->where('nom_programme', 'like', "%{$search}%")
-                  ->orWhere('code_programme', 'like', "%{$search}%")
-                  ->orWhere('description', 'like', "%{$search}%");
+                $q->where('nom_programme', 'like', "%{$search}%")->orWhere('code_programme', 'like', "%{$search}%")->orWhere('description', 'like', "%{$search}%");
             });
         }
 
@@ -93,12 +91,10 @@ class ProgrammeController extends Controller
         $sortOrder = $request->get('order', 'desc');
         $query->orderBy($sortBy, $sortOrder);
 
-        $programmes = $query->paginate(15)->withQueryString();
+        $programmes = $query->paginate(15)->appends(request()->query());
 
         // Données pour les filtres
-        $responsables = User::select('id', 'prenom', 'nom')
-                           ->whereIn('id', Programme::pluck('responsable_principal_id'))
-                           ->get();
+        $responsables = User::select('id', 'prenom', 'nom')->whereIn('id', Programme::pluck('responsable_principal_id'))->get();
 
         return view('components.private.programmes.index', compact('programmes', 'responsables'));
     }

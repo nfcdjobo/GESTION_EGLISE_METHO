@@ -272,63 +272,63 @@ class PermissionSeeder extends Seeder
     {
         $roles = [
             [
-                'name' => 'Super Administrateur', /** Pasteur */
-                'slug' => 'super-admin',
+                'name' => 'Pasteur',
+                'slug' => 'pasteur',
                 'description' => 'Accès complet au système',
                 'level' => 100,
                 'is_system_role' => true,
             ],
             [
-                'name' => 'Administrateur',  /** Président du laïque */
-                'slug' => 'admin',
-                'description' => 'Administration générale du système',
+                'name' => 'Président(e) du laïque (PL)',
+                'slug' => 'PL',
+                'description' => 'Président du laïque générale du système',
                 'level' => 90,
                 'is_system_role' => true,
             ],
             [
-                'name' => 'Pasteur', /** Prédicateur */
-                'slug' => 'pasteur',
+                'name' => 'Président(e) du comité financier (PCFA)',
+                'slug' => 'PCFA',
                 'description' => 'Responsable pastoral',
                 'level' => 80,
                 'is_system_role' => true,
             ],
             [
-                'name' => 'Secrétaire', /** Responsable de FUMECO */
-                'slug' => 'secretaire',
+                'name' => 'Prédicateur(ce)',
+                'slug' => 'predicateur',
                 'description' => 'Gestion administrative',
                 'level' => 70,
                 'is_system_role' => true,
             ],
             [
-                'name' => 'Trésorier', /** PCFA */
-                'slug' => 'tresorier',
+                'name' => 'Responsable du registre FUMECO',
+                'slug' => 'responsable_fumeco',
                 'description' => 'Gestion financière',
                 'level' => 70,
                 'is_system_role' => true,
             ],
             [
-                'name' => 'Responsable de classe', /** Responsable de classe */
-                'slug' => 'responsable-classe',
+                'name' => 'Président(e) de classe',
+                'slug' => 'responsable_classe',
                 'description' => 'Responsable d\'une classe d\'école du dimanche',
                 'level' => 60,
                 'is_system_role' => false,
             ],
             [
-                'name' => 'Enseignant', /** Chargée de communication */
+                'name' => 'Chargé(e) de communication', 
                 'slug' => 'enseignant',
+                'description' => 'Charger de faire les annonces',
+                'level' => 50,
+                'is_system_role' => false,
+            ],
+            [
+                'name' => 'Monuteur(ce)',
+                'slug' => 'responsable-departement',
                 'description' => 'Enseignant école du dimanche',
                 'level' => 50,
                 'is_system_role' => false,
             ],
             [
-                'name' => 'Responsable de département',
-                'slug' => 'responsable-departement',
-                'description' => 'Responsable d\'un département',
-                'level' => 50,
-                'is_system_role' => false,
-            ],
-            [
-                'name' => 'Membre actif',
+                'name' => "Chargé(e) d'ordre",
                 'slug' => 'membre-actif',
                 'description' => 'Membre actif de l\'église',
                 'level' => 20,

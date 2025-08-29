@@ -13,7 +13,7 @@ use App\Http\Controllers\Private\Web\FondsController;
 |
 */
 
-Route::prefix('private/fonds')->name('private.fonds.')->middleware(['auth', 'verified', 'user.status'])->group(function () {
+Route::prefix('dashboard/fonds')->name('private.fonds.')->middleware(['auth', 'verified', 'user.status'])->group(function () {
 
     Route::get('/', [FondsController::class, 'index'])->name('index');
 
