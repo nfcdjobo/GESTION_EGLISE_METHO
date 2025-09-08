@@ -451,12 +451,14 @@
                                     {{ $echeance->donateur->nom }} {{ $echeance->donateur->prenom }}
                                 @endif
                             </div>
+                            @can('fonds.duplicate')
                             <div class="flex items-center justify-between">
                                 <div class="font-bold text-slate-900">{{ number_format($echeance->montant, 0, ',', ' ') }} {{ $echeance->devise }}</div>
                                 <button onclick="processRecurrence('{{ $echeance->id }}')" class="text-blue-600 hover:text-blue-800 text-sm">
                                     <i class="fas fa-plus mr-1"></i>Traiter
                                 </button>
                             </div>
+                            @endcan
                         </div>
                     @endforeach
                 </div>

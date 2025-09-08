@@ -38,6 +38,7 @@
                     <button onclick="changerStatut('{{ $reunion->id }}', 'confirmer')" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white text-sm font-medium rounded-xl hover:from-green-700 hover:to-emerald-700 transition-all duration-200 shadow-md hover:shadow-lg">
                         <i class="fas fa-check mr-2"></i> Confirmer
                     </button>
+                    
                 @endif
 
                 @if($reunion->peutCommencer())
@@ -540,11 +541,10 @@ function changerStatut(reunionId, action) {
             'reprendre': 'reprendre'
         };
 
-
     if (!actions[action]) return;
-    const route = `{{route('private.reunions.confirmer', ':action')}}`.replace(':action', reunionId);
+    let route = `{{route('private.reunions.confirmer', ':action')}}`.replace(':action', reunionId).replace('confirmer', actions[action]);
 
-    fetch(route.replace('action', actions[action]), {
+    fetch(route, {
         method: 'POST',
         headers: {
             'X-CSRF-TOKEN': '{{ csrf_token() }}',

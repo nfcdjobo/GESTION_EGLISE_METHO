@@ -20,12 +20,16 @@
                         <i class="fas fa-plus mr-2"></i> Nouvel Événement
                     </a>
                 @endcan
+                @can('events.planning')
                 <a href="{{ route('private.events.planning') }}" class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-cyan-600 to-blue-600 text-white font-medium rounded-xl hover:from-cyan-700 hover:to-blue-700 transition-all duration-200 shadow-md hover:shadow-lg">
                     <i class="fas fa-calendar-alt mr-2"></i> Planning
                 </a>
+                @endcan
+                @can('events.statistics')
                 <a href="{{ route('private.events.statistiques') }}" class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white font-medium rounded-xl hover:from-green-700 hover:to-emerald-700 transition-all duration-200 shadow-md hover:shadow-lg">
                     <i class="fas fa-chart-line mr-2"></i> Statistiques
                 </a>
+                @endcan
                 <a href="{{ route('private.events.index') }}" class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-medium rounded-xl hover:from-purple-700 hover:to-pink-700 transition-all duration-200 shadow-md hover:shadow-lg">
                     <i class="fas fa-list mr-2"></i> Tous les Événements
                 </a>
@@ -320,6 +324,7 @@
                     </div>
                 </a>
 
+                @can('events.statistics')
                 <a href="{{ route('private.events.statistiques') }}" class="flex items-center p-4 border border-slate-200 rounded-xl hover:shadow-md hover:border-purple-300 transition-all duration-200 group">
                     <div class="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center group-hover:bg-purple-200 transition-colors">
                         <i class="fas fa-chart-bar text-purple-600"></i>
@@ -329,6 +334,7 @@
                         <div class="text-sm text-slate-500">Analyses détaillées</div>
                     </div>
                 </a>
+                @endcan
 
                 <a href="{{ route('private.events.index', ['statut' => 'ouvert_inscription']) }}" class="flex items-center p-4 border border-slate-200 rounded-xl hover:shadow-md hover:border-cyan-300 transition-all duration-200 group">
                     <div class="w-12 h-12 bg-cyan-100 rounded-xl flex items-center justify-center group-hover:bg-cyan-200 transition-colors">

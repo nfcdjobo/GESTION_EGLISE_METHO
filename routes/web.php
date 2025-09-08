@@ -58,6 +58,10 @@ Route::get('/', function () {
     return view('index');
 })->name('public.accueil');
 
+Route::get('/donate', function () {
+    return view('components.public.donate');
+})->name('public.add-donate');
+
 
 Route::prefix('dashboard')->name('private.')->middleware(['auth', 'verified', 'user.status'])->group(function () {
     Route::get('', [DashboardController::class, 'index'])->name('dashboard');

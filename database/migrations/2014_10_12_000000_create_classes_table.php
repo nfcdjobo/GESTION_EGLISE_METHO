@@ -27,6 +27,13 @@ return new class extends Migration
 
             // Enseignants et responsables
             $table->uuid('responsable_id')->nullable();
+
+            // $table->uuid('responsable2_id')->nullable();
+            // $table->uuid('responsable3_id')->nullable();
+            // $table->uuid('responsable4_id')->nullable();
+            // $table->uuid('responsable5_id')->nullable();
+            // $table->uuid('responsable6_id')->nullable();
+
             $table->uuid('enseignant_principal_id')->nullable(); // ← AJOUTÉ
 
             $table->json('programme')->nullable(); // Programme détaillé

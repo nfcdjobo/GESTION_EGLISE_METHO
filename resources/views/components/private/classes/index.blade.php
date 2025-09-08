@@ -34,6 +34,8 @@
                 </div>
             </div>
         </div>
+
+        @can('classes.read')
         <div class="p-6">
             <form method="GET" action="{{ route('private.classes.index') }}" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
                 <div class="lg:col-span-2">
@@ -87,6 +89,7 @@
                 </div>
             </form>
         </div>
+        @endcan
     </div>
 
     <!-- Statistiques rapides -->
@@ -207,14 +210,10 @@
                                 @endif
 
                                 <!-- Statistiques -->
-                                <div class="grid grid-cols-2 gap-4 mb-4">
+                                <div class="grid  gap-4 mb-4">
                                     <div class="text-center p-3 bg-slate-50 rounded-lg">
                                         <div class="text-lg font-bold text-slate-900">{{ $classe->nombre_inscrits }}</div>
                                         <div class="text-xs text-slate-500">Inscrits</div>
-                                    </div>
-                                    <div class="text-center p-3 bg-slate-50 rounded-lg">
-                                        <div class="text-lg font-bold text-slate-900">{{ $classe->places_disponibles }}</div>
-                                        <div class="text-xs text-slate-500">Places libres</div>
                                     </div>
                                 </div>
 
@@ -382,6 +381,7 @@ function closeMemberModal() {
     document.getElementById('memberModal').classList.add('hidden');
 }
 
+@can('classes.delete')
 // Suppression d'une classe
 function deleteClasse(classeId) {
     showDeleteModal();
@@ -409,6 +409,7 @@ function deleteClasse(classeId) {
         });
     };
 }
+@endcan
 
 // Charger le contenu des membres
 function loadMemberContent(classeId) {

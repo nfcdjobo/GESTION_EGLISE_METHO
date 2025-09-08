@@ -102,7 +102,7 @@
                                             <p><span class="font-medium">Présents:</span> {{ $rapport->nombre_presents }}</p>
                                         @endif
                                         @if($rapport->montant_collecte)
-                                            <p><span class="font-medium">Montant collecté:</span> {{ number_format($rapport->montant_collecte, 2) }} €</p>
+                                            <p><span class="font-medium">Montant collecté:</span> {{ number_format($rapport->montant_collecte, 2) }} FCFA</p>
                                         @endif
                                     </div>
                                 </div>

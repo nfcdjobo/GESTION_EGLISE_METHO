@@ -5,6 +5,7 @@
 
 namespace App\Http\Controllers\Private\Web;
 
+use App\Models\User;
 use App\Models\Fimeco;
 use App\Models\Subscription;
 use Illuminate\Http\Request;
@@ -15,7 +16,6 @@ use App\Http\Controllers\Controller;
 use App\Services\SubscriptionService;
 use App\Http\Resources\FimecoResource;
 use App\Http\Requests\CreerFimecoRequest;
-use App\Models\User;
 
 class FimecoController extends Controller
 {
@@ -51,10 +51,10 @@ class FimecoController extends Controller
 
         $fimeco = FimecoResource::collection($fimecos);
         $meta = [
-                    'current_page' => $fimecos->currentPage(),
-                    'last_page' => $fimecos->lastPage(),
-                    'per_page' => $fimecos->perPage(),
-                    'total' => $fimecos->total()
+            'current_page' => $fimecos->currentPage(),
+            'last_page' => $fimecos->lastPage(),
+            'per_page' => $fimecos->perPage(),
+            'total' => $fimecos->total()
         ];
         if ($request->expectsJson()) {
             return response()->json([
@@ -67,66 +67,64 @@ class FimecoController extends Controller
     }
 
     /**
- * Afficher le formulaire de création d'une nouvelle FIMECO
- */
-public function create()
-{
-    $this->authorize('create', Fimeco::class);
+     * Afficher le formulaire de création d'une nouvelle FIMECO
+     */
+    public function create()
+    {
+        $this->authorize('create', Fimeco::class);
 
-    // Récupérer les utilisateurs qui peuvent être responsables
-    $responsables = User::where('active', true)
-        ->whereHas('roles', function($query) {
+        // Récupérer les utilisateurs qui peuvent être responsables
+        $responsables = User::whereHas('roles', function ($query) {
             $query->whereIn('name', ['admin', 'responsable_fimeco']);
         })
-        ->orderBy('name')
-        ->get();
+            ->orderBy('nom')
+            ->get();
 
-    if (request()->expectsJson()) {
-        return response()->json([
-            'responsables' => $responsables
-        ]);
-    }
-
-    return view('components.private.fimecos.create', compact('responsables'));
-}
-
-/**
- * Afficher le formulaire d'édition d'une FIMECO
- */
-public function edit(Request $request, string $id)
-{
-    $fimeco = Fimeco::findOrFail($id);
-    $this->authorize('update', $fimeco);
-
-    // Vérifier que la FIMECO peut encore être modifiée
-    if ($fimeco->statut === 'cloturee') {
-        if ($request->expectsJson()) {
+        if (request()->expectsJson()) {
             return response()->json([
-                'error' => 'Une FIMECO clôturée ne peut pas être modifiée'
-            ], 403);
+                'responsables' => $responsables
+            ]);
         }
 
-        return redirect()->back()->withErrors('Une FIMECO clôturée ne peut pas être modifiée');
+        return view('components.private.fimecos.create', compact('responsables'));
     }
 
-    $responsables = User::where('active', true)
-        ->whereHas('roles', function($query) {
+    /**
+     * Afficher le formulaire d'édition d'une FIMECO
+     */
+    public function edit(Request $request, string $id)
+    {
+        $fimeco = Fimeco::findOrFail($id);
+        $this->authorize('update', $fimeco);
+
+        // Vérifier que la FIMECO peut encore être modifiée
+        if ($fimeco->statut === 'cloturee') {
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'error' => 'Une FIMECO clôturée ne peut pas être modifiée'
+                ], 403);
+            }
+
+            return redirect()->back()->withErrors('Une FIMECO clôturée ne peut pas être modifiée');
+        }
+
+        $responsables = User::whereHas('roles', function ($query) {
             $query->whereIn('name', ['admin', 'responsable_fimeco']);
         })
-        ->orderBy('name')
-        ->get();
+            ->orderBy('nom')
+            ->get();
 
-    $fimeco = FimecoResource::make($fimeco);
+        $fimeco = FimecoResource::make($fimeco);
 
-    if ($request->expectsJson()) {
-        return response()->json([
-            'data' => $fimeco,
-            'responsables' => $responsables
-        ]);
+        if ($request->expectsJson()) {
+            return response()->json([
+                'data' => $fimeco,
+                'responsables' => $responsables
+            ]);
+        }
+
+        return view('components.private.fimecos.edit', compact('fimeco', 'responsables'));
     }
-
-    return view('components.private.fimecos.edit', compact('fimeco', 'responsables'));
-}
 
 
     public function show(Request $request, string $id)
@@ -136,24 +134,28 @@ public function edit(Request $request, string $id)
         $fimeco = FimecoResource::make($fimeco);
         $statistiques = $this->fimecoService->obtenirStatistiquesFimeco($id);
         if ($request->expectsJson()) {
-        return response()->json([
-            'data' => $fimeco,
-            'statistiques' => $statistiques
-        ]);}
+            return response()->json([
+                'data' => $fimeco,
+                'statistiques' => $statistiques
+            ]);
+        }
+
 
         return view('components.private.fimecos.show', compact('fimeco', 'statistiques'));
     }
 
     public function store(CreerFimecoRequest $request)
     {
+        // dd($request->all());
         $fimeco = $this->fimecoService->creerFimeco($request->validated());
 
         $fimeco = FimecoResource::make($fimeco);
         if ($request->expectsJson()) {
-        return response()->json([
-            'data' => $fimeco,
-            'message' => 'FIMECO créée avec succès'
-        ], 201);}
+            return response()->json([
+                'data' => $fimeco,
+                'message' => 'FIMECO créée avec succès'
+            ], 201);
+        }
         return redirect()->route('private.fimecos.show', $fimeco);
     }
 
@@ -165,10 +167,11 @@ public function edit(Request $request, string $id)
 
         $fimeco = FimecoResource::make($fimeco->fresh());
         if ($request->expectsJson()) {
-        return response()->json([
-            'data' => $fimeco,
-            'message' => 'FIMECO mise à jour avec succès'
-        ]);}
+            return response()->json([
+                'data' => $fimeco,
+                'message' => 'FIMECO mise à jour avec succès'
+            ]);
+        }
 
         return redirect()->route('private.fimecos.show', $fimeco);
     }
@@ -178,9 +181,10 @@ public function edit(Request $request, string $id)
         try {
             $this->fimecoService->cloturerFimeco($id, $request->commentaire);
             if ($request->expectsJson()) {
-            return response()->json([
-                'message' => 'FIMECO clôturée avec succès'
-            ]);}
+                return response()->json([
+                    'message' => 'FIMECO clôturée avec succès'
+                ]);
+            }
             return redirect()->back()->with('success', 'FIMECO clôturée avec succès');
         } catch (\InvalidArgumentException $e) {
             return response()->json([
@@ -190,13 +194,14 @@ public function edit(Request $request, string $id)
     }
 
 
-    public function statistiques(Request $request, string $id)
+    public function statistiques(Request $request, string $fimeco)
     {
-        $statistiques = $this->fimecoService->obtenirStatistiquesFimeco($id);
+        $statistiques = $this->fimecoService->obtenirStatistiquesFimeco($fimeco);
         if ($request->expectsJson()) {
-        return response()->json([
-            'data' => $statistiques
-        ]);}
+            return response()->json([
+                'data' => $statistiques
+            ]);
+        }
 
         return view('components.private.fimecos.statistiques', compact('statistiques'));
 
@@ -205,6 +210,7 @@ public function edit(Request $request, string $id)
 
     public function fimeco(Request $request)
     {
+
         /**
          * @var User $user
          */
@@ -224,14 +230,13 @@ public function edit(Request $request, string $id)
             ->get();
 
         // Paiements récents de l'utilisateur
-        $paiementsRecents = SubscriptionPayment::whereHas('subscription', function ($query) use ($user) {
-                $query->where('souscripteur_id', $user->id);
-            })
+        $paiementsRecents = SubscriptionPayment::whereHas('subscription')
             ->with(['subscription.fimeco'])
             ->where('statut', 'valide')
             ->orderByDesc('date_paiement')
             ->limit(5)
             ->get();
+
 
         // Si l'utilisateur peut gérer les FIMECO, ajouter des stats globales
         $statsGlobales = null;
@@ -240,52 +245,52 @@ public function edit(Request $request, string $id)
         }
 
         $fimeco_active = $fimecoActive ? [
-                'id' => $fimecoActive->id,
-                'nom' => $fimecoActive->nom,
-                'cible' => $fimecoActive->cible,
-                'total_paye' => $fimecoActive->total_paye,
-                'pourcentage_realisation' => $fimecoActive->pourcentage_realisation,
-                'jours_restants' => now()->diffInDays($fimecoActive->fin),
-                'peut_souscrire' => !$souscriptionsRecentes->where('fimeco_id', $fimecoActive->id)->first()
-            ] : null;
+            'id' => $fimecoActive->id,
+            'nom' => $fimecoActive->nom,
+            'total_paye' => $fimecoActive->total_paye,
+            'pourcentage_realisation' => $fimecoActive->pourcentage_realisation,
+            'jours_restants' => now()->diffInDays($fimecoActive->fin),
+            'peut_souscrire' => !$souscriptionsRecentes->where('fimeco_id', $fimecoActive->id)->first()
+        ] : null;
 
 
         $statistiques_utilisateur = $statsUtilisateur;
 
 
         $souscriptions_recentes = $souscriptionsRecentes->map(function ($subscription) {
-                return [
-                    'id' => $subscription->id,
-                    'fimeco_nom' => $subscription->fimeco->nom,
-                    'montant_souscrit' => $subscription->montant_souscrit,
-                    'montant_paye' => $subscription->montant_paye,
-                    'reste_a_payer' => $subscription->reste_a_payer,
-                    'statut' => $subscription->statut,
-                    'date_souscription' => $subscription->date_souscription->format('d/m/Y')
-                ];
-            });
+            return [
+                'id' => $subscription->id,
+                'fimeco_nom' => $subscription->fimeco->nom,
+                'montant_souscrit' => $subscription->montant_souscrit,
+                'montant_paye' => $subscription->montant_paye,
+                'reste_a_payer' => $subscription->reste_a_payer,
+                'statut' => $subscription->statut,
+                'date_souscription' => $subscription->date_souscription->format('d/m/Y')
+            ];
+        });
 
 
         $paiements_recents = $paiementsRecents->map(function ($payment) {
-                return [
-                    'id' => $payment->id,
-                    'fimeco_nom' => $payment->subscription->fimeco->nom,
-                    'montant' => $payment->montant,
-                    'type_paiement' => config('fimeco.types_paiement_autorises')[$payment->type_paiement],
-                    'date_paiement' => $payment->date_paiement->format('d/m/Y')
-                ];
-            });
+            return [
+                'id' => $payment->id,
+                'fimeco_nom' => $payment->subscription->fimeco->nom,
+                'montant' => $payment->montant,
+                'type_paiement' => config('fimeco.types_paiement_autorises')[$payment->type_paiement],
+                'date_paiement' => $payment->date_paiement->format('d/m/Y')
+            ];
+        });
 
 
         $statistiques_globales = $statsGlobales;
         if ($request->expectsJson()) {
-        return response()->json([
-            'fimeco_active' => $fimeco_active,
-            'statistiques_utilisateur' => $statistiques_utilisateur,
-            'souscriptions_recentes' => $souscriptions_recentes,
-            'paiements_recents' => $paiements_recents,
-            'statistiques_globales' => $statistiques_globales
-        ]);}
+            return response()->json([
+                'fimeco_active' => $fimeco_active,
+                'statistiques_utilisateur' => $statistiques_utilisateur,
+                'souscriptions_recentes' => $souscriptions_recentes,
+                'paiements_recents' => $paiements_recents,
+                'statistiques_globales' => $statistiques_globales
+            ]);
+        }
 
         return view('components.private.fimecos.dashbaord', compact('fimeco_active', 'statistiques_utilisateur', 'souscriptions_recentes', 'paiements_recents', 'statistiques_globales'));
     }

@@ -164,13 +164,13 @@ class Reunion extends Model
     public function scopeAVenir($query)
     {
         return $query->where('date_reunion', '>=', now()->toDateString())
-                    ->whereIn('statut', ['planifiee', 'confirmee', 'planifie']);
+                    ->whereIn('statut', ['planifiee', 'confirmee', 'planifiee']);
     }
 
     public function scopeDuJour($query)
     {
         return $query->where('date_reunion', now()->toDateString())
-                    ->whereIn('statut', ['confirmee', 'planifie', 'en_cours']);
+                    ->whereIn('statut', ['confirmee', 'planifiee', 'en_cours']);
     }
 
     public function scopeParStatut($query, $statut)
@@ -236,17 +236,17 @@ class Reunion extends Model
     // Méthodes utilitaires
     public function peutEtreAnnulee()
     {
-        return in_array($this->statut, ['planifiee', 'confirmee', 'planifie']);
+        return in_array($this->statut, ['confirmee', 'planifiee']);
     }
 
     public function peutEtreReportee()
     {
-        return in_array($this->statut, ['planifiee', 'confirmee', 'planifie']);
+        return in_array($this->statut, ['planifiee', 'confirmee', 'planifiee']);
     }
 
     public function peutCommencer()
     {
-        return in_array($this->statut, ['confirmee', 'planifie']);
+        return in_array($this->statut, ['confirmee', 'planifiee']);
     }
 
     public function peutEtreTerminee()

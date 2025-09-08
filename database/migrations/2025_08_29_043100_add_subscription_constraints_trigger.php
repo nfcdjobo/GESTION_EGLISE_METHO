@@ -7,7 +7,7 @@ return new class extends Migration
 {
     public function up(): void
     {
-        // Fonction pour gérer l'INSERT d'un paiement
+        // Fonction pour gérer l'INSERT d'un paiement (version corrigée pour supporter les dépassements)
         DB::unprepared('
             CREATE OR REPLACE FUNCTION update_subscription_reste_after_payment_fn()
             RETURNS TRIGGER AS $$
@@ -18,7 +18,9 @@ return new class extends Migration
                         montant_paye = montant_paye + NEW.montant,
                         reste_a_payer = montant_souscrit - (montant_paye + NEW.montant),
                         statut = CASE
-                            WHEN (montant_souscrit - (montant_paye + NEW.montant)) <= 0 THEN \'completement_payee\'
+                            -- Si le montant payé atteint ou dépasse le montant souscrit
+                            WHEN (montant_paye + NEW.montant) >= montant_souscrit THEN \'completement_payee\'
+                            -- Si il y a eu au moins un paiement mais pas encore soldé
                             WHEN montant_paye + NEW.montant > 0 THEN \'partiellement_payee\'
                             ELSE statut
                         END,
@@ -38,7 +40,7 @@ return new class extends Migration
             EXECUTE FUNCTION update_subscription_reste_after_payment_fn();
         ');
 
-        // Fonction pour gérer l'annulation d'un paiement
+        // Fonction pour gérer l'annulation d'un paiement (version corrigée)
         DB::unprepared('
             CREATE OR REPLACE FUNCTION update_subscription_reste_after_payment_cancellation_fn()
             RETURNS TRIGGER AS $$
@@ -49,8 +51,12 @@ return new class extends Migration
                         montant_paye = montant_paye - OLD.montant,
                         reste_a_payer = reste_a_payer + OLD.montant,
                         statut = CASE
-                            WHEN montant_paye - OLD.montant <= 0 THEN \'active\'
-                            ELSE \'partiellement_payee\'
+                            -- Si après annulation, le montant payé est encore >= au montant souscrit
+                            WHEN (montant_paye - OLD.montant) >= montant_souscrit THEN \'completement_payee\'
+                            -- Si après annulation, il reste encore des paiements
+                            WHEN montant_paye - OLD.montant > 0 THEN \'partiellement_payee\'
+                            -- Sinon retour au statut actif
+                            ELSE \'active\'
                         END,
                         version = version + 1,
                         updated_at = NOW()

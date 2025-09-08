@@ -51,9 +51,9 @@
             <div class="relative">
                 <button onclick="toggleUserMenu()" class="flex items-center space-x-2 p-2 rounded-xl hover:bg-slate-100 transition-colors">
                     <img class="h-9 w-9 rounded-full object-cover ring-2 ring-blue-500"
-                        src="https://media.licdn.com/dms/image/v2/C4D03AQFEpiXM_VljJA/profile-displayphoto-shrink_400_400/profile-displayphoto-shrink_400_400/0/1662760353920?e=1758758400&v=beta&t=zW6KlMM16eCygX4giptydNr2grED6MkJB9wqDaTk1Bs"
-                        alt="User" />
-                    <span class="text-sm font-medium text-slate-700 hidden sm:block">Djobo</span>
+                        src="{{auth()->user()->photo_profil ? Storage::url(auth()->user()->photo_profil) : 'https://ui-avatars.com/api/?name='.auth()->user()->nom.'+'.auth()->user()->prenom.'&background=3b82f6&color=fff'}}"
+                        alt="{{auth()->user()->nom_complet}}" />
+                    <span class="text-sm font-medium text-slate-700 hidden sm:block">{{auth()->user()->nom}}</span>
                     <i class="fas fa-chevron-down text-xs text-slate-400"></i>
                 </button>
                 <div id="user-menu"

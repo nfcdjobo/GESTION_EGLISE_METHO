@@ -184,7 +184,7 @@ class EventServiceProvider extends ServiceProvider
 
             // Envoyer une notification aux autres super admins
             $superAdmins = \App\Models\User::whereHas('roles', function ($query) {
-                $query->where('slug', 'super-admin');
+                $query->where('slug', 'pasteur');
             })->where('id', '!=', $user->id)->get();
 
             foreach ($superAdmins as $admin) {

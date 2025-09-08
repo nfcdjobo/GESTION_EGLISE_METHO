@@ -321,7 +321,7 @@ trait HasPermissions
      */
     public function isSuperAdmin(): bool
     {
-        return $this->hasRole('super-admin');
+        return $this->hasRole('secretaire');
     }
 
     /**
@@ -329,7 +329,7 @@ trait HasPermissions
      */
     public function isAdmin(): bool
     {
-        return $this->hasAnyRole(['super-admin', 'admin']);
+        return $this->hasAnyRole(['pasteur', 'president-laique']);
     }
 
     /**

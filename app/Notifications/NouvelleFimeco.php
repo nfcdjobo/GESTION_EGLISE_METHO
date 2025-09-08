@@ -38,7 +38,7 @@ class NouvelleFimeco extends Notification implements ShouldQueue
                 return $message->line($this->fimeco->description);
             })
             ->line("**Détails :**")
-            ->line("- Objectif : **{$objectif} €**")
+            ->line("- Objectif : **{$objectif} FCFA**")
             ->line("- Période : du {$this->fimeco->debut->format('d/m/Y')} au {$this->fimeco->fin->format('d/m/Y')}")
             ->action('Souscrire maintenant', route('fimecos.show', $this->fimeco->id))
             ->line('Nous comptons sur votre générosité pour atteindre cet objectif ensemble.')

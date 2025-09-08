@@ -15,7 +15,7 @@ class DatabaseSeeder extends Seeder
         $this->call([
             PermissionSeeder::class,
             UserSeeder::class,
-            ContactSeeder::class,
+            // ContactSeeder::class,
             TypeReunionSeeder::class,
             // ProgrammeSeeder::class,
         ]);

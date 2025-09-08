@@ -246,7 +246,7 @@ class Kernel extends ConsoleKernel
 
             // Vérifier les rôles système manquants
             $requiredRoles = [
-                'super-admin',
+                'pasteur',
                 'admin',
                 'membre',
             ];
@@ -260,7 +260,7 @@ class Kernel extends ConsoleKernel
             }
 
             // Vérifier qu'il y a au moins un super admin
-            $superAdminRole = \App\Models\Role::where('slug', 'super-admin')->first();
+            $superAdminRole = \App\Models\Role::where('slug', 'pasteur')->first();
             if ($superAdminRole) {
                 $superAdminCount = $superAdminRole->users()
                     ->wherePivot('actif', true)

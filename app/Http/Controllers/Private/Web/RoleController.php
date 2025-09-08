@@ -7,6 +7,7 @@ use App\Models\Role;
 use App\Models\Permission;
 use App\Models\User;
 use App\Services\PermissionService;
+use Auth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
@@ -25,7 +26,8 @@ class RoleController extends Controller
         $this->middleware('permission:roles.update')->only(['edit', 'update']);
         $this->middleware('permission:roles.delete')->only(['destroy']);
         $this->middleware('permission:roles.manage')->only(['managePermissions', 'syncPermissions']);
-        $this->middleware('permission:roles.assign')->only(['assignToUser', 'removeFromUser']);
+        $this->middleware('permission:roles.assign')->only(['assignToUser']);
+        $this->middleware('permission:roles.remove')->only(['removeFromUser']);
     }
 
     /**
@@ -387,6 +389,20 @@ class RoleController extends Controller
 
         try {
             $user = User::findOrFail($validated['user_id']);
+
+            $recentUser = $role->users()
+            ->wherePivot('actif', true)
+            ->wherePivot('attribue_par', Auth::id())
+            ->wherePivot('attribue_par', $user->id)
+            ->first();
+
+
+            if( $user->isSuperAdmin() &&  $recentUser) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Vous ne pouvez pas vous-même retirer ce rôle de super administrateur.'
+                ], 403);
+            }
 
             $this->permissionService->removeRoleFromUser($user, $role);
 

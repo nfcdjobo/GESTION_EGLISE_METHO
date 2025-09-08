@@ -11,6 +11,7 @@ use App\Models\Fimeco;
 use App\Models\Subscription;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
 use App\Exceptions\SubscriptionException;
 
 class FimecoService
@@ -19,12 +20,11 @@ class FimecoService
     {
         return DB::transaction(function () use ($data) {
             $fimeco = Fimeco::create([
-                'responsable_id' => $data['responsable_id'],
+                'responsable_id' => Auth::user()->id,
                 'nom' => $data['nom'],
                 'description' => $data['description'] ?? null,
                 'debut' => $data['debut'],
                 'fin' => $data['fin'],
-                'cible' => $data['cible'],
                 'statut' => 'active'
             ]);
 

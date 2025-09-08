@@ -141,7 +141,6 @@ class UserController extends Controller
      * Enregistrer un nouvel utilisateur
      */
 
-
     public function store(Request $request)
     {
         $data = $request->all();
@@ -306,25 +305,9 @@ class UserController extends Controller
         }
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    /**
+     * Afficher les détails d'un utilisateur
+     */
 
     public function show(User $user)
     {
@@ -410,64 +393,7 @@ class UserController extends Controller
             Gate::authorize('manage-user', $user);
         }
 
-        // $validated = $request->validate([
-        //     // Informations personnelles
-        //     'prenom' => 'required|string|max:255',
-        //     'nom' => 'required|string|max:255',
-        //     'date_naissance' => 'nullable|date|before:today',
-        //     'sexe' => 'required|in:masculin,feminin',
 
-        //     // Contact
-        //     'telephone_1' => 'required|string|max:20',
-        //     'telephone_2' => 'nullable|string|max:20',
-        //     'email' => 'required|email|unique:users,email,' . $user->id,
-
-        //     // Adresse
-        //     'adresse_ligne_1' => 'required|string|max:255',
-        //     'adresse_ligne_2' => 'nullable|string|max:255',
-        //     'ville' => 'required|string|max:100',
-        //     'code_postal' => 'nullable|string|max:10',
-        //     'region' => 'nullable|string|max:100',
-        //     'pays' => 'nullable|string|max:2',
-
-        //     // Informations familiales
-        //     'statut_matrimonial' => 'nullable|in:celibataire,marie,divorce,veuf',
-        //     'nombre_enfants' => 'nullable|integer|min:0',
-
-        //     // Informations professionnelles
-        //     'profession' => 'nullable|string|max:100',
-        //     'employeur' => 'nullable|string|max:100',
-
-        //     // Informations d'église
-        //     'classe_id' => 'nullable|uuid|exists:classes,id',
-        //     'date_adhesion' => 'nullable|date',
-        //     'statut_membre' => 'required|in:actif,inactif,visiteur,nouveau_converti',
-        //     'statut_bapteme' => 'required|in:non_baptise,baptise,confirme',
-        //     'date_bapteme' => 'nullable|date|required_if:statut_bapteme,baptise,confirme',
-        //     'eglise_precedente' => 'nullable|string|max:255',
-
-        //     // Contact d'urgence
-        //     'contact_urgence_nom' => 'nullable|string|max:255',
-        //     'contact_urgence_telephone' => 'nullable|string|max:20',
-        //     'contact_urgence_relation' => 'nullable|string|max:100',
-
-        //     // Compte
-        //     'password' => [
-        //         'nullable',
-        //         Password::min(8)
-        //             ->mixedCase()
-        //             ->numbers()
-        //     ],
-        //     'actif' => 'boolean',
-        //     'roles' => 'nullable|array',
-        //     'roles.*' => 'exists:roles,id',
-
-        //     // Photo
-        //     'photo_profil' => 'nullable|image|max:2048',
-
-        //     // Notes admin
-        //     'notes_admin' => 'nullable|string',
-        // ]);
 
 
         $data = $request->all();
@@ -622,15 +548,15 @@ class UserController extends Controller
         Gate::authorize('manage-user', $user);
 
         // Empêcher la suppression du dernier super admin
-        if ($user->hasRole('super-admin')) {
+        if ($user->hasRole('pasteur')) {
             $superAdminCount = User::whereHas('roles', function ($q) {
-                $q->where('slug', 'super-admin');
+                $q->where('slug', 'pasteur');
             })->count();
 
             if ($superAdminCount <= 1) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Impossible de supprimer le dernier super administrateur.'
+                    'message' => 'Impossible de supprimer le dernier pasteur.'
                 ], 403);
             }
         }

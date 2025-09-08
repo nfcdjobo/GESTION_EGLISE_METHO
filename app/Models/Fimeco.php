@@ -21,14 +21,12 @@ class Fimeco extends Model
         'description',
         'debut',
         'fin',
-        'cible',
         'statut'
     ];
 
     protected $casts = [
         'debut' => 'date',
-        'fin' => 'date',
-        'cible' => 'decimal:2'
+        'fin' => 'date'
     ];
 
     protected $attributes = [
@@ -107,16 +105,14 @@ class Fimeco extends Model
                    ->sum('montant_paye');
     }
 
-    public function getPourcentageRealisationAttribute(): float
-    {
-        if ($this->cible == 0) return 0;
-
-        return round(($this->total_paye / $this->cible) * 100, 2);
-    }
-
     public function getNombreMembresSouscripteursAttribute(): int
     {
         return $this->subscriptions()->distinct('souscripteur_id')->count();
+    }
+
+    public function getNombreTotalSouscriptionsAttribute(): int
+    {
+        return $this->subscriptions()->count();
     }
 
     // Methods
@@ -133,20 +129,45 @@ class Fimeco extends Model
 
     public function calculerStatistiques(): array
     {
+        $totalSouscriptions = $this->total_souscriptions;
+        $totalPaye = $this->total_paye;
+        $nombreSouscripteurs = $this->nombre_membres_souscripteurs;
+
         return [
-            'total_souscriptions' => $this->total_souscriptions,
-            'total_paye' => $this->total_paye,
-            'reste_a_collecter' => $this->cible - $this->total_paye,
-            'pourcentage_realisation' => $this->pourcentage_realisation,
-            'nombre_souscripteurs' => $this->nombre_membres_souscripteurs,
-            'montant_moyen_souscription' => $this->nombre_membres_souscripteurs > 0 ?
-                $this->total_souscriptions / $this->nombre_membres_souscripteurs : 0
+            'total_souscriptions' => $totalSouscriptions,
+            'total_paye' => $totalPaye,
+            'nombre_souscripteurs' => $nombreSouscripteurs,
+            'nombre_total_souscriptions' => $this->nombre_total_souscriptions,
+            'montant_moyen_souscription' => $nombreSouscripteurs > 0 ?
+                ($totalSouscriptions / $nombreSouscripteurs) : 0,
+            'taux_realisation_paiements' => $totalSouscriptions > 0 ?
+                round(($totalPaye / $totalSouscriptions) * 100, 2) : 0,
         ];
     }
+
+    public function obtenirTopSouscripteurs(int $limite = 10): \Illuminate\Database\Eloquent\Collection
+    {
+        return $this->subscriptions()
+                   ->with('souscripteur')
+                   ->orderBy('montant_paye', 'desc')
+                   ->limit($limite)
+                   ->get();
+    }
+
+    public function obtenirStatistiquesParMois(): array
+    {
+        return $this->subscriptions()
+                   ->selectRaw('
+                       YEAR(date_souscription) as annee,
+                       MONTH(date_souscription) as mois,
+                       COUNT(*) as nombre_souscriptions,
+                       SUM(montant_souscrit) as total_souscrit,
+                       SUM(montant_paye) as total_paye
+                   ')
+                   ->groupBy('annee', 'mois')
+                   ->orderBy('annee', 'desc')
+                   ->orderBy('mois', 'desc')
+                   ->get()
+                   ->toArray();
+    }
 }
-
-
-
-
-
-

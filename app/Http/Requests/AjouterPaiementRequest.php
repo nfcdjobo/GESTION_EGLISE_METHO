@@ -5,8 +5,9 @@
 
 namespace App\Http\Requests;
 
-use Illuminate\Foundation\Http\FormRequest;
+use App\Models\Subscription;
 use Illuminate\Validation\Rule;
+use Illuminate\Foundation\Http\FormRequest;
 
 class AjouterPaiementRequest extends FormRequest
 {
@@ -17,13 +18,14 @@ class AjouterPaiementRequest extends FormRequest
 
     public function rules(): array
     {
+
         return [
             'subscription_id' => ['required', 'uuid', 'exists:subscriptions,id'],
             'montant' => [
                 'required',
                 'numeric',
                 'min:' . config('fimeco.montant_minimum_paiement', 5),
-                'max:999999.99'
+
             ],
             'type_paiement' => [
                 'required',
@@ -51,17 +53,20 @@ class AjouterPaiementRequest extends FormRequest
 
     public function withValidator($validator): void
     {
+
+
         $validator->after(function ($validator) {
+
             if ($this->subscription_id && $this->montant) {
-                $subscription = \App\Models\Subscription::find($this->subscription_id);
+                $subscription = Subscription::find($this->subscription_id);
 
                 if ($subscription) {
                     // Vérifier que le montant ne dépasse pas le reste à payer
-                    if ($this->montant > $subscription->reste_a_payer) {
-                        $validator->errors()->add('montant',
-                            'Le montant ne peut pas dépasser le reste à payer (' . $subscription->reste_a_payer . ').'
-                        );
-                    }
+                    // if ($this->montant > $subscription->reste_a_payer) {
+                    //     $validator->errors()->add('montant',
+                    //         'Le montant ne peut pas dépasser le reste à payer (' . $subscription->reste_a_payer . ').'
+                    //     );
+                    // }
 
                     // Vérifier que la souscription peut recevoir des paiements
                     if (!$subscription->peutRecevoirPaiement($this->montant)) {

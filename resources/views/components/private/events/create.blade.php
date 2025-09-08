@@ -501,9 +501,11 @@
                     <button type="submit" name="statut" value="brouillon" class="inline-flex items-center justify-center px-8 py-3 bg-gradient-to-r from-slate-600 to-slate-700 text-white font-medium rounded-xl hover:from-slate-700 hover:to-slate-800 transition-all duration-200 shadow-md hover:shadow-lg">
                         <i class="fas fa-save mr-2"></i> Enregistrer en brouillon
                     </button>
+                    @can('events.update')
                     <button type="submit" name="statut" value="planifie" class="inline-flex items-center justify-center px-8 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-medium rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-200 shadow-md hover:shadow-lg">
                         <i class="fas fa-calendar-check mr-2"></i> Créer et Planifier
                     </button>
+                    @endcan
                     <a href="{{ route('private.events.index') }}" class="inline-flex items-center justify-center px-8 py-3 bg-slate-600 text-white font-medium rounded-xl hover:bg-slate-700 transition-colors">
                         <i class="fas fa-times mr-2"></i> Annuler
                     </a>

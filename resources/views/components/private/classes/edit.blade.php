@@ -29,7 +29,7 @@
             </ol>
         </nav>
     </div>
-
+    @can('classes.update')
     <form action="{{ route('private.classes.update', $classe) }}" method="POST" enctype="multipart/form-data" id="classeForm" class="space-y-8">
         @csrf
         @method('PUT')
@@ -403,9 +403,11 @@
                     <button type="submit" class="inline-flex items-center justify-center px-8 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-medium rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-200 shadow-md hover:shadow-lg">
                         <i class="fas fa-save mr-2"></i> Enregistrer les Modifications
                     </button>
+                    @can('classes.read')
                     <a href="{{ route('private.classes.show', $classe) }}" class="inline-flex items-center justify-center px-8 py-3 bg-slate-600 text-white font-medium rounded-xl hover:bg-slate-700 transition-colors">
                         <i class="fas fa-eye mr-2"></i> Voir la Classe
                     </a>
+                    @endcan
                     <a href="{{ route('private.classes.index') }}" class="inline-flex items-center justify-center px-8 py-3 bg-slate-400 text-white font-medium rounded-xl hover:bg-slate-500 transition-colors">
                         <i class="fas fa-times mr-2"></i> Annuler
                     </a>
@@ -413,6 +415,7 @@
             </div>
         </div>
     </form>
+    @endcan
 </div>
 
 @push('scripts')

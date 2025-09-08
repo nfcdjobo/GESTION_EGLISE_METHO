@@ -95,7 +95,7 @@
                 </div>
             </div>
         </div>
-
+        @can('users.search')
         <div class="p-6">
             <form method="GET" action="{{ route('private.users.index') }}" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
                 <div class="lg:col-span-2">
@@ -151,6 +151,7 @@
                 </div>
             </form>
         </div>
+        @endcan
     </div>
 
     <!-- Liste des utilisateurs -->
@@ -292,10 +293,12 @@
                                 </td>
                                 <td class="px-4 py-4">
                                     <div class="flex items-center justify-end space-x-2">
+                                        @can('users.read')
                                         <a href="{{ route('private.users.show', $user) }}"
                                            class="inline-flex items-center justify-center w-8 h-8 text-cyan-600 bg-cyan-100 rounded-lg hover:bg-cyan-200 transition-colors" title="Voir">
                                             <i class="fas fa-eye text-sm"></i>
                                         </a>
+                                        @endcan
                                         @can('users.update')
                                         <a href="{{ route('private.users.edit', $user) }}"
                                            class="inline-flex items-center justify-center w-8 h-8 text-yellow-600 bg-yellow-100 rounded-lg hover:bg-yellow-200 transition-colors" title="Modifier">
@@ -308,11 +311,13 @@
                                             <i class="fas fa-trash text-sm"></i>
                                         </button>
                                         @endcan
+                                        @can('users.toggle-status')
                                         <button onclick="toggleStatus('{{ $user->id }}')"
                                                 class="inline-flex items-center justify-center w-8 h-8 {{ $user->actif ? 'text-orange-600 bg-orange-100 hover:bg-orange-200' : 'text-green-600 bg-green-100 hover:bg-green-200' }} rounded-lg transition-colors"
                                                 title="{{ $user->actif ? 'Désactiver' : 'Activer' }}">
                                             <i class="fas fa-{{ $user->actif ? 'ban' : 'check' }} text-sm"></i>
                                         </button>
+                                        @endcan
                                     </div>
                                 </td>
                             </tr>

@@ -45,6 +45,7 @@
         </div>
     @endif
 
+    @can('fonds.update')
     <form action="{{ route('private.fonds.update', $formData['fonds']) }}" method="POST" id="transactionForm" class="space-y-8">
         @csrf
         @method('PUT')
@@ -662,6 +663,7 @@
             </div>
         </div>
     </form>
+    @endcan
 </div>
 
 {{-- Inclure les ressources CKEditor --}}

@@ -18,7 +18,6 @@ class FimecoResource extends JsonResource
             'description' => $this->description,
             'debut' => $this->debut->format('Y-m-d'),
             'fin' => $this->fin->format('Y-m-d'),
-            'cible' => $this->cible,
             'statut' => $this->statut,
             'est_en_cours' => $this->est_en_cours,
             'est_terminee' => $this->est_terminee,

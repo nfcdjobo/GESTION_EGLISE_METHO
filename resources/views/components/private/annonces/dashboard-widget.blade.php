@@ -45,12 +45,14 @@
 
             @if($showActions)
                 <div class="flex items-center space-x-2">
+                    @can('annonces.create')
                     <a href="{{ route('private.annonces.create') }}"
                        class="inline-flex items-center px-3 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors"
                        title="Nouvelle annonce">
                         <i class="fas fa-plus mr-1"></i>
                         @if(!$compact) Nouveau @endif
                     </a>
+                    @endcan
                     <a href="{{ route('private.annonces.index') }}"
                        class="text-slate-400 hover:text-slate-600 transition-colors"
                        title="Voir toutes les annonces">
@@ -146,7 +148,7 @@
                                    title="Voir l'annonce">
                                     <i class="fas fa-eye text-sm"></i>
                                 </a>
-                                @can('update', $annonce)
+                                @can('annonces.update')
                                     <a href="{{ route('private.annonces.edit', $annonce) }}"
                                        class="text-red-600 hover:text-red-800 transition-colors"
                                        title="Modifier l'annonce">
@@ -206,6 +208,7 @@
                             </div>
 
                             <!-- Actions -->
+                            @can('annonces.read')
                             <div class="flex items-center space-x-1">
                                 <a href="{{ route('private.annonces.show', $annonce) }}"
                                    class="text-slate-400 hover:text-slate-600 transition-colors"
@@ -213,6 +216,7 @@
                                     <i class="fas fa-eye text-sm"></i>
                                 </a>
                             </div>
+                            @endcan
                         </div>
                     @endforeach
                 </div>
@@ -230,11 +234,13 @@
                     <i class="fas fa-bullhorn text-3xl text-slate-300 mb-3"></i>
                     <p class="text-slate-500 mb-4">Aucune annonce créée</p>
                     @if($showActions)
+                        @can('annonces.create')
                         <a href="{{ route('private.annonces.create') }}"
                            class="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors">
                             <i class="fas fa-plus mr-2"></i>
                             Créer votre première annonce
                         </a>
+                        @endcan
                     @endif
                 </div>
             @endif

@@ -31,9 +31,11 @@
                     <a href="{{ route('private.events.dashboard') }}" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white text-sm font-medium rounded-xl hover:from-purple-700 hover:to-pink-700 transition-all duration-200 shadow-md hover:shadow-lg">
                         <i class="fas fa-chart-pie mr-2"></i> Tableau de bord
                     </a>
+                    @can('events.statistics')
                     <a href="{{ route('private.events.statistiques') }}" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white text-sm font-medium rounded-xl hover:from-green-700 hover:to-emerald-700 transition-all duration-200 shadow-md hover:shadow-lg">
                         <i class="fas fa-chart-line mr-2"></i> Statistiques
                     </a>
+                    @endcan
                 </div>
             </div>
         </div>
@@ -333,11 +335,13 @@
                                                 </a>
                                             @endcan
 
+                                            @can('events.manage-inscriptions')
                                             @if($event->inscription_requise)
                                                 <a href="{{ route('private.events.inscriptions', $event) }}" class="inline-flex items-center justify-center w-8 h-8 text-green-600 bg-green-100 rounded-lg hover:bg-green-200 transition-colors" title="Inscriptions">
                                                     <i class="fas fa-users text-sm"></i>
                                                 </a>
                                             @endif
+                                            @endcan
 
                                             @can('events.update')
                                                 @if($event->peutEtreModifie())
@@ -351,9 +355,11 @@
                                                 </button>
                                             @endcan
 
+                                            @can('events.duplicate')
                                             <button type="button" onclick="duplicateEvent('{{ $event->id }}')" class="inline-flex items-center justify-center w-8 h-8 text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors" title="Dupliquer">
                                                 <i class="fas fa-copy text-sm"></i>
                                             </button>
+                                            @endcan
 
                                             @can('events.delete')
                                                 @if($event->statut !== 'en_cours')

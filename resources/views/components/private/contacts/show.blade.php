@@ -46,9 +46,11 @@
                     <i class="fas fa-qrcode mr-2"></i> QR Code
                 </button>
 
+                @can('contacts.export')
                 <a href="{{ route('private.contacts.export', $contact) }}" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-cyan-600 to-blue-600 text-white text-sm font-medium rounded-xl hover:from-cyan-700 hover:to-blue-700 transition-all duration-200 shadow-md hover:shadow-lg">
                     <i class="fas fa-download mr-2"></i> vCard
                 </a>
+                @endcan
             </div>
         </div>
     </div>
@@ -612,7 +614,7 @@ function deleteContact(contactId) {
 
 // Afficher QR Code
 function showQRCode(contactId) {
-    window.open(`/private/contacts/${contactId}/qr-code`, '_blank', 'width=400,height=400');
+    window.open(`{{route('private.contacts.qr-code', ':contact')}}`.replace(':contact', contactId), '_blank', 'width=400,height=400');
 }
 </script>
 @endpush

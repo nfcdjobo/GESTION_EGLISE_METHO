@@ -385,12 +385,14 @@
         </div>
         <div class="p-6">
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                @can('contacts.create')
                 <a href="{{ route('private.contacts.create') }}" class="flex items-center justify-center p-4 border-2 border-dashed border-blue-300 rounded-xl hover:border-blue-400 hover:bg-blue-50 transition-colors">
                     <div class="text-center">
                         <i class="fas fa-plus text-blue-600 text-2xl mb-2"></i>
                         <p class="text-sm font-medium text-blue-600">Nouveau Contact</p>
                     </div>
                 </a>
+                @endcan
 
                 <a href="{{ route('private.contacts.map') }}" class="flex items-center justify-center p-4 border-2 border-dashed border-green-300 rounded-xl hover:border-green-400 hover:bg-green-50 transition-colors">
                     <div class="text-center">
@@ -399,19 +401,23 @@
                     </div>
                 </a>
 
+                @can('contacts.export')
                 <a href="{{ route('private.contacts.export') }}" class="flex items-center justify-center p-4 border-2 border-dashed border-purple-300 rounded-xl hover:border-purple-400 hover:bg-purple-50 transition-colors">
                     <div class="text-center">
                         <i class="fas fa-download text-purple-600 text-2xl mb-2"></i>
                         <p class="text-sm font-medium text-purple-600">Exporter Données</p>
                     </div>
                 </a>
+                @endcan
 
+                @can('contacts.export')
                 <button onclick="generateReport()" class="flex items-center justify-center p-4 border-2 border-dashed border-amber-300 rounded-xl hover:border-amber-400 hover:bg-amber-50 transition-colors">
                     <div class="text-center">
                         <i class="fas fa-file-alt text-amber-600 text-2xl mb-2"></i>
                         <p class="text-sm font-medium text-amber-600">Rapport Détaillé</p>
                     </div>
                 </button>
+                @endcan
             </div>
         </div>
     </div>

@@ -258,7 +258,7 @@
                                                     {{ $categoryPermissions->count() }}
                                                 </span>
                                             </div>
-                                            <button type="button" onclick="toggleCategoryVisibility('{{ $category }}')" class="p-2 text-slate-600 hover:text-slate-800 hover:bg-white/50 rounded-lg transition-colors">
+                                            <button type="button" onclick='toggleCategoryVisibility("{{ $category }}")' class="p-2 text-slate-600 hover:text-slate-800 hover:bg-white/50 rounded-lg transition-colors">
                                                 <i class="fas fa-chevron-down transition-transform duration-200" id="icon-{{ $category }}"></i>
                                             </button>
                                         </div>
@@ -344,6 +344,14 @@
                         </thead>
                         <tbody class="divide-y divide-slate-200">
                             @foreach($recentUsers as $user)
+                                @php
+                                    $attribue_par = \App\Models\User::find($user->pivot->attribue_par)?->id ?? null;
+                                    $authUserId = Auth::id();
+                                @endphp
+
+                                @if ($user->isSuperAdmin() && $attribue_par === $authUserId)
+                                    @continue
+                                @endif
                                 <tr class="hover:bg-slate-50 transition-colors">
                                     <td class="px-4 py-4">
                                         <div class="flex items-center space-x-3">
@@ -409,7 +417,7 @@
                                     </td>
                                     <td class="px-4 py-4">
                                         @can('roles.assign')
-                                            <button type="button" onclick="removeUserRole({{ $user->id }})" class="inline-flex items-center justify-center w-8 h-8 text-red-600 bg-red-100 rounded-lg hover:bg-red-200 transition-colors">
+                                            <button type="button" onclick="removeUserRole('{{ $user->id }}')" class="inline-flex items-center justify-center w-8 h-8 text-red-600 bg-red-100 rounded-lg hover:bg-red-200 transition-colors">
                                                 <i class="fas fa-times text-sm"></i>
                                             </button>
                                         @endcan
@@ -529,6 +537,7 @@ function deleteRole() {
     }
 }
 
+@can('roles.remove')
 // Retirer le rôle d'un utilisateur
 function removeUserRole(userId) {
     if (confirm('Voulez-vous retirer ce rôle de cet utilisateur ?')) {
@@ -555,6 +564,7 @@ function removeUserRole(userId) {
         });
     }
 }
+@endcan
 
 @can('roles.assign')
 // Modal functions
@@ -570,7 +580,7 @@ function closeAssignUserModal() {
 
 // Charger la liste des utilisateurs
 function loadUsers() {
-    fetch('/admin/users/search', {
+    fetch("{{route('private.users.search')}}", {
         headers: {
             'Accept': 'application/json',
             'X-CSRF-TOKEN': '{{ csrf_token() }}'
@@ -579,15 +589,16 @@ function loadUsers() {
     .then(response => response.json())
     .then(users => {
         const select = document.getElementById('user_id');
+
         select.innerHTML = '<option value="">Sélectionnez un utilisateur...</option>';
 
         users.forEach(user => {
             // Exclure les utilisateurs qui ont déjà ce rôle
-            const hasRole = {{ $role->users->pluck('id')->toJson() }}.includes(user.id);
+            const hasRole = @json($role->users->pluck('id')).includes(user.id);
             if (!hasRole) {
                 const option = document.createElement('option');
                 option.value = user.id;
-                option.textContent = `${user.nom_complet} (${user.email})`;
+                option.textContent = `${user.text}`;
                 select.appendChild(option);
             }
         });

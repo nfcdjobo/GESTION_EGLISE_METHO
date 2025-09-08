@@ -32,6 +32,7 @@
         </nav>
     </div>
 
+    @can('events.update')
     <form action="{{ route('private.events.update', $event) }}" method="POST" id="eventForm" enctype="multipart/form-data" class="space-y-8">
         @csrf
         @method('PUT')
@@ -562,6 +563,7 @@
             </div>
         </div>
     </form>
+    @endcan
 </div>
 
 @push('scripts')

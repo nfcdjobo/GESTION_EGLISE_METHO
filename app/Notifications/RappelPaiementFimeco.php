@@ -34,9 +34,9 @@ class RappelPaiementFimeco extends Notification implements ShouldQueue
             ->greeting("Bonjour {$notifiable->name},")
             ->line("Ceci est un rappel concernant votre souscription FIMECO pour \"{$this->subscription->fimeco->nom}\".")
             ->line("**Détails de votre souscription :**")
-            ->line("- Montant souscrit : " . number_format($this->subscription->montant_souscrit, 2) . " €")
-            ->line("- Montant déjà payé : " . number_format($this->subscription->montant_paye, 2) . " €")
-            ->line("- **Reste à payer : {$montantRestant} €**");
+            ->line("- Montant souscrit : " . number_format($this->subscription->montant_souscrit, 2) . " FCFA")
+            ->line("- Montant déjà payé : " . number_format($this->subscription->montant_paye, 2) . " FCFA")
+            ->line("- **Reste à payer : {$montantRestant} FCFA**");
 
         if ($this->joursRestants > 0) {
             $message->line("⏰ Échéance dans **{$this->joursRestants} jour(s)** ({$this->subscription->date_echeance->format('d/m/Y')})");
@@ -68,6 +68,6 @@ class RappelPaiementFimeco extends Notification implements ShouldQueue
 
     private function getPaymentUrl(): string
     {
-        return route('subscriptions.show', $this->subscription->id);
+        return route('private.subscriptions.show', $this->subscription->id);
     }
 }

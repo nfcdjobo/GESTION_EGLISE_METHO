@@ -23,17 +23,24 @@
                             <i class="fas fa-plus mr-2"></i> Nouveau Contact
                         </a>
                     @endcan
+
                     @can('contacts.export')
                         <a href="{{ route('private.contacts.export') }}" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white text-sm font-medium rounded-xl hover:from-green-700 hover:to-emerald-700 transition-all duration-200 shadow-md hover:shadow-lg">
                             <i class="fas fa-download mr-2"></i> Exporter
                         </a>
                     @endcan
+
+                    {{-- @can('contacts.merge') --}}
                     <a href="{{ route('private.contacts.map') }}" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-cyan-600 to-blue-600 text-white text-sm font-medium rounded-xl hover:from-cyan-700 hover:to-blue-700 transition-all duration-200 shadow-md hover:shadow-lg">
                         <i class="fas fa-map mr-2"></i> Carte
                     </a>
+                    {{-- @endcan --}}
+
+                    @can('contacts.statistics')
                     <a href="{{ route('private.contacts.statistics') }}" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-amber-600 to-orange-600 text-white text-sm font-medium rounded-xl hover:from-amber-700 hover:to-orange-700 transition-all duration-200 shadow-md hover:shadow-lg">
                         <i class="fas fa-chart-bar mr-2"></i> Statistiques
                     </a>
+                    @endcan
                 </div>
             </div>
         </div>

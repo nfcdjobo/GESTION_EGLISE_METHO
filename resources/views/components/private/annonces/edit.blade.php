@@ -32,6 +32,7 @@
         </nav>
     </div>
 
+    @can('annonces.update')
     <form action="{{ route('private.annonces.update', $annonce) }}" method="POST" id="annonceForm" class="space-y-8">
         @csrf
         @method('PUT')
@@ -388,6 +389,7 @@
             </div>
         </div>
     </form>
+    @endcan
 </div>
 
 {{-- Inclure les ressources CKEditor --}}
@@ -477,7 +479,7 @@ function handleUrgencyType() {
 
 function publierAnnonce(annonceId) {
     if (confirm('Êtes-vous sûr de vouloir publier cette annonce ? Elle sera visible par le public.')) {
-        fetch(`{{ url('dashboard/annonces') }}/${annonceId}/publier`, {
+        fetch(`{{ route('private.annonces.publier', ':annonce')`.replace(':annonce', annonceId), {
             method: 'PUT',
             headers: {
                 'X-CSRF-TOKEN': '{{ csrf_token() }}',

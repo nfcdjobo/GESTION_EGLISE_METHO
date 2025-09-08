@@ -64,7 +64,7 @@ return new class extends Migration
 
         // Ajout des contraintes CHECK après la création de la table
         DB::statement('ALTER TABLE subscription_payments ADD CONSTRAINT check_montant CHECK (montant > 0)');
-        DB::statement('ALTER TABLE subscription_payments ADD CONSTRAINT check_reste CHECK (ancien_reste >= nouveau_reste)');
+        // DB::statement('ALTER TABLE subscription_payments ADD CONSTRAINT check_reste CHECK (ancien_reste >= nouveau_reste)');
 
     }
 

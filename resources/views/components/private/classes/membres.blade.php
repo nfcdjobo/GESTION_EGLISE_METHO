@@ -46,6 +46,8 @@
                             <i class="fas fa-download mr-2"></i> Exporter
                             <i class="fas fa-chevron-down ml-2"></i>
                         </button>
+
+                        @can('classes.export')
                         <div id="exportMenu" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border border-slate-200 z-10">
                             <div class="py-2">
                                 <a href="{{ route('private.classes.export', $classe->id) }}?format=csv" class="block px-4 py-2 text-sm text-slate-700 hover:bg-slate-50">
@@ -59,6 +61,7 @@
                                 </a>
                             </div>
                         </div>
+                        @endcan
                     </div>
                 @endcan
             </div>
@@ -183,13 +186,18 @@
                                                         <button onclick="viewMember('{{ $membre->id }}')" class="w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 flex items-center">
                                                             <i class="fas fa-eye mr-2 text-blue-600"></i> Voir le profil
                                                         </button>
+                                                        @can('classes.update')
                                                         <button onclick="editMember('{{ $membre->id }}')" class="w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 flex items-center">
                                                             <i class="fas fa-edit mr-2 text-yellow-600"></i> Modifier
                                                         </button>
+                                                        @endcan
+
+                                                        @can('classes.delete')
                                                         <div class="border-t border-slate-100"></div>
                                                         <button onclick="removeMember('{{ $membre->id }}')" class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center">
                                                             <i class="fas fa-user-times mr-2"></i> Retirer
                                                         </button>
+                                                        @endcan
                                                     </div>
                                                 </div>
                                             </div>
@@ -674,7 +682,7 @@ function loadAvailableUsersForBulk() {
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            availableUsers = data.data.utilisateurs_disponibles;
+            availableUsers = data.data.membres.data;
             filteredUsers = [...availableUsers];
             renderUsersList();
         } else {
@@ -820,8 +828,8 @@ document.getElementById('userSearch').addEventListener('input', function() {
             const results = document.getElementById('searchResults');
             results.innerHTML = '';
 
-            if (data.success && data.data.utilisateurs_disponibles.length > 0) {
-                data.data.utilisateurs_disponibles.slice(0, 5).forEach(user => {
+            if (data.success && data.data.membres.data.length > 0) {
+                data.data.membres.data.slice(0, 5).forEach(user => {
                     const item = document.createElement('div');
                     item.className = 'p-2 hover:bg-slate-100 cursor-pointer rounded border-b border-slate-200 last:border-b-0';
                     item.innerHTML = `

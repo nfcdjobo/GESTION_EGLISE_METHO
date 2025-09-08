@@ -19,7 +19,7 @@ return new class extends Migration
             $table->text('description')->nullable();
             $table->date('debut');
             $table->date('fin');
-            $table->decimal('cible', 15, 2); // Montant plus réaliste
+            // $table->decimal('cible', 15, 2); // Montant plus réaliste
 
             $table->enum('statut', ['active', 'inactive', 'cloturee'])->default('active');
 

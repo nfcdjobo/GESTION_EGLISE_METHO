@@ -3,11 +3,6 @@
 
 @section('content')
 <div class="space-y-8">
-    <!-- Page Title -->
-    {{-- <div class="mb-8">
-        <h1 class="text-3xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent">Analytics Avancées</h1>
-        <p class="text-slate-500 mt-1">Analyse prédictive et insights approfondis - {{ \Carbon\Carbon::now()->format('l d F Y') }}</p>
-    </div> --}}
     <div class="mb-8">
         <h1 class="text-3xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent">Analyse prédictive et insights approfondis </h1>
         <nav class="flex mt-2" aria-label="Breadcrumb">
@@ -36,23 +31,31 @@
                 Paramètres d'Analyse
             </h2>
             <div class="flex flex-wrap gap-2">
-                @can('creer_fonds')
+                @can('fonds.create')
                     <a href="{{ route('private.fonds.create') }}" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-sm font-medium rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-200 shadow-md hover:shadow-lg">
                         <i class="fas fa-plus mr-2"></i> Nouvelle Transaction
                     </a>
                 @endcan
+                @can('fonds.dashboard')
                 <a href="{{ route('private.fonds.dashboard') }}" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white text-sm font-medium rounded-xl hover:from-green-700 hover:to-emerald-700 transition-all duration-200 shadow-md hover:shadow-lg">
                     <i class="fas fa-tachometer-alt mr-2"></i> Tableau de Bord
                 </a>
+                @endcan
+                @can('fonds.statistics')
                 <a href="{{ route('private.fonds.statistics') }}" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-cyan-600 to-blue-600 text-white text-sm font-medium rounded-xl hover:from-cyan-700 hover:to-blue-700 transition-all duration-200 shadow-md hover:shadow-lg">
                     <i class="fas fa-chart-bar mr-2"></i> Statistiques
                 </a>
+                @endcan
+                @can('fonds.analytics')
                 <a href="{{ route('private.fonds.analytics') }}" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-amber-600 to-orange-600 text-white text-sm font-medium rounded-xl hover:from-amber-700 hover:to-orange-700 transition-all duration-200 shadow-md hover:shadow-lg">
                     <i class="fas fa-chart-line mr-2"></i> Analytics
                 </a>
+                @endcan
+                @can('fonds.export')
                 <a href="{{ route('private.fonds.export') }}" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white text-sm font-medium rounded-xl hover:from-purple-700 hover:to-pink-700 transition-all duration-200 shadow-md hover:shadow-lg">
                     <i class="fas fa-download mr-2"></i> Exporter
                 </a>
+                @endcan
             </div>
         </div>
         <div class="p-6">

@@ -73,6 +73,7 @@
                             • {{ $annonce->publie_le->diffForHumans() }}
                         </div>
 
+                        @can('annonces.read')
                         <div class="flex items-center space-x-2">
                             <a href="{{ route('private.annonces.show', $annonce) }}"
                                class="inline-flex items-center px-2 py-1 bg-white/20 text-white text-xs font-medium rounded-md hover:bg-white/30 transition-colors">
@@ -80,6 +81,7 @@
                                 Voir
                             </a>
                         </div>
+                        @endcan
                     </div>
                 </div>
             </div>
@@ -131,6 +133,7 @@
                             @endif
                         </div>
 
+                        @can('annonces.read')
                         <div class="flex items-center space-x-2">
                             <a href="{{ route('private.annonces.edit', $annonce) }}"
                                class="inline-flex items-center px-2 py-1 bg-white/20 text-white text-xs font-medium rounded-md hover:bg-white/30 transition-colors">
@@ -138,6 +141,7 @@
                                 Modifier
                             </a>
                         </div>
+                        @endcan
                     </div>
                 </div>
             </div>

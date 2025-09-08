@@ -43,12 +43,6 @@ return new class extends Migration
             $table->timestamps();
             $table->softDeletes();
 
-            // Contraintes et index
-            // $table->check('montant_souscrit > 0');
-            // $table->check('montant_paye >= 0');
-            // $table->check('reste_a_payer >= 0');
-            // $table->check('montant_paye <= montant_souscrit');
-
             $table->unique(['souscripteur_id', 'fimeco_id'], 'unique_souscription_par_fimeco');
             $table->index(['statut', 'date_souscription']);
             $table->index('fimeco_id');
@@ -58,7 +52,7 @@ return new class extends Migration
         DB::statement('ALTER TABLE subscriptions ADD CONSTRAINT check_montant_souscrit CHECK (montant_souscrit > 0)');
         DB::statement('ALTER TABLE subscriptions ADD CONSTRAINT check_montant_paye CHECK (montant_paye >= 0)');
         DB::statement('ALTER TABLE subscriptions ADD CONSTRAINT check_reste_a_payer CHECK (reste_a_payer >= 0)');
-        DB::statement('ALTER TABLE subscriptions ADD CONSTRAINT check_coherence_montant CHECK (montant_paye <= montant_souscrit)');
+        // DB::statement('ALTER TABLE subscriptions ADD CONSTRAINT check_coherence_montant CHECK (montant_paye <= montant_souscrit)');
     }
 
     public function down(): void

@@ -30,6 +30,7 @@
         </nav>
     </div>
 
+    @can('cultes.update')
     <form action="{{ route('private.cultes.update', $culte) }}" method="POST" enctype="multipart/form-data" id="culteForm" class="space-y-8">
         @csrf
         @method('PUT')
@@ -696,6 +697,7 @@
             </div>
         </div>
     </form>
+    @endcan
 </div>
 
 <!-- Modal duplication -->
@@ -726,9 +728,11 @@
             <button type="button" onclick="closeDuplicateModal()" class="px-4 py-2 text-slate-700 bg-slate-100 rounded-xl hover:bg-slate-200 transition-colors">
                 Annuler
             </button>
+            @can('cultes.duplicate')
             <button type="button" onclick="duplicateCulte()" class="px-4 py-2 bg-purple-600 text-white rounded-xl hover:bg-purple-700 transition-colors">
                 Dupliquer
             </button>
+            @endcan
         </div>
     </div>
 </div>
@@ -810,6 +814,7 @@ function closeDuplicateModal() {
     document.getElementById('duplicateForm').reset();
 }
 
+@can('cultes.duplicate')
 function duplicateCulte() {
     const form = document.getElementById('duplicateForm');
     const formData = new FormData(form);
@@ -836,8 +841,10 @@ function duplicateCulte() {
         alert('Une erreur est survenue');
     });
 }
+@endcan
 
 // Suppression
+@can('cultes.delete')
 function deleteCulte(culteId) {
     if (confirm('Êtes-vous sûr de vouloir supprimer ce culte ?')) {
         fetch(`{{route('private.cultes.destroy', ':culteid')}}`.replace(':culteid', culteId), {
@@ -861,6 +868,7 @@ function deleteCulte(culteId) {
         });
     }
 }
+@endcan
 
 // Fermer le modal en cliquant à l'extérieur
 document.getElementById('duplicateModal').addEventListener('click', function(e) {

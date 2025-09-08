@@ -156,12 +156,15 @@
                                                 @endif
                                             </p>
                                         </div>
+
+                                        @can('annonces.edit')
                                         <div class="flex items-center space-x-2">
                                             <a href="{{ route('private.annonces.edit', $annonce) }}" class="inline-flex items-center px-2 py-1 bg-orange-100 text-orange-700 rounded-md hover:bg-orange-200 transition-colors text-xs">
                                                 <i class="fas fa-edit mr-1"></i>
                                                 Modifier
                                             </a>
                                         </div>
+                                        @endcan
                                     </div>
                                 @endforeach
                                 @if($annoncesExpirantBientot->count() > 3)
@@ -197,12 +200,14 @@
                                                 Publiée {{ $annonce->publie_le->diffForHumans() }}
                                             </p>
                                         </div>
+                                        @can('annonces.read')
                                         <div class="flex items-center space-x-2">
                                             <a href="{{ route('private.annonces.show', $annonce) }}" class="inline-flex items-center px-2 py-1 bg-red-100 text-red-700 rounded-md hover:bg-red-200 transition-colors text-xs">
                                                 <i class="fas fa-eye mr-1"></i>
                                                 Voir
                                             </a>
                                         </div>
+                                        @endcan
                                     </div>
                                 @endforeach
                             </div>
@@ -296,11 +301,13 @@
                                         @endif
                                     </div>
                                 </div>
+                                @can('annonces.read')
                                 <div class="flex-shrink-0">
                                     <a href="{{ route('private.annonces.show', $annonce) }}" class="text-slate-400 hover:text-slate-600">
                                         <i class="fas fa-chevron-right"></i>
                                     </a>
                                 </div>
+                                @endcan
                             </div>
                         @endforeach
                     </div>
@@ -324,6 +331,7 @@
         </div>
         <div class="p-6">
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                @can('annonces.create')
                 <a href="{{ route('private.annonces.create') }}" class="flex items-center p-4 bg-blue-50 hover:bg-blue-100 rounded-xl transition-colors">
                     <div class="w-10 h-10 bg-blue-500 rounded-lg flex items-center justify-center mr-3">
                         <i class="fas fa-plus text-white"></i>
@@ -333,7 +341,9 @@
                         <p class="text-sm text-slate-600">Créer rapidement</p>
                     </div>
                 </a>
+                @endcan
 
+                @can('annonces.read')
                 <a href="{{ route('private.annonces.index', ['statut' => 'brouillon']) }}" class="flex items-center p-4 bg-yellow-50 hover:bg-yellow-100 rounded-xl transition-colors">
                     <div class="w-10 h-10 bg-yellow-500 rounded-lg flex items-center justify-center mr-3">
                         <i class="fas fa-edit text-white"></i>
@@ -343,7 +353,9 @@
                         <p class="text-sm text-slate-600">{{ $statistiques['brouillons'] ?? 0 }} en attente</p>
                     </div>
                 </a>
+                @endcan
 
+                @can('annonces.read')
                 <a href="{{ route('private.annonces.annoncesActives') }}" class="flex items-center p-4 bg-green-50 hover:bg-green-100 rounded-xl transition-colors">
                     <div class="w-10 h-10 bg-green-500 rounded-lg flex items-center justify-center mr-3">
                         <i class="fas fa-eye text-white"></i>
@@ -353,7 +365,9 @@
                         <p class="text-sm text-slate-600">Annonces actives</p>
                     </div>
                 </a>
+                @endcan
 
+                @can('annonces.read')
                 <button onclick="exportAnnonces()" class="flex items-center p-4 bg-purple-50 hover:bg-purple-100 rounded-xl transition-colors">
                     <div class="w-10 h-10 bg-purple-500 rounded-lg flex items-center justify-center mr-3">
                         <i class="fas fa-download text-white"></i>
@@ -363,6 +377,7 @@
                         <p class="text-sm text-slate-600">Données CSV</p>
                     </div>
                 </button>
+                @endcan
             </div>
         </div>
     </div>
@@ -374,11 +389,14 @@ function refreshDashboard() {
     window.location.reload();
 }
 
+@can('annonces.read')
 function exportAnnonces() {
     window.open('{{ route("private.annonces.index") }}?export=csv', '_blank');
 }
+@endcan
 
 // Auto-refresh du dashboard toutes les 10 minutes
+@can('annonces.statistics')
 setInterval(function() {
     if (!document.hidden) {
         // Mettre à jour uniquement les statistiques via AJAX
@@ -393,6 +411,7 @@ setInterval(function() {
             });
     }
 }, 600000); // 10 minutes
+@endcan
 
 function updateCounters(data) {
     // Mettre à jour les valeurs des compteurs

@@ -84,6 +84,11 @@ class Subscription extends Model
         return $query->where('statut', 'completement_payee');
     }
 
+    public function scopeSurPayee($query)
+    {
+        return $query->where('montant_paye', '>', 'montant_souscrit');
+    }
+
     public function scopeEnRetard($query)
     {
         return $query->where('date_echeance', '<', now())
@@ -103,7 +108,24 @@ class Subscription extends Model
     // Accessors & Mutators
     public function getEstSoldeeAttribute(): bool
     {
-        return $this->reste_a_payer <= 0;
+        return $this->montant_paye >= $this->montant_souscrit;
+    }
+
+    public function getEstSurPayeeAttribute(): bool
+    {
+        return $this->montant_paye > $this->montant_souscrit;
+    }
+
+    public function getMontantSurPayeAttribute(): string
+    {
+        $surPaye = $this->montant_paye - $this->montant_souscrit;
+        return $surPaye > 0 ? $surPaye : '0.00';
+    }
+
+    public function getResteAPayer_RealAttribute(): string
+    {
+        $reste = $this->montant_souscrit - $this->montant_paye;
+        return $reste > 0 ? $reste : '0.00';
     }
 
     public function getEstEnRetardAttribute(): bool
@@ -122,8 +144,13 @@ class Subscription extends Model
 
     public function getProchainMontantMinimumAttribute(): string
     {
-        // Calcul du montant minimum pour le prochain paiement
-        return min($this->reste_a_payer, 50); // Par exemple, minimum 50 ou le reste
+        // Si déjà soldé, permettre quand même un paiement minimum (ex: don supplémentaire)
+        if ($this->est_soldee) {
+            return '10.00'; // Montant minimum pour paiement supplémentaire
+        }
+
+        // Sinon, calculer le minimum entre le reste et un seuil
+        return min($this->reste_a_payer_real, 50);
     }
 
     // Mutators pour maintenir la cohérence
@@ -143,6 +170,7 @@ class Subscription extends Model
     {
         if (isset($this->attributes['montant_souscrit']) &&
             isset($this->attributes['montant_paye'])) {
+            // Le reste peut être négatif si sur-paiement
             $this->attributes['reste_a_payer'] =
                 $this->attributes['montant_souscrit'] - $this->attributes['montant_paye'];
         }
@@ -151,14 +179,13 @@ class Subscription extends Model
     // Methods
     public function peutRecevoirPaiement(float $montant = null): bool
     {
-        if ($this->statut === 'completement_payee' ||
-            $this->statut === 'annulee') {
+        // Empêcher les paiements sur souscriptions annulées uniquement
+        if ($this->statut === 'annulee') {
             return false;
         }
 
-        if ($montant && $montant > $this->reste_a_payer) {
-            return false;
-        }
+        // Permettre les paiements même si déjà soldée (pour les sur-paiements)
+        // Pas de limite sur le montant - le souscripteur peut payer autant qu'il veut
 
         return true;
     }
@@ -169,9 +196,12 @@ class Subscription extends Model
             throw new \InvalidArgumentException('Paiement non autorisé pour cette souscription');
         }
 
+        $ancienReste = $this->reste_a_payer;
+        $nouveauReste = $ancienReste - $paymentData['montant'];
+
         return $this->payments()->create(array_merge($paymentData, [
-            'ancien_reste' => $this->reste_a_payer,
-            'nouveau_reste' => $this->reste_a_payer - $paymentData['montant'],
+            'ancien_reste' => $ancienReste,
+            'nouveau_reste' => $nouveauReste,
             'subscription_version_at_payment' => $this->version
         ]));
     }
@@ -181,17 +211,59 @@ class Subscription extends Model
         $totalPaye = $this->paymentsValides()->sum('montant');
 
         $this->montant_paye = $totalPaye;
-        $this->reste_a_payer = $this->montant_souscrit - $totalPaye;
+        $reste = $this->montant_souscrit - $totalPaye;
+        $this->reste_a_payer = $reste > 0 ? $reste : 0;
 
-        // Mise à jour du statut
-        if ($this->reste_a_payer <= 0) {
+        // Mise à jour du statut selon le montant payé
+        if ($totalPaye >= $this->montant_souscrit) {
             $this->statut = 'completement_payee';
-        } elseif ($this->montant_paye > 0) {
+        } elseif ($totalPaye > 0) {
             $this->statut = 'partiellement_payee';
+        } else {
+            $this->statut = 'active';
         }
 
         $this->version++;
         $this->save();
+    }
+
+    public function augmenterSouscription(float $nouveauMontant, string $raison = null): bool
+    {
+        if ($nouveauMontant <= $this->montant_souscrit) {
+            throw new \InvalidArgumentException(
+                'Le nouveau montant doit être supérieur au montant actuel'
+            );
+        }
+
+        $ancienMontant = $this->montant_souscrit;
+        $this->montant_souscrit = $nouveauMontant;
+        $this->calculerReste();
+
+        // Log de la modification
+        $this->logs()->create([
+            'action' => 'souscription_modifiee',
+            'donnees_avant' => ['montant_souscrit' => $ancienMontant],
+            'donnees_apres' => ['montant_souscrit' => $nouveauMontant],
+            'commentaire' => $raison ?? "Augmentation de souscription de {$ancienMontant} à {$nouveauMontant}",
+            'user_id' => auth()->id()
+        ]);
+
+        return $this->save();
+    }
+
+    public function obtenirDetailsPaiements(): array
+    {
+        return [
+            'montant_initial_souscrit' => $this->montant_souscrit,
+            'montant_total_paye' => $this->montant_paye,
+            'reste_a_payer' => $this->reste_a_payer_real,
+            'montant_sur_paye' => $this->montant_sur_paye,
+            'est_soldee' => $this->est_soldee,
+            'est_sur_payee' => $this->est_sur_payee,
+            'pourcentage_paye' => $this->pourcentage_paye,
+            'nombre_paiements' => $this->paymentsValides()->count(),
+            'dernier_paiement' => $this->paymentsValides()->latest('date_paiement')->first()?->date_paiement
+        ];
     }
 
     public function annuler(string $raison = null): bool

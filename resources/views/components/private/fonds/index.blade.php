@@ -18,23 +18,31 @@
                     Filtres et Actions
                 </h2>
                 <div class="flex flex-wrap gap-2">
-                    @can('creer_fonds')
+                    @can('fonds.create')
                         <a href="{{ route('private.fonds.create') }}" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-sm font-medium rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-200 shadow-md hover:shadow-lg">
                             <i class="fas fa-plus mr-2"></i> Nouvelle Transaction
                         </a>
                     @endcan
+                    @can('fonds.dashboard')
                     <a href="{{ route('private.fonds.dashboard') }}" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white text-sm font-medium rounded-xl hover:from-green-700 hover:to-emerald-700 transition-all duration-200 shadow-md hover:shadow-lg">
                         <i class="fas fa-tachometer-alt mr-2"></i> Tableau de Bord
                     </a>
+                    @endcan
+                    @can('fonds.statistics')
                     <a href="{{ route('private.fonds.statistics') }}" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-cyan-600 to-blue-600 text-white text-sm font-medium rounded-xl hover:from-cyan-700 hover:to-blue-700 transition-all duration-200 shadow-md hover:shadow-lg">
                         <i class="fas fa-chart-bar mr-2"></i> Statistiques
                     </a>
+                    @endcan
+                    @can('fonds.analytics')
                     <a href="{{ route('private.fonds.analytics') }}" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-amber-600 to-orange-600 text-white text-sm font-medium rounded-xl hover:from-amber-700 hover:to-orange-700 transition-all duration-200 shadow-md hover:shadow-lg">
                         <i class="fas fa-chart-line mr-2"></i> Analytics
                     </a>
+                    @endcan
+                    @can('fonds.export')
                     <a href="{{ route('private.fonds.export') }}" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white text-sm font-medium rounded-xl hover:from-purple-700 hover:to-pink-700 transition-all duration-200 shadow-md hover:shadow-lg">
                         <i class="fas fa-download mr-2"></i> Exporter
                     </a>
+                    @endcan
                 </div>
             </div>
         </div>
@@ -285,13 +293,13 @@
                                     </td>
                                     <td class="py-4 px-4">
                                         <div class="flex items-center space-x-2">
-                                            @can('voir_fonds')
+                                            @can('fonds.read')
                                                 <a href="{{ route('private.fonds.show', $fond) }}" class="inline-flex items-center justify-center w-8 h-8 text-cyan-600 bg-cyan-100 rounded-lg hover:bg-cyan-200 transition-colors" title="Voir">
                                                     <i class="fas fa-eye text-sm"></i>
                                                 </a>
                                             @endcan
 
-                                            @can('modifier_fonds')
+                                            @can('fonds.update')
                                                 @if($fond->peutEtreModifiee())
                                                     <a href="{{ route('private.fonds.edit', $fond) }}" class="inline-flex items-center justify-center w-8 h-8 text-yellow-600 bg-yellow-100 rounded-lg hover:bg-yellow-200 transition-colors" title="Modifier">
                                                         <i class="fas fa-edit text-sm"></i>
@@ -299,7 +307,7 @@
                                                 @endif
                                             @endcan
 
-                                            @can('valider_fonds')
+                                            @can('fonds.validate')
                                                 @if($fond->peutEtreValidee())
                                                     <button type="button" onclick="validateTransaction('{{ $fond->id }}')" class="inline-flex items-center justify-center w-8 h-8 text-green-600 bg-green-100 rounded-lg hover:bg-green-200 transition-colors" title="Valider">
                                                         <i class="fas fa-check text-sm"></i>
@@ -313,7 +321,7 @@
                                                 @endif
                                             @endcan
 
-                                            @can('generer_recu')
+                                            @can('fonds.generate-receipt')
                                                 @if($fond->peutGenererRecu())
                                                     <button type="button" onclick="generateReceipt('{{ $fond->id }}')" class="inline-flex items-center justify-center w-8 h-8 text-purple-600 bg-purple-100 rounded-lg hover:bg-purple-200 transition-colors" title="Générer reçu">
                                                         <i class="fas fa-receipt text-sm"></i>
@@ -359,7 +367,7 @@
                             Commencez par créer votre première transaction.
                         @endif
                     </p>
-                    @can('creer_fonds')
+                    @can('fonds.create')
                         <a href="{{ route('private.fonds.create') }}" class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-medium rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-200 shadow-md hover:shadow-lg">
                             <i class="fas fa-plus mr-2"></i> Créer une transaction
                         </a>

@@ -23,7 +23,7 @@
             </ol>
         </nav>
     </div>
-
+    @can('classes.read')
     <form action="{{ route('private.classes.store') }}" method="POST" enctype="multipart/form-data" id="classeForm" class="space-y-8">
         @csrf
 
@@ -344,6 +344,8 @@
             </div>
         </div>
     </form>
+    @endcan
+
 </div>
 
 @push('scripts')

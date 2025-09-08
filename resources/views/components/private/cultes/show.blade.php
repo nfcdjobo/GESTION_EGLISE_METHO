@@ -120,7 +120,8 @@
                                     <i class="fas fa-align-left text-blue-600 mr-2"></i>
                                     Description
                                 </h3>
-                                <x-ckeditor-display :model="$culte" field="description" show-meta="true" class="bg-slate-50 p-4 rounded-lg" />
+                                <x-ckeditor-display :model="$culte" field="description" show-meta="true"
+                                    class="bg-slate-50 p-4 rounded-lg" />
                             </div>
                         @endif
 
@@ -495,52 +496,52 @@
                             Actions Rapides
                         </h2>
                     </div>
-<div class="p-6 space-y-3">
-    @can('cultes.participant')
-        <a href="{{route('private.cultes.participants', $culte->id)}}"
-            class="w-full inline-flex items-center justify-center px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white text-sm font-medium rounded-xl hover:from-green-700 hover:to-emerald-700 transition-all duration-200">
-            <i class="fas fa-user-plus mr-2"></i> Ajouter des participants
-        </a>
-    @endcan
+                    <div class="p-6 space-y-3">
+                        @can('cultes.participant')
+                            <a href="{{ route('private.cultes.participants', $culte->id) }}"
+                                class="w-full inline-flex items-center justify-center px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white text-sm font-medium rounded-xl hover:from-green-700 hover:to-emerald-700 transition-all duration-200">
+                                <i class="fas fa-user-plus mr-2"></i> Ajouter des participants
+                            </a>
+                        @endcan
 
-    @if ($culte->statut !== 'termine')
-        <button type="button"
-            onclick="openStatusModal('{{ $culte->id }}', '{{ $culte->statut }}')"
-            class="w-full inline-flex items-center justify-center px-4 py-2 bg-gradient-to-r from-blue-600 to-cyan-600 text-white text-sm font-medium rounded-xl hover:from-blue-700 hover:to-cyan-700 transition-all duration-200">
-            <i class="fas fa-exchange-alt mr-2"></i> Changer le statut
-        </button>
-    @endif
+                        @if ($culte->statut !== 'termine')
+                            <button type="button"
+                                onclick="openStatusModal('{{ $culte->id }}', '{{ $culte->statut }}')"
+                                class="w-full inline-flex items-center justify-center px-4 py-2 bg-gradient-to-r from-blue-600 to-cyan-600 text-white text-sm font-medium rounded-xl hover:from-blue-700 hover:to-cyan-700 transition-all duration-200">
+                                <i class="fas fa-exchange-alt mr-2"></i> Changer le statut
+                            </button>
+                        @endif
 
-    @if ($culte->lien_diffusion_live)
-        <a href="{{ $culte->lien_diffusion_live }}" target="_blank"
-            class="w-full inline-flex items-center justify-center px-4 py-2 bg-gradient-to-r from-red-500 to-pink-500 text-white text-sm font-medium rounded-xl hover:from-red-600 hover:to-pink-600 transition-all duration-200">
-            <i class="fas fa-broadcast-tower mr-2"></i> Diffusion live
-        </a>
-    @endif
+                        @if ($culte->lien_diffusion_live)
+                            <a href="{{ $culte->lien_diffusion_live }}" target="_blank"
+                                class="w-full inline-flex items-center justify-center px-4 py-2 bg-gradient-to-r from-red-500 to-pink-500 text-white text-sm font-medium rounded-xl hover:from-red-600 hover:to-pink-600 transition-all duration-200">
+                                <i class="fas fa-broadcast-tower mr-2"></i> Diffusion live
+                            </a>
+                        @endif
 
-    @if ($culte->lien_enregistrement_video)
-        <a href="{{ $culte->lien_enregistrement_video }}" target="_blank"
-            class="w-full inline-flex items-center justify-center px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white text-sm font-medium rounded-xl hover:from-purple-700 hover:to-pink-700 transition-all duration-200">
-            <i class="fas fa-video mr-2"></i> Enregistrement vidéo
-        </a>
-    @endif
+                        @if ($culte->lien_enregistrement_video)
+                            <a href="{{ $culte->lien_enregistrement_video }}" target="_blank"
+                                class="w-full inline-flex items-center justify-center px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white text-sm font-medium rounded-xl hover:from-purple-700 hover:to-pink-700 transition-all duration-200">
+                                <i class="fas fa-video mr-2"></i> Enregistrement vidéo
+                            </a>
+                        @endif
 
-    @if ($culte->lien_enregistrement_audio)
-        <a href="{{ $culte->lien_enregistrement_audio }}" target="_blank"
-            class="w-full inline-flex items-center justify-center px-4 py-2 bg-gradient-to-r from-amber-600 to-orange-600 text-white text-sm font-medium rounded-xl hover:from-amber-700 hover:to-orange-700 transition-all duration-200">
-            <i class="fas fa-volume-up mr-2"></i> Enregistrement audio
-        </a>
-    @endif
+                        @if ($culte->lien_enregistrement_audio)
+                            <a href="{{ $culte->lien_enregistrement_audio }}" target="_blank"
+                                class="w-full inline-flex items-center justify-center px-4 py-2 bg-gradient-to-r from-amber-600 to-orange-600 text-white text-sm font-medium rounded-xl hover:from-amber-700 hover:to-orange-700 transition-all duration-200">
+                                <i class="fas fa-volume-up mr-2"></i> Enregistrement audio
+                            </a>
+                        @endif
 
-    @can('cultes.delete')
-        @if ($culte->statut !== 'en_cours')
-            <button type="button" onclick="deleteCulte('{{ $culte->id }}')"
-                class="w-full inline-flex items-center justify-center px-4 py-2 bg-gradient-to-r from-red-600 to-rose-600 text-white text-sm font-medium rounded-xl hover:from-red-700 hover:to-rose-700 transition-all duration-200">
-                <i class="fas fa-trash mr-2"></i> Supprimer
-            </button>
-        @endif
-    @endcan
-</div>
+                        @can('cultes.delete')
+                            @if ($culte->statut !== 'en_cours')
+                                <button type="button" onclick="deleteCulte('{{ $culte->id }}')"
+                                    class="w-full inline-flex items-center justify-center px-4 py-2 bg-gradient-to-r from-red-600 to-rose-600 text-white text-sm font-medium rounded-xl hover:from-red-700 hover:to-rose-700 transition-all duration-200">
+                                    <i class="fas fa-trash mr-2"></i> Supprimer
+                                </button>
+                            @endif
+                        @endcan
+                    </div>
                 </div>
 
                 <!-- Évaluations -->
@@ -667,10 +668,12 @@
                     class="px-4 py-2 text-slate-700 bg-slate-100 rounded-xl hover:bg-slate-200 transition-colors">
                     Annuler
                 </button>
+                @can('cultes.update')
                 <button type="button" onclick="updateStatus()"
                     class="px-4 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors">
                     Changer le statut
                 </button>
+                @endcan
             </div>
         </div>
     </div>
@@ -710,10 +713,12 @@
                     class="px-4 py-2 text-slate-700 bg-slate-100 rounded-xl hover:bg-slate-200 transition-colors">
                     Annuler
                 </button>
-                <button type="button" onclick="duplicateCulte()"
-                    class="px-4 py-2 bg-purple-600 text-white rounded-xl hover:bg-purple-700 transition-colors">
-                    Dupliquer
-                </button>
+                @can('cultes.duplicate')
+                    <button type="button" onclick="duplicateCulte()"
+                        class="px-4 py-2 bg-purple-600 text-white rounded-xl hover:bg-purple-700 transition-colors">
+                        Dupliquer
+                    </button>
+                @endcan
             </div>
         </div>
     </div>
@@ -747,6 +752,7 @@
 
             document.getElementById('nouveau_statut').addEventListener('change', toggleRaisonField);
 
+            @can('cultes.update')
             function updateStatus() {
                 const form = document.getElementById('statusForm');
                 const formData = new FormData(form);
@@ -773,6 +779,7 @@
                         alert('Une erreur est survenue');
                     });
             }
+            @endcan
 
             // Modal duplication
             function openDuplicateModal(culteId) {
@@ -818,6 +825,7 @@
             }
 
             // Suppression
+            @can('cultes.delete')
             function deleteCulte(culteId) {
                 if (confirm('Êtes-vous sûr de vouloir supprimer ce culte ?')) {
                     fetch(`{{ route('private.cultes.destroy', ':culteid') }}`.replace(':culteid', culteId), {
@@ -841,6 +849,7 @@
                         });
                 }
             }
+            @endcan
 
             // Fermer les modals en cliquant à l'extérieur
             document.getElementById('statusModal').addEventListener('click', function(e) {

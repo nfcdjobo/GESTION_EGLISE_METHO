@@ -49,7 +49,7 @@ class SubscriptionService
                 'date_souscription' => $data['date_souscription'] ?? now(),
                 'date_echeance' => $data['date_echeance'] ?? null
             ]);
-
+// dd($subscription);
             return $subscription;
         });
     }

@@ -24,6 +24,7 @@
         </nav>
     </div>
 
+    @can('contacts.update')
     <form action="{{ route('private.contacts.store') }}" method="POST" id="contactForm" class="space-y-8">
         @csrf
 
@@ -403,6 +404,13 @@
             </div>
         </div>
     </form>
+    @else
+    <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+        <strong class="font-bold">Accès refusé!</strong>
+        <span class="block sm:inline">Vous n'avez pas la permission de créer un contact.</span>
+        
+    </div>
+    @endcan
 </div>
 
 @push('scripts')

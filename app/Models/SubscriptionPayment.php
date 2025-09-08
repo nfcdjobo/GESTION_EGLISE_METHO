@@ -1,11 +1,8 @@
 <?php
-
-// =================================================================
-// app/Models/SubscriptionPayment.php
-
 namespace App\Models;
 
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
@@ -106,14 +103,31 @@ class SubscriptionPayment extends Model
         return in_array($this->statut, ['en_attente', 'valide']);
     }
 
-    // Methods
-    public function valider(?string $commentaire = null): bool
-    {
-        if (!$this->peut_etre_valide) {
-            throw new \InvalidArgumentException('Ce paiement ne peut pas être validé');
-        }
 
-        DB::transaction(function () use ($commentaire) {
+
+
+
+    public function valider(?string $commentaire = null): bool
+{
+    if (!$this->peut_etre_valide) {
+        throw new \InvalidArgumentException('Ce paiement ne peut pas être validé');
+    }
+
+    try {
+        return DB::transaction(function () use ($commentaire) {
+            Log::info("=== DÉBUT VALIDATION PAYMENT {$this->id} ===");
+
+            // Recharger le modèle depuis la base pour éviter les conflits de concurrence
+            $this->refresh();
+
+            // Vérifier que la subscription existe avant de commencer
+            if (!$this->subscription) {
+                throw new \Exception("Subscription introuvable pour le paiement {$this->id}");
+            }
+
+            Log::info("Avant sauvegarde - Paiement ID: {$this->id}");
+
+            // Mise à jour des attributs
             $this->statut = 'valide';
             $this->validateur_id = auth()->id();
             $this->date_validation = now();
@@ -122,10 +136,18 @@ class SubscriptionPayment extends Model
                 $this->commentaire = $commentaire;
             }
 
+            // Sauvegarder (save() lance automatiquement une exception en cas d'erreur)
             $this->save();
 
-            // Log de validation
-            $this->subscription->logs()->create([
+            Log::info("Paiement ID: {$this->id} sauvegardé avec statut valide.");
+
+            // Recharger la relation subscription pour avoir les données les plus récentes
+            $this->load('subscription');
+
+            Log::info("Avant création du log pour subscription {$this->subscription_id}");
+
+            // Création du log (create() lance automatiquement une exception en cas d'erreur)
+            $logData = [
                 'subscription_id' => $this->subscription_id,
                 'payment_id' => $this->id,
                 'action' => 'paiement_valide',
@@ -133,25 +155,71 @@ class SubscriptionPayment extends Model
                 'nouveau_montant_paye' => $this->subscription->montant_paye + $this->montant,
                 'commentaire' => $commentaire,
                 'user_id' => auth()->id()
-            ]);
+            ];
 
-            // Mise à jour de la souscription (si pas fait automatiquement par trigger)
+            $this->subscription->logs()->create($logData);
+
+            Log::info("Log créé avec succès");
+
+            // Mise à jour de la souscription
+            Log::info("Avant mise à jour des montants");
             $this->subscription->mettreAJourMontants();
+            Log::info("Montants mis à jour avec succès");
+
+            Log::info("=== FIN VALIDATION PAYMENT {$this->id} ===");
+
+            return true;
         });
 
-        return true;
+    } catch (\Exception $e) {
+        Log::error("Erreur lors de la validation du paiement {$this->id}: " . $e->getMessage(), [
+            'exception' => $e->getTraceAsString(), // Plus de détails sur l'erreur
+            'payment_id' => $this->id,
+            'subscription_id' => $this->subscription_id ?? 'N/A',
+            'line' => $e->getLine(),
+            'file' => $e->getFile()
+        ]);
+        throw $e;
     }
+}
+
+    // public function refuser(string $raison): bool
+    // {
+    //     if (!$this->peut_etre_valide) {
+    //         throw new \InvalidArgumentException('Ce paiement ne peut pas être refusé');
+    //     }
+
+    //     $this->statut = 'refuse';
+    //     $this->validateur_id = auth()->id();
+    //     $this->date_validation = now();
+    //     $this->commentaire = $raison;
+
+    //     // Log du refus
+    //     $this->subscription->logs()->create([
+    //         'subscription_id' => $this->subscription_id,
+    //         'payment_id' => $this->id,
+    //         'action' => 'paiement_refuse',
+    //         'commentaire' => $raison,
+    //         'user_id' => auth()->id()
+    //     ]);
+
+    //     return $this->save();
+    // }
+
+
 
     public function refuser(string $raison): bool
-    {
-        if (!$this->peut_etre_valide) {
-            throw new \InvalidArgumentException('Ce paiement ne peut pas être refusé');
-        }
+{
+    if (!$this->peut_etre_valide) {
+        throw new \InvalidArgumentException('Ce paiement ne peut pas être refusé');
+    }
 
+    return DB::transaction(function () use ($raison) {
         $this->statut = 'refuse';
         $this->validateur_id = auth()->id();
         $this->date_validation = now();
         $this->commentaire = $raison;
+        $this->save();
 
         // Log du refus
         $this->subscription->logs()->create([
@@ -162,8 +230,9 @@ class SubscriptionPayment extends Model
             'user_id' => auth()->id()
         ]);
 
-        return $this->save();
-    }
+        return true;
+    });
+}
 
     public function annuler(string $raison): bool
     {

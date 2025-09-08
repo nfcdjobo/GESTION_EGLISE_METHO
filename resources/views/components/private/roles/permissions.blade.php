@@ -207,14 +207,14 @@
                             <div class="bg-gradient-to-r from-slate-50 to-blue-50 p-4 border-b border-slate-200">
                                 <div class="flex items-center justify-between">
                                     <div class="flex items-center space-x-3">
-                                        <input type="checkbox" data-category="{{ $category }}" onchange="toggleCategoryPermissions('{{ $category }}')" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 category-checkbox">
+                                        <input type="checkbox" data-category="{{ $category }}" onchange='toggleCategoryPermissions("{{ $category }}")' class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 category-checkbox">
                                         <h3 class="text-lg font-semibold text-slate-800">{{ ucfirst($category) }}</h3>
                                         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-200 text-slate-700">
                                             {{ $categoryPermissions->count() }}
                                         </span>
                                         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 category-selected-count" data-category="{{ $category }}">0</span>
                                     </div>
-                                    <button type="button" onclick="toggleCategoryVisibility('{{ $category }}')" class="p-2 text-slate-600 hover:text-slate-800 hover:bg-white/50 rounded-lg transition-colors">
+                                    <button type="button" onclick='toggleCategoryVisibility("{{ $category }}")' class="p-2 text-slate-600 hover:text-slate-800 hover:bg-white/50 rounded-lg transition-colors">
                                         <i class="fas fa-chevron-down transition-transform duration-200"></i>
                                     </button>
                                 </div>

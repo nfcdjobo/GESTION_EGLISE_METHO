@@ -669,11 +669,9 @@ function exportHierarchy() {
     const hierarchyData = @json($hierarchy);
 
     let csv = 'Niveau,Nom,Slug,Type,Utilisateurs,Permissions,Description\n';
-console.log("*************************************", hierarchyData);
     Object.keys(hierarchyData).forEach(levelName => {
 
         hierarchyData[levelName].forEach(role => {
-            console.log("*************************************", levelName);
             csv += `"${levelName}","${role.name}","${role.slug}","${role.is_system_role ? 'Système' : 'Personnalisé'}","${role.users_count || 0}","${role.permissions_count || 0}","${role.description || ''}"\n`;
         });
     });

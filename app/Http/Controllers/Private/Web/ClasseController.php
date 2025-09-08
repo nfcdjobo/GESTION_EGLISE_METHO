@@ -64,6 +64,8 @@ class ClasseController extends Controller
                 ]);
             }
 
+            // dd($classes);
+
             // Pour les requêtes web, retourner la vue
             return view('components.private.classes.index', compact('classes'));
 

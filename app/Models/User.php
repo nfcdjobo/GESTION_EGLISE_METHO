@@ -150,7 +150,7 @@ class User extends Authenticatable
      */
     public function transactionsDonateur()
     {
-        return $this->hasMany(TransactionSpirituelle::class, 'donateur_id');
+        return $this->hasMany(Fonds::class, 'donateur_id');
     }
 
     /**
@@ -158,7 +158,7 @@ class User extends Authenticatable
      */
     public function transactionsCollecteur()
     {
-        return $this->hasMany(TransactionSpirituelle::class, 'collecteur_id');
+        return $this->hasMany(Fonds::class, 'collecteur_id');
     }
 
     /**
@@ -183,6 +183,11 @@ class User extends Authenticatable
     public function annonces()
     {
         return $this->hasMany(Annonce::class, 'cree_par');
+    }
+
+    public function subscriptions()
+    {
+        return $this->hasMany(Subscription::class, 'souscripteur_id');
     }
 
     /**

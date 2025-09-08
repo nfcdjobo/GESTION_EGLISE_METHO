@@ -547,13 +547,15 @@ function annulerReunion() {
 // Changement de statut
 function changerStatut(reunionId, action) {
     const actions = {
-        'commencer': '/commencer',
-        'terminer': '/terminer'
+        'commencer': 'commencer',
+        'terminer': 'terminer'
     };
 
     if (!actions[action]) return;
-    const route = `{{route('private.types-reunions.activer', ':reunion')}}`.replace(':reunion', reunionId);
-    fetch(route.replace('activer', actions), {
+    let route = `{{route('private.reunions.confirmer', ':reunion')}}`.replace(':reunion', reunionId);
+    route = route.replace('activer', actions[action]);
+    alert(route)
+    fetch(route, {
         method: 'POST',
         headers: {
             'X-CSRF-TOKEN': '{{ csrf_token() }}',

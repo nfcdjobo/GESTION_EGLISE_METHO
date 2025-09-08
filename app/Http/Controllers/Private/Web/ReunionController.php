@@ -417,7 +417,7 @@ class ReunionController extends Controller
 
             return back()->with('error', 'Cette réunion ne peut pas être commencée dans son état actuel');
         }
-
+        
         try {
             $reunion->commencer(auth()->id());
 

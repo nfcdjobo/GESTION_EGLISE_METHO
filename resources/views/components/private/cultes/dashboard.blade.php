@@ -209,11 +209,13 @@
                         @endforeach
                     </div>
 
+                    @can('cultes.planning')
                     <div class="mt-6 pt-4 border-t border-slate-200 text-center">
                         <a href="{{ route('private.cultes.planning') }}" class="inline-flex items-center px-4 py-2 bg-amber-600 text-white text-sm font-medium rounded-xl hover:bg-amber-700 transition-colors">
                             <i class="fas fa-calendar mr-2"></i> Voir le planning complet
                         </a>
                     </div>
+                    @endcan
                 @else
                     <div class="text-center py-8">
                         <i class="fas fa-calendar-times text-4xl text-slate-300 mb-4"></i>
@@ -289,12 +291,17 @@
                 <!-- Actions rapides -->
                 <div class="pt-4 border-t border-slate-200">
                     <div class="grid grid-cols-1 gap-2">
+                        @can('cultes.statistiques')
                         <a href="{{ route('private.cultes.statistiques') }}" class="inline-flex items-center justify-center px-4 py-2 bg-gradient-to-r from-cyan-600 to-blue-600 text-white text-sm font-medium rounded-xl hover:from-cyan-700 hover:to-blue-700 transition-all duration-200">
                             <i class="fas fa-chart-bar mr-2"></i> Statistiques détaillées
                         </a>
+                        @endcan
+
+                        @can('cultes.read')
                         <a href="{{ route('private.cultes.index') }}" class="inline-flex items-center justify-center px-4 py-2 bg-gradient-to-r from-slate-600 to-gray-600 text-white text-sm font-medium rounded-xl hover:from-slate-700 hover:to-gray-700 transition-all duration-200">
                             <i class="fas fa-list mr-2"></i> Tous les cultes
                         </a>
+                        @endcan
                     </div>
                 </div>
             </div>
@@ -323,6 +330,7 @@
                     </a>
                 @endcan
 
+                @can('cultes.planning')
                 <a href="{{ route('private.cultes.planning') }}" class="flex items-center p-4 bg-gradient-to-r from-blue-50 to-cyan-50 rounded-xl border border-blue-200 hover:shadow-md transition-all duration-200 group">
                     <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center mr-3 group-hover:bg-blue-200 transition-colors">
                         <i class="fas fa-calendar text-blue-600"></i>
@@ -332,7 +340,9 @@
                         <div class="text-sm text-slate-600">Vue calendrier</div>
                     </div>
                 </a>
+                @endcan
 
+                @can('cultes.statistics')
                 <a href="{{ route('private.cultes.statistiques') }}" class="flex items-center p-4 bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl border border-purple-200 hover:shadow-md transition-all duration-200 group">
                     <div class="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center mr-3 group-hover:bg-purple-200 transition-colors">
                         <i class="fas fa-chart-bar text-purple-600"></i>
@@ -342,7 +352,9 @@
                         <div class="text-sm text-slate-600">Analyses détaillées</div>
                     </div>
                 </a>
+                @endcan
 
+                @can('cultes.read')
                 <a href="{{ route('private.cultes.index') }}" class="flex items-center p-4 bg-gradient-to-r from-amber-50 to-orange-50 rounded-xl border border-amber-200 hover:shadow-md transition-all duration-200 group">
                     <div class="w-10 h-10 bg-amber-100 rounded-lg flex items-center justify-center mr-3 group-hover:bg-amber-200 transition-colors">
                         <i class="fas fa-list text-amber-600"></i>
@@ -352,6 +364,7 @@
                         <div class="text-sm text-slate-600">Tous les cultes</div>
                     </div>
                 </a>
+                @endcan
             </div>
         </div>
     </div>
@@ -551,11 +564,15 @@ document.addEventListener('keydown', function(e) {
                 break;
             case 'p':
                 e.preventDefault();
+                @can('cultes.planning')
                 window.location.href = '{{ route("private.cultes.planning") }}';
+                @endcan
                 break;
             case 's':
                 e.preventDefault();
+                @can('cultes.statistics')
                 window.location.href = '{{ route("private.cultes.statistiques") }}';
+                @endcan
                 break;
         }
     }

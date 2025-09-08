@@ -5,13 +5,13 @@
         <div class="hero-content">
             <h1>Bienvenue dans notre Communauté</h1>
             <p>Une famille de foi unie depuis plus de 100 ans au service de Dieu et de la communauté en Côte d'Ivoire</p>
-            <a href="#services" class="cta-button">Découvrir nos Services</a>
+            <a href="#services" class="cta-button">Découvrir nos Programmes</a>
         </div>
     </section>
 
     <!-- Services Section -->
-    <section class="section" id="services">
-        <h2>Nos Services</h2>
+    <section class="section" id="programmes">
+        <h2>Nos programmes</h2>
         <div class="services-grid">
             <div class="service-card fade-in">
                 <div class="service-icon"><i class="fas fa-praying-hands"></i></div>
@@ -52,27 +52,9 @@
         </div>
     </section>
 
-    <!-- About Section -->
-    <section class="section about" id="about">
-        <h2>Notre Histoire</h2>
-        <div class="about-content">
-            <div class="about-text fade-in">
-                <p>L'Église Méthodiste Unie de Côte d'Ivoire est fière de son héritage centenaire. Depuis 1914, nous servons fidèlement Dieu et notre communauté, témoignant de l'amour du Christ à travers nos actions et notre engagement.</p>
-                <p>Notre mission est de faire des disciples de Jésus-Christ pour la transformation du monde. Nous croyons en une foi vivante qui se manifeste par l'amour, la justice et la paix.</p>
-                <p>Ancrés dans les valeurs méthodistes de grâce, d'hospitalité et de service, nous continuons à grandir ensemble dans la foi et à impacter positivement notre société.</p>
-            </div>
-            <div class="about-image fade-in">
-                <div class="heritage-badge">
-                    <i class="fas fa-star" style="margin-right: 0.5rem;"></i>100+ Ans d'Héritage<br>
-                    1914 - Aujourd'hui
-                </div>
-            </div>
-        </div>
-    </section>
-
     <!-- Events Section -->
     <section class="section events" id="events">
-        <h2>Événements à Venir</h2>
+        <h2>Événements à venir</h2>
         <div class="events-list">
             <div class="event-item fade-in">
                 <div class="event-date">
@@ -109,7 +91,7 @@
 
     <!-- Contact Section -->
     <section class="section contact" id="contact">
-        <h2 style="color: #ffff">Contactez-Nous</h2>
+        <h2 style="color: #ffff">Contactez-nous</h2>
         <div class="contact-grid">
             <div class="contact-item fade-in">
                 <div class="contact-icon"><i class="fas fa-map-marker-alt"></i></div>

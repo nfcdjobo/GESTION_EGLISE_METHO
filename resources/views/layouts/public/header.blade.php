@@ -10,11 +10,11 @@
             <!-- Menu Desktop -->
             <nav class="desktop-nav">
                 <ul>
-                    <li><a href="{{ route('public.accueil') }}">Accueil</a></li>
-                    <li><a href="">Programme</a></li>
-                    <li><a href="">Evénements</a></li>
-                    <li><a href="{{ route('public.contact') }}">Contact</a></li>
-
+                    <li><a href="#accueil">Accueil</a></li>
+                    <li><a href="#programmes">Programme</a></li>
+                     <li><a href="#events">Evénements</a></li>
+                    <li><a href="{{route('public.add-donate')}}">Faire un don</a></li>
+                    <li><a href="#contact">Contact</a></li>
                     @auth
                         <li>
                             <form method="POST" action="{{ route('security.logout') }}">
@@ -55,10 +55,11 @@
         <!-- Menu Mobile -->
         <div class="mobile-menu" id="mobileMenu">
             <ul>
-                <li><a href="{{ route('public.accueil') }}" class="mobile-link">Accueil</a></li>
-                <li><a href="">Programme</a></li>
-                <li><a href="">Evénements</a></li>
-                <li><a href="{{ route('public.contact') }}" class="mobile-link">Contact</a></li>
+                <li><a href="#accueil" class="mobile-link">Accueil</a></li>
+                <li><a href="#programmes">Programme</a></li>
+                <li><a href="#events">Evénements</a></li>
+                <li><a href="{{route('public.add-donate')}}">Faire un don</a></li>
+                <li><a href="#contact" class="mobile-link">Contact</a></li>
                 @auth
                     {{-- Si l'utilisateur est connecté --}}
                     <li>

@@ -27,7 +27,7 @@ class AdminMiddleware
         $user = auth()->user();
 
         // Vérifier si l'utilisateur a le rôle d'administrateur
-        if (!$user->hasRole('admin') && !$user->hasRole('super_admin')) {
+        if (!$user->hasRole('pl') && !$user->hasRole('pasteur')) {
             abort(403, 'Accès refusé. Vous n\'avez pas les permissions nécessaires.');
         }
 

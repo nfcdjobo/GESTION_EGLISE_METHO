@@ -308,7 +308,8 @@
                                         <div class="flex items-center justify-between mb-2">
                                             <span class="font-semibold text-slate-900">{{ $typeLabel }}</span>
                                             <span class="text-sm text-slate-600">{{ $type->nombre }} cultes
-                                                ({{ round($percentage, 1) }}%)</span>
+                                                ({{ round($percentage, 1) }}%)
+                                            </span>
                                         </div>
                                         <div class="w-full bg-gray-200 rounded-full h-2">
                                             <div class="bg-gradient-to-r from-blue-500 to-purple-500 h-2 rounded-full transition-all duration-300"
@@ -434,14 +435,18 @@
                         class="inline-flex items-center justify-center px-4 py-3 bg-gradient-to-r from-blue-600 to-cyan-600 text-white font-medium rounded-xl hover:from-blue-700 hover:to-cyan-700 transition-all duration-200">
                         <i class="fas fa-list mr-2"></i> Liste des cultes
                     </a>
-                    <a href="{{ route('private.cultes.planning') }}"
-                        class="inline-flex items-center justify-center px-4 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white font-medium rounded-xl hover:from-green-700 hover:to-emerald-700 transition-all duration-200">
-                        <i class="fas fa-calendar mr-2"></i> Planning
-                    </a>
-                    <a href="{{ route('private.cultes.dashboard') }}"
-                        class="inline-flex items-center justify-center px-4 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-medium rounded-xl hover:from-purple-700 hover:to-pink-700 transition-all duration-200">
-                        <i class="fas fa-tachometer-alt mr-2"></i> Tableau de bord
-                    </a>
+                    @can('cultes.planning')
+                        <a href="{{ route('private.cultes.planning') }}"
+                            class="inline-flex items-center justify-center px-4 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white font-medium rounded-xl hover:from-green-700 hover:to-emerald-700 transition-all duration-200">
+                            <i class="fas fa-calendar mr-2"></i> Planning
+                        </a>
+                    @endcan
+                    @can('cultes.dashboard')
+                        <a href="{{ route('private.cultes.dashboard') }}"
+                            class="inline-flex items-center justify-center px-4 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-medium rounded-xl hover:from-purple-700 hover:to-pink-700 transition-all duration-200">
+                            <i class="fas fa-tachometer-alt mr-2"></i> Tableau de bord
+                        </a>
+                    @endcan
                     @can('cultes.create')
                         <a href="{{ route('private.cultes.create') }}"
                             class="inline-flex items-center justify-center px-4 py-3 bg-gradient-to-r from-amber-600 to-orange-600 text-white font-medium rounded-xl hover:from-amber-700 hover:to-orange-700 transition-all duration-200">
@@ -491,7 +496,7 @@
             function exportStats() {
                 const params = new URLSearchParams(window.location.search);
                 params.append('export', 'excel');
-                window.location.href = '{{ route('private.cultes.statistiques') }}?' + params.toString();
+                window.location.href = "{{ route('private.cultes.statistiques') }}?" + params.toString();
             }
 
             // Impression

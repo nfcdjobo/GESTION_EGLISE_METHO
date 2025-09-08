@@ -134,12 +134,12 @@ class Classe extends Model
     /**
      * Accesseur pour obtenir le nombre de places disponibles
      */
-    public function getPlacesDisponiblesAttribute()
-    {
-        // Capacité maximale par défaut de 50
-        $capaciteMax = 50;
-        return max(0, $capaciteMax - $this->nombre_inscrits);
-    }
+    // public function getPlacesDisponiblesAttribute()
+    // {
+    //     // Capacité maximale par défaut de 50
+    //     $capaciteMax = 50;
+    //     return max(0, $capaciteMax - $this->nombre_inscrits);
+    // }
 
     /**
      * Accesseur pour obtenir le nom complet avec tranche d'âge
@@ -230,6 +230,7 @@ class Classe extends Model
      */
     public function getStatistiques()
     {
+
         return [
             'nombre_inscrits' => $this->nombre_inscrits,
             'places_disponibles' => $this->places_disponibles,

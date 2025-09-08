@@ -1,5 +1,4 @@
 <?php
-
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
@@ -36,8 +35,9 @@ return new class extends Migration
                 'reject',    // Rejeter
                 'archive',   // Archiver
                 'restore',   // Restaurer
-                'manage',     // Gestion complète
-                'download'    // Télécharger
+                'manage',    // Gestion complète
+                'download',  // Télécharger
+                'moderate',  // Modérer
             ])->comment('Action autorisée sur la ressource');
 
             // Métadonnées de sécurité et groupement

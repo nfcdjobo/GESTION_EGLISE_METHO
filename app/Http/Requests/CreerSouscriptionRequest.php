@@ -18,15 +18,16 @@ class CreerSouscriptionRequest extends FormRequest
 
     public function rules(): array
     {
+        
         return [
+            'souscripteur_id' => ['required', 'exists:users,id'],
             'fimeco_id' => ['required', 'uuid', 'exists:fimecos,id'],
             'montant_souscrit' => [
                 'required',
                 'numeric',
                 'min:' . config('fimeco.montant_minimum_souscription', 10),
-                'max:999999.99'
+
             ],
-            'date_echeance' => ['nullable', 'date', 'after:today'],
             'commentaire' => ['nullable', 'string', 'max:500']
         ];
     }
@@ -34,12 +35,13 @@ class CreerSouscriptionRequest extends FormRequest
     public function messages(): array
     {
         return [
+            'souscripteur_id' => 'Le souscripteur doit être authentifié.',
             'fimeco_id.required' => 'La FIMECO doit être sélectionnée.',
             'fimeco_id.exists' => 'Cette FIMECO n\'existe pas.',
             'montant_souscrit.required' => 'Le montant de souscription est requis.',
             'montant_souscrit.min' => 'Le montant minimum est de :min.',
-            'montant_souscrit.max' => 'Le montant maximum est de 999,999.99.',
-            'date_echeance.after' => 'La date d\'échéance doit être dans le futur.'
+
+            // 'date_echeance.after' => 'La date d\'échéance doit être dans le futur.'
         ];
     }
 
@@ -57,7 +59,7 @@ class CreerSouscriptionRequest extends FormRequest
             // Vérifier si l'utilisateur n'a pas déjà souscrit
             if ($this->fimeco_id && auth()->check()) {
                 $existingSubscription = \App\Models\Subscription::where('fimeco_id', $this->fimeco_id)
-                    ->where('souscripteur_id', auth()->id())
+                    ->where('souscripteur_id', $this->souscripteur_id)
                     ->exists();
 
                 if ($existingSubscription) {
@@ -65,5 +67,6 @@ class CreerSouscriptionRequest extends FormRequest
                 }
             }
         });
+        // dd($validator->errors());
     }
 }

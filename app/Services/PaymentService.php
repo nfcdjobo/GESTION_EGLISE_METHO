@@ -36,17 +36,18 @@ class PaymentService
                     );
                 }
 
-                if ($paymentData['montant'] > $subscription->reste_a_payer) {
-                    throw new InvalidPaymentAmountException(
-                        'Le montant dépasse le reste à payer'
-                    );
-                }
+                // if ($paymentData['montant'] > $subscription->reste_a_payer) {
+                //     throw new InvalidPaymentAmountException(
+                //         'Le montant dépasse le reste à payer'
+                //     );
+                // }
 
+                $nouveau_reste = $subscription->reste_a_payer - $paymentData['montant'];
                 // Création du paiement
                 $payment = $subscription->payments()->create([
                     'montant' => $paymentData['montant'],
-                    'ancien_reste' => $subscription->reste_a_payer,
-                    'nouveau_reste' => $subscription->reste_a_payer - $paymentData['montant'],
+                    'ancien_reste' => $subscription->reste_a_payer < 0 ? 0 : $subscription->reste_a_payer,
+                    'nouveau_reste' => $nouveau_reste < 0 ? 0 : $nouveau_reste,
                     'type_paiement' => $paymentData['type_paiement'],
                     'reference_paiement' => $paymentData['reference_paiement'] ?? null,
                     'date_paiement' => $paymentData['date_paiement'] ?? now(),

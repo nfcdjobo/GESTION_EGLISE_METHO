@@ -23,7 +23,7 @@
             </ol>
         </nav>
     </div>
-
+    @can('cultes.create')
     <form action="{{ route('private.cultes.store') }}" method="POST" enctype="multipart/form-data" id="culteForm" class="space-y-8">
         @csrf
 
@@ -460,6 +460,7 @@
             </div>
         </div>
     </form>
+    @endcan
 </div>
 
 {{-- Inclure les ressources CKEditor --}}

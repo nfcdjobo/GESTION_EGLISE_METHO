@@ -30,6 +30,7 @@
         </nav>
     </div>
 
+    @can('contacts.update')
     <form action="{{ route('private.contacts.update', $contact) }}" method="POST" id="contactForm" class="space-y-8">
         @csrf
         @method('PUT')
@@ -509,6 +510,15 @@
             </div>
         </div>
     </form>
+    @else
+        <div class="bg-white/80 rounded-2xl shadow-lg border border-white/20 p-6 text-center">
+            <p class="text-red-600 font-semibold">Vous n'êtes pas autorisé à modifier ce contact.</p>
+            <a href="{{ route('private.contacts.index') }}" class="mt-4 inline-flex items-center px-6 py-3 bg-gray-600 text-white font-medium rounded-xl hover:bg-gray-700 transition-colors">
+                <i class="fas fa-list mr-2"></i> Retour à la liste
+            </a>
+        </div>
+    @endcan
+
 </div>
 
 @push('scripts')

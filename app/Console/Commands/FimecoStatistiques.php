@@ -43,12 +43,12 @@ class FimecoStatistiques extends Command
             $this->table([
                 'Métrique', 'Valeur'
             ], [
-                ['Total souscriptions', number_format($stats['total_souscriptions'], 2) . ' €'],
-                ['Total payé', number_format($stats['total_paye'], 2) . ' €'],
-                ['Reste à collecter', number_format($stats['reste_a_collecter'], 2) . ' €'],
+                ['Total souscriptions', number_format($stats['total_souscriptions'], 2) . ' FCFA'],
+                ['Total payé', number_format($stats['total_paye'], 2) . ' FCFA'],
+                ['Reste à collecter', number_format($stats['reste_a_collecter'], 2) . ' FCFA'],
                 ['% de réalisation', $stats['pourcentage_realisation'] . '%'],
                 ['Nombre souscripteurs', $stats['nombre_souscripteurs']],
-                ['Montant moyen', number_format($stats['montant_moyen_souscription'], 2) . ' €']
+                ['Montant moyen', number_format($stats['montant_moyen_souscription'], 2) . ' FCFA']
             ]);
 
         } catch (\Exception $e) {
@@ -66,8 +66,8 @@ class FimecoStatistiques extends Command
                 $fimeco->statut,
                 $fimeco->debut->format('d/m/Y'),
                 $fimeco->fin->format('d/m/Y'),
-                number_format($fimeco->cible, 2) . ' €',
-                number_format($fimeco->total_paye, 2) . ' €',
+                number_format($fimeco->cible, 2) . ' FCFA',
+                number_format($fimeco->total_paye, 2) . ' FCFA',
                 $fimeco->pourcentage_realisation . '%'
             ];
         });

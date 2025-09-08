@@ -38,16 +38,21 @@
                             Informations de Base
                         </h2>
                         <div class="flex flex-wrap gap-2">
-
+                            @can('fonds.dashboard')
                             <a href="{{ route('private.fonds.dashboard') }}" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white text-sm font-medium rounded-xl hover:from-green-700 hover:to-emerald-700 transition-all duration-200 shadow-md hover:shadow-lg">
                                 <i class="fas fa-tachometer-alt mr-2"></i> Tableau de Bord
                             </a>
+                            @endcan
+                            @can('fonds.statistics')
                             <a href="{{ route('private.fonds.statistics') }}" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-cyan-600 to-blue-600 text-white text-sm font-medium rounded-xl hover:from-cyan-700 hover:to-blue-700 transition-all duration-200 shadow-md hover:shadow-lg">
                                 <i class="fas fa-chart-bar mr-2"></i> Statistiques
                             </a>
+                            @endcan
+                            @can('fonds.analytics')
                             <a href="{{ route('private.fonds.analytics') }}" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-amber-600 to-orange-600 text-white text-sm font-medium rounded-xl hover:from-amber-700 hover:to-orange-700 transition-all duration-200 shadow-md hover:shadow-lg">
                                 <i class="fas fa-chart-line mr-2"></i> Analytics
                             </a>
+                            @endcan
 
                         </div>
                     </div>
