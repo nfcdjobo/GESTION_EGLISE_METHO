@@ -1,9 +1,8 @@
-@extends('layouts.private.main')
-@section('title', 'Statistiques Multimédia')
+<?php $__env->startSection('title', 'Statistiques Multimédia'); ?>
 
 
 
-@section('content')
+<?php $__env->startSection('content'); ?>
 
 <div class="space-y-8">
     <!-- Page Title -->
@@ -12,20 +11,20 @@
             <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
                 <div>
                     <h1 class="text-3xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent">Statistiques Multimédia</h1>
-                    <p class="text-slate-500 mt-1">Analyse détaillée de votre médiathèque - {{ \Carbon\Carbon::now()->format('l d F Y') }}</p>
+                    <p class="text-slate-500 mt-1">Analyse détaillée de votre médiathèque - <?php echo e(\Carbon\Carbon::now()->format('l d F Y')); ?></p>
                 </div>
                 <div class="flex items-center space-x-2">
-                    <a href="{{ route('private.multimedia.index') }}" class="inline-flex items-center px-4 py-2 bg-slate-600 text-white text-sm font-medium rounded-xl hover:bg-slate-700 transition-colors">
+                    <a href="<?php echo e(route('private.multimedia.index')); ?>" class="inline-flex items-center px-4 py-2 bg-slate-600 text-white text-sm font-medium rounded-xl hover:bg-slate-700 transition-colors">
                         <i class="fas fa-arrow-left mr-2"></i> Retour à la galerie
                     </a>
-                    @can('multimedia.statistics')
+                    <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('multimedia.statistics')): ?>
                         <button type="button" onclick="exportStatistics()" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white text-sm font-medium rounded-xl hover:from-green-700 hover:to-emerald-700 transition-all duration-200 shadow-md hover:shadow-lg">
                             <i class="fas fa-download mr-2"></i> Exporter
                         </button>
                         <button type="button" onclick="refreshStatistics()" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-sm font-medium rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-200 shadow-md hover:shadow-lg">
                             <i class="fas fa-sync mr-2"></i> Actualiser
                         </button>
-                    @endcan
+                    <?php endif; ?>
                 </div>
             </div>
         </div>
@@ -42,7 +41,7 @@
                     </div>
                 </div>
                 <div class="ml-4">
-                    <p class="text-2xl font-bold text-slate-800">{{ $generales['total_medias'] ?? 0 }}</p>
+                    <p class="text-2xl font-bold text-slate-800"><?php echo e($generales['total_medias'] ?? 0); ?></p>
                     <p class="text-sm text-slate-500">Total médias</p>
                 </div>
             </div>
@@ -57,7 +56,7 @@
                     </div>
                 </div>
                 <div class="ml-4">
-                    <p class="text-2xl font-bold text-slate-800">{{ formatBytes($generales['total_taille'] ?? 0) }}</p>
+                    <p class="text-2xl font-bold text-slate-800"><?php echo e(formatBytes($generales['total_taille'] ?? 0)); ?></p>
                     <p class="text-sm text-slate-500">Espace utilisé</p>
                 </div>
             </div>
@@ -72,7 +71,7 @@
                     </div>
                 </div>
                 <div class="ml-4">
-                    <p class="text-2xl font-bold text-slate-800">{{ number_format($generales['total_vues'] ?? 0) }}</p>
+                    <p class="text-2xl font-bold text-slate-800"><?php echo e(number_format($generales['total_vues'] ?? 0)); ?></p>
                     <p class="text-sm text-slate-500">Total vues</p>
                 </div>
             </div>
@@ -87,7 +86,7 @@
                     </div>
                 </div>
                 <div class="ml-4">
-                    <p class="text-2xl font-bold text-slate-800">{{ $generales['medias_featured'] ?? 0 }}</p>
+                    <p class="text-2xl font-bold text-slate-800"><?php echo e($generales['medias_featured'] ?? 0); ?></p>
                     <p class="text-sm text-slate-500">À la une</p>
                 </div>
             </div>
@@ -102,7 +101,7 @@
                     </div>
                 </div>
                 <div class="ml-4">
-                    <p class="text-2xl font-bold text-slate-800">{{ $generales['en_attente_moderation'] ?? 0 }}</p>
+                    <p class="text-2xl font-bold text-slate-800"><?php echo e($generales['en_attente_moderation'] ?? 0); ?></p>
                     <p class="text-sm text-slate-500">En modération</p>
                 </div>
             </div>
@@ -118,7 +117,8 @@
                 </div>
                 <div class="ml-4">
                     <p class="text-2xl font-bold text-slate-800">
-                        {{ $generales['total_medias'] > 0 ? round(($generales['total_vues'] ?? 0) / $generales['total_medias'], 1) : 0 }}
+                        <?php echo e($generales['total_medias'] > 0 ? round(($generales['total_vues'] ?? 0) / $generales['total_medias'], 1) : 0); ?>
+
                     </p>
                     <p class="text-sm text-slate-500">Vues moyennes</p>
                 </div>
@@ -138,8 +138,8 @@
             </div>
             <div class="p-6">
                 <div class="space-y-4">
-                    @foreach($statistiques as $stat)
-                        @php
+                    <?php $__currentLoopData = $statistiques; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $stat): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                        <?php
                             $total = $statistiques->sum('nombre_total');
                             $percentage = $total > 0 ? round(($stat->nombre_total / $total) * 100, 1) : 0;
                             $colors = [
@@ -151,23 +151,23 @@
                                 'archive' => 'bg-gray-500'
                             ];
                             $color = $colors[$stat->type_media] ?? 'bg-slate-500';
-                        @endphp
+                        ?>
                         <div class="flex items-center justify-between">
                             <div class="flex items-center space-x-3">
-                                <div class="w-4 h-4 {{ $color }} rounded-full"></div>
-                                <span class="font-medium text-slate-900 capitalize">{{ str_replace('_', ' ', $stat->type_media) }}</span>
+                                <div class="w-4 h-4 <?php echo e($color); ?> rounded-full"></div>
+                                <span class="font-medium text-slate-900 capitalize"><?php echo e(str_replace('_', ' ', $stat->type_media)); ?></span>
                             </div>
                             <div class="flex items-center space-x-3">
                                 <div class="text-right">
-                                    <div class="text-sm font-semibold text-slate-900">{{ $stat->nombre_total }}</div>
-                                    <div class="text-xs text-slate-500">{{ $percentage }}%</div>
+                                    <div class="text-sm font-semibold text-slate-900"><?php echo e($stat->nombre_total); ?></div>
+                                    <div class="text-xs text-slate-500"><?php echo e($percentage); ?>%</div>
                                 </div>
                                 <div class="w-20 bg-slate-200 rounded-full h-2">
-                                    <div class="{{ $color }} h-2 rounded-full transition-all duration-1000" style="width: {{ $percentage }}%"></div>
+                                    <div class="<?php echo e($color); ?> h-2 rounded-full transition-all duration-1000" style="width: <?php echo e($percentage); ?>%"></div>
                                 </div>
                             </div>
                         </div>
-                    @endforeach
+                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                 </div>
 
                 <!-- Canvas pour graphique -->
@@ -187,8 +187,8 @@
             </div>
             <div class="p-6">
                 <div class="space-y-4">
-                    @foreach($statistiques->take(8) as $index => $stat)
-                        @php
+                    <?php $__currentLoopData = $statistiques->take(8); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $index => $stat): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                        <?php
                             $maxTotal = $statistiques->max('nombre_total');
                             $percentage = $maxTotal > 0 ? round(($stat->nombre_total / $maxTotal) * 100, 1) : 0;
                             $colors = [
@@ -196,22 +196,23 @@
                                 'bg-yellow-500', 'bg-indigo-500', 'bg-pink-500', 'bg-teal-500'
                             ];
                             $color = $colors[$index % count($colors)];
-                        @endphp
+                        ?>
                         <div class="flex items-center justify-between">
                             <div class="flex items-center space-x-3 min-w-0 flex-1">
-                                <div class="w-3 h-3 {{ $color }} rounded-full flex-shrink-0"></div>
+                                <div class="w-3 h-3 <?php echo e($color); ?> rounded-full flex-shrink-0"></div>
                                 <span class="font-medium text-slate-900 truncate capitalize">
-                                    {{ str_replace('_', ' ', $stat->categorie) }}
+                                    <?php echo e(str_replace('_', ' ', $stat->categorie)); ?>
+
                                 </span>
                             </div>
                             <div class="flex items-center space-x-3">
-                                <span class="text-sm font-semibold text-slate-900">{{ $stat->nombre_total }}</span>
+                                <span class="text-sm font-semibold text-slate-900"><?php echo e($stat->nombre_total); ?></span>
                                 <div class="w-16 bg-slate-200 rounded-full h-2">
-                                    <div class="{{ $color }} h-2 rounded-full transition-all duration-1000" style="width: {{ $percentage }}%"></div>
+                                    <div class="<?php echo e($color); ?> h-2 rounded-full transition-all duration-1000" style="width: <?php echo e($percentage); ?>%"></div>
                                 </div>
                             </div>
                         </div>
-                    @endforeach
+                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                 </div>
 
                 <!-- Canvas pour graphique -->
@@ -233,64 +234,66 @@
                 </h2>
             </div>
             <div class="p-6">
-                @if($generales['plus_vues'])
+                <?php if($generales['plus_vues']): ?>
                     <div class="space-y-4">
-                        @php
+                        <?php
                             // Simuler une liste des médias les plus vus
                             $popularMedia = collect([
                                 $generales['plus_vues'],
                                 ...$generales['plus_recents']->take(4)
                             ])->sortByDesc('nombre_vues')->take(5);
-                        @endphp
-                        @foreach($popularMedia as $index => $media)
+                        ?>
+                        <?php $__currentLoopData = $popularMedia; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $index => $media): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                             <div class="flex items-center space-x-4 p-3 bg-slate-50 rounded-lg hover:bg-slate-100 transition-colors">
                                 <div class="flex-shrink-0">
                                     <span class="inline-flex items-center justify-center w-8 h-8 bg-gradient-to-r from-orange-500 to-red-500 text-white text-sm font-bold rounded-full">
-                                        {{ $index + 1 }}
+                                        <?php echo e($index + 1); ?>
+
                                     </span>
                                 </div>
                                 <div class="flex-shrink-0 w-16 h-16 bg-gradient-to-br from-slate-100 to-slate-200 rounded-lg overflow-hidden">
-                                    @if($media->type_media == 'image' && $media->url_miniature)
-                                        <img src="{{ $media->url_miniature }}" alt="{{ $media->titre }}" class="w-full h-full object-cover">
-                                    @else
+                                    <?php if($media->type_media == 'image' && $media->url_miniature): ?>
+                                        <img src="<?php echo e($media->url_miniature); ?>" alt="<?php echo e($media->titre); ?>" class="w-full h-full object-cover">
+                                    <?php else: ?>
                                         <div class="w-full h-full flex items-center justify-center">
-                                            @if($media->type_media == 'video')
+                                            <?php if($media->type_media == 'video'): ?>
                                                 <i class="fas fa-video text-red-500"></i>
-                                            @elseif($media->type_media == 'audio')
+                                            <?php elseif($media->type_media == 'audio'): ?>
                                                 <i class="fas fa-music text-purple-500"></i>
-                                            @else
+                                            <?php else: ?>
                                                 <i class="fas fa-file text-blue-500"></i>
-                                            @endif
+                                            <?php endif; ?>
                                         </div>
-                                    @endif
+                                    <?php endif; ?>
                                 </div>
                                 <div class="flex-1 min-w-0">
-                                    <h3 class="font-medium text-slate-900 truncate">{{ $media->titre }}</h3>
+                                    <h3 class="font-medium text-slate-900 truncate"><?php echo e($media->titre); ?></h3>
                                     <div class="flex items-center space-x-4 text-sm text-slate-500 mt-1">
                                         <span class="flex items-center">
                                             <i class="fas fa-eye mr-1"></i>
-                                            {{ number_format($media->nombre_vues) }}
+                                            <?php echo e(number_format($media->nombre_vues)); ?>
+
                                         </span>
-                                        <span class="capitalize">{{ $media->type_media }}</span>
-                                        <span>{{ $media->created_at->format('d/m/Y') }}</span>
+                                        <span class="capitalize"><?php echo e($media->type_media); ?></span>
+                                        <span><?php echo e($media->created_at->format('d/m/Y')); ?></span>
                                     </div>
                                 </div>
                                 <div class="flex-shrink-0">
-                                    <a href="{{ route('private.multimedia.show', $media) }}" class="text-blue-600 hover:text-blue-700 transition-colors">
+                                    <a href="<?php echo e(route('private.multimedia.show', $media)); ?>" class="text-blue-600 hover:text-blue-700 transition-colors">
                                         <i class="fas fa-external-link-alt"></i>
                                     </a>
                                 </div>
                             </div>
-                        @endforeach
+                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                     </div>
-                @else
+                <?php else: ?>
                     <div class="text-center py-8">
                         <div class="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
                             <i class="fas fa-chart-line text-2xl text-slate-400"></i>
                         </div>
                         <p class="text-slate-500">Aucune donnée de popularité disponible</p>
                     </div>
-                @endif
+                <?php endif; ?>
             </div>
         </div>
 
@@ -303,54 +306,55 @@
                 </h2>
             </div>
             <div class="p-6">
-                @if($generales['plus_recents'] && $generales['plus_recents']->count() > 0)
+                <?php if($generales['plus_recents'] && $generales['plus_recents']->count() > 0): ?>
                     <div class="space-y-4">
-                        @foreach($generales['plus_recents'] as $media)
+                        <?php $__currentLoopData = $generales['plus_recents']; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $media): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                             <div class="flex items-center space-x-4 p-3 bg-slate-50 rounded-lg hover:bg-slate-100 transition-colors">
                                 <div class="flex-shrink-0">
                                     <div class="w-3 h-3 bg-green-500 rounded-full"></div>
                                 </div>
                                 <div class="flex-shrink-0 w-16 h-16 bg-gradient-to-br from-slate-100 to-slate-200 rounded-lg overflow-hidden">
-                                    @if($media->type_media == 'image' && $media->url_miniature)
-                                        <img src="{{ $media->url_miniature }}" alt="{{ $media->titre }}" class="w-full h-full object-cover">
-                                    @else
+                                    <?php if($media->type_media == 'image' && $media->url_miniature): ?>
+                                        <img src="<?php echo e($media->url_miniature); ?>" alt="<?php echo e($media->titre); ?>" class="w-full h-full object-cover">
+                                    <?php else: ?>
                                         <div class="w-full h-full flex items-center justify-center">
-                                            @if($media->type_media == 'video')
+                                            <?php if($media->type_media == 'video'): ?>
                                                 <i class="fas fa-video text-red-500"></i>
-                                            @elseif($media->type_media == 'audio')
+                                            <?php elseif($media->type_media == 'audio'): ?>
                                                 <i class="fas fa-music text-purple-500"></i>
-                                            @else
+                                            <?php else: ?>
                                                 <i class="fas fa-file text-blue-500"></i>
-                                            @endif
+                                            <?php endif; ?>
                                         </div>
-                                    @endif
+                                    <?php endif; ?>
                                 </div>
                                 <div class="flex-1 min-w-0">
-                                    <h3 class="font-medium text-slate-900 truncate">{{ $media->titre }}</h3>
+                                    <h3 class="font-medium text-slate-900 truncate"><?php echo e($media->titre); ?></h3>
                                     <div class="flex items-center space-x-4 text-sm text-slate-500 mt-1">
-                                        <span class="capitalize">{{ $media->type_media }}</span>
-                                        <span>{{ $media->created_at->diffForHumans() }}</span>
-                                        <span class="px-2 py-0.5 bg-{{ $media->statut_moderation == 'approuve' ? 'green' : 'orange' }}-100 text-{{ $media->statut_moderation == 'approuve' ? 'green' : 'orange' }}-800 text-xs rounded-full">
-                                            {{ ucfirst($media->statut_moderation) }}
+                                        <span class="capitalize"><?php echo e($media->type_media); ?></span>
+                                        <span><?php echo e($media->created_at->diffForHumans()); ?></span>
+                                        <span class="px-2 py-0.5 bg-<?php echo e($media->statut_moderation == 'approuve' ? 'green' : 'orange'); ?>-100 text-<?php echo e($media->statut_moderation == 'approuve' ? 'green' : 'orange'); ?>-800 text-xs rounded-full">
+                                            <?php echo e(ucfirst($media->statut_moderation)); ?>
+
                                         </span>
                                     </div>
                                 </div>
                                 <div class="flex-shrink-0">
-                                    <a href="{{ route('private.multimedia.show', $media) }}" class="text-blue-600 hover:text-blue-700 transition-colors">
+                                    <a href="<?php echo e(route('private.multimedia.show', $media)); ?>" class="text-blue-600 hover:text-blue-700 transition-colors">
                                         <i class="fas fa-external-link-alt"></i>
                                     </a>
                                 </div>
                             </div>
-                        @endforeach
+                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                     </div>
-                @else
+                <?php else: ?>
                     <div class="text-center py-8">
                         <div class="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
                             <i class="fas fa-clock text-2xl text-slate-400"></i>
                         </div>
                         <p class="text-slate-500">Aucun média récent trouvé</p>
                     </div>
-                @endif
+                <?php endif; ?>
             </div>
         </div>
     </div>
@@ -358,7 +362,7 @@
 
 
     <!-- Métriques de modération -->
-    @can('moderate_media')
+    <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('moderate_media')): ?>
         <div class="bg-white/80 rounded-2xl shadow-lg border border-white/20">
             <div class="p-6 border-b border-slate-200">
                 <h2 class="text-xl font-bold text-slate-800 flex items-center">
@@ -382,7 +386,7 @@
                         <div class="w-12 h-12 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full flex items-center justify-center mx-auto mb-3">
                             <i class="fas fa-check-circle text-white"></i>
                         </div>
-                        <div class="text-2xl font-bold text-slate-800">{{ $generales['total_medias'] > 0 ? round((($generales['total_medias'] - $generales['en_attente_moderation']) / $generales['total_medias']) * 100, 1) : 0 }}%</div>
+                        <div class="text-2xl font-bold text-slate-800"><?php echo e($generales['total_medias'] > 0 ? round((($generales['total_medias'] - $generales['en_attente_moderation']) / $generales['total_medias']) * 100, 1) : 0); ?>%</div>
                         <div class="text-sm text-slate-600">Taux d'approbation</div>
                     </div>
 
@@ -399,7 +403,7 @@
                 <!-- Répartition des statuts -->
                 <div class="space-y-4">
                     <h3 class="font-semibold text-slate-900 mb-4">Répartition des Statuts</h3>
-                    @php
+                    <?php
                         $totalMod = $generales['total_medias'];
                         $approves = $totalMod - $generales['en_attente_moderation'];
                         $moderation_stats = [
@@ -407,33 +411,33 @@
                             ['status' => 'En attente', 'count' => $generales['en_attente_moderation'], 'color' => 'bg-orange-500'],
                             ['status' => 'Rejetés', 'count' => 0, 'color' => 'bg-red-500']
                         ];
-                    @endphp
+                    ?>
 
-                    @foreach($moderation_stats as $stat)
-                        @php $percentage = $totalMod > 0 ? round(($stat['count'] / $totalMod) * 100, 1) : 0; @endphp
+                    <?php $__currentLoopData = $moderation_stats; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $stat): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                        <?php $percentage = $totalMod > 0 ? round(($stat['count'] / $totalMod) * 100, 1) : 0; ?>
                         <div class="flex items-center justify-between">
                             <div class="flex items-center space-x-3">
-                                <div class="w-4 h-4 {{ $stat['color'] }} rounded-full"></div>
-                                <span class="font-medium text-slate-900">{{ $stat['status'] }}</span>
+                                <div class="w-4 h-4 <?php echo e($stat['color']); ?> rounded-full"></div>
+                                <span class="font-medium text-slate-900"><?php echo e($stat['status']); ?></span>
                             </div>
                             <div class="flex items-center space-x-3">
                                 <div class="text-right">
-                                    <div class="text-sm font-semibold text-slate-900">{{ $stat['count'] }}</div>
-                                    <div class="text-xs text-slate-500">{{ $percentage }}%</div>
+                                    <div class="text-sm font-semibold text-slate-900"><?php echo e($stat['count']); ?></div>
+                                    <div class="text-xs text-slate-500"><?php echo e($percentage); ?>%</div>
                                 </div>
                                 <div class="w-20 bg-slate-200 rounded-full h-2">
-                                    <div class="{{ $stat['color'] }} h-2 rounded-full transition-all duration-1000" style="width: {{ $percentage }}%"></div>
+                                    <div class="<?php echo e($stat['color']); ?> h-2 rounded-full transition-all duration-1000" style="width: <?php echo e($percentage); ?>%"></div>
                                 </div>
                             </div>
                         </div>
-                    @endforeach
+                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                 </div>
             </div>
         </div>
-    @endcan
+    <?php endif; ?>
 
     <!-- Actions d'administration -->
-    @can('multimedia.manage')
+    <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('multimedia.manage')): ?>
         <div class="bg-white/80 rounded-2xl shadow-lg border border-white/20">
             <div class="p-6 border-b border-slate-200">
                 <h2 class="text-xl font-bold text-slate-800 flex items-center">
@@ -472,13 +476,13 @@
                         <i class="fas fa-exchange-alt mr-2"></i>
                         Migration stockage
                     </button>
-                    @can('multimedia.download')
+                    <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('multimedia.download')): ?>
                     <button type="button" onclick="generateReport()"
                             class="flex items-center justify-center px-6 py-4 bg-gradient-to-r from-teal-600 to-cyan-600 text-white font-medium rounded-xl hover:from-teal-700 hover:to-cyan-700 transition-all duration-200 shadow-md hover:shadow-lg">
                         <i class="fas fa-file-export mr-2"></i>
                         Rapport détaillé
                     </button>
-                    @endcan
+                    <?php endif; ?>
                 </div>
 
                 <!-- Alertes système -->
@@ -488,26 +492,26 @@
                             <i class="fas fa-exclamation-triangle text-yellow-600 mt-0.5 mr-3"></i>
                             <div>
                                 <h4 class="font-medium text-yellow-900">Espace de stockage</h4>
-                                <p class="text-sm text-yellow-800">{{ formatBytes($generales['total_taille'] ?? 0) }} utilisés sur 100 GB disponibles</p>
+                                <p class="text-sm text-yellow-800"><?php echo e(formatBytes($generales['total_taille'] ?? 0)); ?> utilisés sur 100 GB disponibles</p>
                             </div>
                         </div>
                     </div>
 
-                    @if(($generales['en_attente_moderation'] ?? 0) > 10)
+                    <?php if(($generales['en_attente_moderation'] ?? 0) > 10): ?>
                         <div class="bg-orange-50 border border-orange-200 rounded-lg p-4">
                             <div class="flex items-start">
                                 <i class="fas fa-clock text-orange-600 mt-0.5 mr-3"></i>
                                 <div>
                                     <h4 class="font-medium text-orange-900">File de modération</h4>
-                                    <p class="text-sm text-orange-800">{{ $generales['en_attente_moderation'] }} médias en attente de modération</p>
+                                    <p class="text-sm text-orange-800"><?php echo e($generales['en_attente_moderation']); ?> médias en attente de modération</p>
                                 </div>
                             </div>
                         </div>
-                    @endif
+                    <?php endif; ?>
                 </div>
             </div>
         </div>
-    @endcan
+    <?php endif; ?>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -524,7 +528,7 @@ document.addEventListener('DOMContentLoaded', function() {
     };
 
     // Données pour les graphiques
-    const statistiques = @json($statistiques);
+    const statistiques = <?php echo json_encode($statistiques, 15, 512) ?>;
     const typeData = {};
     const categoryData = {};
 
@@ -690,13 +694,13 @@ function generateEvolutionData(days) {
 }
 
 // Fonctions d'administration
-@can('manage_media')
+<?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('manage_media')): ?>
 function cleanupOrphanFiles() {
     if (confirm('Êtes-vous sûr de vouloir nettoyer les fichiers orphelins ? Cette action est irréversible.')) {
-        fetch("{{ route('private.multimedia.admin.storage.cleanup') }}", {
+        fetch("<?php echo e(route('private.multimedia.admin.storage.cleanup')); ?>", {
             method: 'POST',
             headers: {
-                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'X-CSRF-TOKEN': '<?php echo e(csrf_token()); ?>',
                 'Accept': 'application/json'
             }
         })
@@ -717,10 +721,10 @@ function cleanupOrphanFiles() {
 
 function optimizeStorage() {
     if (confirm('Optimiser le stockage des médias ? Cette opération peut prendre quelques minutes.')) {
-        fetch('{{ route("private.multimedia.admin.storage.optimize") }}', {
+        fetch('<?php echo e(route("private.multimedia.admin.storage.optimize")); ?>', {
             method: 'POST',
             headers: {
-                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'X-CSRF-TOKEN': '<?php echo e(csrf_token()); ?>',
                 'Accept': 'application/json'
             }
         })
@@ -737,10 +741,10 @@ function optimizeStorage() {
 
 function regenerateThumbnails() {
     if (confirm('Régénérer toutes les miniatures ? Cette opération peut prendre du temps.')) {
-        fetch('{{ route("private.multimedia.maintenance.regenerate.thumbnails") }}', {
+        fetch('<?php echo e(route("private.multimedia.maintenance.regenerate.thumbnails")); ?>', {
             method: 'POST',
             headers: {
-                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'X-CSRF-TOKEN': '<?php echo e(csrf_token()); ?>',
                 'Accept': 'application/json'
             }
         })
@@ -757,10 +761,10 @@ function regenerateThumbnails() {
 
 function recalculateHashes() {
     if (confirm('Recalculer tous les hashs des fichiers ?')) {
-        fetch('{{ route("private.multimedia.maintenance.recalculate.hashes") }}', {
+        fetch('<?php echo e(route("private.multimedia.maintenance.recalculate.hashes")); ?>', {
             method: 'POST',
             headers: {
-                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'X-CSRF-TOKEN': '<?php echo e(csrf_token()); ?>',
                 'Accept': 'application/json'
             }
         })
@@ -777,10 +781,10 @@ function recalculateHashes() {
 
 function migrateStorage() {
     if (confirm('Lancer la migration de stockage ? Cette opération est irréversible.')) {
-        fetch('{{ route("private.multimedia.maintenance.migrate.storage") }}', {
+        fetch('<?php echo e(route("private.multimedia.maintenance.migrate.storage")); ?>', {
             method: 'POST',
             headers: {
-                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'X-CSRF-TOKEN': '<?php echo e(csrf_token()); ?>',
                 'Accept': 'application/json'
             }
         })
@@ -796,12 +800,12 @@ function migrateStorage() {
 }
 
 function generateReport() {
-    window.open('{{ route("private.multimedia.statistiques") }}?export=pdf', '_blank');
+    window.open('<?php echo e(route("private.multimedia.statistiques")); ?>?export=pdf', '_blank');
 }
-@endcan
+<?php endif; ?>
 
 function exportStatistics() {
-    window.open('{{ route("private.multimedia.statistiques") }}?export=csv', '_blank');
+    window.open('<?php echo e(route("private.multimedia.statistiques")); ?>?export=csv', '_blank');
 }
 
 function refreshStatistics() {
@@ -849,4 +853,6 @@ function showNotification(message, type = 'info') {
 
 </script>
 
-@endsection
+<?php $__env->stopSection(); ?>
+
+<?php echo $__env->make('layouts.private.main', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH C:\Users\Dell\Desktop\MICRISERVICES\methodiste_belle_ville\resources\views/components/private/multimedia/statistiques.blade.php ENDPATH**/ ?>

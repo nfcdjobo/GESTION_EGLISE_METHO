@@ -62,6 +62,7 @@
         </div>
     @endif
 
+    @can('paiements.create')
     <form action="{{ route('private.paiements.update', $payment['id']) }}" method="POST" id="paymentEditForm" class="space-y-8">
         @csrf
         @method('PUT')
@@ -299,6 +300,7 @@
             </div>
         </div>
     </form>
+    @endcan
 </div>
 
 @push('scripts')

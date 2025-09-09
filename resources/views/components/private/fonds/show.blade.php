@@ -43,13 +43,13 @@
                     </span>
                 </div>
                 <div class="flex flex-wrap gap-2">
-                    @can('creer_fonds')
+                    @can('fonds.create')
                         <a href="{{ route('private.fonds.create') }}" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-sm font-medium rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-200 shadow-md hover:shadow-lg">
                             <i class="fas fa-plus mr-2"></i> Nouvelle Transaction
                         </a>
                     @endcan
 
-                    @can('modifier_fonds')
+                    @can('fonds.update')
                         @if($fonds->peutEtreModifiee())
                             <a href="{{ route('private.fonds.edit', $fonds) }}" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-sm font-medium rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-200 shadow-md hover:shadow-lg">
                                 <i class="fas fa-edit mr-2"></i> Modifier
@@ -57,19 +57,22 @@
                         @endif
                     @endcan
 
-                    @can('valider_fonds')
+                    @can('fonds.validate')
                         @if($fonds->peutEtreValidee())
                             <button type="button" onclick="validateTransaction()" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white text-sm font-medium rounded-xl hover:from-green-700 hover:to-emerald-700 transition-all duration-200 shadow-md hover:shadow-lg">
                                 <i class="fas fa-check mr-2"></i> Valider
                             </button>
                         @endif
-
+                    @endcan
+                    @can('fonds.cancel')
                         @if($fonds->peutEtreAnnulee())
                             <button type="button" onclick="openCancelModal()" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-red-600 to-pink-600 text-white text-sm font-medium rounded-xl hover:from-red-700 hover:to-pink-700 transition-all duration-200 shadow-md hover:shadow-lg">
                                 <i class="fas fa-times mr-2"></i> Annuler
                             </button>
                         @endif
+                    @endcan
 
+                    @can('fonds.refund')
                         @if($fonds->statut == 'validee')
                             <button type="button" onclick="openRefundModal()" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 text-white text-sm font-medium rounded-xl hover:from-purple-700 hover:to-indigo-700 transition-all duration-200 shadow-md hover:shadow-lg">
                                 <i class="fas fa-undo mr-2"></i> Rembourser
@@ -77,7 +80,7 @@
                         @endif
                     @endcan
 
-                    @can('generer_recu')
+                    @can('fonds.generate-receipt')
                         @if($fonds->peutGenererRecu())
                             <button type="button" onclick="generateReceipt()" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-amber-600 to-orange-600 text-white text-sm font-medium rounded-xl hover:from-amber-700 hover:to-orange-700 transition-all duration-200 shadow-md hover:shadow-lg">
                                 <i class="fas fa-receipt mr-2"></i> Générer Reçu
@@ -85,7 +88,7 @@
                         @endif
                     @endcan
 
-                    @can('creer_fonds')
+                    @can('fonds.duplicate')
                         <button type="button" onclick="duplicateTransaction()" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-cyan-600 to-blue-600 text-white text-sm font-medium rounded-xl hover:from-cyan-700 hover:to-blue-700 transition-all duration-200 shadow-md hover:shadow-lg">
                             <i class="fas fa-copy mr-2"></i> Dupliquer
                         </button>
@@ -788,7 +791,8 @@ function confirmRefund() {
 // Génération de reçu
 function generateReceipt() {
     if (confirm('Générer un reçu fiscal pour cette transaction ?')) {
-        fetch(`{{ route('private.fonds.cancel.strict', $fonds) }}`, {
+        // 'private.fonds.cancel.strict'
+        fetch(`{{ route('private.fonds.receipt.strict', $fonds) }}`, {
             method: 'POST',
             headers: {
                 'X-CSRF-TOKEN': '{{ csrf_token() }}',

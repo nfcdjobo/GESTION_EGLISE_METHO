@@ -99,17 +99,20 @@
                     </div>
 
                     <!-- Action de téléchargement -->
+                    @can('multimedia.download')
                     <div class="flex-shrink-0">
                         <a href="{{ route('private.multimedia.download', $multimedia) }}" class="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-xl hover:bg-blue-700 transition-colors">
                             <i class="fas fa-download mr-2"></i> Télécharger
                         </a>
                     </div>
+                    @endcan
                 </div>
             </div>
         </div>
     </div>
 
     <!-- Formulaire d'édition -->
+    @can('multimedia.update')
     <form action="{{ route('private.multimedia.update', $multimedia) }}" method="POST" id="editForm" class="space-y-8">
         @csrf
         @method('PUT')
@@ -422,7 +425,7 @@
                                     <span class="ml-3 text-sm text-slate-700">Mettre à la une</span>
                                 </label>
                             @endcan
-                            @can('moderate_media')
+                            @can('multimedia.moderate')
                                 <label class="flex items-center">
                                     <input type="hidden" name="est_visible" value="0">
                                     <input type="checkbox" name="est_visible" value="1" {{ old('est_visible', $multimedia->est_visible) ? 'checked' : '' }}
@@ -455,9 +458,9 @@
             </div>
         </div>
 
-       
 
-        @can('moderate_media')
+
+        @can('multimedia.moderate')
             @if($multimedia->statut_moderation != 'approuve')
                 <!-- Section: Statut de modération (pour les modérateurs) -->
                 <div class="bg-white/80 rounded-2xl shadow-lg border border-orange/20">
@@ -515,6 +518,7 @@
             </div>
         </div>
     </form>
+    @endcan
 </div>
 
 {{-- Inclure les ressources CKEditor --}}
@@ -567,7 +571,7 @@ document.getElementById('editForm').addEventListener('submit', function(e) {
 
 });
 
-@can('moderate_media')
+@can('multimedia.moderate')
 // Actions rapides de modération
 function quickApprove() {
     if (confirm('Approuver ce média après sauvegarde ?')) {

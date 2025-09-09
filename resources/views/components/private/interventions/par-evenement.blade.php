@@ -37,9 +37,11 @@
                         <a href="{{ route('private.interventions.index') }}" class="inline-flex items-center px-4 py-2 bg-slate-600 text-white text-sm font-medium rounded-xl hover:bg-slate-700 transition-colors">
                             <i class="fas fa-arrow-left mr-2"></i> Retour
                         </a>
+                        @can('interventions.create')
                         <a href="{{ route('private.interventions.create') }}?{{ class_basename($evenement) === 'Culte' ? 'culte_id' : 'reunion_id' }}={{ $evenement->id }}" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-sm font-medium rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-200 shadow-md hover:shadow-lg">
                             <i class="fas fa-plus mr-2"></i> Ajouter Intervention
                         </a>
+                        @endcan
                     </div>
                 </div>
             </div>
@@ -228,9 +230,11 @@
                                                 <a href="{{ route('private.interventions.show', $intervention) }}" class="inline-flex items-center justify-center w-10 h-10 text-cyan-600 bg-cyan-100 rounded-lg hover:bg-cyan-200 transition-colors" title="Voir">
                                                     <i class="fas fa-eye"></i>
                                                 </a>
+                                                @can('interventions.update')
                                                 <a href="{{ route('private.interventions.edit', $intervention) }}" class="inline-flex items-center justify-center w-10 h-10 text-yellow-600 bg-yellow-100 rounded-lg hover:bg-yellow-200 transition-colors" title="Modifier">
                                                     <i class="fas fa-edit"></i>
                                                 </a>
+                                                @endcan
                                             </div>
                                         </div>
 
@@ -323,9 +327,11 @@
                     Cet événement n'a encore aucune intervention de planifiée.
                 </p>
                 <div class="flex justify-center gap-3">
+                    @can('interventions.create')
                     <a href="{{ route('private.interventions.create') }}?{{ class_basename($evenement) === 'Culte' ? 'culte_id' : 'reunion_id' }}={{ $evenement->id }}" class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-medium rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-200 shadow-md hover:shadow-lg">
                         <i class="fas fa-plus mr-2"></i> Ajouter une Intervention
                     </a>
+                    @endcan
                     <a href="{{ route('private.interventions.index') }}" class="inline-flex items-center px-6 py-3 bg-slate-600 text-white font-medium rounded-xl hover:bg-slate-700 transition-colors">
                         <i class="fas fa-list mr-2"></i> Voir Toutes les Interventions
                     </a>

@@ -22,9 +22,11 @@
                             <i class="fas fa-plus mr-2"></i> Nouveau Projet
                         </a>
                     <?php endif; ?>
+                    <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('projets.statistics')): ?>
                     <a href="<?php echo e(route('private.projets.statistiques')); ?>" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-cyan-600 to-blue-600 text-white text-sm font-medium rounded-xl hover:from-cyan-700 hover:to-blue-700 transition-all duration-200 shadow-md hover:shadow-lg">
                         <i class="fas fa-chart-bar mr-2"></i> Statistiques
                     </a>
+                    <?php endif; ?>
                     <a href="<?php echo e(route('private.projets.publics')); ?>" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white text-sm font-medium rounded-xl hover:from-green-700 hover:to-emerald-700 transition-all duration-200 shadow-md hover:shadow-lg">
                         <i class="fas fa-globe mr-2"></i> Projets Publics
                     </a>
@@ -300,20 +302,21 @@
                                             <i class="fas fa-edit text-sm"></i>
                                         </a>
                                     <?php endif; ?>
-
+                                    <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('projets.approve')): ?>
                                     <?php if($projet->peutEtreApprouve()): ?>
                                         <button type="button" onclick="approveProject('<?php echo e($projet->id); ?>')" class="inline-flex items-center justify-center w-8 h-8 text-green-600 bg-green-100 rounded-lg hover:bg-green-200 transition-colors" title="Approuver">
                                             <i class="fas fa-check text-sm"></i>
                                         </button>
                                     <?php endif; ?>
-
+                                    <?php endif; ?>
+                                        <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('projets.start')): ?>
                                     <?php if($projet->peutEtreDemarre()): ?>
                                         <button type="button" onclick="startProject('<?php echo e($projet->id); ?>')" class="inline-flex items-center justify-center w-8 h-8 text-blue-600 bg-blue-100 rounded-lg hover:bg-blue-200 transition-colors" title="Démarrer">
                                             <i class="fas fa-play text-sm"></i>
                                         </button>
                                     <?php endif; ?>
-
-                                    <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('projets.create')): ?>
+                                    <?php endif; ?>
+                                    <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('projets.duplicate')): ?>
                                         <button type="button" onclick="openDuplicateModal('<?php echo e($projet->id); ?>')" class="inline-flex items-center justify-center w-8 h-8 text-purple-600 bg-purple-100 rounded-lg hover:bg-purple-200 transition-colors" title="Dupliquer">
                                             <i class="fas fa-copy text-sm"></i>
                                         </button>

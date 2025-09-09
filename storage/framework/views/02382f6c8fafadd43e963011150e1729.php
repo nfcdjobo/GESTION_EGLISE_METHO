@@ -1,7 +1,6 @@
-@extends('layouts.private.main')
-@section('title', 'Détails du Culte')
+<?php $__env->startSection('title', 'Détails du Culte'); ?>
 
-@section('content')
+<?php $__env->startSection('content'); ?>
     <div class="space-y-8">
         <!-- Page Title & Breadcrumb -->
         <div class="mb-8">
@@ -9,11 +8,11 @@
                 <div>
                     <h1
                         class="text-3xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent">
-                        {{ $culte->titre }}</h1>
+                        <?php echo e($culte->titre); ?></h1>
                     <nav class="flex mt-2" aria-label="Breadcrumb">
                         <ol class="inline-flex items-center space-x-1 md:space-x-3">
                             <li class="inline-flex items-center">
-                                <a href="{{ route('private.cultes.index') }}"
+                                <a href="<?php echo e(route('private.cultes.index')); ?>"
                                     class="inline-flex items-center text-sm font-medium text-slate-700 hover:text-blue-600 transition-colors">
                                     <i class="fas fa-church mr-2"></i>
                                     Cultes
@@ -22,7 +21,7 @@
                             <li>
                                 <div class="flex items-center">
                                     <i class="fas fa-chevron-right text-slate-400 mx-2"></i>
-                                    <span class="text-sm font-medium text-slate-500">{{ $culte->titre }}</span>
+                                    <span class="text-sm font-medium text-slate-500"><?php echo e($culte->titre); ?></span>
                                 </div>
                             </li>
                         </ol>
@@ -31,18 +30,18 @@
 
                 <!-- Actions rapides -->
                 <div class="flex items-center space-x-2">
-                    @can('cultes.update')
-                        <a href="{{ route('private.cultes.edit', $culte) }}"
+                    <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('cultes.update')): ?>
+                        <a href="<?php echo e(route('private.cultes.edit', $culte)); ?>"
                             class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-yellow-600 to-orange-600 text-white text-sm font-medium rounded-xl hover:from-yellow-700 hover:to-orange-700 transition-all duration-200 shadow-md hover:shadow-lg">
                             <i class="fas fa-edit mr-2"></i> Modifier
                         </a>
-                    @endcan
-                    @can('cultes.create')
-                        <button type="button" onclick="openDuplicateModal('{{ $culte->id }}')"
+                    <?php endif; ?>
+                    <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('cultes.create')): ?>
+                        <button type="button" onclick="openDuplicateModal('<?php echo e($culte->id); ?>')"
                             class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white text-sm font-medium rounded-xl hover:from-purple-700 hover:to-pink-700 transition-all duration-200 shadow-md hover:shadow-lg">
                             <i class="fas fa-copy mr-2"></i> Dupliquer
                         </button>
-                    @endcan
+                    <?php endif; ?>
                 </div>
             </div>
         </div>
@@ -59,7 +58,7 @@
                                 <i class="fas fa-info-circle text-blue-600 mr-2"></i>
                                 Informations Générales
                             </h2>
-                            @php
+                            <?php
                                 $statutColors = [
                                     'planifie' => 'bg-blue-100 text-blue-800',
                                     'en_preparation' => 'bg-yellow-100 text-yellow-800',
@@ -68,10 +67,11 @@
                                     'annule' => 'bg-red-100 text-red-800',
                                     'reporte' => 'bg-purple-100 text-purple-800',
                                 ];
-                            @endphp
+                            ?>
                             <span
-                                class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium {{ $statutColors[$culte->statut] ?? 'bg-gray-100 text-gray-800' }}">
-                                {{ $culte->statut_libelle }}
+                                class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium <?php echo e($statutColors[$culte->statut] ?? 'bg-gray-100 text-gray-800'); ?>">
+                                <?php echo e($culte->statut_libelle); ?>
+
                             </span>
                         </div>
                     </div>
@@ -80,78 +80,98 @@
                             <div class="space-y-4">
                                 <div>
                                     <span class="text-sm font-medium text-slate-500">Type de culte</span>
-                                    <p class="text-lg font-semibold text-slate-900">{{ $culte->type_culte_libelle }}</p>
+                                    <p class="text-lg font-semibold text-slate-900"><?php echo e($culte->type_culte_libelle); ?></p>
                                 </div>
                                 <div>
                                     <span class="text-sm font-medium text-slate-500">Catégorie</span>
-                                    <p class="text-lg font-semibold text-slate-900">{{ $culte->categorie_libelle }}</p>
+                                    <p class="text-lg font-semibold text-slate-900"><?php echo e($culte->categorie_libelle); ?></p>
                                 </div>
                                 <div>
                                     <span class="text-sm font-medium text-slate-500">Programme</span>
                                     <p class="text-lg font-semibold text-slate-900">
-                                        {{ $culte->programme->nom ?? 'Non défini' }}</p>
+                                        <?php echo e($culte->programme->nom ?? 'Non défini'); ?></p>
                                 </div>
                             </div>
                             <div class="space-y-4">
                                 <div>
                                     <span class="text-sm font-medium text-slate-500">Date</span>
                                     <p class="text-lg font-semibold text-slate-900">
-                                        {{ \Carbon\Carbon::parse($culte->date_culte)->format('l d F Y') }}</p>
+                                        <?php echo e(\Carbon\Carbon::parse($culte->date_culte)->format('l d F Y')); ?></p>
                                 </div>
                                 <div>
                                     <span class="text-sm font-medium text-slate-500">Horaires</span>
                                     <p class="text-lg font-semibold text-slate-900">
-                                        {{ \Carbon\Carbon::parse($culte->heure_debut)->format('H:i') }}
-                                        @if ($culte->heure_fin)
-                                            - {{ \Carbon\Carbon::parse($culte->heure_fin)->format('H:i') }}
-                                        @endif
+                                        <?php echo e(\Carbon\Carbon::parse($culte->heure_debut)->format('H:i')); ?>
+
+                                        <?php if($culte->heure_fin): ?>
+                                            - <?php echo e(\Carbon\Carbon::parse($culte->heure_fin)->format('H:i')); ?>
+
+                                        <?php endif; ?>
                                     </p>
                                 </div>
                                 <div>
                                     <span class="text-sm font-medium text-slate-500">Lieu</span>
-                                    <p class="text-lg font-semibold text-slate-900">{{ $culte->lieu }}</p>
+                                    <p class="text-lg font-semibold text-slate-900"><?php echo e($culte->lieu); ?></p>
                                 </div>
                             </div>
                         </div>
 
-                        @if ($culte->description)
+                        <?php if($culte->description): ?>
                             <div class="mt-6 pt-6 border-t border-slate-200">
                                 <h3 class="text-lg font-semibold text-slate-800 mb-3 flex items-center">
                                     <i class="fas fa-align-left text-blue-600 mr-2"></i>
                                     Description
                                 </h3>
-                                <x-ckeditor-display :model="$culte" field="description" show-meta="true"
-                                    class="bg-slate-50 p-4 rounded-lg" />
+                                <?php if (isset($component)) { $__componentOriginal55db839a53cf43454e10df1b99ef9479 = $component; } ?>
+<?php if (isset($attributes)) { $__attributesOriginal55db839a53cf43454e10df1b99ef9479 = $attributes; } ?>
+<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'components.ckeditor-display','data' => ['model' => $culte,'field' => 'description','showMeta' => 'true','class' => 'bg-slate-50 p-4 rounded-lg']] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? (array) $attributes->getIterator() : [])); ?>
+<?php $component->withName('ckeditor-display'); ?>
+<?php if ($component->shouldRender()): ?>
+<?php $__env->startComponent($component->resolveView(), $component->data()); ?>
+<?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag && $constructor = (new ReflectionClass(Illuminate\View\AnonymousComponent::class))->getConstructor()): ?>
+<?php $attributes = $attributes->except(collect($constructor->getParameters())->map->getName()->all()); ?>
+<?php endif; ?>
+<?php $component->withAttributes(['model' => \Illuminate\View\Compilers\BladeCompiler::sanitizeComponentAttribute($culte),'field' => 'description','show-meta' => 'true','class' => 'bg-slate-50 p-4 rounded-lg']); ?>
+<?php echo $__env->renderComponent(); ?>
+<?php endif; ?>
+<?php if (isset($__attributesOriginal55db839a53cf43454e10df1b99ef9479)): ?>
+<?php $attributes = $__attributesOriginal55db839a53cf43454e10df1b99ef9479; ?>
+<?php unset($__attributesOriginal55db839a53cf43454e10df1b99ef9479); ?>
+<?php endif; ?>
+<?php if (isset($__componentOriginal55db839a53cf43454e10df1b99ef9479)): ?>
+<?php $component = $__componentOriginal55db839a53cf43454e10df1b99ef9479; ?>
+<?php unset($__componentOriginal55db839a53cf43454e10df1b99ef9479); ?>
+<?php endif; ?>
                             </div>
-                        @endif
+                        <?php endif; ?>
 
                         <!-- Options -->
                         <div class="mt-6 pt-6 border-t border-slate-200">
                             <div class="flex flex-wrap gap-2">
-                                @if ($culte->est_public)
+                                <?php if($culte->est_public): ?>
                                     <span
                                         class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-cyan-100 text-cyan-800">
                                         <i class="fas fa-globe mr-1"></i> Public
                                     </span>
-                                @endif
-                                @if ($culte->necessite_invitation)
+                                <?php endif; ?>
+                                <?php if($culte->necessite_invitation): ?>
                                     <span
                                         class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
                                         <i class="fas fa-envelope mr-1"></i> Sur invitation
                                     </span>
-                                @endif
-                                @if ($culte->diffusion_en_ligne)
+                                <?php endif; ?>
+                                <?php if($culte->diffusion_en_ligne): ?>
                                     <span
                                         class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
                                         <i class="fas fa-broadcast-tower mr-1"></i> Diffusion en ligne
                                     </span>
-                                @endif
-                                @if ($culte->est_enregistre)
+                                <?php endif; ?>
+                                <?php if($culte->est_enregistre): ?>
                                     <span
                                         class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
                                         <i class="fas fa-video mr-1"></i> Enregistré
                                     </span>
-                                @endif
+                                <?php endif; ?>
                             </div>
                         </div>
                     </div>
@@ -168,7 +188,7 @@
                     </div>
                     <div class="p-6">
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            @if ($culte->pasteurPrincipal)
+                            <?php if($culte->pasteurPrincipal): ?>
                                 <div
                                     class="flex items-center space-x-3 p-4 bg-gradient-to-r from-blue-50 to-cyan-50 rounded-xl">
                                     <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
@@ -176,13 +196,14 @@
                                     </div>
                                     <div>
                                         <p class="text-sm font-medium text-slate-500">Pasteur principal</p>
-                                        <p class="font-semibold text-slate-900">{{ $culte->pasteurPrincipal->nom }}
-                                            {{ $culte->pasteurPrincipal->prenom }}</p>
+                                        <p class="font-semibold text-slate-900"><?php echo e($culte->pasteurPrincipal->nom); ?>
+
+                                            <?php echo e($culte->pasteurPrincipal->prenom); ?></p>
                                     </div>
                                 </div>
-                            @endif
+                            <?php endif; ?>
 
-                            @if ($culte->predicateur)
+                            <?php if($culte->predicateur): ?>
                                 <div
                                     class="flex items-center space-x-3 p-4 bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl">
                                     <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
@@ -190,13 +211,14 @@
                                     </div>
                                     <div>
                                         <p class="text-sm font-medium text-slate-500">Prédicateur</p>
-                                        <p class="font-semibold text-slate-900">{{ $culte->predicateur->nom }}
-                                            {{ $culte->predicateur->prenom }}</p>
+                                        <p class="font-semibold text-slate-900"><?php echo e($culte->predicateur->nom); ?>
+
+                                            <?php echo e($culte->predicateur->prenom); ?></p>
                                     </div>
                                 </div>
-                            @endif
+                            <?php endif; ?>
 
-                            @if ($culte->responsableCulte)
+                            <?php if($culte->responsableCulte): ?>
                                 <div
                                     class="flex items-center space-x-3 p-4 bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl">
                                     <div class="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
@@ -204,13 +226,14 @@
                                     </div>
                                     <div>
                                         <p class="text-sm font-medium text-slate-500">Responsable du culte</p>
-                                        <p class="font-semibold text-slate-900">{{ $culte->responsableCulte->nom }}
-                                            {{ $culte->responsableCulte->prenom }}</p>
+                                        <p class="font-semibold text-slate-900"><?php echo e($culte->responsableCulte->nom); ?>
+
+                                            <?php echo e($culte->responsableCulte->prenom); ?></p>
                                     </div>
                                 </div>
-                            @endif
+                            <?php endif; ?>
 
-                            @if ($culte->dirigeantLouange)
+                            <?php if($culte->dirigeantLouange): ?>
                                 <div
                                     class="flex items-center space-x-3 p-4 bg-gradient-to-r from-amber-50 to-orange-50 rounded-xl">
                                     <div class="w-10 h-10 bg-amber-100 rounded-full flex items-center justify-center">
@@ -218,17 +241,18 @@
                                     </div>
                                     <div>
                                         <p class="text-sm font-medium text-slate-500">Dirigeant de louange</p>
-                                        <p class="font-semibold text-slate-900">{{ $culte->dirigeantLouange->nom }}
-                                            {{ $culte->dirigeantLouange->prenom }}</p>
+                                        <p class="font-semibold text-slate-900"><?php echo e($culte->dirigeantLouange->nom); ?>
+
+                                            <?php echo e($culte->dirigeantLouange->prenom); ?></p>
                                     </div>
                                 </div>
-                            @endif
+                            <?php endif; ?>
                         </div>
                     </div>
                 </div>
 
                 <!-- Message et prédication -->
-                @if ($culte->titre_message || $culte->passage_biblique || $culte->resume_message || $culte->plan_message)
+                <?php if($culte->titre_message || $culte->passage_biblique || $culte->resume_message || $culte->plan_message): ?>
                     <div
                         class="bg-white/80 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
                         <div class="p-6 border-b border-slate-200">
@@ -238,69 +262,106 @@
                             </h2>
                         </div>
                         <div class="p-6 space-y-6">
-                            @if ($culte->titre_message)
+                            <?php if($culte->titre_message): ?>
                                 <div>
                                     <h3 class="text-lg font-semibold text-slate-800 mb-2">Titre du message</h3>
-                                    <p class="text-xl font-bold text-blue-700">{{ $culte->titre_message }}</p>
+                                    <p class="text-xl font-bold text-blue-700"><?php echo e($culte->titre_message); ?></p>
                                 </div>
-                            @endif
+                            <?php endif; ?>
 
-                            @if ($culte->passage_biblique)
+                            <?php if($culte->passage_biblique): ?>
                                 <div>
                                     <h3 class="text-lg font-semibold text-slate-800 mb-2">Passage biblique</h3>
                                     <p class="text-lg font-semibold text-blue-700 bg-blue-50 p-3 rounded-lg">
-                                        {{ $culte->passage_biblique }}</p>
+                                        <?php echo e($culte->passage_biblique); ?></p>
                                 </div>
-                            @endif
+                            <?php endif; ?>
 
-                            @if ($culte->resume_message)
+                            <?php if($culte->resume_message): ?>
                                 <div>
                                     <h3 class="text-lg font-semibold text-slate-800 mb-3">Résumé du message</h3>
-                                    <x-ckeditor-display :model="$culte" field="resume_message" show-meta="true"
-                                        show-reading-time="true" />
+                                    <?php if (isset($component)) { $__componentOriginal55db839a53cf43454e10df1b99ef9479 = $component; } ?>
+<?php if (isset($attributes)) { $__attributesOriginal55db839a53cf43454e10df1b99ef9479 = $attributes; } ?>
+<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'components.ckeditor-display','data' => ['model' => $culte,'field' => 'resume_message','showMeta' => 'true','showReadingTime' => 'true']] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? (array) $attributes->getIterator() : [])); ?>
+<?php $component->withName('ckeditor-display'); ?>
+<?php if ($component->shouldRender()): ?>
+<?php $__env->startComponent($component->resolveView(), $component->data()); ?>
+<?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag && $constructor = (new ReflectionClass(Illuminate\View\AnonymousComponent::class))->getConstructor()): ?>
+<?php $attributes = $attributes->except(collect($constructor->getParameters())->map->getName()->all()); ?>
+<?php endif; ?>
+<?php $component->withAttributes(['model' => \Illuminate\View\Compilers\BladeCompiler::sanitizeComponentAttribute($culte),'field' => 'resume_message','show-meta' => 'true','show-reading-time' => 'true']); ?>
+<?php echo $__env->renderComponent(); ?>
+<?php endif; ?>
+<?php if (isset($__attributesOriginal55db839a53cf43454e10df1b99ef9479)): ?>
+<?php $attributes = $__attributesOriginal55db839a53cf43454e10df1b99ef9479; ?>
+<?php unset($__attributesOriginal55db839a53cf43454e10df1b99ef9479); ?>
+<?php endif; ?>
+<?php if (isset($__componentOriginal55db839a53cf43454e10df1b99ef9479)): ?>
+<?php $component = $__componentOriginal55db839a53cf43454e10df1b99ef9479; ?>
+<?php unset($__componentOriginal55db839a53cf43454e10df1b99ef9479); ?>
+<?php endif; ?>
                                 </div>
-                            @endif
+                            <?php endif; ?>
 
-                            @if ($culte->plan_message)
+                            <?php if($culte->plan_message): ?>
                                 <div>
                                     <h3 class="text-lg font-semibold text-slate-800 mb-3">Plan du message</h3>
-                                    <x-ckeditor-display :model="$culte" field="plan_message" show-meta="true"
-                                        class="bg-amber-50 p-4 rounded-lg border border-amber-200" />
+                                    <?php if (isset($component)) { $__componentOriginal55db839a53cf43454e10df1b99ef9479 = $component; } ?>
+<?php if (isset($attributes)) { $__attributesOriginal55db839a53cf43454e10df1b99ef9479 = $attributes; } ?>
+<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'components.ckeditor-display','data' => ['model' => $culte,'field' => 'plan_message','showMeta' => 'true','class' => 'bg-amber-50 p-4 rounded-lg border border-amber-200']] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? (array) $attributes->getIterator() : [])); ?>
+<?php $component->withName('ckeditor-display'); ?>
+<?php if ($component->shouldRender()): ?>
+<?php $__env->startComponent($component->resolveView(), $component->data()); ?>
+<?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag && $constructor = (new ReflectionClass(Illuminate\View\AnonymousComponent::class))->getConstructor()): ?>
+<?php $attributes = $attributes->except(collect($constructor->getParameters())->map->getName()->all()); ?>
+<?php endif; ?>
+<?php $component->withAttributes(['model' => \Illuminate\View\Compilers\BladeCompiler::sanitizeComponentAttribute($culte),'field' => 'plan_message','show-meta' => 'true','class' => 'bg-amber-50 p-4 rounded-lg border border-amber-200']); ?>
+<?php echo $__env->renderComponent(); ?>
+<?php endif; ?>
+<?php if (isset($__attributesOriginal55db839a53cf43454e10df1b99ef9479)): ?>
+<?php $attributes = $__attributesOriginal55db839a53cf43454e10df1b99ef9479; ?>
+<?php unset($__attributesOriginal55db839a53cf43454e10df1b99ef9479); ?>
+<?php endif; ?>
+<?php if (isset($__componentOriginal55db839a53cf43454e10df1b99ef9479)): ?>
+<?php $component = $__componentOriginal55db839a53cf43454e10df1b99ef9479; ?>
+<?php unset($__componentOriginal55db839a53cf43454e10df1b99ef9479); ?>
+<?php endif; ?>
                                 </div>
-                            @endif
+                            <?php endif; ?>
 
-                            {{-- Métadonnées globales du message --}}
-                            @if ($culte->resume_message || $culte->plan_message)
+                            
+                            <?php if($culte->resume_message || $culte->plan_message): ?>
                                 <div
                                     class="bg-gradient-to-r from-blue-50 to-amber-50 p-4 rounded-lg border border-blue-200">
                                     <h4 class="font-semibold text-slate-800 mb-2">Aperçu du message</h4>
                                     <div class="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
                                         <div class="text-center">
                                             <div class="text-lg font-bold text-blue-600">
-                                                {{ $culte->getMessageWordCount() }}</div>
+                                                <?php echo e($culte->getMessageWordCount()); ?></div>
                                             <div class="text-slate-600">Mots au total</div>
                                         </div>
                                         <div class="text-center">
                                             <div class="text-lg font-bold text-amber-600">
-                                                {{ $culte->getMessageReadingTime() }}</div>
+                                                <?php echo e($culte->getMessageReadingTime()); ?></div>
                                             <div class="text-slate-600">Min de lecture</div>
                                         </div>
                                         <div class="text-center">
                                             <div class="text-lg font-bold text-purple-600">
-                                                {{ $culte->hasRichContent() ? 'Oui' : 'Non' }}
+                                                <?php echo e($culte->hasRichContent() ? 'Oui' : 'Non'); ?>
+
                                             </div>
                                             <div class="text-slate-600">Mise en forme</div>
                                         </div>
                                     </div>
                                 </div>
-                            @endif
+                            <?php endif; ?>
                         </div>
                     </div>
-                @endif
+                <?php endif; ?>
 
 
                 <!-- Statistiques et participation -->
-                @if ($culte->statut === 'termine' || $culte->nombre_participants)
+                <?php if($culte->statut === 'termine' || $culte->nombre_participants): ?>
                     <div
                         class="bg-white/80 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
                         <div class="p-6 border-b border-slate-200">
@@ -311,108 +372,114 @@
                         </div>
                         <div class="p-6">
                             <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                                @if ($culte->nombre_participants)
+                                <?php if($culte->nombre_participants): ?>
                                     <div class="text-center p-4 bg-gradient-to-r from-blue-50 to-cyan-50 rounded-xl">
-                                        <div class="text-2xl font-bold text-blue-600">{{ $culte->nombre_participants }}
+                                        <div class="text-2xl font-bold text-blue-600"><?php echo e($culte->nombre_participants); ?>
+
                                         </div>
                                         <div class="text-sm text-slate-600">Participants</div>
                                     </div>
-                                @endif
+                                <?php endif; ?>
 
-                                @if ($culte->nombre_adultes)
+                                <?php if($culte->nombre_adultes): ?>
                                     <div class="text-center p-4 bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl">
-                                        <div class="text-2xl font-bold text-green-600">{{ $culte->nombre_adultes }}</div>
+                                        <div class="text-2xl font-bold text-green-600"><?php echo e($culte->nombre_adultes); ?></div>
                                         <div class="text-sm text-slate-600">Adultes</div>
                                     </div>
-                                @endif
+                                <?php endif; ?>
 
-                                @if ($culte->nombre_jeunes)
+                                <?php if($culte->nombre_jeunes): ?>
                                     <div class="text-center p-4 bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl">
-                                        <div class="text-2xl font-bold text-purple-600">{{ $culte->nombre_jeunes }}</div>
+                                        <div class="text-2xl font-bold text-purple-600"><?php echo e($culte->nombre_jeunes); ?></div>
                                         <div class="text-sm text-slate-600">Jeunes</div>
                                     </div>
-                                @endif
+                                <?php endif; ?>
 
-                                @if ($culte->nombre_enfants)
+                                <?php if($culte->nombre_enfants): ?>
                                     <div class="text-center p-4 bg-gradient-to-r from-amber-50 to-orange-50 rounded-xl">
-                                        <div class="text-2xl font-bold text-amber-600">{{ $culte->nombre_enfants }}</div>
+                                        <div class="text-2xl font-bold text-amber-600"><?php echo e($culte->nombre_enfants); ?></div>
                                         <div class="text-sm text-slate-600">Enfants</div>
                                     </div>
-                                @endif
+                                <?php endif; ?>
 
-                                @if ($culte->nombre_nouveaux)
+                                <?php if($culte->nombre_nouveaux): ?>
                                     <div class="text-center p-4 bg-gradient-to-r from-cyan-50 to-blue-50 rounded-xl">
-                                        <div class="text-2xl font-bold text-cyan-600">{{ $culte->nombre_nouveaux }}</div>
+                                        <div class="text-2xl font-bold text-cyan-600"><?php echo e($culte->nombre_nouveaux); ?></div>
                                         <div class="text-sm text-slate-600">Nouveaux</div>
                                     </div>
-                                @endif
+                                <?php endif; ?>
 
-                                @if ($culte->nombre_conversions)
+                                <?php if($culte->nombre_conversions): ?>
                                     <div class="text-center p-4 bg-gradient-to-r from-yellow-50 to-amber-50 rounded-xl">
-                                        <div class="text-2xl font-bold text-yellow-600">{{ $culte->nombre_conversions }}
+                                        <div class="text-2xl font-bold text-yellow-600"><?php echo e($culte->nombre_conversions); ?>
+
                                         </div>
                                         <div class="text-sm text-slate-600">Conversions</div>
                                     </div>
-                                @endif
+                                <?php endif; ?>
 
-                                @if ($culte->nombre_baptemes)
+                                <?php if($culte->nombre_baptemes): ?>
                                     <div class="text-center p-4 bg-gradient-to-r from-indigo-50 to-purple-50 rounded-xl">
-                                        <div class="text-2xl font-bold text-indigo-600">{{ $culte->nombre_baptemes }}
+                                        <div class="text-2xl font-bold text-indigo-600"><?php echo e($culte->nombre_baptemes); ?>
+
                                         </div>
                                         <div class="text-sm text-slate-600">Baptêmes</div>
                                     </div>
-                                @endif
+                                <?php endif; ?>
 
-                                @if ($culte->offrande_totale)
+                                <?php if($culte->offrande_totale): ?>
                                     <div class="text-center p-4 bg-gradient-to-r from-emerald-50 to-green-50 rounded-xl">
                                         <div class="text-2xl font-bold text-emerald-600">
-                                            {{ number_format($culte->offrande_totale, 0) }}€</div>
+                                            <?php echo e(number_format($culte->offrande_totale, 0)); ?>€</div>
                                         <div class="text-sm text-slate-600">Offrandes</div>
                                     </div>
-                                @endif
+                                <?php endif; ?>
                             </div>
 
-                            @if ($culte->heure_debut_reelle || $culte->heure_fin_reelle)
+                            <?php if($culte->heure_debut_reelle || $culte->heure_fin_reelle): ?>
                                 <div class="mt-6 pt-6 border-t border-slate-200">
                                     <h3 class="text-lg font-semibold text-slate-800 mb-4">Horaires réels</h3>
                                     <div class="flex items-center space-x-6">
-                                        @if ($culte->heure_debut_reelle)
+                                        <?php if($culte->heure_debut_reelle): ?>
                                             <div>
                                                 <span class="text-sm font-medium text-slate-500">Début réel</span>
                                                 <p class="text-lg font-semibold text-slate-900">
-                                                    {{ \Carbon\Carbon::parse($culte->heure_debut_reelle)->format('H:i') }}
+                                                    <?php echo e(\Carbon\Carbon::parse($culte->heure_debut_reelle)->format('H:i')); ?>
+
                                                 </p>
                                             </div>
-                                        @endif
-                                        @if ($culte->heure_fin_reelle)
+                                        <?php endif; ?>
+                                        <?php if($culte->heure_fin_reelle): ?>
                                             <div>
                                                 <span class="text-sm font-medium text-slate-500">Fin réelle</span>
                                                 <p class="text-lg font-semibold text-slate-900">
-                                                    {{ \Carbon\Carbon::parse($culte->heure_fin_reelle)->format('H:i') }}
+                                                    <?php echo e(\Carbon\Carbon::parse($culte->heure_fin_reelle)->format('H:i')); ?>
+
                                                 </p>
                                             </div>
-                                        @endif
-                                        @if ($culte->duree_totale)
+                                        <?php endif; ?>
+                                        <?php if($culte->duree_totale): ?>
                                             <div>
                                                 <span class="text-sm font-medium text-slate-500">Durée totale</span>
-                                                <p class="text-lg font-semibold text-slate-900">{{ $culte->duree_totale }}
+                                                <p class="text-lg font-semibold text-slate-900"><?php echo e($culte->duree_totale); ?>
+
                                                 </p>
                                             </div>
-                                        @endif
+                                        <?php endif; ?>
                                     </div>
                                 </div>
-                            @endif
+                            <?php endif; ?>
                         </div>
                     </div>
-                @endif
+                <?php endif; ?>
 
                 <!-- Notes et commentaires -->
-                @if (
+                <?php if(
                     $culte->notes_pasteur ||
                         $culte->notes_organisateur ||
                         $culte->temoignages ||
                         $culte->points_forts ||
-                        $culte->points_amelioration)
+                        $culte->points_amelioration): ?>
                     <div
                         class="bg-white/80 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
                         <div class="p-6 border-b border-slate-200">
@@ -422,67 +489,157 @@
                             </h2>
                         </div>
                         <div class="p-6 space-y-6">
-                            @if ($culte->notes_pasteur)
+                            <?php if($culte->notes_pasteur): ?>
                                 <div>
                                     <h3 class="text-lg font-semibold text-slate-800 mb-3 flex items-center">
                                         <i class="fas fa-user-tie text-blue-600 mr-2"></i>
                                         Notes du pasteur
                                     </h3>
-                                    <x-ckeditor-display :model="$culte" field="notes_pasteur"
-                                        class="bg-blue-50 p-4 rounded-lg border border-blue-200" show-meta="true" />
+                                    <?php if (isset($component)) { $__componentOriginal55db839a53cf43454e10df1b99ef9479 = $component; } ?>
+<?php if (isset($attributes)) { $__attributesOriginal55db839a53cf43454e10df1b99ef9479 = $attributes; } ?>
+<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'components.ckeditor-display','data' => ['model' => $culte,'field' => 'notes_pasteur','class' => 'bg-blue-50 p-4 rounded-lg border border-blue-200','showMeta' => 'true']] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? (array) $attributes->getIterator() : [])); ?>
+<?php $component->withName('ckeditor-display'); ?>
+<?php if ($component->shouldRender()): ?>
+<?php $__env->startComponent($component->resolveView(), $component->data()); ?>
+<?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag && $constructor = (new ReflectionClass(Illuminate\View\AnonymousComponent::class))->getConstructor()): ?>
+<?php $attributes = $attributes->except(collect($constructor->getParameters())->map->getName()->all()); ?>
+<?php endif; ?>
+<?php $component->withAttributes(['model' => \Illuminate\View\Compilers\BladeCompiler::sanitizeComponentAttribute($culte),'field' => 'notes_pasteur','class' => 'bg-blue-50 p-4 rounded-lg border border-blue-200','show-meta' => 'true']); ?>
+<?php echo $__env->renderComponent(); ?>
+<?php endif; ?>
+<?php if (isset($__attributesOriginal55db839a53cf43454e10df1b99ef9479)): ?>
+<?php $attributes = $__attributesOriginal55db839a53cf43454e10df1b99ef9479; ?>
+<?php unset($__attributesOriginal55db839a53cf43454e10df1b99ef9479); ?>
+<?php endif; ?>
+<?php if (isset($__componentOriginal55db839a53cf43454e10df1b99ef9479)): ?>
+<?php $component = $__componentOriginal55db839a53cf43454e10df1b99ef9479; ?>
+<?php unset($__componentOriginal55db839a53cf43454e10df1b99ef9479); ?>
+<?php endif; ?>
                                 </div>
-                            @endif
+                            <?php endif; ?>
 
-                            @if ($culte->notes_organisateur)
+                            <?php if($culte->notes_organisateur): ?>
                                 <div>
                                     <h3 class="text-lg font-semibold text-slate-800 mb-3 flex items-center">
                                         <i class="fas fa-user-cog text-green-600 mr-2"></i>
                                         Notes de l'organisateur
                                     </h3>
-                                    <x-ckeditor-display :model="$culte" field="notes_organisateur"
-                                        class="bg-green-50 p-4 rounded-lg border border-green-200" show-meta="true" />
+                                    <?php if (isset($component)) { $__componentOriginal55db839a53cf43454e10df1b99ef9479 = $component; } ?>
+<?php if (isset($attributes)) { $__attributesOriginal55db839a53cf43454e10df1b99ef9479 = $attributes; } ?>
+<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'components.ckeditor-display','data' => ['model' => $culte,'field' => 'notes_organisateur','class' => 'bg-green-50 p-4 rounded-lg border border-green-200','showMeta' => 'true']] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? (array) $attributes->getIterator() : [])); ?>
+<?php $component->withName('ckeditor-display'); ?>
+<?php if ($component->shouldRender()): ?>
+<?php $__env->startComponent($component->resolveView(), $component->data()); ?>
+<?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag && $constructor = (new ReflectionClass(Illuminate\View\AnonymousComponent::class))->getConstructor()): ?>
+<?php $attributes = $attributes->except(collect($constructor->getParameters())->map->getName()->all()); ?>
+<?php endif; ?>
+<?php $component->withAttributes(['model' => \Illuminate\View\Compilers\BladeCompiler::sanitizeComponentAttribute($culte),'field' => 'notes_organisateur','class' => 'bg-green-50 p-4 rounded-lg border border-green-200','show-meta' => 'true']); ?>
+<?php echo $__env->renderComponent(); ?>
+<?php endif; ?>
+<?php if (isset($__attributesOriginal55db839a53cf43454e10df1b99ef9479)): ?>
+<?php $attributes = $__attributesOriginal55db839a53cf43454e10df1b99ef9479; ?>
+<?php unset($__attributesOriginal55db839a53cf43454e10df1b99ef9479); ?>
+<?php endif; ?>
+<?php if (isset($__componentOriginal55db839a53cf43454e10df1b99ef9479)): ?>
+<?php $component = $__componentOriginal55db839a53cf43454e10df1b99ef9479; ?>
+<?php unset($__componentOriginal55db839a53cf43454e10df1b99ef9479); ?>
+<?php endif; ?>
                                 </div>
-                            @endif
+                            <?php endif; ?>
 
-                            @if ($culte->points_forts || $culte->points_amelioration)
+                            <?php if($culte->points_forts || $culte->points_amelioration): ?>
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    @if ($culte->points_forts)
+                                    <?php if($culte->points_forts): ?>
                                         <div>
                                             <h3 class="text-lg font-semibold text-slate-800 mb-3 flex items-center">
                                                 <i class="fas fa-thumbs-up text-emerald-600 mr-2"></i>
                                                 Points forts
                                             </h3>
-                                            <x-ckeditor-display :model="$culte" field="points_forts"
-                                                class="bg-emerald-50 p-4 rounded-lg border border-emerald-200" />
+                                            <?php if (isset($component)) { $__componentOriginal55db839a53cf43454e10df1b99ef9479 = $component; } ?>
+<?php if (isset($attributes)) { $__attributesOriginal55db839a53cf43454e10df1b99ef9479 = $attributes; } ?>
+<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'components.ckeditor-display','data' => ['model' => $culte,'field' => 'points_forts','class' => 'bg-emerald-50 p-4 rounded-lg border border-emerald-200']] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? (array) $attributes->getIterator() : [])); ?>
+<?php $component->withName('ckeditor-display'); ?>
+<?php if ($component->shouldRender()): ?>
+<?php $__env->startComponent($component->resolveView(), $component->data()); ?>
+<?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag && $constructor = (new ReflectionClass(Illuminate\View\AnonymousComponent::class))->getConstructor()): ?>
+<?php $attributes = $attributes->except(collect($constructor->getParameters())->map->getName()->all()); ?>
+<?php endif; ?>
+<?php $component->withAttributes(['model' => \Illuminate\View\Compilers\BladeCompiler::sanitizeComponentAttribute($culte),'field' => 'points_forts','class' => 'bg-emerald-50 p-4 rounded-lg border border-emerald-200']); ?>
+<?php echo $__env->renderComponent(); ?>
+<?php endif; ?>
+<?php if (isset($__attributesOriginal55db839a53cf43454e10df1b99ef9479)): ?>
+<?php $attributes = $__attributesOriginal55db839a53cf43454e10df1b99ef9479; ?>
+<?php unset($__attributesOriginal55db839a53cf43454e10df1b99ef9479); ?>
+<?php endif; ?>
+<?php if (isset($__componentOriginal55db839a53cf43454e10df1b99ef9479)): ?>
+<?php $component = $__componentOriginal55db839a53cf43454e10df1b99ef9479; ?>
+<?php unset($__componentOriginal55db839a53cf43454e10df1b99ef9479); ?>
+<?php endif; ?>
                                         </div>
-                                    @endif
+                                    <?php endif; ?>
 
-                                    @if ($culte->points_amelioration)
+                                    <?php if($culte->points_amelioration): ?>
                                         <div>
                                             <h3 class="text-lg font-semibold text-slate-800 mb-3 flex items-center">
                                                 <i class="fas fa-arrow-up text-amber-600 mr-2"></i>
                                                 Points d'amélioration
                                             </h3>
-                                            <x-ckeditor-display :model="$culte" field="points_amelioration"
-                                                class="bg-amber-50 p-4 rounded-lg border border-amber-200" />
+                                            <?php if (isset($component)) { $__componentOriginal55db839a53cf43454e10df1b99ef9479 = $component; } ?>
+<?php if (isset($attributes)) { $__attributesOriginal55db839a53cf43454e10df1b99ef9479 = $attributes; } ?>
+<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'components.ckeditor-display','data' => ['model' => $culte,'field' => 'points_amelioration','class' => 'bg-amber-50 p-4 rounded-lg border border-amber-200']] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? (array) $attributes->getIterator() : [])); ?>
+<?php $component->withName('ckeditor-display'); ?>
+<?php if ($component->shouldRender()): ?>
+<?php $__env->startComponent($component->resolveView(), $component->data()); ?>
+<?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag && $constructor = (new ReflectionClass(Illuminate\View\AnonymousComponent::class))->getConstructor()): ?>
+<?php $attributes = $attributes->except(collect($constructor->getParameters())->map->getName()->all()); ?>
+<?php endif; ?>
+<?php $component->withAttributes(['model' => \Illuminate\View\Compilers\BladeCompiler::sanitizeComponentAttribute($culte),'field' => 'points_amelioration','class' => 'bg-amber-50 p-4 rounded-lg border border-amber-200']); ?>
+<?php echo $__env->renderComponent(); ?>
+<?php endif; ?>
+<?php if (isset($__attributesOriginal55db839a53cf43454e10df1b99ef9479)): ?>
+<?php $attributes = $__attributesOriginal55db839a53cf43454e10df1b99ef9479; ?>
+<?php unset($__attributesOriginal55db839a53cf43454e10df1b99ef9479); ?>
+<?php endif; ?>
+<?php if (isset($__componentOriginal55db839a53cf43454e10df1b99ef9479)): ?>
+<?php $component = $__componentOriginal55db839a53cf43454e10df1b99ef9479; ?>
+<?php unset($__componentOriginal55db839a53cf43454e10df1b99ef9479); ?>
+<?php endif; ?>
                                         </div>
-                                    @endif
+                                    <?php endif; ?>
                                 </div>
-                            @endif
+                            <?php endif; ?>
 
-                            @if ($culte->temoignages)
+                            <?php if($culte->temoignages): ?>
                                 <div>
                                     <h3 class="text-lg font-semibold text-slate-800 mb-3 flex items-center">
                                         <i class="fas fa-heart text-purple-600 mr-2"></i>
                                         Témoignages
                                     </h3>
-                                    <x-ckeditor-display :model="$culte" field="temoignages"
-                                        class="bg-purple-50 p-4 rounded-lg border border-purple-200" show-meta="true" />
+                                    <?php if (isset($component)) { $__componentOriginal55db839a53cf43454e10df1b99ef9479 = $component; } ?>
+<?php if (isset($attributes)) { $__attributesOriginal55db839a53cf43454e10df1b99ef9479 = $attributes; } ?>
+<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'components.ckeditor-display','data' => ['model' => $culte,'field' => 'temoignages','class' => 'bg-purple-50 p-4 rounded-lg border border-purple-200','showMeta' => 'true']] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? (array) $attributes->getIterator() : [])); ?>
+<?php $component->withName('ckeditor-display'); ?>
+<?php if ($component->shouldRender()): ?>
+<?php $__env->startComponent($component->resolveView(), $component->data()); ?>
+<?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag && $constructor = (new ReflectionClass(Illuminate\View\AnonymousComponent::class))->getConstructor()): ?>
+<?php $attributes = $attributes->except(collect($constructor->getParameters())->map->getName()->all()); ?>
+<?php endif; ?>
+<?php $component->withAttributes(['model' => \Illuminate\View\Compilers\BladeCompiler::sanitizeComponentAttribute($culte),'field' => 'temoignages','class' => 'bg-purple-50 p-4 rounded-lg border border-purple-200','show-meta' => 'true']); ?>
+<?php echo $__env->renderComponent(); ?>
+<?php endif; ?>
+<?php if (isset($__attributesOriginal55db839a53cf43454e10df1b99ef9479)): ?>
+<?php $attributes = $__attributesOriginal55db839a53cf43454e10df1b99ef9479; ?>
+<?php unset($__attributesOriginal55db839a53cf43454e10df1b99ef9479); ?>
+<?php endif; ?>
+<?php if (isset($__componentOriginal55db839a53cf43454e10df1b99ef9479)): ?>
+<?php $component = $__componentOriginal55db839a53cf43454e10df1b99ef9479; ?>
+<?php unset($__componentOriginal55db839a53cf43454e10df1b99ef9479); ?>
+<?php endif; ?>
                                 </div>
-                            @endif
+                            <?php endif; ?>
                         </div>
                     </div>
-                @endif
+                <?php endif; ?>
             </div>
 
             <!-- Sidebar -->
@@ -497,55 +654,55 @@
                         </h2>
                     </div>
                     <div class="p-6 space-y-3">
-                        @can('cultes.participant')
-                            <a href="{{ route('private.cultes.participants', $culte->id) }}"
+                        <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('cultes.participant')): ?>
+                            <a href="<?php echo e(route('private.cultes.participants', $culte->id)); ?>"
                                 class="w-full inline-flex items-center justify-center px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white text-sm font-medium rounded-xl hover:from-green-700 hover:to-emerald-700 transition-all duration-200">
                                 <i class="fas fa-user-plus mr-2"></i> Ajouter des participants
                             </a>
-                        @endcan
+                        <?php endif; ?>
 
-                        @if ($culte->statut !== 'termine')
+                        <?php if($culte->statut !== 'termine'): ?>
                             <button type="button"
-                                onclick="openStatusModal('{{ $culte->id }}', '{{ $culte->statut }}')"
+                                onclick="openStatusModal('<?php echo e($culte->id); ?>', '<?php echo e($culte->statut); ?>')"
                                 class="w-full inline-flex items-center justify-center px-4 py-2 bg-gradient-to-r from-blue-600 to-cyan-600 text-white text-sm font-medium rounded-xl hover:from-blue-700 hover:to-cyan-700 transition-all duration-200">
                                 <i class="fas fa-exchange-alt mr-2"></i> Changer le statut
                             </button>
-                        @endif
+                        <?php endif; ?>
 
-                        @if ($culte->lien_diffusion_live)
-                            <a href="{{ $culte->lien_diffusion_live }}" target="_blank"
+                        <?php if($culte->lien_diffusion_live): ?>
+                            <a href="<?php echo e($culte->lien_diffusion_live); ?>" target="_blank"
                                 class="w-full inline-flex items-center justify-center px-4 py-2 bg-gradient-to-r from-red-500 to-pink-500 text-white text-sm font-medium rounded-xl hover:from-red-600 hover:to-pink-600 transition-all duration-200">
                                 <i class="fas fa-broadcast-tower mr-2"></i> Diffusion live
                             </a>
-                        @endif
+                        <?php endif; ?>
 
-                        @if ($culte->lien_enregistrement_video)
-                            <a href="{{ $culte->lien_enregistrement_video }}" target="_blank"
+                        <?php if($culte->lien_enregistrement_video): ?>
+                            <a href="<?php echo e($culte->lien_enregistrement_video); ?>" target="_blank"
                                 class="w-full inline-flex items-center justify-center px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white text-sm font-medium rounded-xl hover:from-purple-700 hover:to-pink-700 transition-all duration-200">
                                 <i class="fas fa-video mr-2"></i> Enregistrement vidéo
                             </a>
-                        @endif
+                        <?php endif; ?>
 
-                        @if ($culte->lien_enregistrement_audio)
-                            <a href="{{ $culte->lien_enregistrement_audio }}" target="_blank"
+                        <?php if($culte->lien_enregistrement_audio): ?>
+                            <a href="<?php echo e($culte->lien_enregistrement_audio); ?>" target="_blank"
                                 class="w-full inline-flex items-center justify-center px-4 py-2 bg-gradient-to-r from-amber-600 to-orange-600 text-white text-sm font-medium rounded-xl hover:from-amber-700 hover:to-orange-700 transition-all duration-200">
                                 <i class="fas fa-volume-up mr-2"></i> Enregistrement audio
                             </a>
-                        @endif
+                        <?php endif; ?>
 
-                        @can('cultes.delete')
-                            @if ($culte->statut !== 'en_cours')
-                                <button type="button" onclick="deleteCulte('{{ $culte->id }}')"
+                        <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('cultes.delete')): ?>
+                            <?php if($culte->statut !== 'en_cours'): ?>
+                                <button type="button" onclick="deleteCulte('<?php echo e($culte->id); ?>')"
                                     class="w-full inline-flex items-center justify-center px-4 py-2 bg-gradient-to-r from-red-600 to-rose-600 text-white text-sm font-medium rounded-xl hover:from-red-700 hover:to-rose-700 transition-all duration-200">
                                     <i class="fas fa-trash mr-2"></i> Supprimer
                                 </button>
-                            @endif
-                        @endcan
+                            <?php endif; ?>
+                        <?php endif; ?>
                     </div>
                 </div>
 
                 <!-- Évaluations -->
-                @if ($culte->note_globale || $culte->note_louange || $culte->note_message || $culte->note_organisation)
+                <?php if($culte->note_globale || $culte->note_louange || $culte->note_message || $culte->note_organisation): ?>
                     <div
                         class="bg-white/80 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
                         <div class="p-6 border-b border-slate-200">
@@ -555,46 +712,46 @@
                             </h2>
                         </div>
                         <div class="p-6 space-y-4">
-                            @if ($culte->note_globale)
+                            <?php if($culte->note_globale): ?>
                                 <div class="flex items-center justify-between">
                                     <span class="text-sm font-medium text-slate-700">Note globale</span>
                                     <div class="flex items-center">
                                         <span
-                                            class="text-lg font-bold text-amber-600 mr-2">{{ $culte->note_globale }}/10</span>
+                                            class="text-lg font-bold text-amber-600 mr-2"><?php echo e($culte->note_globale); ?>/10</span>
                                         <div class="flex">
-                                            @for ($i = 1; $i <= 10; $i++)
+                                            <?php for($i = 1; $i <= 10; $i++): ?>
                                                 <i
-                                                    class="fas fa-star text-xs {{ $i <= $culte->note_globale ? 'text-amber-400' : 'text-slate-300' }}"></i>
-                                            @endfor
+                                                    class="fas fa-star text-xs <?php echo e($i <= $culte->note_globale ? 'text-amber-400' : 'text-slate-300'); ?>"></i>
+                                            <?php endfor; ?>
                                         </div>
                                     </div>
                                 </div>
-                            @endif
+                            <?php endif; ?>
 
-                            @if ($culte->note_louange)
+                            <?php if($culte->note_louange): ?>
                                 <div class="flex items-center justify-between">
                                     <span class="text-sm font-medium text-slate-700">Louange</span>
-                                    <span class="text-lg font-bold text-purple-600">{{ $culte->note_louange }}/10</span>
+                                    <span class="text-lg font-bold text-purple-600"><?php echo e($culte->note_louange); ?>/10</span>
                                 </div>
-                            @endif
+                            <?php endif; ?>
 
-                            @if ($culte->note_message)
+                            <?php if($culte->note_message): ?>
                                 <div class="flex items-center justify-between">
                                     <span class="text-sm font-medium text-slate-700">Message</span>
-                                    <span class="text-lg font-bold text-blue-600">{{ $culte->note_message }}/10</span>
+                                    <span class="text-lg font-bold text-blue-600"><?php echo e($culte->note_message); ?>/10</span>
                                 </div>
-                            @endif
+                            <?php endif; ?>
 
-                            @if ($culte->note_organisation)
+                            <?php if($culte->note_organisation): ?>
                                 <div class="flex items-center justify-between">
                                     <span class="text-sm font-medium text-slate-700">Organisation</span>
                                     <span
-                                        class="text-lg font-bold text-green-600">{{ $culte->note_organisation }}/10</span>
+                                        class="text-lg font-bold text-green-600"><?php echo e($culte->note_organisation); ?>/10</span>
                                 </div>
-                            @endif
+                            <?php endif; ?>
                         </div>
                     </div>
-                @endif
+                <?php endif; ?>
 
                 <!-- Informations système -->
                 <div
@@ -608,26 +765,28 @@
                     <div class="p-6 space-y-3 text-sm">
                         <div class="flex justify-between">
                             <span class="text-slate-500">Créé le:</span>
-                            <span class="text-slate-900 font-medium">{{ $culte->created_at->format('d/m/Y H:i') }}</span>
+                            <span class="text-slate-900 font-medium"><?php echo e($culte->created_at->format('d/m/Y H:i')); ?></span>
                         </div>
-                        @if ($culte->createur)
+                        <?php if($culte->createur): ?>
                             <div class="flex justify-between">
                                 <span class="text-slate-500">Créé par:</span>
-                                <span class="text-slate-900 font-medium">{{ $culte->createur->nom }}
-                                    {{ $culte->createur->prenom }}</span>
+                                <span class="text-slate-900 font-medium"><?php echo e($culte->createur->nom); ?>
+
+                                    <?php echo e($culte->createur->prenom); ?></span>
                             </div>
-                        @endif
+                        <?php endif; ?>
                         <div class="flex justify-between">
                             <span class="text-slate-500">Modifié le:</span>
-                            <span class="text-slate-900 font-medium">{{ $culte->updated_at->format('d/m/Y H:i') }}</span>
+                            <span class="text-slate-900 font-medium"><?php echo e($culte->updated_at->format('d/m/Y H:i')); ?></span>
                         </div>
-                        @if ($culte->modificateur)
+                        <?php if($culte->modificateur): ?>
                             <div class="flex justify-between">
                                 <span class="text-slate-500">Modifié par:</span>
-                                <span class="text-slate-900 font-medium">{{ $culte->modificateur->nom }}
-                                    {{ $culte->modificateur->prenom }}</span>
+                                <span class="text-slate-900 font-medium"><?php echo e($culte->modificateur->nom); ?>
+
+                                    <?php echo e($culte->modificateur->prenom); ?></span>
                             </div>
-                        @endif
+                        <?php endif; ?>
                     </div>
                 </div>
 
@@ -641,8 +800,8 @@
             <div class="p-6">
                 <h3 class="text-lg font-semibold text-slate-900 mb-4">Changer le statut du culte</h3>
                 <form id="statusForm">
-                    @csrf
-                    <input type="hidden" id="culte_id" name="culte_id" value="{{ $culte->id }}">
+                    <?php echo csrf_field(); ?>
+                    <input type="hidden" id="culte_id" name="culte_id" value="<?php echo e($culte->id); ?>">
                     <div class="mb-4">
                         <label class="block text-sm font-medium text-slate-700 mb-2">Nouveau statut</label>
                         <select id="nouveau_statut" name="statut"
@@ -668,12 +827,12 @@
                     class="px-4 py-2 text-slate-700 bg-slate-100 rounded-xl hover:bg-slate-200 transition-colors">
                     Annuler
                 </button>
-                @can('cultes.update')
+                <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('cultes.update')): ?>
                 <button type="button" onclick="updateStatus()"
                     class="px-4 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors">
                     Changer le statut
                 </button>
-                @endcan
+                <?php endif; ?>
             </div>
         </div>
     </div>
@@ -685,8 +844,8 @@
             <div class="p-6">
                 <h3 class="text-lg font-semibold text-slate-900 mb-4">Dupliquer le culte</h3>
                 <form id="duplicateForm">
-                    @csrf
-                    <input type="hidden" id="duplicate_culte_id" name="culte_id" value="{{ $culte->id }}">
+                    <?php echo csrf_field(); ?>
+                    <input type="hidden" id="duplicate_culte_id" name="culte_id" value="<?php echo e($culte->id); ?>">
                     <div class="space-y-4">
                         <div>
                             <label class="block text-sm font-medium text-slate-700 mb-2">Nouvelle date</label>
@@ -696,7 +855,7 @@
                         <div>
                             <label class="block text-sm font-medium text-slate-700 mb-2">Nouvelle heure</label>
                             <input type="time" name="nouvelle_heure" id="nouvelle_heure"
-                                value="{{ $culte->heure_debut }}"
+                                value="<?php echo e($culte->heure_debut); ?>"
                                 class="w-full px-3 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
                         </div>
                         <div>
@@ -713,17 +872,17 @@
                     class="px-4 py-2 text-slate-700 bg-slate-100 rounded-xl hover:bg-slate-200 transition-colors">
                     Annuler
                 </button>
-                @can('cultes.duplicate')
+                <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('cultes.duplicate')): ?>
                     <button type="button" onclick="duplicateCulte()"
                         class="px-4 py-2 bg-purple-600 text-white rounded-xl hover:bg-purple-700 transition-colors">
                         Dupliquer
                     </button>
-                @endcan
+                <?php endif; ?>
             </div>
         </div>
     </div>
 
-    @push('scripts')
+    <?php $__env->startPush('scripts'); ?>
         <script>
             // Modal statut
             function openStatusModal(culteId, currentStatus) {
@@ -752,16 +911,16 @@
 
             document.getElementById('nouveau_statut').addEventListener('change', toggleRaisonField);
 
-            @can('cultes.update')
+            <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('cultes.update')): ?>
             function updateStatus() {
                 const form = document.getElementById('statusForm');
                 const formData = new FormData(form);
                 const culteId = document.getElementById('culte_id').value;
 
-                fetch(`{{ route('private.cultes.statut', ':culteid') }}`.replace(':culteid', culteId), {
+                fetch(`<?php echo e(route('private.cultes.statut', ':culteid')); ?>`.replace(':culteid', culteId), {
                         method: 'POST',
                         headers: {
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                            'X-CSRF-TOKEN': '<?php echo e(csrf_token()); ?>',
                             'Accept': 'application/json'
                         },
                         body: formData
@@ -779,7 +938,7 @@
                         alert('Une erreur est survenue');
                     });
             }
-            @endcan
+            <?php endif; ?>
 
             // Modal duplication
             function openDuplicateModal(culteId) {
@@ -801,10 +960,10 @@
                 const formData = new FormData(form);
                 const culteId = document.getElementById('duplicate_culte_id').value;
 
-                fetch(`{{ route('private.cultes.dupliquer', ':culteid') }}`.replace(':culteid', culteId), {
+                fetch(`<?php echo e(route('private.cultes.dupliquer', ':culteid')); ?>`.replace(':culteid', culteId), {
                         method: 'POST',
                         headers: {
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                            'X-CSRF-TOKEN': '<?php echo e(csrf_token()); ?>',
                             'Accept': 'application/json'
                         },
                         body: formData
@@ -812,7 +971,7 @@
                     .then(response => response.json())
                     .then(data => {
                         if (data.success) {
-                            window.location.href = `{{ route('private.cultes.show', ':culteid') }}`.replace(':culteid',
+                            window.location.href = `<?php echo e(route('private.cultes.show', ':culteid')); ?>`.replace(':culteid',
                                 data.data.id);
                         } else {
                             alert(data.message || 'Une erreur est survenue');
@@ -825,20 +984,20 @@
             }
 
             // Suppression
-            @can('cultes.delete')
+            <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('cultes.delete')): ?>
             function deleteCulte(culteId) {
                 if (confirm('Êtes-vous sûr de vouloir supprimer ce culte ?')) {
-                    fetch(`{{ route('private.cultes.destroy', ':culteid') }}`.replace(':culteid', culteId), {
+                    fetch(`<?php echo e(route('private.cultes.destroy', ':culteid')); ?>`.replace(':culteid', culteId), {
                             method: 'DELETE',
                             headers: {
-                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                'X-CSRF-TOKEN': '<?php echo e(csrf_token()); ?>',
                                 'Accept': 'application/json'
                             }
                         })
                         .then(response => response.json())
                         .then(data => {
                             if (data.success) {
-                                window.location.href = '{{ route('private.cultes.index') }}';
+                                window.location.href = '<?php echo e(route('private.cultes.index')); ?>';
                             } else {
                                 alert(data.message || 'Une erreur est survenue');
                             }
@@ -849,7 +1008,7 @@
                         });
                 }
             }
-            @endcan
+            <?php endif; ?>
 
             // Fermer les modals en cliquant à l'extérieur
             document.getElementById('statusModal').addEventListener('click', function(e) {
@@ -860,5 +1019,7 @@
                 if (e.target === this) closeDuplicateModal();
             });
         </script>
-    @endpush
-@endsection
+    <?php $__env->stopPush(); ?>
+<?php $__env->stopSection(); ?>
+
+<?php echo $__env->make('layouts.private.main', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH C:\Users\Dell\Desktop\MICRISERVICES\methodiste_belle_ville\resources\views/components/private/cultes/show.blade.php ENDPATH**/ ?>

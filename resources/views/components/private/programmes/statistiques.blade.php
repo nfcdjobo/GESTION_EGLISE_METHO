@@ -31,9 +31,11 @@
                 <a href="{{ route('private.programmes.index') }}" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-slate-600 to-gray-600 text-white text-sm font-medium rounded-xl hover:from-slate-700 hover:to-gray-700 transition-all duration-200 shadow-md hover:shadow-lg">
                     <i class="fas fa-list mr-2"></i> Liste Programmes
                 </a>
+                @can('programmes.planning')
                 <a href="{{ route('private.programmes.planning') }}" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-cyan-600 to-blue-600 text-white text-sm font-medium rounded-xl hover:from-cyan-700 hover:to-blue-700 transition-all duration-200 shadow-md hover:shadow-lg">
                     <i class="fas fa-calendar mr-2"></i> Planning
                 </a>
+                @endcan
                 <button type="button" onclick="exporterStatistiques()" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white text-sm font-medium rounded-xl hover:from-green-700 hover:to-emerald-700 transition-all duration-200 shadow-md hover:shadow-lg">
                     <i class="fas fa-download mr-2"></i> Exporter
                 </button>

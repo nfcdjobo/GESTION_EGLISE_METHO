@@ -27,9 +27,11 @@
                             <i class="fas fa-download mr-2"></i> Exporter
                         </a>
                     <?php endif; ?>
+                    <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('permissions.statistics')): ?>
                     <a href="<?php echo e(route('private.permissions.statistics')); ?>" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-cyan-600 to-blue-600 text-white text-sm font-medium rounded-xl hover:from-cyan-700 hover:to-blue-700 transition-all duration-200 shadow-md hover:shadow-lg">
                         <i class="fas fa-chart-bar mr-2"></i> Statistiques
                     </a>
+                    <?php endif; ?>
                 </div>
             </div>
         </div>
@@ -268,19 +270,22 @@
                                                 </a>
                                             <?php endif; ?>
 
-                                            <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('permissions.update')): ?>
+                                            <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check(['permissions.update', 'permissions.toggle'])): ?>
+                                                <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('permissions.update')): ?>
                                                 <?php if(!$permission->is_system || auth()->user()->isSuperAdmin()): ?>
                                                     <a href="<?php echo e(route('private.permissions.edit', $permission)); ?>" class="inline-flex items-center justify-center w-8 h-8 text-yellow-600 bg-yellow-100 rounded-lg hover:bg-yellow-200 transition-colors" title="Modifier">
                                                         <i class="fas fa-edit text-sm"></i>
                                                     </a>
                                                 <?php endif; ?>
-
+                                                <?php endif; ?>
+                                                <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('permissions.toggle')): ?>
                                                 <button type="button" onclick="togglePermission(<?php echo e($permission->id); ?>)" class="inline-flex items-center justify-center w-8 h-8 text-blue-600 bg-blue-100 rounded-lg hover:bg-blue-200 transition-colors" title="Activer/Désactiver">
                                                     <i class="fas fa-power-off text-sm"></i>
                                                 </button>
+                                                <?php endif; ?>
                                             <?php endif; ?>
 
-                                            <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('permissions.create')): ?>
+                                            <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('permissions.clone')): ?>
                                                 <button type="button" onclick="clonePermission(<?php echo e($permission->id); ?>)" class="inline-flex items-center justify-center w-8 h-8 text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors" title="Cloner">
                                                     <i class="fas fa-copy text-sm"></i>
                                                 </button>

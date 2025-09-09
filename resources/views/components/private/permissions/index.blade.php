@@ -28,9 +28,11 @@
                             <i class="fas fa-download mr-2"></i> Exporter
                         </a>
                     @endcan
+                    @can('permissions.statistics')
                     <a href="{{ route('private.permissions.statistics') }}" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-cyan-600 to-blue-600 text-white text-sm font-medium rounded-xl hover:from-cyan-700 hover:to-blue-700 transition-all duration-200 shadow-md hover:shadow-lg">
                         <i class="fas fa-chart-bar mr-2"></i> Statistiques
                     </a>
+                    @endcan
                 </div>
             </div>
         </div>
@@ -266,19 +268,22 @@
                                                 </a>
                                             @endcan
 
-                                            @can('permissions.update')
+                                            @can(['permissions.update', 'permissions.toggle'])
+                                                @can('permissions.update')
                                                 @if(!$permission->is_system || auth()->user()->isSuperAdmin())
                                                     <a href="{{ route('private.permissions.edit', $permission) }}" class="inline-flex items-center justify-center w-8 h-8 text-yellow-600 bg-yellow-100 rounded-lg hover:bg-yellow-200 transition-colors" title="Modifier">
                                                         <i class="fas fa-edit text-sm"></i>
                                                     </a>
                                                 @endif
-
+                                                @endcan
+                                                @can('permissions.toggle')
                                                 <button type="button" onclick="togglePermission({{ $permission->id }})" class="inline-flex items-center justify-center w-8 h-8 text-blue-600 bg-blue-100 rounded-lg hover:bg-blue-200 transition-colors" title="Activer/Désactiver">
                                                     <i class="fas fa-power-off text-sm"></i>
                                                 </button>
+                                                @endcan
                                             @endcan
 
-                                            @can('permissions.create')
+                                            @can('permissions.clone')
                                                 <button type="button" onclick="clonePermission({{ $permission->id }})" class="inline-flex items-center justify-center w-8 h-8 text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors" title="Cloner">
                                                     <i class="fas fa-copy text-sm"></i>
                                                 </button>

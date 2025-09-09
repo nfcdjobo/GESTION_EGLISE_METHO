@@ -23,7 +23,7 @@
             </ol>
         </nav>
     </div>
-
+    @can('programmes.create')
     <form action="{{ route('private.programmes.store') }}" method="POST" id="programmeForm" class="space-y-8">
         @csrf
 
@@ -356,6 +356,7 @@
             </div>
         </div>
     </form>
+    @endcan
 </div>
 
 <script>

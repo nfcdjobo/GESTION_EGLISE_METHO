@@ -582,7 +582,7 @@ class ParticipantCulteController extends Controller
                             'nom' => $participantData['nom'],
                             'sexe' => $participantData['sexe'],
                             'telephone_1' => $participantData['telephone_1'],
-                            'password' => bcrypt('password') // Mot de passe par défaut
+                            'password' => bcrypt(env('DEFAULT_PASSWORD', 'password')) // Mot de passe par défaut
                         ];
 
                         $user = User::create($userData);
@@ -596,7 +596,7 @@ class ParticipantCulteController extends Controller
                         ->first();
 
                     if ($existing) {
-                        $errors[] = "Participant {$participantId} déjà enregistré";
+                        $errors[] = "Participant {$existing->participant->nom} {$existing->participant->prenom} déjà enregistré";
                         continue;
                     }
 
@@ -653,7 +653,7 @@ class ParticipantCulteController extends Controller
     /**
      * Statistiques de participation
      */
-    public function statistiques(Request $request): JsonResponse
+    public function statistiques(Request $request)
     {
         try {
             $query = ParticipantCulte::query();
@@ -680,11 +680,15 @@ class ParticipantCulteController extends Controller
                 'participations_confirmees' => $query->where('presence_confirmee', true)->count()
             ];
 
-            return response()->json([
-                'success' => true,
-                'data' => $stats,
-                'message' => 'Statistiques récupérées avec succès'
-            ]);
+            if ($request->expectsJson() || $request->ajax()) {
+                return response()->json([
+                    'success' => true,
+                    'data' => $stats,
+                    'message' => 'Statistiques récupérées avec succès'
+                ]);
+            }
+
+            return view('components.private.particitantscultes.statistiques', compact('stats'));
 
         } catch (\Exception $e) {
             return response()->json([
@@ -714,11 +718,10 @@ class ParticipantCulteController extends Controller
                 ->get();
 
 
-            return view('components.private.particitantscultes.nouveauxvisiteurs', compact('visiteurs'));
+            return view('components.private.particitantscultes.nouveaux-visiteurs', compact('visiteurs'));
 
 
         } catch (\Exception $e) {
-            // dd($e->getMessage());
             return response()->json([
                 'success' => false,
                 'message' => 'Erreur lors de la récupération des nouveaux visiteurs',
@@ -829,13 +832,6 @@ class ParticipantCulteController extends Controller
             'nombre_participants' => $count
         ]);
     }
-
-
-
-
-
-
-
 
     /**
      * Afficher les participants d'un culte spécifique et permettre d'en ajouter

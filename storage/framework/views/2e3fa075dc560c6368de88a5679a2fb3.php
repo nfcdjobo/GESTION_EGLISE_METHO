@@ -10,6 +10,7 @@
 
     <!-- Filtres et actions -->
     <div class="bg-white/80 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
+        <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check(['participants-cultes.nouveaux-visiteurs', 'participants-cultes.statistics'])): ?>
         <div class="p-6 border-b border-slate-200">
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <h2 class="text-xl font-bold text-slate-800 flex items-center">
@@ -17,15 +18,20 @@
                     Filtres et Actions
                 </h2>
                 <div class="flex flex-wrap gap-2">
+                    <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('participants-cultes.nouveaux-visiteurs')): ?>
                     <a href="<?php echo e(route('private.participantscultes.nouveaux-visiteurs')); ?>" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white text-sm font-medium rounded-xl hover:from-green-700 hover:to-emerald-700 transition-all duration-200 shadow-md hover:shadow-lg">
                         <i class="fas fa-user-plus mr-2"></i> Nouveaux Visiteurs
                     </a>
+                    <?php endif; ?>
+                    <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('participants-cultes.statistics')): ?>
                     <a href="<?php echo e(route('private.participantscultes.statistiques')); ?>" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-cyan-600 to-blue-600 text-white text-sm font-medium rounded-xl hover:from-cyan-700 hover:to-blue-700 transition-all duration-200 shadow-md hover:shadow-lg">
                         <i class="fas fa-chart-bar mr-2"></i> Statistiques
                     </a>
+                    <?php endif; ?>
                 </div>
             </div>
         </div>
+        <?php endif; ?>
         <div class="p-6">
             <form method="GET" action="<?php echo e(route('private.participantscultes.index')); ?>" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
                 <div class="lg:col-span-2">
@@ -279,21 +285,24 @@
                                     <a href="<?php echo e(route('private.participantscultes.show', [$participation->participant_id, $participation->culte_id])); ?>" class="inline-flex items-center justify-center w-8 h-8 text-cyan-600 bg-cyan-100 rounded-lg hover:bg-cyan-200 transition-colors" title="Voir">
                                         <i class="fas fa-eye text-sm"></i>
                                     </a>
-
+                                    <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('participants-cultes.update')): ?>
                                     <button type="button" onclick="editParticipation('<?php echo e($participation->participant_id); ?>', '<?php echo e($participation->culte_id); ?>')" class="inline-flex items-center justify-center w-8 h-8 text-yellow-600 bg-yellow-100 rounded-lg hover:bg-yellow-200 transition-colors" title="Modifier">
                                         <i class="fas fa-edit text-sm"></i>
                                     </button>
-
+                                    <?php endif; ?>
+                                    <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('participants-cultes.confirm-presence')): ?>
                                     <?php if(!$participation->presence_confirmee): ?>
                                         <button type="button" onclick="confirmerPresence('<?php echo e($participation->participant_id); ?>', '<?php echo e($participation->culte_id); ?>')" class="inline-flex items-center justify-center w-8 h-8 text-green-600 bg-green-100 rounded-lg hover:bg-green-200 transition-colors" title="Confirmer">
                                             <i class="fas fa-check text-sm"></i>
                                         </button>
                                     <?php endif; ?>
+                                    <?php endif; ?>
                                 </div>
-
+                                <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('participants-cultes.delete')): ?>
                                 <button type="button" onclick="deleteParticipation('<?php echo e($participation->participant_id); ?>', '<?php echo e($participation->culte_id); ?>')" class="inline-flex items-center justify-center w-8 h-8 text-red-600 bg-red-100 rounded-lg hover:bg-red-200 transition-colors" title="Supprimer">
                                     <i class="fas fa-trash text-sm"></i>
                                 </button>
+                                <?php endif; ?>
                             </div>
                         </div>
                     <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>

@@ -350,6 +350,7 @@
                             <!-- Actions individuelles -->
                             <div class="flex items-center justify-between pt-4 border-t border-slate-200">
                                 <div class="flex items-center space-x-2">
+                                    @can('participants-cultes.confirm-presence')
                                     @if(!$participant->presence_confirmee)
                                         <button type="button" onclick="confirmerParticipant('{{ $participant->participant_id }}')"
                                                 class="inline-flex items-center justify-center w-8 h-8 text-green-600 bg-green-100 rounded-lg hover:bg-green-200 transition-colors"
@@ -357,12 +358,15 @@
                                             <i class="fas fa-check text-sm"></i>
                                         </button>
                                     @endif
+                                    @endcan
 
+                                    @can('participants-cultes.update')
                                     <button type="button" onclick="sauvegarderParticipant('{{ $participant->participant_id }}')"
                                             class="inline-flex items-center justify-center w-8 h-8 text-blue-600 bg-blue-100 rounded-lg hover:bg-blue-200 transition-colors"
                                             title="Sauvegarder modifications">
                                         <i class="fas fa-save text-sm"></i>
                                     </button>
+                                    @endcan
 
                                     <a href="{{ route('private.participantscultes.show', [$participant->participant_id, $participant->culte_id]) }}"
                                        class="inline-flex items-center justify-center w-8 h-8 text-cyan-600 bg-cyan-100 rounded-lg hover:bg-cyan-200 transition-colors"
@@ -400,9 +404,11 @@
                     </div>
                     <h3 class="text-lg font-semibold text-slate-900 mb-2">Aucun participant inscrit</h3>
                     <p class="text-slate-500 mb-6">Aucun participant n'est encore inscrit à ce culte.</p>
+                    @can('participants-cultes.nouveaux-visiteurs')
                     <a href="{{ route('private.cultes.participants', $culte) }}" class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-medium rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-200 shadow-md hover:shadow-lg">
                         <i class="fas fa-user-plus mr-2"></i> Ajouter des participants
                     </a>
+                    @endcan
                 </div>
             @endif
         </div>
@@ -446,9 +452,11 @@
             <button type="button" onclick="closeStatutModal()" class="px-4 py-2 text-slate-700 bg-slate-100 rounded-xl hover:bg-slate-200 transition-colors">
                 Annuler
             </button>
+            @can('participants-cultes.update')
             <button type="button" onclick="appliquerStatut()" class="px-4 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors">
                 Appliquer
             </button>
+            @endcan
         </div>
     </div>
 </div>
@@ -806,7 +814,7 @@ function showNotification(message, type = 'info') {
         type === 'success' ? 'bg-green-500 text-white' :
         type === 'error' ? 'bg-red-500 text-white' :
         'bg-blue-500 text-white'
-    }`; 
+    }`;
     notification.innerHTML = `
         <div class="flex items-center space-x-2">
             <i class="fas ${type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle'}"></i>

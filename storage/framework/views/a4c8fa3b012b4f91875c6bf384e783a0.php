@@ -19,14 +19,16 @@
                     Filtres et Actions
                 </h2>
                 <div class="flex flex-wrap gap-2">
-                    <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('create', App\Models\Fimeco::class)): ?>
+                    <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('fimecos.create')): ?>
                         <a href="<?php echo e(route('private.fimecos.create')); ?>" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-sm font-medium rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-200 shadow-md hover:shadow-lg">
                             <i class="fas fa-plus mr-2"></i> Nouvelle FIMECO
                         </a>
                     <?php endif; ?>
+                    <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('fimecos.dashboard')): ?>
                     <a href="<?php echo e(route('private.fimecos.bord')); ?>" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white text-sm font-medium rounded-xl hover:from-green-700 hover:to-emerald-700 transition-all duration-200 shadow-md hover:shadow-lg">
                         <i class="fas fa-chart-bar mr-2"></i> Tableau de Bord
                     </a>
+                    <?php endif; ?>
                 </div>
             </div>
         </div>
@@ -103,14 +105,14 @@
                                     <div class="w-full bg-gray-200 rounded-full h-2">
                                         <div class="bg-gradient-to-r from-blue-500 to-green-500 h-2 rounded-full" style="width: <?php echo e(min($item['pourcentage_realisation'], 100)); ?>%"></div>
                                     </div>
-                                    
+
                                 </div>
 
                                 <div class="flex items-center gap-2 mt-6 pt-4 border-t border-slate-200">
                                     <a href="<?php echo e(route('private.fimecos.show', $item['id'])); ?>" class="flex-1 inline-flex items-center justify-center px-3 py-2 text-cyan-600 bg-cyan-100 rounded-lg hover:bg-cyan-200 transition-colors">
                                         <i class="fas fa-eye mr-1 text-sm"></i> Voir
                                     </a>
-                                    <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('update', \App\Models\Fimeco::find($item['id']))): ?>
+                                    <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('fimecos.update')): ?>
                                         <a href="<?php echo e(route('private.fimecos.edit', $item['id'])); ?>" class="flex-1 inline-flex items-center justify-center px-3 py-2 text-yellow-600 bg-yellow-100 rounded-lg hover:bg-yellow-200 transition-colors">
                                             <i class="fas fa-edit mr-1 text-sm"></i> Modifier
                                         </a>
@@ -143,7 +145,7 @@
                     </div>
                     <h3 class="text-lg font-semibold text-slate-900 mb-2">Aucune FIMECO trouvée</h3>
                     <p class="text-slate-500 mb-6">Commencez par créer votre première campagne FIMECO.</p>
-                    <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('create', App\Models\Fimeco::class)): ?>
+                    <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('fimecos.create')): ?>
                         <a href="<?php echo e(route('private.fimecos.create')); ?>" class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-medium rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-200 shadow-md hover:shadow-lg">
                             <i class="fas fa-plus mr-2"></i> Créer une FIMECO
                         </a>

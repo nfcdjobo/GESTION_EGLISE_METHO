@@ -20,6 +20,9 @@ Route::prefix('dashboard/participants-cultes')->name('private.participantscultes
 
     Route::get('/nouveaux-visiteurs', [ParticipantCulteController::class, 'nouveauxVisiteurs'])->name('nouveaux-visiteurs');
 
+    // Routes pour statistiques et rapports
+    Route::get('/statistiques', [ParticipantCulteController::class, 'statistiques'])->name('statistiques');
+    
      Route::get('/{culte}/search', [ParticipantCulteController::class, 'searchParticipants'])->name('search')->where('culte', '[0-9a-f-]{36}');
 
     Route::post('/{culte}/participants/ajouter', [ParticipantCulteController::class, 'ajouterParticipant'])
@@ -41,8 +44,7 @@ Route::prefix('dashboard/participants-cultes')->name('private.participantscultes
     // Route pour confirmation de présence
     Route::patch('/{participantId}/{culteId}/confirmer', [ParticipantCulteController::class, 'confirmerPresence'])->name('confirmer-presence')->where(['participantId' => '[0-9a-f-]{36}', 'culteId' => '[0-9a-f-]{36}']);
 
-    // Routes pour statistiques et rapports
-    Route::get('/statistiques', [ParticipantCulteController::class, 'statistiques'])->name('statistiques');
+
 
 
 

@@ -29,6 +29,8 @@
                 </div>
             </div>
         </div>
+
+        <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('classes.read')): ?>
         <div class="p-6">
             <form method="GET" action="<?php echo e(route('private.classes.index')); ?>" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
                 <div class="lg:col-span-2">
@@ -82,6 +84,7 @@
                 </div>
             </form>
         </div>
+        <?php endif; ?>
     </div>
 
     <!-- Statistiques rapides -->
@@ -375,6 +378,7 @@ function closeMemberModal() {
     document.getElementById('memberModal').classList.add('hidden');
 }
 
+<?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('classes.delete')): ?>
 // Suppression d'une classe
 function deleteClasse(classeId) {
     showDeleteModal();
@@ -402,6 +406,7 @@ function deleteClasse(classeId) {
         });
     };
 }
+<?php endif; ?>
 
 // Charger le contenu des membres
 function loadMemberContent(classeId) {

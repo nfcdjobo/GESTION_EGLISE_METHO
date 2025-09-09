@@ -37,6 +37,7 @@
                         <i class="fas fa-download mr-2"></i> Exporter les statistiques
                     </a>
                 @endcan
+                
                 <button onclick="refreshStats()" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-cyan-600 to-blue-600 text-white text-sm font-medium rounded-xl hover:from-cyan-700 hover:to-blue-700 transition-all duration-200 shadow-md hover:shadow-lg">
                     <i class="fas fa-refresh mr-2"></i> Actualiser
                 </button>

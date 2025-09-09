@@ -52,6 +52,7 @@
             </div>
         </div>
     @else
+    @can('permissions.update')
         <form action="{{ route('private.permissions.update', $permission) }}" method="POST" id="permissionForm" class="space-y-8">
             @csrf
             @method('PUT')
@@ -341,6 +342,7 @@
                 </div>
             </div>
         </form>
+        @endcan
     @endif
 </div>
 

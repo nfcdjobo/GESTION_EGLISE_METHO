@@ -46,6 +46,7 @@
             </div>
         </div>
     @else
+        @can('paiements.create')
         <!-- Formulaire de paiement -->
         <form action="{{ route('private.paiements.store') }}" method="POST" id="paymentForm" class="space-y-8">
             @csrf
@@ -249,6 +250,7 @@
                 </div>
             </div>
         </form>
+        @endcan
     @endif
 </div>
 

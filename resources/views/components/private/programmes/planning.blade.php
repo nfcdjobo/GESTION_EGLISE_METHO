@@ -27,9 +27,11 @@
             </div>
 
             <div class="flex flex-wrap gap-2">
+                @can('programmes.create')
                 <a href="{{ route('private.programmes.create') }}" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-sm font-medium rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-200 shadow-md hover:shadow-lg">
                     <i class="fas fa-plus mr-2"></i> Nouveau Programme
                 </a>
+                @endcan
                 <a href="{{ route('private.programmes.index') }}" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-slate-600 to-gray-600 text-white text-sm font-medium rounded-xl hover:from-slate-700 hover:to-gray-700 transition-all duration-200 shadow-md hover:shadow-lg">
                     <i class="fas fa-list mr-2"></i> Liste Complète
                 </a>

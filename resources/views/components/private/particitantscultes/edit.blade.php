@@ -47,6 +47,7 @@
         </div>
     </div>
 
+    @can('participants-cultes.update')
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <!-- Formulaire principal -->
         <div class="lg:col-span-2">
@@ -388,6 +389,7 @@
             </div>
         </div>
     </div>
+    @endcan
 </div>
 
 @push('scripts')

@@ -30,6 +30,7 @@
         </nav>
     </div>
 
+    @can('programmes.suspend')
     <form action="{{ route('private.programmes.update', $programme) }}" method="POST" id="programmeForm" class="space-y-8">
         @csrf
         @method('PUT')
@@ -398,6 +399,7 @@
             </div>
         </div>
     </form>
+    @endcan
 </div>
 
 <script>

@@ -17,34 +17,40 @@
             </div>
             <div class="flex flex-wrap items-center gap-2">
                 <!-- Actions principales -->
+                @can('multimedia.download')
                 <a href="{{ route('private.multimedia.download', $multimedia) }}" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-600 to-cyan-600 text-white text-sm font-medium rounded-xl hover:from-blue-700 hover:to-cyan-700 transition-all duration-200 shadow-md hover:shadow-lg">
                     <i class="fas fa-download mr-2"></i> Télécharger
                 </a>
+                @endcan
 
-                @can('update', $multimedia)
+                @can('multimedia.update')
                     <a href="{{ route('private.multimedia.edit', $multimedia) }}" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-yellow-600 to-orange-600 text-white text-sm font-medium rounded-xl hover:from-yellow-700 hover:to-orange-700 transition-all duration-200 shadow-md hover:shadow-lg">
                         <i class="fas fa-edit mr-2"></i> Modifier
                     </a>
                 @endcan
 
-                @can('moderate_media')
+                @can(['multimedia.reject', 'multimedia.approve'])
                     @if($multimedia->statut_moderation == 'en_attente')
+                    @can('multimedia.approve')
                         <button type="button" onclick="moderateMedia('approve')" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white text-sm font-medium rounded-xl hover:from-green-700 hover:to-emerald-700 transition-all duration-200 shadow-md hover:shadow-lg">
                             <i class="fas fa-check mr-2"></i> Approuver
                         </button>
+                        @endcan
+                        @can('multimedia.reject')
                         <button type="button" onclick="moderateMedia('reject')" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-red-600 to-pink-600 text-white text-sm font-medium rounded-xl hover:from-red-700 hover:to-pink-700 transition-all duration-200 shadow-md hover:shadow-lg">
                             <i class="fas fa-times mr-2"></i> Rejeter
                         </button>
+                        @endcan
                     @endif
                 @endcan
 
-                @can('feature_media')
+                @can('multimedia.toggle-featured')
                     <button type="button" onclick="toggleFeatured()" class="inline-flex items-center px-4 py-2 {{ $multimedia->est_featured ? 'bg-gradient-to-r from-yellow-600 to-amber-600' : 'bg-slate-400' }} text-white text-sm font-medium rounded-xl hover:from-yellow-700 hover:to-amber-700 transition-all duration-200 shadow-md hover:shadow-lg">
                         <i class="fas fa-star mr-2"></i> {{ $multimedia->est_featured ? 'Retirer de la une' : 'Mettre à la une' }}
                     </button>
                 @endcan
 
-                @can('delete', $multimedia)
+                @can('multimedia.delete')
                     <button type="button" onclick="deleteMedia()" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-gray-600 to-slate-600 text-white text-sm font-medium rounded-xl hover:from-gray-700 hover:to-slate-700 transition-all duration-200 shadow-md hover:shadow-lg">
                         <i class="fas fa-trash mr-2"></i> Supprimer
                     </button>

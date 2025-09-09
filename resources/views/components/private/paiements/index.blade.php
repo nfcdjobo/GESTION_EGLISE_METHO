@@ -188,11 +188,13 @@
                                             <a href="{{ route('private.paiements.show', $payment['id']) }}" class="inline-flex items-center justify-center w-8 h-8 text-cyan-600 bg-cyan-100 rounded-lg hover:bg-cyan-200 transition-colors" title="Voir">
                                                 <i class="fas fa-eye text-sm"></i>
                                             </a>
+                                            @can('paiements.update')
                                             @if($payment['statut'] === 'en_attente')
                                                 <a href="{{ route('private.paiements.edit', $payment['id']) }}" class="inline-flex items-center justify-center w-8 h-8 text-yellow-600 bg-yellow-100 rounded-lg hover:bg-yellow-200 transition-colors" title="Modifier">
                                                     <i class="fas fa-edit text-sm"></i>
                                                 </a>
                                             @endif
+                                            @endcan
                                         </div>
                                     </td>
                                 </tr>
@@ -229,9 +231,11 @@
                             Vous n'avez pas encore effectué de paiement.
                         @endif
                     </p>
+                    @can('paiements.create')
                     <a href="{{ route('private.subscriptions.create') }}" class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-medium rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-200 shadow-md hover:shadow-lg">
                         <i class="fas fa-hand-holding-usd mr-2"></i> Créer une Souscription
                     </a>
+                    @endcan
                 </div>
             @endif
         </div>

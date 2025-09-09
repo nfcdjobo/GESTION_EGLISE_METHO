@@ -24,6 +24,7 @@
         </nav>
     </div>
 
+    @can('permissions.create')
     <form action="{{ route('private.permissions.store') }}" method="POST" id="permissionForm" class="space-y-8">
         @csrf
 
@@ -295,6 +296,7 @@
             </div>
         </div>
     </form>
+    @endcan
 </div>
 
 @push('scripts')

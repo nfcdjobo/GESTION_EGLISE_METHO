@@ -31,9 +31,9 @@
                     @endcan
 
                     {{-- @can('contacts.merge') --}}
-                    <a href="{{ route('private.contacts.map') }}" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-cyan-600 to-blue-600 text-white text-sm font-medium rounded-xl hover:from-cyan-700 hover:to-blue-700 transition-all duration-200 shadow-md hover:shadow-lg">
+                    {{-- <a href="{{ route('private.contacts.map') }}" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-cyan-600 to-blue-600 text-white text-sm font-medium rounded-xl hover:from-cyan-700 hover:to-blue-700 transition-all duration-200 shadow-md hover:shadow-lg">
                         <i class="fas fa-map mr-2"></i> Carte
-                    </a>
+                    </a> --}}
                     {{-- @endcan --}}
 
                     @can('contacts.statistics')
@@ -300,10 +300,6 @@
                                                 @endif
                                             @endcan
 
-                                            <button type="button" onclick="showQRCode('{{ $contact->id }}')" class="inline-flex items-center justify-center w-8 h-8 text-purple-600 bg-purple-100 rounded-lg hover:bg-purple-200 transition-colors" title="QR Code">
-                                                <i class="fas fa-qrcode text-sm"></i>
-                                            </button>
-
                                             @can('contacts.delete')
                                                 <button type="button" onclick="deleteContact('{{ $contact->id }}')" class="inline-flex items-center justify-center w-8 h-8 text-red-600 bg-red-100 rounded-lg hover:bg-red-200 transition-colors" title="Supprimer">
                                                     <i class="fas fa-trash text-sm"></i>
@@ -448,10 +444,6 @@ function verifyContact(contactId) {
     }
 }
 
-// Afficher QR Code
-function showQRCode(contactId) {
-    window.open(`/private/contacts/${contactId}/qr-code`, '_blank', 'width=400,height=400');
-}
 
 // Actions groupées
 function bulkActions() {

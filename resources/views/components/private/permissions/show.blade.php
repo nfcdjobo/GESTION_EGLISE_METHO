@@ -28,20 +28,23 @@
     <div class="bg-white/80 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
         <div class="p-6">
             <div class="flex flex-wrap gap-3">
-                @can('permissions.update')
+                @can(['permissions.update', 'permissions.toggle'])
+                @can('permissions.create')
                     @if(!$permission->is_system || auth()->user()->isSuperAdmin())
                         <a href="{{ route('private.permissions.edit', $permission) }}" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-sm font-medium rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-200 shadow-md hover:shadow-lg">
                             <i class="fas fa-edit mr-2"></i> Modifier
                         </a>
                     @endif
-
+                    @endcan
+                        @can('permissions.create')
                     <button type="button" onclick="togglePermission()" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-cyan-600 to-blue-600 text-white text-sm font-medium rounded-xl hover:from-cyan-700 hover:to-blue-700 transition-all duration-200 shadow-md hover:shadow-lg">
                         <i class="fas fa-power-off mr-2"></i>
                         {{ $permission->is_active ? 'Désactiver' : 'Activer' }}
                     </button>
+                    @endcan
                 @endcan
 
-                @can('permissions.create')
+                @can('permissions.clone')
                     <button type="button" onclick="clonePermission()" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-emerald-600 to-green-600 text-white text-sm font-medium rounded-xl hover:from-emerald-700 hover:to-green-700 transition-all duration-200 shadow-md hover:shadow-lg">
                         <i class="fas fa-copy mr-2"></i> Cloner
                     </button>
