@@ -6,7 +6,7 @@
     <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
         <!-- Page Title -->
         <div class="mb-8">
-            <h1 class="text-3xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent">Modifier un Utilisateur</h1>
+            <h1 class="text-3xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent">Modifier un Membres</h1>
             <p class="text-slate-500 mt-1">Mise à jour des informations de {{ $user->nom_complet }} - {{ \Carbon\Carbon::now()->format('l d F Y') }}</p>
         </div>
 
@@ -28,7 +28,7 @@
                         @endif
                         <div>
                             <h2 class="text-2xl sm:text-3xl font-bold text-white">Modifier {{ $user->nom_complet }}</h2>
-                            <p class="text-indigo-100 mt-2 text-sm sm:text-base">Mettre à jour les informations de l'utilisateur</p>
+                            <p class="text-indigo-100 mt-2 text-sm sm:text-base">Mettre à jour les informations de l'membres</p>
                         </div>
                     </div>
                     <div class="flex flex-col sm:flex-row gap-3">
@@ -422,7 +422,7 @@
                                        class="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 w-5 h-5">
                                 <label for="actif" class="ml-3 text-sm font-medium text-slate-700">
                                     Compte actif
-                                    <span class="block text-xs text-slate-500">Permet à l'utilisateur de se connecter</span>
+                                    <span class="block text-xs text-slate-500">Permet à l'membres de se connecter</span>
                                 </label>
                             </div>
                         </div>
@@ -451,7 +451,7 @@
                             <label for="notes_admin" class="block text-sm font-medium text-slate-700">Notes administratives</label>
                             <textarea name="notes_admin" id="notes_admin" rows="4"
                                       class="w-full px-4 py-3 border-2 border-slate-200 rounded-xl focus:border-indigo-500 focus:ring-0 transition-all duration-200 hover:border-slate-300"
-                                      placeholder="Notes internes sur cet utilisateur...">{{ old('notes_admin', $user->notes_admin) }}</textarea>
+                                      placeholder="Notes internes sur cet membres...">{{ old('notes_admin', $user->notes_admin) }}</textarea>
                         </div>
                         @endif
                     </div>

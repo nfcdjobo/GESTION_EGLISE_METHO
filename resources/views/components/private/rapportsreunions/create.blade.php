@@ -23,7 +23,7 @@
             </ol>
         </nav>
     </div>
-
+    @can('rapports-reunions.create')
     <form action="{{ route('private.rapports-reunions.store') }}" method="POST" id="rapportForm" class="space-y-8">
         @csrf
 
@@ -383,6 +383,7 @@
             </div>
         </div>
     </form>
+    @endcan
 </div>
 
 @include('partials.ckeditor-resources')

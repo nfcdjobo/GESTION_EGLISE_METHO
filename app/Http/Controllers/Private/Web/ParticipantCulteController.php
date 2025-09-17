@@ -16,12 +16,21 @@ use Illuminate\Support\Facades\Validator;
 
 class ParticipantCulteController extends Controller
 {
+
+    public function __construct()
+{
+    $this->middleware('auth');
+    $this->middleware('permission:participant_cultes.read')->only(['index', 'show', 'searchParticipants', 'statistiques', 'nouveauxVisiteurs', 'participantsCulte']);
+    $this->middleware('permission:participant_cultes.create')->only(['store', 'storeWithUserCreation', 'storeBulkWithUserCreation', 'ajouterParticipant']);
+    $this->middleware('permission:participant_cultes.update')->only(['update', 'confirmerPresence']);
+    $this->middleware('permission:participant_cultes.delete')->only(['destroy']);
+}
+
     /**
      * Afficher la liste des participations
      */
     public function index(Request $request)
     {
-// dd('41');
         try {
             $query = ParticipantCulte::with([
                 'participant:id,prenom,nom,email,telephone_1',
@@ -36,21 +45,21 @@ class ParticipantCulteController extends Controller
             }
 
             if ($request->get('participant_id')) {
-                // dd($request->participant_id, 2);
+
                 $query->where('participant_id', $request->participant_id);
             }
             if ($request->get('statut_presence')) {
-                // dd($request->statut_presence, 3);
+
                 $query->where('statut_presence', $request->statut_presence);
             }
 
             if ($request->get('type_participation')) {
-                // dd($request->type_participation);
+
                 $query->where('type_participation', $request->type_participation);
             }
 
             if ($request->get('role_culte')) {
-                // dd($request->role_culte);
+
                 $query->where('role_culte', $request->role_culte);
             }
 
@@ -95,7 +104,7 @@ class ParticipantCulteController extends Controller
             $cultes = Culte::orderByDesc('date_culte')->get();
 
             if ($request->expectsJson() || $request->ajax()) {
-                // dd(52);
+
                 return response()->json([
                     'success' => true,
                     'data' => $participations,
@@ -111,6 +120,8 @@ class ParticipantCulteController extends Controller
                 'message' => 'Erreur lors de la récupération des participations',
                 'error' => $e->getMessage()
             ], 500);
+
+            return redirect()->back()->with('error', 'Erreur lors de la récupération des participations');
         }
     }
 
@@ -122,7 +133,7 @@ class ParticipantCulteController extends Controller
 
     /**
      * Rechercher des participants par nom, prénom, email ou téléphone
-     * Exclut les utilisateurs déjà enregistrés pour ce culte
+     * Exclut les membres déjà enregistrés pour ce culte
      */
     public function searchParticipants(Request $request, string $culte): JsonResponse
     {
@@ -147,7 +158,7 @@ class ParticipantCulteController extends Controller
                         ->orWhereRaw("CONCAT(prenom, ' ', nom) ILIKE ?", ["%{$query}%"])
                         ->orWhereRaw("CONCAT(nom, ' ', prenom) ILIKE ?", ["%{$query}%"]);
                 })
-                // Exclure les utilisateurs déjà dans participant_cultes pour ce culte
+                // Exclure les membres déjà dans participant_cultes pour ce culte
                 ->whereNotIn('id', function ($subQuery) use ($culte) {
                     $subQuery->select('participant_id')
                         ->from('participant_cultes')
@@ -238,7 +249,7 @@ class ParticipantCulteController extends Controller
     }
 
     /**
-     * Enregistrer une participation avec création automatique de l'utilisateur si nécessaire
+     * Enregistrer une participation avec création automatique de l'membres si nécessaire
      */
     public function storeWithUserCreation(Request $request): JsonResponse
     {
@@ -273,7 +284,7 @@ class ParticipantCulteController extends Controller
                 }
                 $participantId = $request->participant_id;
             } else {
-                // Créer un nouvel utilisateur
+                // Créer un nouvel membres
                 $participant = $this->createUserFromRequest($request);
                 $participantId = $participant->id;
                 $userCreated = true;
@@ -327,7 +338,7 @@ class ParticipantCulteController extends Controller
                     'user_created' => $userCreated
                 ],
                 'message' => $userCreated ?
-                    'Utilisateur créé et participation enregistrée avec succès' :
+                    'Membres créé et participation enregistrée avec succès' :
                     'Participation enregistrée avec succès'
             ], 201);
 
@@ -526,7 +537,7 @@ class ParticipantCulteController extends Controller
     }
 
     /**
-     * Enregistrer en masse les participations d'un culte avec création d'utilisateurs si nécessaire
+     * Enregistrer en masse les participations d'un culte avec création d'membres si nécessaire
      */
     public function storeBulkWithUserCreation(Request $request): JsonResponse
     {
@@ -535,7 +546,7 @@ class ParticipantCulteController extends Controller
                 'culte_id' => 'required|uuid|exists:cultes,id',
                 'participants' => 'required|array|min:1',
                 'participants.*.participant_id' => 'nullable|uuid|exists:users,id',
-                // Champs obligatoires pour créer un utilisateur si participant_id n'est pas fourni
+                // Champs obligatoires pour créer un membres si participant_id n'est pas fourni
                 'participants.*.prenom' => 'required_without:participants.*.participant_id|string|max:100',
                 'participants.*.nom' => 'required_without:participants.*.participant_id|string|max:100',
                 'participants.*.sexe' => 'required_without:participants.*.participant_id|in:masculin,feminin',
@@ -576,7 +587,7 @@ class ParticipantCulteController extends Controller
                     if (!empty($participantData['participant_id'])) {
                         $participantId = $participantData['participant_id'];
                     } else {
-                        // Créer un nouvel utilisateur avec seulement les champs obligatoires
+                        // Créer un nouvel membres avec seulement les champs obligatoires
                         $userData = [
                             'prenom' => $participantData['prenom'],
                             'nom' => $participantData['nom'],
@@ -634,10 +645,10 @@ class ParticipantCulteController extends Controller
                 'success' => true,
                 'data' => [
                     'participations_creees' => count($participations),
-                    'utilisateurs_crees' => count($usersCreated),
+                    'membres_crees' => count($usersCreated),
                     'erreurs' => $errors
                 ],
-                'message' => count($participations) . ' participations et ' . count($usersCreated) . ' utilisateurs créés avec succès'
+                'message' => count($participations) . ' participations et ' . count($usersCreated) . ' membres créés avec succès'
             ], 201);
 
         } catch (\Exception $e) {
@@ -787,7 +798,7 @@ class ParticipantCulteController extends Controller
             'commentaires_participant' => 'nullable|string|max:2000'
         ];
 
-        // Ajouter les règles pour les champs utilisateur seulement si participant_id n'est pas fourni
+        // Ajouter les règles pour les champs membres seulement si participant_id n'est pas fourni
         if (empty($request->participant_id)) {
             $rules = array_merge($rules, [
                 'prenom' => 'required|string|max:100',
@@ -802,7 +813,7 @@ class ParticipantCulteController extends Controller
     }
 
     /**
-     * Créer un utilisateur à partir des données de la requête
+     * Créer un membres à partir des données de la requête
      */
     private function createUserFromRequest(Request $request): User
     {
@@ -883,8 +894,8 @@ class ParticipantCulteController extends Controller
 
             $participants = $participantsQuery->paginate(20);
 
-            // Récupérer tous les utilisateurs actifs pour le formulaire d'ajout
-            $utilisateursDisponibles = User::actifs()
+            // Récupérer tous les membres actifs pour le formulaire d'ajout
+            $membresDisponibles = User::actifs()
                 ->whereNotIn('id', function ($query) use ($culteId) {
                     $query->select('participant_id')
                         ->from('participant_cultes')
@@ -912,11 +923,12 @@ class ParticipantCulteController extends Controller
             return view('components.private.cultes.participants', compact(
                 'culte',
                 'participants',
-                'utilisateursDisponibles',
+                'membresDisponibles',
                 'statistiques'
             ));
 
         } catch (\Exception $e) {
+            // dd($e->getMessage());
             return back()->with('error', 'Erreur lors du chargement des participants : ' . $e->getMessage());
         }
     }

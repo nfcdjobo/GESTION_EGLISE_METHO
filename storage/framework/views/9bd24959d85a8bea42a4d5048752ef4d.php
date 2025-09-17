@@ -1,12 +1,12 @@
-<?php $__env->startSection('title', 'Gestion des utilisateurs'); ?>
+<?php $__env->startSection('title', 'Gestion des membres'); ?>
 
 <?php $__env->startSection('content'); ?>
     <div class="space-y-8">
         <!-- Page Title -->
         <div class="mb-8">
             <h1 class="text-3xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent">Gestion
-                des Utilisateurs</h1>
-            <p class="text-slate-500 mt-1">Administration des membres et utilisateurs -
+                des Membres</h1>
+            <p class="text-slate-500 mt-1">Administration des membres et membres -
                 <?php echo e(\Carbon\Carbon::now()->format('l d F Y')); ?></p>
         </div>
 
@@ -23,7 +23,7 @@
                     </div>
                     <div class="ml-4">
                         <p class="text-2xl font-bold text-slate-800"><?php echo e($users->total()); ?></p>
-                        <p class="text-sm text-slate-500">Total utilisateurs</p>
+                        <p class="text-sm text-slate-500">Total membres</p>
                     </div>
                 </div>
             </div>
@@ -41,7 +41,7 @@
                         <p class="text-2xl font-bold text-slate-800"><?php echo e($users->where('statut_membre', 'actif')->count()); ?>
 
                         </p>
-                        <p class="text-sm text-slate-500">Membres actifs</p>
+                        <p class="text-sm text-slate-500" actifs</p>
                     </div>
                 </div>
             </div>
@@ -93,7 +93,7 @@
                         <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('users.create')): ?>
                             <a href="<?php echo e(route('private.users.create')); ?>"
                                 class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-sm font-medium rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-200 shadow-md hover:shadow-lg">
-                                <i class="fas fa-plus mr-2"></i> Nouvel Utilisateur
+                                <i class="fas fa-plus mr-2"></i> Nouvel Membres
                             </a>
                         <?php endif; ?>
                         <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('users.import')): ?>
@@ -187,13 +187,13 @@
             <?php endif; ?>
         </div>
 
-        <!-- Liste des utilisateurs -->
+        <!-- Liste des membres -->
         <div class="bg-white/80 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
             <div class="p-6 border-b border-slate-200">
                 <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                     <h2 class="text-xl font-bold text-slate-800 flex items-center">
                         <i class="fas fa-list text-purple-600 mr-2"></i>
-                        Liste des Utilisateurs (<?php echo e($users->total()); ?>)
+                        Liste des Membres (<?php echo e($users->total()); ?>)
                     </h2>
                     <div class="flex items-center space-x-2">
                         <span
@@ -220,7 +220,7 @@
                                         class="px-4 py-3 text-left text-xs font-bold text-slate-700 uppercase tracking-wider">
                                         <a href="<?php echo e(request()->fullUrlWithQuery(['sort' => 'nom', 'direction' => request('direction') === 'asc' ? 'desc' : 'asc'])); ?>"
                                             class="group inline-flex items-center hover:text-blue-600 transition-colors">
-                                            Utilisateur
+                                            Membres
                                             <span class="ml-2 flex-none rounded text-slate-400 group-hover:text-blue-500">
                                                 <i class="fas fa-sort"></i>
                                             </span>
@@ -381,7 +381,7 @@
                                                 <?php endif; ?>
                                                 <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('users.toggle-status')): ?>
                                                     <?php if(Auth::id() !== $user->id): ?>
-                                                        <button onclick="toggleStatus('<?php echo e($user->id); ?>')" class="inline-flex items-center justify-center w-8 h-8 <?php echo e($user->actif ? 'text-orange-600 bg-orange-100 hover:bg-orange-200' : 'text-green-600 bg-green-100 hover:bg-green-200'); ?> rounded-lg transition-colors" title="<?php echo e($user->actif ? 'Désactiver' : 'Activer'); ?>">
+                                                        <button onclick="toggleStatus('<?php echo e($user->id); ?>', '<?php echo e($user->nom.' '.$user->prenom); ?>', `<?php echo e($user->actif ? 'désactiver' : 'réactiver'); ?>`)" class="inline-flex items-center justify-center w-8 h-8 <?php echo e($user->actif ? 'text-orange-600 bg-orange-100 hover:bg-orange-200' : 'text-green-600 bg-green-100 hover:bg-green-200'); ?> rounded-lg transition-colors" title="<?php echo e($user->actif ? 'Désactiver' : 'Activer'); ?>">
                                                             <i class="fas fa-<?php echo e($user->actif ? 'ban' : 'check'); ?> text-sm"></i>
                                                         </button>
                                                     <?php else: ?>
@@ -416,18 +416,18 @@
                         <div class="w-24 h-24 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
                             <i class="fas fa-users text-3xl text-slate-400"></i>
                         </div>
-                        <h3 class="text-lg font-semibold text-slate-900 mb-2">Aucun utilisateur trouvé</h3>
+                        <h3 class="text-lg font-semibold text-slate-900 mb-2">Aucun membres trouvé</h3>
                         <p class="text-slate-500 mb-6">
                             <?php if(request()->hasAny(['search', 'statut_membre', 'role', 'classe_id'])): ?>
-                                Aucun utilisateur ne correspond à vos critères de recherche.
+                                Aucun membres ne correspond à vos critères de recherche.
                             <?php else: ?>
-                                Commencez par créer votre premier utilisateur.
+                                Commencez par créer votre premier membres.
                             <?php endif; ?>
                         </p>
                         <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('users.create')): ?>
                             <a href="<?php echo e(route('private.users.create')); ?>"
                                 class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-medium rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-200 shadow-md hover:shadow-lg">
-                                <i class="fas fa-plus mr-2"></i> Créer un utilisateur
+                                <i class="fas fa-plus mr-2"></i> Créer un membres
                             </a>
                         <?php endif; ?>
                     </div>
@@ -439,7 +439,7 @@
     <?php $__env->startPush('scripts'); ?>
         <script>
             function deleteUser(userId) {
-                if (confirm('Êtes-vous sûr de vouloir supprimer cet utilisateur ?')) {
+                if (confirm('Êtes-vous sûr de vouloir supprimer cet membres ?')) {
                     const url = "<?php echo e(route('private.users.destroy', ':userid')); ?>".replace(':userid', userId);
 
                     fetch(url, {
@@ -464,7 +464,8 @@
                 }
             }
 
-            function toggleStatus(userId) {
+            function toggleStatus(userId, username,  action) {
+                if(!confirm(`Voulez-vous ${action} ${username} ?`)) return;
                 fetch(`<?php echo e(route('private.users.toggle-status', ':userId')); ?>`.replace(':userId', userId), {
                         method: 'POST',
                         headers: {

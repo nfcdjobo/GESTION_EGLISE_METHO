@@ -14,13 +14,14 @@ use Carbon\Carbon;
 
 class PermissionAuditLogController extends Controller
 {
+
     public function __construct()
-    {
-        $this->middleware('auth');
-        $this->middleware('permission:audit.read')->only(['index', 'show', 'statistics']);
-        $this->middleware('permission:audit.export')->only(['export']);
-        $this->middleware('permission:audit.manage')->only(['cleanup', 'bulkDelete']);
-    }
+{
+    $this->middleware('auth');
+    $this->middleware('permission:audit.read')->only(['index', 'show', 'statistics', 'userLogs', 'search', 'realtime']);
+    $this->middleware('permission:audit.export')->only(['export']);
+    $this->middleware('permission:audit.manage')->only(['cleanup', 'bulkDelete']);
+}
 
     /**
      * Afficher la liste des logs d'audit
@@ -158,7 +159,7 @@ class PermissionAuditLogController extends Controller
             }
         }
 
-        // Logs connexes (même utilisateur, même période)
+        // Logs connexes (même membres, même période)
         $relatedLogs = PermissionAuditLog::where('id', '!=', $auditLog->id)
             ->where('user_id', $auditLog->user_id)
             ->where('created_at', '>=', $auditLog->created_at->subMinutes(5))
@@ -214,7 +215,7 @@ class PermissionAuditLogController extends Controller
     }
 
     /**
-     * Afficher les logs d'un utilisateur spécifique
+     * Afficher les logs d'un membres spécifique
      */
     public function userLogs(Request $request, User $user)
     {
@@ -248,7 +249,7 @@ class PermissionAuditLogController extends Controller
                      ->paginate(20)
                      ->withQueryString();
 
-        // Statistiques de l'utilisateur
+        // Statistiques de l'membres
         $userStats = [
             'total_actions_performed' => PermissionAuditLog::where('user_id', $user->id)->count(),
             'total_actions_received' => PermissionAuditLog::where('target_user_id', $user->id)->count(),
@@ -302,7 +303,7 @@ class PermissionAuditLogController extends Controller
                 return response()->json($logs);
 
             default: // CSV
-                $csv = "Date/Heure,Action,Type de modèle,ID du modèle,Utilisateur,Utilisateur cible,Adresse IP,Description\n";
+                $csv = "Date/Heure,Action,Type de modèle,ID du modèle,Membres,Membres cible,Adresse IP,Description\n";
 
                 foreach ($logs as $log) {
                     $csv .= sprintf(

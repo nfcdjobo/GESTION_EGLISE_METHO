@@ -21,14 +21,13 @@ class CulteController extends Controller
      * Constructeur avec middleware d'authentification
      */
     public function __construct()
-    {
-        $this->middleware('auth');
-        $this->middleware('permission:cultes.read')->only(['index', 'show', 'statistics', 'search']);
-        $this->middleware('permission:cultes.create')->only(['create', 'store']);
-        $this->middleware('permission:cultes.update')->only(['edit', 'update', 'verify', 'updateVisibility']);
-        $this->middleware('permission:cultes.delete')->only(['destroy']);
-        $this->middleware('permission:cultes.export')->only(['export']);
-    }
+{
+    $this->middleware('auth');
+    $this->middleware('permission:cultes.read')->only(['index', 'show', 'statistiques', 'planning', 'dashboard']);
+    $this->middleware('permission:cultes.create')->only(['create', 'store', 'dupliquer']);
+    $this->middleware('permission:cultes.update')->only(['edit', 'update', 'changerStatut', 'restore']);
+    $this->middleware('permission:cultes.delete')->only(['destroy']);
+}
 
     /**
      * Afficher la liste des cultes avec filtres et pagination

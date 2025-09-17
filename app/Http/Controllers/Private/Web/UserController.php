@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Services\PermissionService;
 use App\Http\Controllers\Controller;
+use Exception;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
@@ -40,7 +41,7 @@ class UserController extends Controller
     }
 
     /**
-     * Afficher la liste des utilisateurs
+     * Afficher la liste des membres
      */
     public function index(Request $request)
     {
@@ -94,6 +95,7 @@ class UserController extends Controller
         $sortDirection = $request->get('direction', 'asc');
         $query->orderBy($sortField, $sortDirection);
 
+
         // Pagination
         $users = $query->paginate(20);
         $users->appends($request->query());
@@ -101,6 +103,15 @@ class UserController extends Controller
         // Données pour les filtres
         $roles = Role::orderBy('level', 'desc')->get();
         $classes = Classe::orderBy('nom')->get();
+
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'success' => true,
+                'data' => $users,
+            ]);
+        }
+
 
         // Statistiques
         $stats = [
@@ -126,7 +137,7 @@ class UserController extends Controller
          * @var User $user
          */
         $user = auth()->user();
-        // Vérifier le niveau de l'utilisateur connecté pour filtrer les rôles
+        // Vérifier le niveau de l'membres connecté pour filtrer les rôles
         if (!$user->isSuperAdmin()) {
             $userMaxLevel = $user->getHighestRoleLevel() ?? 0;
             $roles = $roles->filter(function ($role) use ($userMaxLevel) {
@@ -138,7 +149,7 @@ class UserController extends Controller
     }
 
     /**
-     * Enregistrer un nouvel utilisateur
+     * Enregistrer un nouvel membres
      */
 
     public function store(Request $request)
@@ -187,7 +198,7 @@ class UserController extends Controller
 
             // Compte
             'password' => [
-                'required',
+                'nullable',
                 Password::min(8)->mixedCase()->numbers()
             ],
             'roles' => 'nullable|array',
@@ -202,7 +213,7 @@ class UserController extends Controller
             'email.required' => 'L\'adresse email est obligatoire.',
             'email.unique' => 'Cette adresse email est déjà utilisée.',
             'telephone_1.required' => 'Le numéro de téléphone principal est obligatoire.',
-            'password.required' => 'Le mot de passe est obligatoire.',
+            // 'password.required' => 'Le mot de passe est obligatoire.',
             'statut_membre.required' => 'Le statut de membre est obligatoire.',
             'statut_bapteme.required' => 'Le statut de baptême est obligatoire.',
             'date_bapteme.required_if' => 'La date de baptême est obligatoire pour les membres baptisés.',
@@ -211,15 +222,17 @@ class UserController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return back()
-                ->withErrors($validator)
-                ->withInput()
-                ->with('error', 'Veuillez corriger les erreurs ci-dessous.');
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Veuillez corriger les erreurs ci-dessous.',
+                    'error' => $validator->errors()
+                ]);
+            }
+            return back()->withErrors($validator)->withInput()->with('error', 'Veuillez corriger les erreurs ci-dessous.');
         }
 
         $validated = $validator->validated();
-
-
 
         // Démarrer la transaction manuellement
         DB::beginTransaction();
@@ -231,7 +244,11 @@ class UserController extends Controller
                 $validated['photo_profil'] = $path;
             }
 
-            // Créer l'utilisateur
+            if(!isset($validated['password']) || !$validated['password']){
+                $validated['password'] = env('DEFAULT_PASSWORD', 'Metho@' . date('Y') . '!');
+            }
+
+            // Créer l'membres
             $user = User::create($validated);
 
             /**
@@ -244,7 +261,7 @@ class UserController extends Controller
                 foreach ($validated['roles'] as $roleId) {
                     $role = Role::find($roleId);
 
-                    // Vérifier que l'utilisateur connecté peut attribuer ce rôle
+                    // Vérifier que l'membres connecté peut attribuer ce rôle
                     if (!$use->isSuperAdmin()) {
                         $authUserLevel = $use->getHighestRoleLevel();
                         if ($authUserLevel === null || $role->level >= $authUserLevel) {
@@ -257,12 +274,19 @@ class UserController extends Controller
                         $role,
                         $use
                     );
+
+                    $user->roles()->syncWithoutDetaching([
+                        $role->id => [
+                            'attribue_par' => $use->id,
+                            'attribue_le' => now(),
+                            'actif' => true,
+                        ]
+                    ]);
+
                 }
             } else {
                 // Attribuer le rôle par défaut (visiteur ou membre)
-                $defaultRole = $validated['statut_membre'] === 'visiteur'
-                    ? Role::where('slug', 'visiteur')->first()
-                    : Role::where('slug', 'membre')->first();
+                $defaultRole = $validated['statut_membre'] === 'visiteur' ? Role::where('slug', 'visiteur')->first() : Role::where('slug', 'membre')->first();
 
                 if ($defaultRole) {
                     $this->permissionService->assignRoleToUser(
@@ -270,6 +294,15 @@ class UserController extends Controller
                         $defaultRole,
                         $use
                     );
+
+                    $user->roles()->syncWithoutDetaching([
+                        $defaultRole->id => [
+                            'attribue_par' => $use->id,
+                            'attribue_le' => now(),
+                            'actif' => true,
+                        ]
+                    ]);
+
                 }
             }
 
@@ -279,9 +312,16 @@ class UserController extends Controller
             // Valider la transaction
             DB::commit();
 
+             if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'data' => $user,
+                ]);
+            }
+
             return redirect()
                 ->route('private.users.index')
-                ->with('success', 'Utilisateur créé avec succès!');
+                ->with('success', 'Membres créé avec succès!');
 
         } catch (\Exception $e) {
             // Annuler la transaction en cas d'erreur
@@ -293,11 +333,19 @@ class UserController extends Controller
             }
 
             // Log l'erreur pour le debugging
-            Log::error('Erreur lors de la création d\'un utilisateur', [
+            Log::error('Erreur lors de la création d\'un membres', [
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
                 'user_data' => $validated
             ]);
+
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => "Erreur lors de la création d'un membres",
+                    'error' => $e->getMessage()
+                ]);
+            }
 
             return back()
                 ->withInput()
@@ -305,8 +353,76 @@ class UserController extends Controller
         }
     }
 
+    public function ajoutmembre(Request $request)
+    {
+        $data = $request->all();
+            $validator = Validator::make($data, [
+                'nom' => 'string|max:50',
+                'prenom' => 'string|max:50',
+                'sexe' => 'required|in:masculin,feminin',
+                'telephone_1' => [
+                    'required',
+                    'string',
+                    'max:20',
+                    function ($attribute, $value, $fail) {
+                        $exists = DB::table('users')
+                            ->where('telephone_1', $value)
+                            ->orWhere('telephone_2', $value)
+                            ->exists();
+
+                        if ($exists) {
+                            $fail('Le numéro de téléphone est déjà utilisé.');
+                        }
+                    },
+                ],
+                'email' => 'nullable|email|unique:users,email',
+            ], [
+                // Messages personnalisés
+                'prenom.required' => 'Le prénom est obligatoire.',
+                'nom.required' => 'Le nom est obligatoire.',
+                'email.unique' => 'Cette adresse email est déjà utilisée.',
+                'telephone_1.required' => 'Le numéro de téléphone principal est obligatoire.',
+            ]);
+            if ($validator->fails()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Veuillez corriger les erreurs ci-dessous.',
+                    'errors' => $validator->errors()
+                ]);
+            }
+
+            $validated = $validator->validated();
+
+            $validated['password'] = env('DEFAULT_PASSWORD', 'Metho@' . date('Y') . '!');
+
+            // Démarrer la transaction manuellement
+            DB::beginTransaction();
+        try {
+            // Créer l'membres
+            $user = User::create($validated);
+            DB::commit();
+            return response()->json([
+                'success' => true,
+                'message' => 'Membres créé avec succès!',
+                'data' => [
+                    'id' => $user->id,
+                    'text' => $user->nom . ' ' . $user->prenom . ($user->email ? ' ('. $user->email . ')' : ''),
+                    'email' => $user->email
+                ]
+            ]);
+
+        } catch (Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'success' => false,
+                'message' => 'Une erreur est suivenu lors de l\'enregistrement.',
+                'errors' => $e->getMessage()
+            ]);
+        }
+    }
+
     /**
-     * Afficher les détails d'un utilisateur
+     * Afficher les détails d'un membres
      */
 
     public function show(User $user)
@@ -315,7 +431,7 @@ class UserController extends Controller
          * @var User $use
          */
         $use = auth()->user();
-        // Vérifier que l'utilisateur connecté peut voir cet utilisateur
+        // Vérifier que l'membres connecté peut voir cet membres
         if (!$use->isSuperAdmin() && auth()->id() !== $user->id) {
             Gate::authorize('manage-user', $user);
         }
@@ -330,7 +446,7 @@ class UserController extends Controller
             'cultesPredicateur',
         ]);
 
-        // Statistiques de l'utilisateur
+        // Statistiques de l'membres
         $stats = [
             'roles_count' => $user->roles()->wherePivot('actif', true)->count(),
             'permissions_count' => $user->getAllPermissions()->count(),
@@ -367,7 +483,7 @@ class UserController extends Controller
         $classes = Classe::orderBy('nom')->get();
         $userRoles = $user->roles->pluck('id')->toArray();
 
-        // Filtrer les rôles selon le niveau de l'utilisateur connecté
+        // Filtrer les rôles selon le niveau de l'membres connecté
         if (!$use->isSuperAdmin()) {
             $userMaxLevel = $use->getHighestRoleLevel() ?? 0;
             $roles = $roles->filter(function ($role) use ($userMaxLevel) {
@@ -379,7 +495,7 @@ class UserController extends Controller
     }
 
     /**
-     * Mettre à jour un utilisateur
+     * Mettre à jour un membres
      */
     public function update(Request $request, User $user)
     {
@@ -455,7 +571,7 @@ class UserController extends Controller
             'email.required' => 'L\'adresse email est obligatoire.',
             'email.unique' => 'Cette adresse email est déjà utilisée.',
             'telephone_1.required' => 'Le numéro de téléphone principal est obligatoire.',
-            'password.required' => 'Le mot de passe est obligatoire.',
+            // 'password.required' => 'Le mot de passe est obligatoire.',
             'statut_membre.required' => 'Le statut de membre est obligatoire.',
             'statut_bapteme.required' => 'Le statut de baptême est obligatoire.',
             'date_bapteme.required_if' => 'La date de baptême est obligatoire pour les membres baptisés.',
@@ -493,10 +609,10 @@ class UserController extends Controller
                     unset($validated['password']);
                 }
 
-                // Mettre à jour l'utilisateur
+                // Mettre à jour l'membres
                 $user->update($validated);
 
-                // Synchroniser les rôles si l'utilisateur a la permission
+                // Synchroniser les rôles si l'membres a la permission
                 if (Gate::allows('roles.assign') && isset($validated['roles'])) {
                     $rolesToSync = [];
 
@@ -506,13 +622,21 @@ class UserController extends Controller
                          * @var User $use
                          */
                         $use = auth()->user();
-                        // Vérifier que l'utilisateur connecté peut attribuer ce rôle
+                        // Vérifier que l'membres connecté peut attribuer ce rôle
                         if (!$use->isSuperAdmin()) {
                             $authUserLevel = $use->getHighestRoleLevel();
                             if ($authUserLevel === null || $role->level >= $authUserLevel) {
                                 continue; // Passer ce rôle
                             }
                         }
+
+                        $user->roles()->syncWithoutDetaching([
+                            $role->id => [
+                                'attribue_par' => $use->id,
+                                'attribue_le' => now(),
+                                'actif' => false,
+                            ]
+                        ]);
 
                         $rolesToSync[] = $roleId;
                     }
@@ -523,7 +647,7 @@ class UserController extends Controller
 
             return redirect()
                 ->route('private.users.show', $user)
-                ->with('success', 'Utilisateur mis à jour avec succès!');
+                ->with('success', 'Membres mis à jour avec succès!');
         } catch (\Exception $e) {
             return back()
                 ->withInput()
@@ -532,7 +656,7 @@ class UserController extends Controller
     }
 
     /**
-     * Supprimer un utilisateur
+     * Supprimer un membres
      */
     public function destroy(User $user)
     {
@@ -568,13 +692,13 @@ class UserController extends Controller
             if (request()->ajax()) {
                 return response()->json([
                     'success' => true,
-                    'message' => 'Utilisateur supprimé avec succès!'
+                    'message' => 'Membres supprimé avec succès!'
                 ]);
             }
 
             return redirect()
                 ->route('private.users.index')
-                ->with('success', 'Utilisateur supprimé avec succès!');
+                ->with('success', 'Membres supprimé avec succès!');
         } catch (\Exception $e) {
             if (request()->ajax()) {
                 return response()->json([
@@ -624,7 +748,7 @@ class UserController extends Controller
     }
 
     /**
-     * Archiver un utilisateur
+     * Archiver un membres
      */
     public function archive(User $user)
     {
@@ -638,7 +762,7 @@ class UserController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'Utilisateur archivé avec succès!'
+                'message' => 'Membres archivé avec succès!'
             ]);
         } catch (\Exception $e) {
             return response()->json([
@@ -649,7 +773,7 @@ class UserController extends Controller
     }
 
     /**
-     * Restaurer un utilisateur archivé
+     * Restaurer un membres archivé
      */
     public function restore($id)
     {
@@ -665,7 +789,7 @@ class UserController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'Utilisateur restauré avec succès!'
+                'message' => 'Membres restauré avec succès!'
             ]);
         } catch (\Exception $e) {
             return response()->json([
@@ -676,7 +800,7 @@ class UserController extends Controller
     }
 
     /**
-     * Exporter les utilisateurs
+     * Exporter les membres
      */
     public function export(Request $request)
     {
@@ -759,7 +883,7 @@ class UserController extends Controller
                     $row = array_combine($headers, $data);
 
                     try {
-                        // Vérifier si l'utilisateur existe
+                        // Vérifier si l'membres existe
                         $existingUser = User::where('email', $row['email'])->first();
 
                         if ($existingUser && !$request->update_existing) {
@@ -809,7 +933,7 @@ class UserController extends Controller
                 }
             });
 
-            $message = "Import terminé : {$imported} utilisateurs importés";
+            $message = "Import terminé : {$imported} membres importés";
             if ($updated > 0) {
                 $message .= ", {$updated} mis à jour";
             }
@@ -824,7 +948,7 @@ class UserController extends Controller
     }
 
     /**
-     * Recherche AJAX d'utilisateurs
+     * Recherche AJAX des membres
      */
     public function search(Request $request)
     {
@@ -834,7 +958,8 @@ class UserController extends Controller
             ->where(function ($q) use ($query) {
                 $q->where('nom', 'like', "%{$query}%")
                     ->orWhere('prenom', 'like', "%{$query}%")
-                    ->orWhere('email', 'like', "%{$query}%");
+                    ->orWhere('email', 'like', "%{$query}%")
+                    ->orWhereRaw("CONCAT(nom, ' ', prenom) LIKE ?", ["%{$query}%"]);
             })
             ->select('id', 'nom', 'prenom', 'email')
             ->limit(10)
@@ -866,7 +991,7 @@ class UserController extends Controller
             return response()->json([
                 'success' => true,
                 'actif' => $user->actif,
-                'message' => $user->actif ? 'Utilisateur activé' : 'Utilisateur désactivé'
+                'message' => $user->actif ? 'Membres activé' : 'Membres désactivé'
             ]);
         } catch (\Exception $e) {
             return response()->json([

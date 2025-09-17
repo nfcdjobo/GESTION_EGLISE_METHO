@@ -15,13 +15,19 @@ use App\Http\Resources\SubscriptionPaymentResource;
 
 class PaymentController extends Controller
 {
+
+
     public function __construct(private PaymentService $paymentService)
-    {
-        $this->middleware('auth');
-    }
+{
+    $this->middleware('auth');
+    $this->middleware('permission:payments.read')->only(['index', 'show', 'fimecosDisponibles', 'typesPaiement']);
+    $this->middleware('permission:payments.create')->only(['create', 'store']);
+    $this->middleware('permission:payments.update')->only(['edit', 'update']);
+    $this->middleware('permission:payments.moderate')->only(['valider', 'refuser', 'annuler', 'enAttente', 'traiterEnLot']);
+}
 
     /**
-     * Afficher la liste des paiements de l'utilisateur
+     * Afficher la liste des paiements de l'membres
      */
     public function index(Request $request)
     {
@@ -90,7 +96,7 @@ class PaymentController extends Controller
      */
     public function create(Request $request, string $subscription)
     {
-        // Récupérer la souscription avec vérification que l'utilisateur en est le propriétaire
+        // Récupérer la souscription avec vérification que l'membres en est le propriétaire
         $subscription = Subscription::with(['fimeco', 'souscripteur'])
             ->where('id', $subscription)
             ->firstOrFail();
@@ -177,7 +183,7 @@ class PaymentController extends Controller
                 })
             ]);
         }
-        
+
         return view(
             'components.private.paiements.create',
             compact('subscription', 'montantSuggere', 'typesPaiement', 'paiementsEnAttente')
@@ -273,7 +279,7 @@ class PaymentController extends Controller
      */
     public function update(Request $request, string $payment)
     {
-        
+
         $request->validate([
             'montant' => ['required', 'numeric'],
             'type_paiement' => ['required', 'in:especes,cheque,virement,carte,mobile_money'],

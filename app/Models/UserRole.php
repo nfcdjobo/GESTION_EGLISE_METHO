@@ -42,7 +42,7 @@ class UserRole extends Pivot
     ];
 
     /**
-     * Relation avec l'utilisateur
+     * Relation avec l'membres
      */
     public function user()
     {
@@ -58,7 +58,7 @@ class UserRole extends Pivot
     }
 
     /**
-     * Relation avec l'utilisateur qui a attribué le rôle
+     * Relation avec l'membres qui a attribué le rôle
      */
     public function attribuePar()
     {

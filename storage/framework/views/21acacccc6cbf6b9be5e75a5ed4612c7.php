@@ -28,22 +28,27 @@
     <div class="bg-white/80 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
         <div class="p-6">
             <div class="flex flex-wrap gap-3">
-                <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('update', \App\Models\Fimeco::find($fimeco['id']))): ?>
+                <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('fimecos.update')): ?>
                     <?php if($fimeco['statut'] !== 'cloturee'): ?>
                         <a href="<?php echo e(route('private.fimecos.edit', $fimeco['id'])); ?>" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-yellow-500 to-orange-500 text-white text-sm font-medium rounded-xl hover:from-yellow-600 hover:to-orange-600 transition-all duration-200 shadow-md hover:shadow-lg">
                             <i class="fas fa-edit mr-2"></i> Modifier
                         </a>
                     <?php endif; ?>
                 <?php endif; ?>
+
+                <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('fimecos.statistics')): ?>
                 <a href="<?php echo e(route('private.fimecos.statistiques', $fimeco['id'])); ?>" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-sm font-medium rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-200 shadow-md hover:shadow-lg">
                     <i class="fas fa-chart-line mr-2"></i> Statistiques
                 </a>
+                <?php endif; ?>
+                <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('fimecos.create')): ?>
                 <?php if($fimeco['est_en_cours']): ?>
                     <a href="<?php echo e(route('private.subscriptions.create')); ?>?fimero=<?php echo e($fimeco->id); ?>" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white text-sm font-medium rounded-xl hover:from-green-700 hover:to-emerald-700 transition-all duration-200 shadow-md hover:shadow-lg">
                         <i class="fas fa-hand-holding-usd mr-2"></i> Souscrire
                     </a>
                 <?php endif; ?>
-                <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('update', \App\Models\Fimeco::find($fimeco['id']))): ?>
+                <?php endif; ?>
+                <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('fimecos.close')): ?>
                     <?php if($fimeco['statut'] !== 'cloturee'): ?>
                         <form action="<?php echo e(route('private.fimecos.cloturer', $fimeco['id'])); ?>" method="POST" class="inline" id="clotureForm">
                             <?php echo csrf_field(); ?>
@@ -149,7 +154,7 @@
                                 <div class="text-2xl font-bold text-blue-600"><?php echo e($fimeco->subscriptions->count()); ?></div>
                                 <div class="text-sm text-blue-700">Souscripteurs</div>
                             </div>
-                            
+
                         </div>
                     </div>
                 </div>
@@ -341,9 +346,11 @@
             <button type="button" onclick="fermerModalCloture()" class="px-4 py-2 text-slate-700 bg-slate-100 rounded-xl hover:bg-slate-200 transition-colors">
                 Annuler
             </button>
+            <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('fimecos.close')): ?>
             <button type="button" onclick="executerCloture()" class="px-4 py-2 bg-red-600 text-white rounded-xl hover:bg-red-700 transition-colors">
                 Clôturer définitivement
             </button>
+            <?php endif; ?>
         </div>
     </div>
 </div>

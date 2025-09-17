@@ -23,9 +23,9 @@ return new class extends Migration
             $table->string('model_type', 100); // Permission, Role, UserPermission, UserRole, etc.
             $table->uuid('model_id'); // ID du modèle affecté
 
-            // Utilisateur qui a effectué l'action
+            // Membres qui a effectué l'action
             $table->uuid('user_id')->nullable();
-            $table->uuid('target_user_id')->nullable(); // Utilisateur cible (pour les attributions)
+            $table->uuid('target_user_id')->nullable(); // Membres cible (pour les attributions)
 
             // Changements
             $table->json('changes')->nullable(); // Nouvelles valeurs

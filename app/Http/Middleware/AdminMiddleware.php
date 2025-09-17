@@ -16,7 +16,7 @@ class AdminMiddleware
      */
     public function handle(Request $request, Closure $next): Response
     {
-        // Vérifier si l'utilisateur est connecté
+        // Vérifier si l'membres est connecté
         if (!auth()->check()) {
             return redirect()->route('security.login')->with('error', 'Vous devez être connecté pour accéder à cette page.');
         }
@@ -26,7 +26,7 @@ class AdminMiddleware
          */
         $user = auth()->user();
 
-        // Vérifier si l'utilisateur a le rôle d'administrateur
+        // Vérifier si l'membres a le rôle d'administrateur
         if (!$user->hasRole('pl') && !$user->hasRole('pasteur')) {
             abort(403, 'Accès refusé. Vous n\'avez pas les permissions nécessaires.');
         }

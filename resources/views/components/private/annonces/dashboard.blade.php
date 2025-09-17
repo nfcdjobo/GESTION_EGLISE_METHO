@@ -1,4 +1,4 @@
-{{-- components/private/annonces/dashboard.blade.php --}}
+
 @props([
     'statistiques' => [],
     'annoncesRecentes' => collect(),

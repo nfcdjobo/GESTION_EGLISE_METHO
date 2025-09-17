@@ -4,7 +4,7 @@
     Props attendues:
     - $programmes: Collection des programmes
     - $pasteurs: Collection des pasteurs (optionnel)
-    - $users: Collection des utilisateurs (optionnel)
+    - $users: Collection des membres (optionnel)
     - $showAdvanced: Boolean pour afficher les filtres avancés (default: false)
     - $action: URL d'action du formulaire (default: route actuelle)
     - $compact: Boolean pour un affichage compact (default: false)

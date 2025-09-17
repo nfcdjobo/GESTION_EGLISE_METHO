@@ -61,7 +61,7 @@ class RolePermission extends Pivot
     }
 
     /**
-     * Relation avec l'utilisateur qui a attribué la permission
+     * Relation avec l'membres qui a attribué la permission
      */
     public function attribuePar()
     {

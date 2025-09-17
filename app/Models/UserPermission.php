@@ -46,7 +46,7 @@ class UserPermission extends Model
     ];
 
     /**
-     * Relation avec l'utilisateur
+     * Relation avec l'membres
      */
     public function user()
     {
@@ -62,7 +62,7 @@ class UserPermission extends Model
     }
 
     /**
-     * Relation avec l'utilisateur qui a accordé la permission
+     * Relation avec l'membres qui a accordé la permission
      */
     public function grantedBy()
     {
@@ -70,7 +70,7 @@ class UserPermission extends Model
     }
 
     /**
-     * Relation avec l'utilisateur qui a révoqué la permission
+     * Relation avec l'membres qui a révoqué la permission
      */
     public function revokedBy()
     {

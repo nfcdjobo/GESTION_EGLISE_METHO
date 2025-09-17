@@ -138,7 +138,8 @@
                                 <dd>
                                     <span
                                         class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-{{ $programme->statut_badge }}-100 text-{{ $programme->statut_badge }}-800">
-                                        <i class="fas fa-circle mr-2"></i>
+                                        {{-- <i class="fas fa-circle mr-2"></i> --}}
+                                        <span class="w-2 h-2 mr-2 rounded-full bg-{{ $programme->statut_badge }}-500"></span>
                                         {{ \App\Models\Programme::STATUTS[$programme->statut] ?? $programme->statut }}
                                     </span>
                                 </dd>
@@ -345,11 +346,11 @@
                             <span class="text-sm text-slate-900">{{ $programme->created_at->format('d/m/Y') }}</span>
                         </div>
 
-                        @if ($programme->createurUtilisateur)
+                        @if ($programme->createurMembres)
                             <div class="flex items-center justify-between">
                                 <span class="text-sm font-medium text-slate-700">Créé par:</span>
-                                <span class="text-sm text-slate-900">{{ $programme->createurUtilisateur->prenom }}
-                                    {{ $programme->createurUtilisateur->nom }}</span>
+                                <span class="text-sm text-slate-900">{{ $programme->createurMembres->prenom }}
+                                    {{ $programme->createurMembres->nom }}</span>
                             </div>
                         @endif
 
@@ -361,11 +362,11 @@
                             </div>
                         @endif
 
-                        @if ($programme->modificateurUtilisateur && $programme->updated_at != $programme->created_at)
+                        @if ($programme->modificateurMembres && $programme->updated_at != $programme->created_at)
                             <div class="flex items-center justify-between">
                                 <span class="text-sm font-medium text-slate-700">Modifié par:</span>
-                                <span class="text-sm text-slate-900">{{ $programme->modificateurUtilisateur->prenom }}
-                                    {{ $programme->modificateurUtilisateur->nom }}</span>
+                                <span class="text-sm text-slate-900">{{ $programme->modificateurMembres->prenom }}
+                                    {{ $programme->modificateurMembres->nom }}</span>
                             </div>
                         @endif
                     </div>

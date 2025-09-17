@@ -13,7 +13,7 @@
 
         <!-- Filtres et actions -->
         <div class="bg-white/80 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
-            @can(['programmes.planning', 'programmes.create', 'programmes.statistics'])
+            @canany(['programmes.planning', 'programmes.create', 'programmes.statistics'])
                 <div class="p-6 border-b border-slate-200">
                     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                         <h2 class="text-xl font-bold text-slate-800 flex items-center">
@@ -42,7 +42,7 @@
                         </div>
                     </div>
                 </div>
-            @endcan
+            @endcanany
             <div class="p-6">
                 <form method="GET" action="{{ route('private.programmes.index') }}"
                     class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
@@ -303,10 +303,15 @@
                                                 {{ \App\Models\Programme::AUDIENCES[$programme->audience_cible] ?? $programme->audience_cible }}
                                             </span>
                                         </td>
+
                                         <td class="px-4 py-4">
                                             <span
-                                                class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-{{ $programme->statut_badge }}-100 text-{{ $programme->statut_badge }}-800">
-                                                <i class="fas fa-circle mr-1 text-xs"></i>
+                                                class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                                                    bg-{{ $programme->statut_badge }}-100
+                                                    text-{{ $programme->statut_badge }}-800">
+                                                {{-- <i class="fas fa-circle mr-1 text-{{ $programme->statut_badge }}-500"></i> --}}
+                                                <span
+                                                    class="w-2 h-2 mr-2 rounded-full bg-{{ $programme->statut_badge }}-500"></span>
                                                 {{ \App\Models\Programme::STATUTS[$programme->statut] ?? $programme->statut }}
                                             </span>
                                         </td>
@@ -398,10 +403,10 @@
                             @endif
                         </p>
                         @can('programmes.create')
-                        <a href="{{ route('private.programmes.create') }}"
-                            class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-medium rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-200 shadow-md hover:shadow-lg">
-                            <i class="fas fa-plus mr-2"></i> Créer un programme
-                        </a>
+                            <a href="{{ route('private.programmes.create') }}"
+                                class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-medium rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-200 shadow-md hover:shadow-lg">
+                                <i class="fas fa-plus mr-2"></i> Créer un programme
+                            </a>
                         @endcan
                     </div>
                 @endif

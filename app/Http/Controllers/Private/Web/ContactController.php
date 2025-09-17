@@ -16,15 +16,15 @@ use Illuminate\Support\Facades\Log;
 class ContactController extends Controller
 {
     public function __construct()
-    {
-        $this->middleware('auth');
-        $this->middleware('permission:contacts.read')->only(['index', 'show', 'statistics', 'search']);
-        $this->middleware('permission:contacts.create')->only(['create', 'store']);
-        $this->middleware('permission:contacts.update')->only(['edit', 'update', 'verify', 'updateVisibility']);
-        $this->middleware('permission:contacts.delete')->only(['destroy']);
-        $this->middleware('permission:contacts.manage')->only(['bulkActions', 'importContacts']);
-        $this->middleware('permission:contacts.export')->only(['export']);
-    }
+{
+    $this->middleware('auth');
+    $this->middleware('permission:contacts.read')->only(['index', 'show', 'statistics', 'searchNearby']);
+    $this->middleware('permission:contacts.create')->only(['create', 'store']);
+    $this->middleware('permission:contacts.update')->only(['edit', 'update', 'verify']);
+    $this->middleware('permission:contacts.delete')->only(['destroy']);
+    $this->middleware('permission:contacts.manage')->only(['bulkActions']);
+    $this->middleware('permission:contacts.export')->only(['export']);
+}
 
     /**
      * Afficher la liste des contacts

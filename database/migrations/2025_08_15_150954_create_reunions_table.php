@@ -151,8 +151,8 @@ return new class extends Migration
             $table->integer('nombre_rappels_envoyes')->default(0)->comment('Nombre de rappels envoyés');
 
             // Audit et traçabilité
-            $table->uuid('cree_par')->nullable()->comment('Utilisateur qui a créé la réunion');
-            $table->uuid('modifie_par')->nullable()->comment('Dernier utilisateur ayant modifié');
+            $table->uuid('cree_par')->nullable()->comment('Membres qui a créé la réunion');
+            $table->uuid('modifie_par')->nullable()->comment('Dernier membres ayant modifié');
             $table->uuid('validee_par')->nullable()->comment('Qui a validé la réunion');
             $table->timestamp('validee_le')->nullable()->comment('Date de validation');
             $table->text('notes_organisateur')->nullable()->comment('Notes privées de l\'organisateur');

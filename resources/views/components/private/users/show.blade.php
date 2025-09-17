@@ -6,7 +6,7 @@
     <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
         <!-- Page Title -->
         <div class="mb-8">
-            <h1 class="text-3xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent">Profil Utilisateur</h1>
+            <h1 class="text-3xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent">Profil Membres</h1>
             <p class="text-slate-500 mt-1">Informations détaillées de {{ $user->nom_complet }} - {{ \Carbon\Carbon::now()->format('l d F Y') }}</p>
         </div>
 
@@ -516,11 +516,11 @@
 @push('scripts')
 <script>
 function toggleStatus(userId) {
-    if (confirm('Êtes-vous sûr de vouloir changer le statut de cet utilisateur ?')) {
-        fetch(`/private/users/${userId}/toggle-status`, {
+    if (confirm('Êtes-vous sûr de vouloir changer le statut de cet membres ?')) {
+        fetch(`{{route('private.users.toggle-status', ':user')}}`.replace(':user', userId), {
             method: 'POST',
             headers: {
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
                 'Accept': 'application/json',
             }
         })
@@ -537,10 +537,10 @@ function toggleStatus(userId) {
 
 function validateMember(userId) {
     if (confirm('Êtes-vous sûr de vouloir valider ce membre ?')) {
-        fetch(`/private/users/${userId}/validate`, {
+        fetch(`{{route('private.users.validate', ':user')}}`.replace(':user', userId), {
             method: 'POST',
             headers: {
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
                 'Accept': 'application/json',
             }
         })
@@ -556,11 +556,11 @@ function validateMember(userId) {
 }
 
 function archiveUser(userId) {
-    if (confirm('Êtes-vous sûr de vouloir archiver cet utilisateur ?')) {
-        fetch(`/private/users/${userId}/archive`, {
+    if (confirm('Êtes-vous sûr de vouloir archiver cet membres ?')) {
+        fetch(`{{route('private.users.archive', ':user')}}`.replace(':user', userId), {
             method: 'POST',
             headers: {
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
                 'Accept': 'application/json',
             }
         })
@@ -585,10 +585,10 @@ function resetPassword(userId) {
             return;
         }
 
-        fetch(`/private/users/${userId}/reset-password`, {
+        fetch(`{{route('private.users.reset-password', ':user')}}`.replace(':user', userId), {
             method: 'POST',
             headers: {
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
                 'Content-Type': 'application/json',
                 'Accept': 'application/json',
             },

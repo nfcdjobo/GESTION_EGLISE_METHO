@@ -7,78 +7,79 @@ use App\Http\Controllers\Private\UserPermissionController;
 
 /*
 |--------------------------------------------------------------------------
-| Routes de gestion des utilisateurs
+| Routes de Gestion des membres
 |--------------------------------------------------------------------------
 |
-| Routes protégées pour la gestion des utilisateurs avec système de permissions
+| Routes protégées pour la Gestion des membres avec système de permissions
 |
 */
 
-Route::middleware(['auth', 'user.status'])->prefix('dashboard')->name('private.')->group(function () {
+Route::middleware(['auth', 'user.status'])->prefix('dashboard/users')->name('private.users.')->group(function () {
 
     // ========== ROUTES CRUD PRINCIPALES ==========
 
-    // Liste des utilisateurs
-    Route::get('/users', [UserController::class, 'index'])->middleware('permission:users.read')->name('users.index');
+    // Liste des membres
+    Route::get('', [UserController::class, 'index'])->middleware('permission:users.read')->name('index');
 
     // Afficher le formulaire de création
-    Route::get('/users/create', [UserController::class, 'create'])->middleware('permission:users.create')->name('users.create');
+    Route::get('/create', [UserController::class, 'create'])->middleware('permission:users.create')->name('create');
 
 
     // ========== ROUTES D'IMPORT/EXPORT ==========
 
-    // Exporter les utilisateurs
-    Route::get('/users/export', [UserController::class, 'export'])->middleware('permission:users.export')->name('users.export');
+    // Exporter les membres
+    Route::get('/export', [UserController::class, 'export'])->middleware('permission:users.export')->name('export');
 
     // Afficher le formulaire d'import
-    Route::get('/users/import', [UserController::class, 'import'])->middleware('permission:users.import')->name('users.import');
+    Route::get('/import', [UserController::class, 'import'])->middleware('permission:users.import')->name('import');
 
     // Traiter l'import de fichier
-    Route::post('/users/import', [UserController::class, 'processImport'])->middleware('permission:users.import')->name('users.process-import');
+    Route::post('/import', [UserController::class, 'processImport'])->middleware('permission:users.import')->name('process-import');
 
     // ========== ROUTES AJAX ET API ==========
 
-    // Recherche AJAX d'utilisateurs
-    Route::get('/users/search', [UserController::class, 'search'])->middleware('permission:users.read')->name('users.search');
+    // Recherche AJAX d'membres
+    Route::get('/search', [UserController::class, 'search'])->middleware('permission:users.read')->name('search');
 
-    // Enregistrer un nouvel utilisateur
-    Route::post('/users', [UserController::class, 'store'])->middleware('permission:users.create')->name('users.store');
+    // Enregistrer un nouvel membres
+    Route::post('', [UserController::class, 'store'])->middleware('permission:users.create')->name('store');
+    Route::post('/ajoutmembre', [UserController::class, 'ajoutmembre'])->middleware('permission:users.ajoutmembre')->name('ajoutmembre');
 
-    // Afficher un utilisateur spécifique
-    Route::get('/users/{user}', [UserController::class, 'show'])->middleware('permission:users.read')->name('users.show');
+    // Afficher un membres spécifique
+    Route::get('/{user}', [UserController::class, 'show'])->middleware('permission:users.read')->name('show');
 
     // Afficher le formulaire d'édition
-    Route::get('/users/{user}/edit', [UserController::class, 'edit'])->middleware('permission:users.update')->name('users.edit');
+    Route::get('/{user}/edit', [UserController::class, 'edit'])->middleware('permission:users.update')->name('edit');
 
-    // Mettre à jour un utilisateur
-    Route::put('/users/{user}', [UserController::class, 'update'])->middleware('permission:users.update')->name('users.update');
+    // Mettre à jour un membres
+    Route::put('/{user}', [UserController::class, 'update'])->middleware('permission:users.update')->name('update');
 
-    // Supprimer un utilisateur
-    Route::delete('/users/{user}', [UserController::class, 'destroy'])->middleware('permission:users.delete')->name('users.destroy');
+    // Supprimer un membres
+    Route::delete('/{user}', [UserController::class, 'destroy'])->middleware('permission:users.delete')->name('destroy');
 
     // ========== ROUTES D'ACTIONS SPÉCIALES ==========
 
     // Valider un membre
-    Route::post('/users/{user}/validate', [UserController::class, 'validated'])->middleware('permission:users.validate')->name('users.validate');
+    Route::post('/{user}/validate', [UserController::class, 'validated'])->middleware('permission:users.validate')->name('validate');
 
-    // Archiver un utilisateur
-    Route::post('/users/{user}/archive', [UserController::class, 'archive'])->middleware('permission:users.archive')->name('users.archive');
+    // Archiver un membres
+    Route::post('/{user}/archive', [UserController::class, 'archive'])->middleware('permission:users.archive')->name('archive');
 
-    // Restaurer un utilisateur archivé
-    Route::post('/users/{user}/restore', [UserController::class, 'restore'])->middleware('permission:users.restore')->name('users.restore');
+    // Restaurer un membres archivé
+    Route::post('/{user}/restore', [UserController::class, 'restore'])->middleware('permission:users.restore')->name('restore');
 
     // Changer le statut actif/inactif
-    Route::post('/users/{user}/toggle-status', [UserController::class, 'toggleStatus'])->middleware('permission:users.update')->name('users.toggle-status');
+    Route::post('/{user}/toggle-status', [UserController::class, 'toggleStatus'])->middleware('permission:users.update')->name('toggle-status');
 
     // Réinitialiser le mot de passe
-    Route::post('/users/{user}/reset-password', [UserController::class, 'resetPassword'])->middleware('permission:users.update')->name('users.reset-password');
+    Route::post('/{user}/reset-password', [UserController::class, 'resetPassword'])->middleware('permission:users.update')->name('reset-password');
 
 
 
     // ========== ROUTES DE GESTION DES PERMISSIONS ==========
 
-    // Gestion des permissions utilisateurs
-    Route::prefix('users/{user}/permissions')->name('users.permissions.')->group(function () {
+    // Gestion des permissions membres
+    Route::prefix('/{user}/permissions')->name('permissions.')->group(function () {
         Route::get('/', [UserPermissionController::class, 'index'])->middleware('permission:permissions.read')->name('index');
 
         Route::post('/grant', [UserPermissionController::class, 'grant'])->middleware('permission:permissions.grant')->name('grant');
@@ -92,8 +93,8 @@ Route::middleware(['auth', 'user.status'])->prefix('dashboard')->name('private.'
         Route::get('/expiring', [UserPermissionController::class, 'expiring'])->middleware('permission:permissions.read')->name('expiring');
     });
 
-    // Gestion des rôles utilisateurs
-    Route::prefix('users/{user}/roles')->name('users.roles.')->group(function () {
+    // Gestion des rôles membres
+    Route::prefix('/{user}/roles')->name('roles.')->group(function () {
         Route::get('/', [UserPermissionController::class, 'roles'])->middleware('permission:roles.read')->name('index');
 
         Route::post('/assign', [UserPermissionController::class, 'assignRole'])->middleware('permission:roles.assign')->name('assign');
@@ -112,7 +113,7 @@ Route::middleware(['auth', 'user.status', 'role:admin,pasteur'])->name('private.
 
     // Routes administratives avancées
     Route::prefix('dashboard/admin/users')->name('admin.users.')->group(function () {
-        // Gestion avancée des utilisateurs (super admin seulement)
+        // Gestion avancée des membres (super admin seulement)
         Route::middleware('role:super-admin')->group(function () {
             Route::get('/deleted', [UserController::class, 'deleted'])->name('deleted');
             Route::post('/bulk-restore', [UserController::class, 'bulkRestore'])->name('bulk-restore');
@@ -133,7 +134,7 @@ Route::middleware(['auth:sanctum', 'user.status'])->prefix('api/v1')->name('api.
     // API de recherche rapide pour les applications mobiles
     Route::get('/users/quick-search', [UserController::class, 'apiQuickSearch'])->middleware('permission:users.read')->name('users.quick-search');
 
-    // API pour récupérer les informations de base d'un utilisateur
+    // API pour récupérer les informations de base d'un membres
     Route::get('/users/{user}/basic', [UserController::class, 'apiBasicInfo'])->middleware('permission:users.read')->name('users.basic-info');
 
     // API pour mettre à jour les informations de contact
@@ -164,9 +165,9 @@ if (app()->environment('local')) {
 Route::redirect('/members', '/private/users')->name('members.redirect');
 Route::redirect('/admin/users', '/private/users')->name('admin.users.redirect');
 
-// Route de fallback pour les erreurs 404 dans la section utilisateurs
+// Route de fallback pour les erreurs 404 dans la section membres
 Route::fallback(function () {
-    return redirect()->route('private.users.index')->with('warning', 'Page non trouvée. Vous avez été redirigé vers la liste des utilisateurs.');
+    return redirect()->route('private.users.index')->with('warning', 'Page non trouvée. Vous avez été redirigé vers la liste des membres.');
 })->middleware(['auth', 'user.status']);
 
 // ========== DÉFINITION DES CONTRAINTES DE ROUTES ==========
@@ -177,7 +178,7 @@ Route::pattern('id', '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{1
 
 /*
 |--------------------------------------------------------------------------
-| Routes supplémentaires pour la gestion des utilisateurs
+| Routes supplémentaires pour la Gestion des membres
 |--------------------------------------------------------------------------
 |
 | Ces routes peuvent être ajoutées selon les besoins spécifiques
@@ -205,7 +206,7 @@ Route::middleware(['auth', 'user.status', 'role:admin,pasteur,responsable'])->pr
 Route::middleware(['auth', 'user.status', 'permission:communications.send'])->prefix('dashboard')->name('private.')->group(function () {
 
     Route::prefix('communications')->name('communications.')->group(function () {
-        // Envoyer des notifications à des utilisateurs spécifiques
+        // Envoyer des notifications à des membres spécifiques
         Route::post('/notify-users', [UserController::class, 'notifyUsers'])->name('notify-users');
 
         // Envoyer des emails groupés

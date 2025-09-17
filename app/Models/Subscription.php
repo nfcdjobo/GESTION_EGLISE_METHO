@@ -1,8 +1,5 @@
 <?php
 
-// =================================================================
-// app/Models/Subscription.php
-
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
@@ -11,298 +8,346 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use App\Exceptions\ConcurrentUpdateException;
 
 class Subscription extends Model
 {
     use HasFactory, HasUuids, SoftDeletes;
 
+    protected $table = 'subscriptions';
+
     protected $fillable = [
         'souscripteur_id',
         'fimeco_id',
         'montant_souscrit',
-        'montant_paye',
-        'reste_a_payer',
-        'statut',
         'date_souscription',
-        'date_echeance'
+        'date_echeance',
     ];
 
     protected $casts = [
         'montant_souscrit' => 'decimal:2',
         'montant_paye' => 'decimal:2',
         'reste_a_payer' => 'decimal:2',
+        'cible' => 'decimal:2',
+        'montant_solde' => 'decimal:2',
+        'reste' => 'decimal:2',
+        'montant_supplementaire' => 'decimal:2',
+        'progression' => 'decimal:2',
         'date_souscription' => 'date',
-        'date_echeance' => 'date'
+        'date_echeance' => 'date',
+        'statut_global' => 'string',
+        'statut' => 'string',
     ];
 
     protected $attributes = [
-        'montant_paye' => '0.00',
-        'statut' => 'active'
+        'montant_paye' => 0,
+        'reste_a_payer' => 0,
+        'cible' => 0,
+        'montant_solde' => 0,
+        'reste' => 0,
+        'montant_supplementaire' => 0,
+        'progression' => 0,
+        'statut_global' => 'tres_faible',
+        'statut' => 'inactive',
     ];
 
     // Relations
+
+    /**
+     * Relation avec le souscripteur (utilisateur)
+     */
     public function souscripteur(): BelongsTo
     {
         return $this->belongsTo(User::class, 'souscripteur_id');
     }
 
+    /**
+     * Relation avec le FIMECO
+     */
     public function fimeco(): BelongsTo
     {
-        return $this->belongsTo(Fimeco::class);
+        return $this->belongsTo(Fimeco::class, 'fimeco_id');
     }
 
+    /**
+     * Relation avec les paiements
+     */
     public function payments(): HasMany
     {
-        return $this->hasMany(SubscriptionPayment::class);
+        return $this->hasMany(SubscriptionPayment::class, 'subscription_id');
     }
 
+    /**
+     * Relation avec les paiements validés uniquement
+     */
     public function paymentsValides(): HasMany
     {
-        return $this->hasMany(SubscriptionPayment::class)
+        return $this->hasMany(SubscriptionPayment::class, 'subscription_id')
                     ->where('statut', 'valide');
     }
 
-    public function logs(): HasMany
+    /**
+     * Relation avec les paiements en attente
+     */
+    public function paymentsEnAttente(): HasMany
     {
-        return $this->hasMany(SubscriptionPaymentLog::class);
+        return $this->hasMany(SubscriptionPayment::class, 'subscription_id')
+                    ->where('statut', 'en_attente');
     }
 
     // Scopes
-    public function scopeActive($query)
+
+    /**
+     * Scope pour les souscriptions actives
+     */
+    public function scopeActives($query)
     {
-        return $query->where('statut', 'active');
+        return $query->where('statut', '!=', 'inactive');
     }
 
-    public function scopePartiellementPayee($query)
-    {
-        return $query->where('statut', 'partiellement_payee');
-    }
-
-    public function scopeCompletementPayee($query)
+    /**
+     * Scope pour les souscriptions complètement payées
+     */
+    public function scopeCompletes($query)
     {
         return $query->where('statut', 'completement_payee');
     }
 
-    public function scopeSurPayee($query)
+    /**
+     * Scope pour les souscriptions partiellement payées
+     */
+    public function scopePartielles($query)
     {
-        return $query->where('montant_paye', '>', 'montant_souscrit');
+        return $query->where('statut', 'partiellement_payee');
     }
 
+    /**
+     * Scope pour les souscriptions en retard
+     */
     public function scopeEnRetard($query)
     {
         return $query->where('date_echeance', '<', now())
-                    ->whereNotIn('statut', ['completement_payee', 'annulee']);
+                    ->where('statut', '!=', 'completement_payee');
     }
 
+    /**
+     * Scope pour filtrer par FIMECO
+     */
     public function scopePourFimeco($query, $fimecoId)
     {
         return $query->where('fimeco_id', $fimecoId);
     }
 
-    public function scopePourUtilisateur($query, $userId)
+    /**
+     * Scope pour filtrer par souscripteur
+     */
+    public function scopePourSouscripteur($query, $souscripteurId)
     {
-        return $query->where('souscripteur_id', $userId);
+        return $query->where('souscripteur_id', $souscripteurId);
     }
 
-    // Accessors & Mutators
-    public function getEstSoldeeAttribute(): bool
+    /**
+     * Scope pour filtrer par période de souscription
+     */
+    public function scopePeriodeSouscription($query, $debut = null, $fin = null)
     {
-        return $this->montant_paye >= $this->montant_souscrit;
+        if ($debut) {
+            $query->where('date_souscription', '>=', $debut);
+        }
+        if ($fin) {
+            $query->where('date_souscription', '<=', $fin);
+        }
+        return $query;
     }
 
-    public function getEstSurPayeeAttribute(): bool
+    /**
+     * Scope pour filtrer par échéance
+     */
+    public function scopeEcheanceProche($query, $jours = 30)
     {
-        return $this->montant_paye > $this->montant_souscrit;
+        return $query->whereBetween('date_echeance', [now(), now()->addDays($jours)])
+                    ->where('statut', '!=', 'completement_payee');
     }
 
-    public function getMontantSurPayeAttribute(): string
+    // Accesseurs
+
+    /**
+     * Retourne le pourcentage de progression formaté
+     */
+    public function getProgressionFormatteeAttribute(): string
     {
-        $surPaye = $this->montant_paye - $this->montant_souscrit;
-        return $surPaye > 0 ? $surPaye : '0.00';
+        return number_format($this->progression, 2) . '%';
     }
 
-    public function getResteAPayer_RealAttribute(): string
+    /**
+     * Vérifie si la souscription est complètement payée
+     */
+    public function getEstCompleteAttribute(): bool
     {
-        $reste = $this->montant_souscrit - $this->montant_paye;
-        return $reste > 0 ? $reste : '0.00';
+        return $this->statut === 'completement_payee';
     }
 
-    public function getEstEnRetardAttribute(): bool
+    /**
+     * Vérifie si la souscription est en retard
+     */
+    public function getEnRetardAttribute(): bool
     {
         return $this->date_echeance &&
                $this->date_echeance < now() &&
-               !$this->est_soldee;
+               $this->statut !== 'completement_payee';
     }
 
-    public function getPourcentagePayeAttribute(): float
+    /**
+     * Retourne le nombre de jours de retard
+     */
+    public function getJoursRetardAttribute(): int
     {
-        if ($this->montant_souscrit == 0) return 0;
-
-        return round(($this->montant_paye / $this->montant_souscrit) * 100, 2);
-    }
-
-    public function getProchainMontantMinimumAttribute(): string
-    {
-        // Si déjà soldé, permettre quand même un paiement minimum (ex: don supplémentaire)
-        if ($this->est_soldee) {
-            return '10.00'; // Montant minimum pour paiement supplémentaire
+        if (!$this->en_retard) {
+            return 0;
         }
-
-        // Sinon, calculer le minimum entre le reste et un seuil
-        return min($this->reste_a_payer_real, 50);
+        return now()->diffInDays($this->date_echeance);
     }
 
-    // Mutators pour maintenir la cohérence
-    public function setMontantSouscritAttribute($value)
+    /**
+     * Retourne le nombre de jours restants avant échéance
+     */
+    public function getJoursRestantsAttribute(): int
     {
-        $this->attributes['montant_souscrit'] = $value;
-        $this->calculerReste();
-    }
-
-    public function setMontantPayeAttribute($value)
-    {
-        $this->attributes['montant_paye'] = $value;
-        $this->calculerReste();
-    }
-
-    private function calculerReste()
-    {
-        if (isset($this->attributes['montant_souscrit']) &&
-            isset($this->attributes['montant_paye'])) {
-            // Le reste peut être négatif si sur-paiement
-            $this->attributes['reste_a_payer'] =
-                $this->attributes['montant_souscrit'] - $this->attributes['montant_paye'];
+        if (!$this->date_echeance || $this->en_retard) {
+            return 0;
         }
+        return now()->diffInDays($this->date_echeance, false);
     }
 
-    // Methods
-    public function peutRecevoirPaiement(float $montant = null): bool
+    /**
+     * Retourne le montant total des paiements validés
+     */
+    public function getMontantTotalPayeAttribute(): float
     {
-        // Empêcher les paiements sur souscriptions annulées uniquement
-        if ($this->statut === 'annulee') {
-            return false;
-        }
-
-        // Permettre les paiements même si déjà soldée (pour les sur-paiements)
-        // Pas de limite sur le montant - le souscripteur peut payer autant qu'il veut
-
-        return true;
+        return $this->paymentsValides()->sum('montant');
     }
 
-    public function ajouterPaiement(array $paymentData): SubscriptionPayment
+    /**
+     * Retourne le nombre de paiements
+     */
+    public function getNombrePaiementsAttribute(): int
     {
-        if (!$this->peutRecevoirPaiement($paymentData['montant'])) {
-            throw new \InvalidArgumentException('Paiement non autorisé pour cette souscription');
-        }
-
-        $ancienReste = $this->reste_a_payer;
-        $nouveauReste = $ancienReste - $paymentData['montant'];
-
-        return $this->payments()->create(array_merge($paymentData, [
-            'ancien_reste' => $ancienReste,
-            'nouveau_reste' => $nouveauReste,
-            'subscription_version_at_payment' => $this->version
-        ]));
+        return $this->payments()->count();
     }
 
-    public function mettreAJourMontants(): void
+    /**
+     * Retourne le dernier paiement
+     */
+    public function getDernierPaiementAttribute(): ?SubscriptionPayment
     {
-        $totalPaye = $this->paymentsValides()->sum('montant');
-
-        $this->montant_paye = $totalPaye;
-        $reste = $this->montant_souscrit - $totalPaye;
-        $this->reste_a_payer = $reste > 0 ? $reste : 0;
-
-        // Mise à jour du statut selon le montant payé
-        if ($totalPaye >= $this->montant_souscrit) {
-            $this->statut = 'completement_payee';
-        } elseif ($totalPaye > 0) {
-            $this->statut = 'partiellement_payee';
-        } else {
-            $this->statut = 'active';
-        }
-
-        $this->version++;
-        $this->save();
+        return $this->payments()->latest('date_paiement')->first();
     }
 
-    public function augmenterSouscription(float $nouveauMontant, string $raison = null): bool
+    // Méthodes métier
+
+    /**
+     * Vérifie si un nouveau paiement peut être ajouté
+     */
+    public function peutAccepterPaiement(float $montant): bool
     {
-        if ($nouveauMontant <= $this->montant_souscrit) {
-            throw new \InvalidArgumentException(
-                'Le nouveau montant doit être supérieur au montant actuel'
-            );
-        }
-
-        $ancienMontant = $this->montant_souscrit;
-        $this->montant_souscrit = $nouveauMontant;
-        $this->calculerReste();
-
-        // Log de la modification
-        $this->logs()->create([
-            'action' => 'souscription_modifiee',
-            'donnees_avant' => ['montant_souscrit' => $ancienMontant],
-            'donnees_apres' => ['montant_souscrit' => $nouveauMontant],
-            'commentaire' => $raison ?? "Augmentation de souscription de {$ancienMontant} à {$nouveauMontant}",
-            'user_id' => auth()->id()
-        ]);
-
-        return $this->save();
+        return $this->statut !== 'completement_payee' &&
+               $montant > 0 &&
+               $montant <= $this->reste_a_payer;
     }
 
-    public function obtenirDetailsPaiements(): array
+    /**
+     * Calcule le montant maximum qu'on peut encore payer
+     */
+    public function getMontantMaximumPayable(): float
     {
+        return max(0, $this->reste_a_payer);
+    }
+
+    /**
+     * Retourne les statistiques de paiement
+     */
+    public function getStatistiquesPaiements(): array
+    {
+        $payments = $this->payments()->get();
+        $paymentsValides = $payments->where('statut', 'valide');
+
         return [
-            'montant_initial_souscrit' => $this->montant_souscrit,
-            'montant_total_paye' => $this->montant_paye,
-            'reste_a_payer' => $this->reste_a_payer_real,
-            'montant_sur_paye' => $this->montant_sur_paye,
-            'est_soldee' => $this->est_soldee,
-            'est_sur_payee' => $this->est_sur_payee,
-            'pourcentage_paye' => $this->pourcentage_paye,
-            'nombre_paiements' => $this->paymentsValides()->count(),
-            'dernier_paiement' => $this->paymentsValides()->latest('date_paiement')->first()?->date_paiement
+            'nb_paiements_total' => $payments->count(),
+            'nb_paiements_valides' => $paymentsValides->count(),
+            'nb_paiements_en_attente' => $payments->where('statut', 'en_attente')->count(),
+            'nb_paiements_rejetes' => $payments->where('statut', 'rejete')->count(),
+            'montant_total_paye' => $paymentsValides->sum('montant'),
+            'montant_moyen_paiement' => $paymentsValides->avg('montant') ?? 0,
+            'premier_paiement' => $paymentsValides->min('date_paiement'),
+            'dernier_paiement' => $paymentsValides->max('date_paiement'),
         ];
     }
 
-    public function annuler(string $raison = null): bool
+    /**
+     * Retourne l'historique des paiements formaté
+     */
+    public function getHistoriquePaiements()
     {
-        if ($this->montant_paye > 0) {
-            throw new \InvalidArgumentException(
-                'Impossible d\'annuler une souscription avec des paiements validés'
-            );
-        }
-
-        $this->statut = 'annulee';
-
-        // Log de l'annulation
-        $this->logs()->create([
-            'action' => 'souscription_annulee',
-            'commentaire' => $raison,
-            'user_id' => auth()->id()
-        ]);
-
-        return $this->save();
+        return $this->payments()
+                    ->with('validateur')
+                    ->orderBy('date_paiement', 'desc')
+                    ->get();
     }
 
-    // Events
+    /**
+     * Vérifie si la souscription nécessite une attention particulière
+     */
+    public function necessiteAttention(): bool
+    {
+        return $this->en_retard ||
+               $this->paymentsEnAttente()->exists() ||
+               ($this->date_echeance && $this->jours_restants <= 7 && $this->statut !== 'completement_payee');
+    }
+
+    /**
+     * Retourne le statut en français
+     */
+    public function getStatutLibelle(): string
+    {
+        return match($this->statut) {
+            'inactive' => 'Inactive',
+            'partiellement_payee' => 'Partiellement payée',
+            'completement_payee' => 'Complètement payée',
+            default => 'Statut inconnu'
+        };
+    }
+
+    /**
+     * Retourne le statut global en français
+     */
+    public function getStatutGlobalLibelle(): string
+    {
+        return match($this->statut_global) {
+            'tres_faible' => 'Très faible',
+            'en_cours' => 'En cours',
+            'presque_atteint' => 'Presque atteint',
+            'objectif_atteint' => 'Objectif atteint',
+            default => 'Statut inconnu'
+        };
+    }
+
+    // Événements du modèle
+
     protected static function booted()
     {
-        static::creating(function ($subscription) {
-            if (!$subscription->date_souscription) {
-                $subscription->date_souscription = now();
+        // Validation avant sauvegarde
+        static::saving(function ($subscription) {
+            if ($subscription->montant_souscrit <= 0) {
+                throw new \InvalidArgumentException('Le montant souscrit doit être supérieur à zéro');
             }
-
-            $subscription->reste_a_payer = $subscription->montant_souscrit;
+            if ($subscription->date_echeance && $subscription->date_echeance < $subscription->date_souscription) {
+                throw new \InvalidArgumentException('La date d\'échéance ne peut pas être antérieure à la date de souscription');
+            }
         });
 
-        static::created(function ($subscription) {
-            $subscription->logs()->create([
-                'action' => 'souscription_creee',
-                'donnees_apres' => $subscription->toArray(),
-                'user_id' => auth()->id()
-            ]);
+        // Mise à jour automatique après sauvegarde
+        static::saved(function ($subscription) {
+            // Les triggers PostgreSQL s'occupent des calculs automatiques
+            // Mais on peut ajouter des actions supplémentaires ici si nécessaire
         });
     }
 }

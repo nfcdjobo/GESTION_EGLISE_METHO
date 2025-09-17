@@ -45,6 +45,7 @@
             </div>
         </div>
     <?php else: ?>
+        <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('paiements.create')): ?>
         <!-- Formulaire de paiement -->
         <form action="<?php echo e(route('private.paiements.store')); ?>" method="POST" id="paymentForm" class="space-y-8">
             <?php echo csrf_field(); ?>
@@ -318,6 +319,7 @@ unset($__errorArgs, $__bag); ?>
                 </div>
             </div>
         </form>
+        <?php endif; ?>
     <?php endif; ?>
 </div>
 

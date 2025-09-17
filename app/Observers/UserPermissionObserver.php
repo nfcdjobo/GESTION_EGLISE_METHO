@@ -32,7 +32,7 @@ class UserPermissionObserver
             'user_agent' => request()->userAgent(),
         ]);
 
-        // Rafraîchir le cache de l'utilisateur
+        // Rafraîchir le cache de l'membres
         dispatch(new RefreshPermissionCache($userPermission->user_id));
 
         // Mettre à jour last_used_at de la permission
@@ -40,7 +40,7 @@ class UserPermissionObserver
             $userPermission->permission->updateLastUsed();
         }
 
-        Log::info("Permission accordée à un utilisateur", [
+        Log::info("Permission accordée à un membres", [
             'user_id' => $userPermission->user_id,
             'permission_id' => $userPermission->permission_id,
             'granted_by' => $userPermission->granted_by,
@@ -74,10 +74,10 @@ class UserPermissionObserver
             'user_agent' => request()->userAgent(),
         ]);
 
-        // Rafraîchir le cache de l'utilisateur
+        // Rafraîchir le cache de l'membres
         dispatch(new RefreshPermissionCache($userPermission->user_id));
 
-        Log::info("Permission utilisateur mise à jour", [
+        Log::info("Permission membres mise à jour", [
             'user_permission_id' => $userPermission->id,
             'action' => $action,
             'changes' => $changes,
@@ -101,10 +101,10 @@ class UserPermissionObserver
             'user_agent' => request()->userAgent(),
         ]);
 
-        // Rafraîchir le cache de l'utilisateur
+        // Rafraîchir le cache de l'membres
         dispatch(new RefreshPermissionCache($userPermission->user_id));
 
-        Log::warning("Permission retirée d'un utilisateur", [
+        Log::warning("Permission retirée d'un membres", [
             'user_id' => $userPermission->user_id,
             'permission_id' => $userPermission->permission_id,
             'deleted_by' => auth()->id(),

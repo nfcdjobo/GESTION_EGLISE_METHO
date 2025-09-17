@@ -90,7 +90,7 @@
                                 <i class="fa fa-user-check fa-3x text-success"></i>
                             </div>
                             <h2 class="text-success">{{ $activeUsers ?? 0 }}</h2>
-                            <p>Utilisateurs Actifs</p>
+                            <p>Membress Actifs</p>
                             <small class="text-info">
                                 Taux d'utilisation: {{ $usageRate ?? 0 }}%
                             </small>
@@ -166,7 +166,7 @@
                 <div class="white_shd full margin_bottom_30">
                     <div class="full graph_head">
                         <div class="heading1 margin_0">
-                            <h2>Évolution des Rôles et Utilisateurs</h2>
+                            <h2>Évolution des Rôles et Membress</h2>
                         </div>
                     </div>
                     <div class="full graph_revenue">
@@ -192,7 +192,7 @@
                                     <tr>
                                         <th>Rang</th>
                                         <th>Rôle</th>
-                                        <th>Utilisateurs</th>
+                                        <th>Membress</th>
                                         <th>Permissions</th>
                                         <th>Utilisation</th>
                                     </tr>
@@ -339,7 +339,7 @@
                                         <i class="fa fa-info-circle"></i>
                                         Rôles Inutilisés
                                     </h5>
-                                    <p class="mb-2">{{ $unusedRoles ?? 0 }} rôle(s) ne sont assignés à aucun utilisateur.</p>
+                                    <p class="mb-2">{{ $unusedRoles ?? 0 }} rôle(s) ne sont assignés à aucun membres.</p>
                                     @if(($unusedRoles ?? 0) > 0)
                                         <hr>
                                         <p class="mb-0">
@@ -568,7 +568,7 @@ new Chart(evolutionCtx, {
                 tension: 0.4
             },
             {
-                label: 'Utilisateurs Assignés',
+                label: 'Membress Assignés',
                 data: chartData.evolution.users || [],
                 borderColor: '#28a745',
                 backgroundColor: 'rgba(40, 167, 69, 0.1)',

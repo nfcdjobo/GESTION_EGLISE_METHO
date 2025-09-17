@@ -18,6 +18,16 @@ use Illuminate\Validation\ValidationException;
 
 class ProjetController extends Controller
 {
+    public function __construct()
+{
+    $this->middleware('auth');
+    $this->middleware('permission:projets.read')->only(['index', 'show', 'statistiques', 'projetsPublics', 'options', 'validerWorkflow']);
+    $this->middleware('permission:projets.create')->only(['create', 'store', 'dupliquer']);
+    $this->middleware('permission:projets.update')->only(['edit', 'update', 'mettreAJourProgression', 'uploadImage', 'planifier', 'rechercherFinancement', 'mettreEnAttente', 'demarrer', 'suspendre', 'reprendre', 'terminer', 'annuler', 'executerAction']);
+    $this->middleware('permission:projets.delete')->only(['destroy']);
+    $this->middleware('permission:projets.approve')->only(['approuver']);
+}
+
     /**
      * Affiche la liste des projets avec filtrage et pagination
      */

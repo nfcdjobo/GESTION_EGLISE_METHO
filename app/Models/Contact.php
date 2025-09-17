@@ -154,7 +154,7 @@ class Contact extends Model
     }
 
     /**
-     * Utilisateur qui a créé le contact
+     * Membres qui a créé le contact
      */
     public function createur()
     {
@@ -162,7 +162,7 @@ class Contact extends Model
     }
 
     /**
-     * Dernier utilisateur qui a modifié le contact
+     * Dernier membres qui a modifié le contact
      */
     public function modificateur()
     {

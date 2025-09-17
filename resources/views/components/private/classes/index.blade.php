@@ -427,7 +427,7 @@ function loadMemberContent(classeId) {
         if (data.success) {
             // Afficher les membres
             const members = data.data.membres.data
-            content.innerHTML = generateMemberContent(members);
+            content.innerHTML = generateMemberContent(members, classeId);
         } else {
             content.innerHTML = '<p class="text-red-600">Erreur lors du chargement des membres</p>';
         }
@@ -439,7 +439,7 @@ function loadMemberContent(classeId) {
 }
 
 // Générer le contenu des membres
-function generateMemberContent(membres) {
+function generateMemberContent(membres, classeId) {
     if (membres.length === 0) {
         return '<p class="text-slate-500 text-center py-4">Aucun membre inscrit dans cette classe</p>';
     }
@@ -457,7 +457,7 @@ function generateMemberContent(membres) {
                         <p class="text-sm text-slate-500">${membre.email}</p>
                     </div>
                 </div>
-                <button onclick="removeMember('${membre.id}')" class="text-red-600 hover:text-red-800">
+                <button onclick="removeMember('${membre.id}', '${classeId}')" class="text-red-600 hover:text-red-800">
                     <i class="fas fa-times"></i>
                 </button>
             </div>
@@ -466,6 +466,56 @@ function generateMemberContent(membres) {
     html += '</div>';
 
     return html;
+}
+
+// Retirer un membre
+function removeMember(userId) {
+    if (!confirm('Êtes-vous sûr de vouloir retirer ce membre de la classe ?')) {
+        return;
+    }
+
+    fetch("{{ route('private.classes.desinscrire', $classe->id) }}", {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+            'X-Requested-With': 'XMLHttpRequest'
+        },
+        body: JSON.stringify({
+            user_id: userId
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showSuccessMessage(data.message);
+            setTimeout(() => location.reload(), 1500);
+        } else {
+            alert(data.message || 'Erreur lors de la suppression du membre');
+        }
+    })
+    .catch(error => {
+        console.error('Erreur:', error);
+        alert('Une erreur est survenue');
+    });
+}
+
+// Fonction d'affichage des messages de succès
+function showSuccessMessage(message) {
+    const alertDiv = document.createElement('div');
+    alertDiv.className = 'fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50';
+    alertDiv.innerHTML = `
+        <div class="flex items-center">
+            <i class="fas fa-check-circle mr-2"></i>
+            <span>${message}</span>
+        </div>
+    `;
+    document.body.appendChild(alertDiv);
+
+    setTimeout(() => {
+        alertDiv.remove();
+    }, 3000);
 }
 
 // Actions groupées

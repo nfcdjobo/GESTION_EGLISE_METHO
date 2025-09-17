@@ -103,11 +103,11 @@ class ParticipantCulte extends Model
      */
 
     /**
-     * Relation avec l'utilisateur participant
+     * Relation avec l'membres participant
      */
     public function participant(): BelongsTo
     {
-        
+
         return $this->belongsTo(User::class, 'participant_id');
     }
 
@@ -120,7 +120,7 @@ class ParticipantCulte extends Model
     }
 
     /**
-     * Relation avec l'utilisateur qui a confirmé la présence
+     * Relation avec l'membres qui a confirmé la présence
      */
     public function confirmateur(): BelongsTo
     {
@@ -128,7 +128,7 @@ class ParticipantCulte extends Model
     }
 
     /**
-     * Relation avec l'utilisateur qui a enregistré la participation
+     * Relation avec l'membres qui a enregistré la participation
      */
     public function enregistreur(): BelongsTo
     {
@@ -136,7 +136,7 @@ class ParticipantCulte extends Model
     }
 
     /**
-     * Relation avec l'utilisateur accompagnateur
+     * Relation avec l'membres accompagnateur
      */
     public function accompagnateur(): BelongsTo
     {

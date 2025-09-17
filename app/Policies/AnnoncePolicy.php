@@ -13,7 +13,7 @@ class AnnoncePolicy
      */
     public function viewAny(User $user): bool
     {
-        // Tous les utilisateurs connectés peuvent voir les annonces
+        // Tous les membres connectés peuvent voir les annonces
         return true;
     }
 
@@ -128,7 +128,7 @@ class AnnoncePolicy
      */
     public function duplicate(User $user, Annonce $annonce): bool
     {
-        // Tous les utilisateurs autorisés à créer peuvent dupliquer
+        // Tous les membres autorisés à créer peuvent dupliquer
         return $this->create($user);
     }
 

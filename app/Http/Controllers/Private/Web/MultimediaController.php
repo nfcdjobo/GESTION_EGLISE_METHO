@@ -22,6 +22,18 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class MultimediaController extends Controller
 {
+
+    public function __construct()
+{
+    $this->middleware('auth');
+    $this->middleware('permission:multimedia.read')->only(['index', 'show', 'download', 'galerie', 'statistiques']);
+    $this->middleware('permission:multimedia.create')->only(['create', 'store']);
+    $this->middleware('permission:multimedia.update')->only(['edit', 'update', 'toggleFeatured']);
+    $this->middleware('permission:multimedia.delete')->only(['destroy']);
+    $this->middleware('permission:multimedia.moderate')->only(['approve', 'reject', 'bulkModerate']);
+}
+
+
     /**
      * Afficher la liste des médias avec filtrage et pagination
      */
@@ -576,7 +588,7 @@ class MultimediaController extends Controller
              */
             $user = Auth::user();
 
-            // Seuls les utilisateurs autorisés peuvent modifier ces champs
+            // Seuls les membres autorisés peuvent modifier ces champs
             if ($user->can('feature_media')) {
                 $updateData['est_featured'] = $request->boolean('est_featured');
             }
@@ -703,6 +715,7 @@ class MultimediaController extends Controller
                     ], 403);
                 }
                 abort(403, 'Accès non autorisé');
+
             }
 
             // Incrémenter les téléchargements

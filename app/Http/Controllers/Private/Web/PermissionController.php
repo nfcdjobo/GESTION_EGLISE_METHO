@@ -17,17 +17,17 @@ class PermissionController extends Controller
     protected PermissionService $permissionService;
 
     public function __construct(PermissionService $permissionService)
-    {
-        $this->permissionService = $permissionService;
+{
+    $this->permissionService = $permissionService;
 
-        $this->middleware('auth');
-        $this->middleware('permission:permissions.read')->only(['index', 'show', 'statistics']);
-        $this->middleware('permission:permissions.create')->only(['create', 'store']);
-        $this->middleware('permission:permissions.update')->only(['edit', 'update', 'toggle']);
-        $this->middleware('permission:permissions.delete')->only(['destroy']);
-        $this->middleware('permission:permissions.manage')->only(['bulkAssign', 'bulkActions', 'clone']);
-        $this->middleware('permission:permissions.export')->only(['export']);
-    }
+    $this->middleware('auth');
+    $this->middleware('permission:permissions.read')->only(['index', 'show', 'statistics', 'search', 'checkUserPermissions']);
+    $this->middleware('permission:permissions.create')->only(['create', 'store']);
+    $this->middleware('permission:permissions.update')->only(['edit', 'update', 'toggle']);
+    $this->middleware('permission:permissions.delete')->only(['destroy']);
+    $this->middleware('permission:permissions.manage')->only(['bulkAssign', 'bulkActions', 'clone']);
+    $this->middleware('permission:permissions.export')->only(['export']);
+}
 
     /**
      * Afficher la liste des permissions
@@ -80,14 +80,15 @@ class PermissionController extends Controller
             }
 
             // Pagination
-            $perPage = $request->get('per_page', 20);
-            $permissions = $query->with(['createur:id,nom,prenom', 'modificateur:id,nom,prenom'])
-                                ->paginate($perPage)
-                                ->withQueryString();
 
-            // Ajouter les statistiques pour chaque permission si demandé
+            $perPage = $request->get('per_page', 20);
+             /** @var \Illuminate\Pagination\LengthAwarePaginator $permissions */
+            $permissions = $query->with(['createur:id,nom,prenom', 'modificateur:id,nom,prenom'])
+                ->paginate($perPage)
+                ->appends(request()->query());
+
             if ($request->boolean('with_stats')) {
-                $permissions->through(function ($permission) {
+                $permissions = $permissions->through(function ($permission) {
                     $permission->total_roles = $permission->roles()->count();
                     $permission->total_users = $permission->users()->count();
                     return $permission;
@@ -504,7 +505,7 @@ class PermissionController extends Controller
                 }
             }
 
-            // Attribuer aux utilisateurs
+            // Attribuer aux membres
             if (!empty($validated['user_ids'])) {
                 foreach ($validated['user_ids'] as $userId) {
                     $user = User::find($userId);
@@ -730,7 +731,7 @@ class PermissionController extends Controller
                     ]);
 
                 default: // CSV
-                    $csv = "ID,Nom,Slug,Description,Ressource,Action,Catégorie,Actif,Système,Rôles,Utilisateurs directs\n";
+                    $csv = "ID,Nom,Slug,Description,Ressource,Action,Catégorie,Actif,Système,Rôles,Membress directs\n";
 
                     foreach ($permissions as $permission) {
                         $csv .= sprintf(
@@ -889,7 +890,7 @@ class PermissionController extends Controller
     }
 
     /**
-     * Vérifier les permissions d'un utilisateur
+     * Vérifier les permissions d'un membres
      */
     public function checkUserPermissions(Request $request, User $user)
     {

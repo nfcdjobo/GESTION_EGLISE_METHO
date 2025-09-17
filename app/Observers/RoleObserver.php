@@ -59,7 +59,7 @@ class RoleObserver
             $this->checkHierarchyImplications($role, $original['level']);
         }
 
-        // Rafraîchir le cache des utilisateurs affectés
+        // Rafraîchir le cache des membres affectés
         $this->refreshAffectedUsersCache($role);
 
         Log::info("Rôle mis à jour", [
@@ -138,7 +138,7 @@ class RoleObserver
     }
 
     /**
-     * Rafraîchir le cache des utilisateurs affectés
+     * Rafraîchir le cache des membres affectés
      */
     protected function refreshAffectedUsersCache(Role $role): void
     {

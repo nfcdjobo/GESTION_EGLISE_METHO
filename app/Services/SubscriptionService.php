@@ -27,7 +27,7 @@ class SubscriptionService
                 throw SubscriptionException::fimecoInactive();
             }
 
-            // Vérifier si l'utilisateur n'a pas déjà souscrit
+            // Vérifier si l'membres n'a pas déjà souscrit
             $existingSubscription = Subscription::where('fimeco_id', $data['fimeco_id'])
                 ->where('souscripteur_id', $data['souscripteur_id'])
                 ->first();
@@ -94,7 +94,7 @@ class SubscriptionService
         });
     }
 
-    public function obtenirSouscriptionsUtilisateur(string $userId, ?string $fimecoId = null): \Illuminate\Database\Eloquent\Collection
+    public function obtenirSouscriptionsMembres(string $userId, ?string $fimecoId = null): \Illuminate\Database\Eloquent\Collection
     {
         $query = Subscription::where('souscripteur_id', $userId)
             ->with(['fimeco', 'paymentsValides']);
@@ -119,9 +119,9 @@ class SubscriptionService
         return $query->orderBy('date_echeance')->get();
     }
 
-    public function calculerStatistiquesUtilisateur(string $userId): array
+    public function calculerStatistiquesMembres(string $userId): array
     {
-        $subscriptions = $this->obtenirSouscriptionsUtilisateur($userId);
+        $subscriptions = $this->obtenirSouscriptionsMembres($userId);
 
         return [
             'total_subscriptions' => $subscriptions->count(),
@@ -191,7 +191,7 @@ class SubscriptionService
     }
 
     /**
-     * Récupérer les FIMECO disponibles pour souscription pour un utilisateur
+     * Récupérer les FIMECO disponibles pour souscription pour un membres
      *
      * @param string $userId
      * @return \Illuminate\Database\Eloquent\Collection
@@ -207,7 +207,7 @@ class SubscriptionService
     }
 
     /**
-     * Vérifier si un utilisateur peut souscrire à une FIMECO
+     * Vérifier si un membres peut souscrire à une FIMECO
      *
      * @param string $userId
      * @param string $fimecoId
@@ -221,7 +221,7 @@ class SubscriptionService
             return false;
         }
 
-        // Vérifier que l'utilisateur n'a pas déjà souscrit
+        // Vérifier que l'membres n'a pas déjà souscrit
         $souscriptionExistante = Subscription::where('souscripteur_id', $userId)
             ->where('fimeco_id', $fimecoId)
             ->whereNotIn('statut', ['annulee'])

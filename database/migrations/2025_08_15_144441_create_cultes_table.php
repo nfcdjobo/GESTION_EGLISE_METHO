@@ -144,8 +144,8 @@ return new class extends Migration
             $table->decimal('note_organisation', 3, 1)->nullable()->comment('Note de l\'organisation (1-10)');
 
             // Informations de création et modification
-            $table->uuid('cree_par')->nullable()->comment('Utilisateur qui a créé l\'enregistrement');
-            $table->uuid('modifie_par')->nullable()->comment('Dernier utilisateur ayant modifié');
+            $table->uuid('cree_par')->nullable()->comment('Membres qui a créé l\'enregistrement');
+            $table->uuid('modifie_par')->nullable()->comment('Dernier membres ayant modifié');
 
             // Timestamps standards
             $table->timestamps();

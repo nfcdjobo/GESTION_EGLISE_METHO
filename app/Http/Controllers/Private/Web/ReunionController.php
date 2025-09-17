@@ -417,7 +417,7 @@ class ReunionController extends Controller
 
             return back()->with('error', 'Cette réunion ne peut pas être commencée dans son état actuel');
         }
-        
+
         try {
             $reunion->commencer(auth()->id());
 
@@ -788,7 +788,7 @@ class ReunionController extends Controller
         }
 
         try {
-            // Vérifier si l'utilisateur n'est pas déjà inscrit
+            // Vérifier si l'membres n'est pas déjà inscrit
             // TODO: Implémenter la logique d'inscription
 
             $reunion->increment('nombre_inscrits');

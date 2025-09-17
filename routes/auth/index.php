@@ -25,7 +25,7 @@ Route::prefix('security')->name('security.')->group(function () {
         Route::post('/password/reset', [AuthenteController::class, 'resetPassword'])->name('password.update');
     });
 
-    // Routes accessibles aux utilisateurs authentifiés seulement
+    // Routes accessibles aux membres authentifiés seulement
     Route::middleware('auth')->group(function () {
         // Déconnexion
         Route::post('/logout', [AuthenteController::class, 'logout'])->name('logout');

@@ -180,12 +180,12 @@
 
         <!-- Sidebar -->
         <div class="space-y-6">
-            <!-- Informations utilisateur -->
+            <!-- Informations membres -->
             <div class="bg-white/80 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
                 <div class="p-6 border-b border-slate-200">
                     <h2 class="text-xl font-bold text-slate-800 flex items-center">
                         <i class="fas fa-user text-green-600 mr-2"></i>
-                        Utilisateur
+                        Membres
                     </h2>
                 </div>
                 <div class="p-6">
@@ -207,7 +207,7 @@
                             @can('users.read')
                                 <a href="{{ route('private.users.show', $auditLog->user) }}" class="inline-flex items-center px-4 py-2 bg-slate-600 text-white text-sm font-medium rounded-xl hover:bg-slate-700 transition-colors w-full justify-center">
                                     <i class="fas fa-user mr-2"></i>
-                                    Profil utilisateur
+                                    Profil membres
                                 </a>
                             @endcan
                         </div>
@@ -223,13 +223,13 @@
                 </div>
             </div>
 
-            <!-- Utilisateur cible -->
+            <!-- Membres cible -->
             @if($auditLog->targetUser)
                 <div class="bg-white/80 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
                     <div class="p-6 border-b border-slate-200">
                         <h2 class="text-xl font-bold text-slate-800 flex items-center">
                             <i class="fas fa-bullseye text-orange-600 mr-2"></i>
-                            Utilisateur Cible
+                            Membres Cible
                         </h2>
                     </div>
                     <div class="p-6">
@@ -250,7 +250,7 @@
                             @can('users.read')
                                 <a href="{{ route('private.users.show', $auditLog->targetUser) }}" class="inline-flex items-center px-4 py-2 bg-slate-600 text-white text-sm font-medium rounded-xl hover:bg-slate-700 transition-colors w-full justify-center">
                                     <i class="fas fa-user mr-2"></i>
-                                    Profil utilisateur
+                                    Profil membres
                                 </a>
                             @endcan
                         </div>
@@ -338,7 +338,7 @@
                 <h2 class="text-xl font-bold text-slate-800 flex items-center">
                     <i class="fas fa-link text-indigo-600 mr-2"></i>
                     Logs Connexes
-                    <span class="ml-2 text-sm font-normal text-slate-500">(même utilisateur, ±5 minutes)</span>
+                    <span class="ml-2 text-sm font-normal text-slate-500">(même membres, ±5 minutes)</span>
                 </h2>
             </div>
             <div class="p-6">

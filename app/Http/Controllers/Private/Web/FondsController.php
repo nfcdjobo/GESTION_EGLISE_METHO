@@ -24,16 +24,15 @@ use Illuminate\Validation\ValidationException;
 class FondsController extends Controller
 {
     public function __construct()
-    {
-        $this->middleware('auth');
-        $this->middleware('permission:voir_fonds')->only(['index', 'show', 'dashboard', 'statistics']);
-        $this->middleware('permission:creer_fonds')->only(['create', 'store']);
-        $this->middleware('permission:modifier_fonds')->only(['edit', 'update']);
-        $this->middleware('permission:supprimer_fonds')->only(['destroy']);
-        $this->middleware('permission:valider_fonds')->only(['validateTransaction', 'cancel', 'refund']);
-        $this->middleware('permission:generer_recu')->only(['generateReceipt']);
-        $this->middleware('permission:analyser_fonds')->only(['analytics', 'reports']);
-    }
+{
+    $this->middleware('auth');
+    $this->middleware('permission:fonds.read')->only(['index', 'show', 'dashboard', 'statistics', 'analytics']);
+    $this->middleware('permission:fonds.create')->only(['create', 'store']);
+    $this->middleware('permission:fonds.update')->only(['edit', 'update', 'validateTransaction', 'cancel', 'refund']);
+    $this->middleware('permission:fonds.delete')->only(['destroy']);
+    $this->middleware('permission:fonds.export')->only(['export']);
+    $this->middleware('permission:fonds.receipt')->only(['generateReceipt']);
+}
 
     /**
      * Retourne une réponse standardisée selon le type de requête

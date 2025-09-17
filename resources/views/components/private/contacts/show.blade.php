@@ -181,7 +181,7 @@
                         </div>
                         <div class="ml-4">
                             <p class="text-2xl font-bold text-slate-800">{{ number_format($contact->nombre_membres) }}</p>
-                            <p class="text-sm text-slate-500">Membres</p>
+                            <p class="text-sm text-slate-500"</p>
                         </div>
                     </div>
                 </div>

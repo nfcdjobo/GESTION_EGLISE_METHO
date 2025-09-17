@@ -264,32 +264,35 @@
                                         </a>
                                     @endcan
 
-                                    @can('update', $rapport)
+                                    @can('rapports-reunions.update')
                                         <a href="{{ route('private.rapports-reunions.edit', $rapport) }}" class="inline-flex items-center justify-center w-8 h-8 text-yellow-600 bg-yellow-100 rounded-lg hover:bg-yellow-200 transition-colors" title="Modifier">
                                             <i class="fas fa-edit text-sm"></i>
                                         </a>
                                     @endcan
 
+                                    @can('rapports-reunions.revision')
                                     @if($rapport->statut === 'brouillon')
                                         <button type="button" onclick="changerStatut('{{ $rapport->id }}', 'en_revision')" class="inline-flex items-center justify-center w-8 h-8 text-blue-600 bg-blue-100 rounded-lg hover:bg-blue-200 transition-colors" title="Passer en révision">
                                             <i class="fas fa-arrow-right text-sm"></i>
                                         </button>
                                     @endif
+                                    @endcan
 
                                     @if($rapport->statut === 'en_revision')
                                         <button type="button" onclick="openValidationModal('{{ $rapport->id }}')" class="inline-flex items-center justify-center w-8 h-8 text-green-600 bg-green-100 rounded-lg hover:bg-green-200 transition-colors" title="Valider">
                                             <i class="fas fa-check text-sm"></i>
                                         </button>
                                     @endif
-
+                                    @can('rapports-reunions.publish')
                                     @if($rapport->statut === 'valide')
                                         <button type="button" onclick="changerStatut('{{ $rapport->id }}', 'publie')" class="inline-flex items-center justify-center w-8 h-8 text-purple-600 bg-purple-100 rounded-lg hover:bg-purple-200 transition-colors" title="Publier">
                                             <i class="fas fa-share text-sm"></i>
                                         </button>
                                     @endif
+                                    @endcan
                                 </div>
 
-                                @can('delete', $rapport)
+                                @can('rapports-reunions.delete')
                                     @if($rapport->statut !== 'publie')
                                         <button type="button" onclick="supprimerRapport('{{ $rapport->id }}')" class="inline-flex items-center justify-center w-8 h-8 text-red-600 bg-red-100 rounded-lg hover:bg-red-200 transition-colors" title="Supprimer">
                                             <i class="fas fa-trash text-sm"></i>
@@ -324,7 +327,7 @@
                             Commencez par créer votre premier rapport de réunion.
                         @endif
                     </p>
-                    @can('create', App\Models\RapportReunion::class)
+                    @can('rapports-reunions.create')
                         <a href="{{ route('private.rapports-reunions.create') }}" class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-medium rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-200 shadow-md hover:shadow-lg">
                             <i class="fas fa-plus mr-2"></i> Créer un rapport
                         </a>
@@ -357,9 +360,11 @@
             <button type="button" onclick="closeValidationModal()" class="px-4 py-2 text-slate-700 bg-slate-100 rounded-xl hover:bg-slate-200 transition-colors">
                 Annuler
             </button>
+            @can('rapports-reunions.validate')
             <button type="button" onclick="validerRapport()" class="px-4 py-2 bg-green-600 text-white rounded-xl hover:bg-green-700 transition-colors">
                 Valider
             </button>
+            @endcan
         </div>
     </div>
 </div>

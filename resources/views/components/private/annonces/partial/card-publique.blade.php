@@ -1,4 +1,4 @@
-{{-- components/private/annonces/partials/card-publique.blade.php --}}
+
 <div class="bg-gradient-to-br from-white to-slate-50 rounded-xl border border-slate-200 p-6 hover:shadow-lg transition-all duration-300 hover:-translate-y-1 {{ isset($urgent) && $urgent ? 'border-red-300 bg-gradient-to-br from-red-50 to-red-100' : '' }}">
     <!-- Header -->
     <div class="flex items-start justify-between mb-4">

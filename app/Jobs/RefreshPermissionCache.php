@@ -43,16 +43,16 @@ class RefreshPermissionCache implements ShouldQueue
 
                 Log::info("Cache des permissions complètement rafraîchi");
             } elseif ($this->userId) {
-                // Rafraîchir le cache d'un utilisateur spécifique
+                // Rafraîchir le cache d'un membres spécifique
                 $user = User::find($this->userId);
                 if ($user) {
                     $user->clearPermissionsCache();
                     Cache::tags(["user_{$this->userId}"])->flush();
 
-                    // Pré-charger les permissions de l'utilisateur
+                    // Pré-charger les permissions de l'membres
                     $user->getAllPermissions();
 
-                    Log::info("Cache des permissions rafraîchi pour l'utilisateur", [
+                    Log::info("Cache des permissions rafraîchi pour l'membres", [
                         'user_id' => $this->userId,
                     ]);
                 }

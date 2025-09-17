@@ -270,7 +270,7 @@
                                                 </a>
                                             <?php endif; ?>
 
-                                            <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check(['permissions.update', 'permissions.toggle'])): ?>
+                                            <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->any(['permissions.update', 'permissions.toggle'])): ?>
                                                 <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('permissions.update')): ?>
                                                 <?php if(!$permission->is_system || auth()->user()->isSuperAdmin()): ?>
                                                     <a href="<?php echo e(route('private.permissions.edit', $permission)); ?>" class="inline-flex items-center justify-center w-8 h-8 text-yellow-600 bg-yellow-100 rounded-lg hover:bg-yellow-200 transition-colors" title="Modifier">

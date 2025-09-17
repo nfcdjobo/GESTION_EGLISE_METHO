@@ -268,7 +268,7 @@
                                                 </a>
                                             @endcan
 
-                                            @can(['permissions.update', 'permissions.toggle'])
+                                            @canany(['permissions.update', 'permissions.toggle'])
                                                 @can('permissions.update')
                                                 @if(!$permission->is_system || auth()->user()->isSuperAdmin())
                                                     <a href="{{ route('private.permissions.edit', $permission) }}" class="inline-flex items-center justify-center w-8 h-8 text-yellow-600 bg-yellow-100 rounded-lg hover:bg-yellow-200 transition-colors" title="Modifier">
@@ -281,7 +281,7 @@
                                                     <i class="fas fa-power-off text-sm"></i>
                                                 </button>
                                                 @endcan
-                                            @endcan
+                                            @endcanany
 
                                             @can('permissions.clone')
                                                 <button type="button" onclick="clonePermission({{ $permission->id }})" class="inline-flex items-center justify-center w-8 h-8 text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors" title="Cloner">

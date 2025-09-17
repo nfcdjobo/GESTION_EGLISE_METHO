@@ -554,11 +554,11 @@ function closeTransferModal() {
 
 // Fonctions de gestion des membres
 function viewMember(memberId) {
-    window.location.href = `/private/users/${memberId}`;
+    window.location.href = `{{route('private.users.show', ':user')}}`.replace(':user', memberId);
 }
 
 function editMember(memberId) {
-    window.location.href = `/private/users/${memberId}/edit`;
+    window.location.href = `{{route('private.users.edit', ':user')}}`.replace(':user', memberId);;
 }
 
 function removeMember(memberId) {
@@ -673,7 +673,7 @@ function loadAvailableUsersForBulk() {
         </div>
     `;
 
-    fetch("{{ route('private.classes.utilisateurs-disponibles', $classe->id) }}", {
+    fetch("{{ route('private.classes.membres-disponibles', $classe->id) }}", {
         headers: {
             'Accept': 'application/json',
             'X-Requested-With': 'XMLHttpRequest'
@@ -817,7 +817,7 @@ document.getElementById('userSearch').addEventListener('input', function() {
     }
 
     searchTimeout = setTimeout(() => {
-        fetch(`{{ route('private.classes.utilisateurs-disponibles', $classe->id) }}?search=${encodeURIComponent(query)}`, {
+        fetch(`{{ route('private.classes.membres-disponibles', $classe->id) }}?search=${encodeURIComponent(query)}`, {
             headers: {
                 'Accept': 'application/json',
                 'X-Requested-With': 'XMLHttpRequest'

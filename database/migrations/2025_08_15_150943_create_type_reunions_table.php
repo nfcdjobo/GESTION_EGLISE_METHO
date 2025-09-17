@@ -132,8 +132,8 @@ return new class extends Migration
 
             // Informations de gestion
             $table->uuid('responsable_type_id')->nullable()->comment('Responsable par défaut de ce type');
-            $table->uuid('cree_par')->nullable()->comment('Utilisateur qui a créé le type');
-            $table->uuid('modifie_par')->nullable()->comment('Dernier utilisateur ayant modifié');
+            $table->uuid('cree_par')->nullable()->comment('Membres qui a créé le type');
+            $table->uuid('modifie_par')->nullable()->comment('Dernier membres ayant modifié');
             $table->timestamp('derniere_utilisation')->nullable()->comment('Dernière utilisation de ce type');
             $table->integer('nombre_utilisations')->default(0)->comment('Nombre d\'utilisations total');
 

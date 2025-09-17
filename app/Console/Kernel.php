@@ -166,7 +166,7 @@ class Kernel extends ConsoleKernel
                 ->count();
 
             if ($orphanedUserPermissions > 0) {
-                Log::warning("Permissions utilisateur orphelines détectées", [
+                Log::warning("Permissions membres orphelines détectées", [
                     'count' => $orphanedUserPermissions
                 ]);
 
@@ -192,7 +192,7 @@ class Kernel extends ConsoleKernel
                 ->count();
 
             if ($orphanedUserRoles > 0) {
-                Log::warning("Rôles utilisateur orphelins détectés", [
+                Log::warning("Rôles membres orphelins détectés", [
                     'count' => $orphanedUserRoles
                 ]);
 

@@ -245,7 +245,7 @@
                                                 @else
                                                     <span></span>
                                                 @endif
-                                                @can('update', $rapport)
+                                                @can('rapports-reunions.update')
                                                     <button onclick="terminerAction('{{ $action['id'] ?? '' }}')" class="text-green-600 hover:text-green-800 font-medium">
                                                         <i class="fas fa-check mr-1"></i>Marquer terminée
                                                     </button>
@@ -366,33 +366,40 @@
                     </h2>
                 </div>
                 <div class="p-6 space-y-3">
-
+                    @can('rapports-reunions.download-pdf')
                     <button type="button" onclick="exporterPDF()" class="w-full inline-flex items-center justify-center px-4 py-2 bg-gradient-to-r from-red-600 to-pink-600 text-white text-sm font-medium rounded-xl hover:from-red-700 hover:to-pink-700 transition-all duration-200 mb-3">
                         <i class="fas fa-file-pdf mr-2"></i> Exporter en PDF
                     </button>
-
+                    @endcan
+                    @canany(['rapports-reunions.export', 'rapports-reunions.publish'])
                     <div class="grid grid-cols-2 gap-2">
+                        @can('rapports-reunions.export')
                         <a href="{{ route('private.rapports-reunions.export', ['format' => 'excel', 'rapport_ids' => [$rapport->id]]) }}" class="inline-flex items-center justify-center px-3 py-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white text-xs font-medium rounded-lg hover:from-green-700 hover:to-emerald-700 transition-all duration-200">
                             <i class="fas fa-file-excel mr-1"></i> Excel
                         </a>
-
+                        @endcan
+                        @can('rapports-reunions.publish')
                         <button type="button" onclick="partagerRapport()" class="inline-flex items-center justify-center px-3 py-2 bg-gradient-to-r from-blue-600 to-cyan-600 text-white text-xs font-medium rounded-lg hover:from-blue-700 hover:to-cyan-700 transition-all duration-200">
                             <i class="fas fa-share mr-1"></i> Partager
                         </button>
+                        @endcan
                     </div>
+                    @endcanany
 
 
-                    @can('update', $rapport)
+                    @can('rapports-reunions.update')
                         <a href="{{ route('private.rapports-reunions.edit', $rapport) }}" class="w-full inline-flex items-center justify-center px-4 py-2 bg-gradient-to-r from-yellow-600 to-orange-600 text-white text-sm font-medium rounded-xl hover:from-yellow-700 hover:to-orange-700 transition-all duration-200">
                             <i class="fas fa-edit mr-2"></i> Modifier
                         </a>
                     @endcan
 
+                    @can('rapports-reunions.revision')
                     @if($rapport->statut === 'brouillon' && $rapport->peutEtreModifiePar(auth()->user()))
                         <button onclick="changerStatut('en_revision')" class="w-full inline-flex items-center justify-center px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-sm font-medium rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-200">
                             <i class="fas fa-arrow-right mr-2"></i> Passer en révision
                         </button>
                     @endif
+                    @endcan
 
                     @if($rapport->statut === 'en_revision' && auth()->user()->can('validate', $rapport))
                         <button onclick="openValidationModal()" class="w-full inline-flex items-center justify-center px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white text-sm font-medium rounded-xl hover:from-green-700 hover:to-emerald-700 transition-all duration-200">
@@ -403,13 +410,15 @@
                         </button>
                     @endif
 
+                    @can('rapports-reunions.publish')
                     @if($rapport->statut === 'valide' && auth()->user()->can('publish', $rapport))
                         <button onclick="changerStatut('publie')" class="w-full inline-flex items-center justify-center px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white text-sm font-medium rounded-xl hover:from-purple-700 hover:to-pink-700 transition-all duration-200">
                             <i class="fas fa-share mr-2"></i> Publier
                         </button>
                     @endif
+                    @endcan
 
-                    @can('delete', $rapport)
+                    @can('rapports-reunions.delete')
                         @if($rapport->statut !== 'publie')
                             <button onclick="supprimerRapport()" class="w-full inline-flex items-center justify-center px-4 py-2 bg-gradient-to-r from-red-600 to-rose-600 text-white text-sm font-medium rounded-xl hover:from-red-700 hover:to-rose-700 transition-all duration-200">
                                 <i class="fas fa-trash mr-2"></i> Supprimer
@@ -580,9 +589,11 @@
             <button type="button" onclick="closeRejectionModal()" class="px-4 py-2 text-slate-700 bg-slate-100 rounded-xl hover:bg-slate-200 transition-colors">
                 Annuler
             </button>
+            @can('rapports-reunions.reject')
             <button type="button" onclick="rejeterRapport()" class="px-4 py-2 bg-red-600 text-white rounded-xl hover:bg-red-700 transition-colors">
                 Rejeter
             </button>
+            @endcan
         </div>
     </div>
 </div>

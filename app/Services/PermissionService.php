@@ -71,7 +71,7 @@ class PermissionService
     }
 
     /**
-     * Assigner un rôle à un utilisateur
+     * Assigner un rôle à un membres
      */
     public function assignRoleToUser(User $user, $role, ?User $assignedBy = null, ?\DateTime $expiresAt = null): void
     {
@@ -80,7 +80,7 @@ class PermissionService
                 $role = Role::where('slug', $role)->firstOrFail();
             }
 
-            // Vérifier si l'utilisateur a déjà ce rôle
+            // Vérifier si l'membres a déjà ce rôle
             $existingRole = UserRole::where('user_id', $user->id)
                 ->where('role_id', $role->id)
                 ->first();
@@ -108,7 +108,7 @@ class PermissionService
     }
 
     /**
-     * Retirer un rôle d'un utilisateur
+     * Retirer un rôle d'un membres
      */
     public function removeRoleFromUser(User $user, $role): void
     {
@@ -126,7 +126,7 @@ class PermissionService
     }
 
     /**
-     * Accorder une permission directe à un utilisateur
+     * Accorder une permission directe à un membres
      */
     public function grantPermissionToUser(
         User $user,
@@ -172,7 +172,7 @@ class PermissionService
     }
 
     /**
-     * Révoquer une permission d'un utilisateur
+     * Révoquer une permission d'un membres
      */
     public function revokePermissionFromUser(
         User $user,
@@ -241,7 +241,7 @@ class PermissionService
     }
 
     /**
-     * Vérifier si un utilisateur a une permission
+     * Vérifier si un membres a une permission
      */
     public function userHasPermission(User $user, string $permission): bool
     {
@@ -253,7 +253,7 @@ class PermissionService
     }
 
     /**
-     * Vérifier si un utilisateur a un rôle
+     * Vérifier si un membres a un rôle
      */
     public function userHasRole(User $user, string $role): bool
     {
@@ -265,7 +265,7 @@ class PermissionService
     }
 
     /**
-     * Obtenir toutes les permissions d'un utilisateur
+     * Obtenir toutes les permissions d'un membres
      */
     public function getUserPermissions(User $user): Collection
     {
@@ -277,13 +277,13 @@ class PermissionService
     }
 
     /**
-     * Obtenir les utilisateurs ayant une permission spécifique
+     * Obtenir les membres ayant une permission spécifique
      */
     public function getUsersWithPermission(string $permission): Collection
     {
         $permission = Permission::where('slug', $permission)->firstOrFail();
 
-        // Utilisateurs avec permission directe
+        // Membress avec permission directe
         $directUsers = User::whereHas('permissions', function ($query) use ($permission) {
             $query->where('permissions.id', $permission->id)
                   ->where('user_permissions.is_granted', true)
@@ -293,7 +293,7 @@ class PermissionService
                   });
         })->get();
 
-        // Utilisateurs avec permission via rôle
+        // Membress avec permission via rôle
         $roleUsers = User::whereHas('roles.permissions', function ($query) use ($permission) {
             $query->where('permissions.id', $permission->id)
                   ->where('user_roles.actif', true)
@@ -304,7 +304,7 @@ class PermissionService
     }
 
     /**
-     * Obtenir les utilisateurs ayant un rôle spécifique
+     * Obtenir les membres ayant un rôle spécifique
      */
     public function getUsersWithRole(string $role): Collection
     {
@@ -380,7 +380,7 @@ class PermissionService
     }
 
     /**
-     * Audit des permissions d'un utilisateur
+     * Audit des permissions d'un membres
      */
     public function auditUserPermissions(User $user): array
     {
@@ -439,7 +439,7 @@ class PermissionService
     }
 
     /**
-     * Effacer le cache d'un utilisateur spécifique
+     * Effacer le cache d'un membres spécifique
      */
     protected function clearUserCache(User $user): void
     {

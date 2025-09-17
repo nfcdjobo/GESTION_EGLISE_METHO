@@ -6,7 +6,7 @@ Ce document présente tous les modèles Laravel générés pour le système de g
 
 ## Liste des Modèles
 
-### 1. **User.php** - Modèle principal des utilisateurs
+### 1. **User.php** - Modèle principal des membres
 - **Table**: `users`
 - **Relations principales**:
   - `belongsTo`: Classe
@@ -27,7 +27,7 @@ Ce document présente tous les modèles Laravel générés pour le système de g
   - `belongsToMany`: Role, User
 - **Fonctionnalités**: Contrôle d'accès granulaire avec actions et ressources
 
-### 4. **Role.php** - Rôles utilisateurs
+### 4. **Role.php** - Rôles membres
 - **Table**: `roles`
 - **Relations principales**:
   - `belongsToMany`: User, Permission
@@ -103,11 +103,11 @@ Ce document présente tous les modèles Laravel générés pour le système de g
 
 ## Modèles Pivot
 
-### 16. **UserRole.php** - Liaison utilisateurs-rôles
+### 16. **UserRole.php** - Liaison membres-rôles
 - **Table**: `user_roles`
 - **Fonctionnalités**: Gestion des attributions de rôles avec expiration
 
-### 17. **UserPermission.php** - Permissions directes utilisateurs
+### 17. **UserPermission.php** - Permissions directes membres
 - **Table**: `user_permissions`
 - **Fonctionnalités**: Permissions spécifiques avec métadonnées et révocation
 

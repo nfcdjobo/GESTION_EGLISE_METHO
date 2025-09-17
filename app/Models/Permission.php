@@ -53,7 +53,7 @@ class Permission extends Model
     }
 
     /**
-     * Relation avec les utilisateurs (many-to-many)
+     * Relation avec les membres (many-to-many)
      */
     public function users()
     {
@@ -63,7 +63,7 @@ class Permission extends Model
     }
 
     /**
-     * Utilisateur qui a créé la permission
+     * Membres qui a créé la permission
      */
     public function createur()
     {
@@ -71,7 +71,7 @@ class Permission extends Model
     }
 
     /**
-     * Dernier utilisateur qui a modifié la permission
+     * Dernier membres qui a modifié la permission
      */
     public function modificateur()
     {
@@ -135,7 +135,7 @@ class Permission extends Model
     }
 
     /**
-     * Vérifier si la permission est expirée (pour un utilisateur spécifique)
+     * Vérifier si la permission est expirée (pour un membres spécifique)
      */
     public function isExpiredForUser($userId)
     {

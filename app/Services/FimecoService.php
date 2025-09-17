@@ -130,7 +130,7 @@ class FimecoService
             if (isset($data['responsable_id']) && $data['responsable_id']) {
                 $responsable = User::findOrFail($data['responsable_id']);
                 if (!$responsable->hasRole(['admin', 'responsable_fimeco'])) {
-                    throw new \InvalidArgumentException('L\'utilisateur sélectionné ne peut pas être responsable de FIMECO');
+                    throw new \InvalidArgumentException('L\'membres sélectionné ne peut pas être responsable de FIMECO');
                 }
             }
 

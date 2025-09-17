@@ -65,7 +65,7 @@
                     <select name="sort" class="w-full px-3 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
                         <option value="level" <?php echo e(request('sort') == 'level' ? 'selected' : ''); ?>>Niveau</option>
                         <option value="name" <?php echo e(request('sort') == 'name' ? 'selected' : ''); ?>>Nom</option>
-                        <option value="users_count" <?php echo e(request('sort') == 'users_count' ? 'selected' : ''); ?>>Nb Utilisateurs</option>
+                        <option value="users_count" <?php echo e(request('sort') == 'users_count' ? 'selected' : ''); ?>>Nb Membress</option>
                         <option value="created_at" <?php echo e(request('sort') == 'created_at' ? 'selected' : ''); ?>>Date création</option>
                     </select>
                 </div>
@@ -134,7 +134,7 @@
                 </div>
                 <div class="ml-4">
                     <p class="text-2xl font-bold text-slate-800"><?php echo e($roles->sum('users_count')); ?></p>
-                    <p class="text-sm text-slate-500">Utilisateurs assignés</p>
+                    <p class="text-sm text-slate-500">Membress assignés</p>
                 </div>
             </div>
         </div>
@@ -166,7 +166,7 @@
                                 <th class="px-4 py-3 text-left text-xs font-bold text-slate-700 uppercase tracking-wider">Slug</th>
                                 <th class="px-4 py-3 text-left text-xs font-bold text-slate-700 uppercase tracking-wider">Niveau</th>
                                 <th class="px-4 py-3 text-left text-xs font-bold text-slate-700 uppercase tracking-wider">Type</th>
-                                <th class="px-4 py-3 text-left text-xs font-bold text-slate-700 uppercase tracking-wider">Utilisateurs</th>
+                                <th class="px-4 py-3 text-left text-xs font-bold text-slate-700 uppercase tracking-wider">Membress</th>
                                 <th class="px-4 py-3 text-left text-xs font-bold text-slate-700 uppercase tracking-wider">Permissions</th>
                                 <th class="px-4 py-3 text-left text-xs font-bold text-slate-700 uppercase tracking-wider">Statut</th>
                                 <th class="px-4 py-3 text-left text-xs font-bold text-slate-700 uppercase tracking-wider">Actions</th>

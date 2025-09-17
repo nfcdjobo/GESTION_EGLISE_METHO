@@ -31,7 +31,7 @@ class Role extends Model
     ];
 
     /**
-     * Relation avec les utilisateurs (many-to-many)
+     * Relation avec les membres (many-to-many)
      */
     public function users()
     {
@@ -168,9 +168,9 @@ class Role extends Model
     }
 
     /**
-     * Obtenir le nombre d'utilisateurs ayant ce rôle
+     * Obtenir le nombre d'membres ayant ce rôle
      */
-    public function getNombreUtilisateursAttribute()
+    public function getNombreMembressAttribute()
     {
         return $this->users()->wherePivot('actif', true)->count();
     }

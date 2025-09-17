@@ -174,7 +174,7 @@ class RoleController extends Controller
             ->get()
             ->groupBy('category');
 
-        // Utilisateurs récents
+        // Membress récents
         $recentUsers = $role->users()
             ->wherePivot('actif', true)
             ->orderByPivot('attribue_le', 'desc')
@@ -254,7 +254,7 @@ class RoleController extends Controller
         if ($role->users()->count() > 0) {
             return response()->json([
                 'success' => false,
-                'message' => 'Ce rôle est attribué à des utilisateurs et ne peut pas être supprimé.'
+                'message' => 'Ce rôle est attribué à des membres et ne peut pas être supprimé.'
             ], 400);
         }
 
@@ -343,7 +343,7 @@ class RoleController extends Controller
     }
 
     /**
-     * Attribuer un rôle à un utilisateur
+     * Attribuer un rôle à un membres
      */
     public function assignToUser(Request $request, Role $role)
     {
@@ -379,7 +379,7 @@ class RoleController extends Controller
     }
 
     /**
-     * Retirer un rôle d'un utilisateur
+     * Retirer un rôle d'un membres
      */
     public function removeFromUser(Request $request, Role $role)
     {
@@ -487,7 +487,7 @@ class RoleController extends Controller
 
         $roles = Role::with(['permissions', 'users'])->get();
 
-        $csv = "ID,Nom,Slug,Description,Niveau,Système,Nb Utilisateurs,Nb Permissions\n";
+        $csv = "ID,Nom,Slug,Description,Niveau,Système,Nb Membress,Nb Permissions\n";
 
         foreach ($roles as $role) {
             $csv .= sprintf(

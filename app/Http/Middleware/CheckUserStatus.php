@@ -10,7 +10,7 @@ use Symfony\Component\HttpFoundation\Response;
 class CheckUserStatus
 {
     /**
-     * Vérifier que l'utilisateur est actif
+     * Vérifier que l'membres est actif
      *
      * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
      */
@@ -27,7 +27,7 @@ class CheckUserStatus
 
         $user = auth()->user();
 
-        // Vérifier si l'utilisateur est actif
+        // Vérifier si l'membres est actif
         if (!$user->actif) {
             auth()->logout();
 

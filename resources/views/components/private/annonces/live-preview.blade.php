@@ -1,4 +1,4 @@
-{{-- components/private/annonces/live-preview.blade.php --}}
+
 @props([
     'formId' => 'annonceForm',
     'position' => 'sidebar', // sidebar, modal, inline

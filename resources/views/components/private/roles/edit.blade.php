@@ -176,7 +176,7 @@
                                                 <div>
                                                     <strong class="text-yellow-800">Attention:</strong>
                                                     <span class="text-yellow-700">Ce rôle est attribué à
-                                                        {{ $role->users()->count() }} utilisateur(s).
+                                                        {{ $role->users()->count() }} membres(s).
                                                         Les modifications affecteront leurs permissions.</span>
                                                 </div>
                                             </div>
@@ -252,7 +252,7 @@
                                 <div class="flex items-center justify-between">
                                     <div>
                                         <h4 class="text-2xl font-bold text-blue-700">{{ $role->users()->count() }}</h4>
-                                        <p class="text-blue-600 text-sm">Utilisateurs</p>
+                                        <p class="text-blue-600 text-sm">Membress</p>
                                     </div>
                                     <i class="fas fa-users text-2xl text-blue-500"></i>
                                 </div>
@@ -327,12 +327,12 @@
                             <div class="flex items-center">
                                 <span
                                     class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 w-12 justify-center">20-39</span>
-                                <span class="ml-2 text-sm text-slate-600">Membres Actifs</span>
+                                <span class="ml-2 text-sm text-slate-600" Actifs</span>
                             </div>
                             <div class="flex items-center">
                                 <span
                                     class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-800 w-12 justify-center">10-19</span>
-                                <span class="ml-2 text-sm text-slate-600">Membres</span>
+                                <span class="ml-2 text-sm text-slate-600"</span>
                             </div>
                             <div class="flex items-center">
                                 <span
@@ -530,7 +530,7 @@
 
             // Confirmation pour les modifications importantes
             @if ($role->users()->count() > 0)
-                if (!confirm('Ce rôle est attribué à {{ $role->users()->count() }} utilisateur(s). Continuer ?')) {
+                if (!confirm('Ce rôle est attribué à {{ $role->users()->count() }} membres(s). Continuer ?')) {
                     e.preventDefault();
                     return false;
                 }

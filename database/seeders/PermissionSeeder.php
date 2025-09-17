@@ -50,30 +50,30 @@ class PermissionSeeder extends Seeder
     }
 
     /**
-     * Créer les permissions pour les utilisateurs
+     * Créer les permissions pour les membres
      */
     private function createUserPermissions(): void
     {
         $permissions = [
-            ['name' => 'Voir les utilisateurs', 'slug' => 'users.read', 'resource' => 'users', 'action' => 'read'],
-            ['name' => 'Créer des utilisateurs', 'slug' => 'users.create', 'resource' => 'users', 'action' => 'create'],
-            ['name' => 'Modifier les utilisateurs', 'slug' => 'users.update', 'resource' => 'users', 'action' => 'update'],
-            ['name' => 'Supprimer les utilisateurs', 'slug' => 'users.delete', 'resource' => 'users', 'action' => 'delete'],
-            ['name' => 'Exporter les utilisateurs', 'slug' => 'users.export', 'resource' => 'users', 'action' => 'export'],
-            ['name' => 'Importer les utilisateurs', 'slug' => 'users.import', 'resource' => 'users', 'action' => 'import'],
-            ['name' => 'Rechercher les utilisateurs', 'slug' => 'users.search', 'resource' => 'users', 'action' => 'read'],
-            ['name' => 'Valider les utilisateurs', 'slug' => 'users.validate', 'resource' => 'users', 'action' => 'validate'],
-            ['name' => 'Archiver les utilisateurs', 'slug' => 'users.archive', 'resource' => 'users', 'action' => 'archive'],
-            ['name' => 'Restaurer les utilisateurs', 'slug' => 'users.restore', 'resource' => 'users', 'action' => 'restore'],
-            ['name' => 'Changer statut utilisateurs', 'slug' => 'users.toggle-status', 'resource' => 'users', 'action' => 'update'],
+            ['name' => 'Voir les membres', 'slug' => 'users.read', 'resource' => 'users', 'action' => 'read'],
+            ['name' => 'Créer des membres', 'slug' => 'users.create', 'resource' => 'users', 'action' => 'create'],
+            ['name' => 'Modifier les membres', 'slug' => 'users.update', 'resource' => 'users', 'action' => 'update'],
+            ['name' => 'Supprimer les membres', 'slug' => 'users.delete', 'resource' => 'users', 'action' => 'delete'],
+            ['name' => 'Exporter les membres', 'slug' => 'users.export', 'resource' => 'users', 'action' => 'export'],
+            ['name' => 'Importer les membres', 'slug' => 'users.import', 'resource' => 'users', 'action' => 'import'],
+            ['name' => 'Rechercher les membres', 'slug' => 'users.search', 'resource' => 'users', 'action' => 'read'],
+            ['name' => 'Valider les membres', 'slug' => 'users.validate', 'resource' => 'users', 'action' => 'validate'],
+            ['name' => 'Archiver les membres', 'slug' => 'users.archive', 'resource' => 'users', 'action' => 'archive'],
+            ['name' => 'Restaurer les membres', 'slug' => 'users.restore', 'resource' => 'users', 'action' => 'restore'],
+            ['name' => 'Changer statut membres', 'slug' => 'users.toggle-status', 'resource' => 'users', 'action' => 'update'],
             ['name' => 'Réinitialiser mot de passe', 'slug' => 'users.reset-password', 'resource' => 'users', 'action' => 'update'],
-            ['name' => 'Voir statistiques utilisateurs', 'slug' => 'users.statistics', 'resource' => 'users', 'action' => 'read'],
-            ['name' => 'Voir rapports utilisateurs', 'slug' => 'users.reports', 'resource' => 'users', 'action' => 'read'],
-            ['name' => 'Gérer permissions utilisateurs', 'slug' => 'users.permissions', 'resource' => 'users', 'action' => 'manage'],
-            ['name' => 'Gérer rôles utilisateurs', 'slug' => 'users.roles', 'resource' => 'users', 'action' => 'manage'],
+            ['name' => 'Voir statistiques membres', 'slug' => 'users.statistics', 'resource' => 'users', 'action' => 'read'],
+            ['name' => 'Voir rapports membres', 'slug' => 'users.reports', 'resource' => 'users', 'action' => 'read'],
+            ['name' => 'Gérer permissions membres', 'slug' => 'users.permissions', 'resource' => 'users', 'action' => 'manage'],
+            ['name' => 'Gérer rôles membres', 'slug' => 'users.roles', 'resource' => 'users', 'action' => 'manage'],
         ];
 
-        $this->createPermissions($permissions, 'Gestion des utilisateurs');
+        $this->createPermissions($permissions, 'Gestion des membres');
     }
 
     /**
@@ -91,8 +91,8 @@ class PermissionSeeder extends Seeder
             ['name' => 'Exporter les rôles', 'slug' => 'roles.export', 'resource' => 'roles', 'action' => 'export'],
             ['name' => 'Cloner des rôles', 'slug' => 'roles.clone', 'resource' => 'roles', 'action' => 'create'],
             ['name' => 'Gérer permissions des rôles', 'slug' => 'roles.permissions', 'resource' => 'roles', 'action' => 'manage'],
-            ['name' => 'Attribuer rôles aux utilisateurs', 'slug' => 'roles.assign', 'resource' => 'roles', 'action' => 'update'],
-            ['name' => 'Retirer rôles aux utilisateurs', 'slug' => 'roles.remove', 'resource' => 'roles', 'action' => 'update'],
+            ['name' => 'Attribuer rôles aux membres', 'slug' => 'roles.assign', 'resource' => 'roles', 'action' => 'update'],
+            ['name' => 'Retirer rôles aux membres', 'slug' => 'roles.remove', 'resource' => 'roles', 'action' => 'update'],
 
             //roles.manage
             ["name" => 'Gérer les rôles', 'slug' => 'roles.manage', 'resource' => 'roles', 'action' => 'manage'],
@@ -186,8 +186,8 @@ class PermissionSeeder extends Seeder
             ['name' => 'Supprimer participants des cultes', 'slug' => 'participants-cultes.delete', 'resource' => 'participants-cultes', 'action' => 'delete'],
             ['name' => 'Voir nouveaux visiteurs', 'slug' => 'participants-cultes.nouveaux-visiteurs', 'resource' => 'participants-cultes', 'action' => 'read'],
             ['name' => 'Rechercher participants', 'slug' => 'participants-cultes.search', 'resource' => 'participants-cultes', 'action' => 'read'],
-            ['name' => 'Créer avec utilisateur', 'slug' => 'participants-cultes.create-with-user', 'resource' => 'participants-cultes', 'action' => 'create'],
-            ['name' => 'Création en lot avec utilisateurs', 'slug' => 'participants-cultes.bulk-create-with-user', 'resource' => 'participants-cultes', 'action' => 'create'],
+            ['name' => 'Créer avec membres', 'slug' => 'participants-cultes.create-with-user', 'resource' => 'participants-cultes', 'action' => 'create'],
+            ['name' => 'Création en lot avec membres', 'slug' => 'participants-cultes.bulk-create-with-user', 'resource' => 'participants-cultes', 'action' => 'create'],
             ['name' => 'Confirmer présence', 'slug' => 'participants-cultes.confirm-presence', 'resource' => 'participants-cultes', 'action' => 'update'],
             ['name' => 'Voir statistiques participants', 'slug' => 'participants-cultes.statistics', 'resource' => 'participants-cultes', 'action' => 'read'],
         ];
@@ -523,7 +523,7 @@ class PermissionSeeder extends Seeder
             ['name' => 'Voir mes statistiques', 'slug' => 'subscriptions.my-statistics', 'resource' => 'subscriptions', 'action' => 'read'],
             ['name' => 'Voir FIMECO disponibles', 'slug' => 'subscriptions.available-fimecos', 'resource' => 'subscriptions', 'action' => 'read'],
             ['name' => 'Vérifier possibilité souscription', 'slug' => 'subscriptions.can-subscribe', 'resource' => 'subscriptions', 'action' => 'read'],
-            ['name' => 'Voir utilisateurs disponibles', 'slug' => 'subscriptions.available-users', 'resource' => 'subscriptions', 'action' => 'read'],
+            ['name' => 'Voir membres disponibles', 'slug' => 'subscriptions.available-users', 'resource' => 'subscriptions', 'action' => 'read'],
             ['name' => 'Annuler des souscriptions', 'slug' => 'subscriptions.cancel', 'resource' => 'subscriptions', 'action' => 'update'],
             ['name' => 'Suspendre des souscriptions', 'slug' => 'subscriptions.suspend', 'resource' => 'subscriptions', 'action' => 'update'],
         ];
@@ -561,7 +561,7 @@ class PermissionSeeder extends Seeder
             ['name' => 'Voir les logs d\'audit', 'slug' => 'audit-logs.read', 'resource' => 'audit-logs', 'action' => 'read'],
             ['name' => 'Voir détails des logs', 'slug' => 'audit-logs.show', 'resource' => 'audit-logs', 'action' => 'read'],
             ['name' => 'Voir statistiques des logs', 'slug' => 'audit-logs.statistics', 'resource' => 'audit-logs', 'action' => 'read'],
-            ['name' => 'Voir logs par utilisateur', 'slug' => 'audit-logs.user-logs', 'resource' => 'audit-logs', 'action' => 'read'],
+            ['name' => 'Voir logs par membres', 'slug' => 'audit-logs.user-logs', 'resource' => 'audit-logs', 'action' => 'read'],
             ['name' => 'Exporter les logs', 'slug' => 'audit-logs.export', 'resource' => 'audit-logs', 'action' => 'export'],
             ['name' => 'Recherche avancée dans logs', 'slug' => 'audit-logs.search', 'resource' => 'audit-logs', 'action' => 'read'],
             ['name' => 'Voir logs en temps réel', 'slug' => 'audit-logs.realtime', 'resource' => 'audit-logs', 'action' => 'read'],
@@ -656,7 +656,7 @@ class PermissionSeeder extends Seeder
             ],
             [
                 'name' => 'Registreur(se)',
-                'slug' => 'registrateur',
+                'slug' => 'regisseur',
                 'description' => 'Gestion tous ce qui est FIMECO',
                 'level' => 75, // Spécialisé FIMECO, responsabilités ciblées
                 'is_system_role' => true,
@@ -685,6 +685,7 @@ class PermissionSeeder extends Seeder
         }
     }
 
+
     /**
      * Attribuer les permissions aux rôles
      */
@@ -696,7 +697,7 @@ class PermissionSeeder extends Seeder
 
             $permissions = Permission::whereIn('slug', [
                 'dashboard.access',
-                // Utilisateurs
+                // Membress
                 'users.read', 'users.export', 'users.search', 'users.statistics', 'users.reports',
                 // Classes
                 'classes.read', 'classes.statistics', 'classes.export',
@@ -742,25 +743,18 @@ class PermissionSeeder extends Seeder
                 'multimedia.read', 'multimedia.gallery', 'multimedia.statistics', 'multimedia.download',
                 // Interventions
                 'interventions.read', 'interventions.by-event',
-
-
-
             ])->pluck('id')->toArray();
+
             $pasteur->syncPermissions($permissions);
         }
 
         // Président du laïque - Presque toutes les permissions (dashboard, lectures, rapports)
         $presidentLaique = Role::where('slug', 'president-laique')->first();
         if ($presidentLaique) {
-            // $permissions = Permission::where(function($query) {
-            //     $query->where('action', 'read')
-            //           ->orWhere('slug', 'like', '%.dashboard')
-            //           ->orWhere('slug', 'like', '%.statistics')
-            //           ->orWhere('slug', 'like', '%.reports');
-            // })->pluck('id')->toArray();
+
             $permissions = Permission::whereIn('slug', [
                 'dashboard.access',
-                // Utilisateurs
+                // Membress
                 'users.read', 'users.export', 'users.search', 'users.statistics', 'users.reports',
                 // Classes
                 'classes.read', 'classes.statistics', 'classes.export',
@@ -826,7 +820,7 @@ class PermissionSeeder extends Seeder
         if ($annonceur) {
             $permissions = Permission::whereIn('slug', [
                 'dashboard.access',
-                // Utilisateurs (ajouter fidèles)
+                // Membress (ajouter fidèles)
                 'users.read', 'users.create', 'users.update',
                 // Annonces (toutes les actions)
                 'annonces.read', 'annonces.create', 'annonces.update', 'annonces.delete',
@@ -845,7 +839,7 @@ class PermissionSeeder extends Seeder
         if ($serviceOrdre) {
             $permissions = Permission::whereIn('slug', [
                 'dashboard.access',
-                // Utilisateurs (ajouter fidèles seulement)
+                // Membress (ajouter fidèles seulement)
                 'users.read', 'users.create',
                 // Participants aux cultes
                 'participants-cultes.read', 'participants-cultes.create',
@@ -860,8 +854,8 @@ class PermissionSeeder extends Seeder
         }
 
         // Registrateur (FIMECO)
-        $registrateur = Role::where('slug', 'registrateur')->first();
-        if ($registrateur) {
+        $regisseur = Role::where('slug', 'regisseur')->first();
+        if ($regisseur) {
             $permissions = Permission::whereIn('slug', [
                 'dashboard.access',
                 // FIMECO (toutes les actions)
@@ -872,12 +866,12 @@ class PermissionSeeder extends Seeder
                 'subscriptions.read', 'subscriptions.create', 'subscriptions.update',
                 'subscriptions.cancel', 'subscriptions.suspend',
                 'subscriptions.available-fimecos', 'subscriptions.available-users',
-                // Utilisateurs (lecture)
+                // Membress (lecture)
                 'users.read',
                 // Rapports
                 'reports.read', 'reports.generate',
             ])->pluck('id')->toArray();
-            $registrateur->syncPermissions($permissions);
+            $regisseur->syncPermissions($permissions);
         }
 
         // Trésorier
@@ -899,7 +893,7 @@ class PermissionSeeder extends Seeder
                 'subscriptions.read', 'subscriptions.my-statistics',
                 // Rapports financiers
                 'reports.read', 'reports.generate', 'reports.export',
-                // Utilisateurs (lecture)
+                // Membress (lecture)
                 'users.read',
             ])->pluck('id')->toArray();
             $tresorier->syncPermissions($permissions);
@@ -913,7 +907,7 @@ class PermissionSeeder extends Seeder
                 // Classes (affecter fidèles)
                 'classes.read', 'classes.manage-members', 'classes.inscrire',
                 'classes.desinscrire', 'classes.statistics',
-                // Utilisateurs
+                // Membress
                 'users.read', 'users.search',
                 // Programmes
                 'programmes.read', 'programmes.statistics',

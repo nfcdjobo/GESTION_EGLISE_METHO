@@ -59,6 +59,32 @@
                         </div>
 
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+                            <div>
+                                <label for="cible" class="block text-sm font-medium text-slate-700 mb-2">
+                                    Cible <span class="text-red-500">*</span>
+                                </label>
+                                <input type="number" id="cible" name="cible" value="{{ old('cible') }}" required min="10"
+                                    class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors @error('cible') border-red-500 focus:ring-red-500 focus:border-red-500 @enderror">
+                                @error('cible')
+                                    <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                                @enderror
+                            </div>
+                            
+                            <div>
+                                <label for="statut" class="block text-sm font-medium text-slate-700 mb-2">Statut initial</label>
+                                <select id="statut" name="statut"
+                                    class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
+                                    <option value="active" {{ old('statut', 'active') == 'active' ? 'selected' : '' }}>Active</option>
+                                    <option value="inactive" {{ old('statut') == 'inactive' ? 'selected' : '' }}>Inactive</option>
+                                </select>
+                                <p class="mt-1 text-sm text-slate-500">Une FIMECO active peut recevoir des souscriptions</p>
+                            </div>
+
+
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
                                 <label for="debut" class="block text-sm font-medium text-slate-700 mb-2">
                                     Date de début <span class="text-red-500">*</span>
@@ -84,15 +110,7 @@
 
 
 
-                        <div>
-                            <label for="statut" class="block text-sm font-medium text-slate-700 mb-2">Statut initial</label>
-                            <select id="statut" name="statut"
-                                class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
-                                <option value="active" {{ old('statut', 'active') == 'active' ? 'selected' : '' }}>Active</option>
-                                <option value="inactive" {{ old('statut') == 'inactive' ? 'selected' : '' }}>Inactive</option>
-                            </select>
-                            <p class="mt-1 text-sm text-slate-500">Une FIMECO active peut recevoir des souscriptions</p>
-                        </div>
+
                     </div>
                 </div>
             </div>
@@ -116,7 +134,7 @@
                             <span class="text-sm font-medium text-slate-700">Durée:</span>
                             <span id="preview-duree" class="text-sm text-slate-600">-</span>
                         </div>
-                        
+
                         <div class="flex items-center justify-between">
                             <span class="text-sm font-medium text-slate-700">Statut:</span>
                             <span id="preview-statut" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">Active</span>

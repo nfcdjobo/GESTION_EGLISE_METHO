@@ -58,7 +58,7 @@
                     <select name="audience_cible" class="w-full px-3 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
                         <option value="">Toutes audiences</option>
                         <option value="tous" {{ request('audience_cible') == 'tous' ? 'selected' : '' }}>Tous</option>
-                        <option value="membres" {{ request('audience_cible') == 'membres' ? 'selected' : '' }}>Membres</option>
+                        <option value="membres" {{ request('audience_cible') == 'membres' ? 'selected' : '' }}</option>
                         <option value="leadership" {{ request('audience_cible') == 'leadership' ? 'selected' : '' }}>Leadership</option>
                         <option value="jeunes" {{ request('audience_cible') == 'jeunes' ? 'selected' : '' }}>Jeunes</option>
                     </select>

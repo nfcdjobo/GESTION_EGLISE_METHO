@@ -76,7 +76,7 @@ class Classe extends Model
     }
 
     /**
-     * Relation avec les utilisateurs (membres de la classe)
+     * Relation avec les membres (membres de la classe)
      */
     public function membres()
     {
@@ -84,7 +84,7 @@ class Classe extends Model
     }
 
     /**
-     * Relation avec les utilisateurs actifs de la classe
+     * Relation avec les membres actifs de la classe
      */
     public function membresActifs()
     {

@@ -621,7 +621,7 @@ setInterval(() => {
                 'X-Requested-With': 'XMLHttpRequest'
             }
         }).then(response => {
-            // Vérifier s'il y a des changements et notifier l'utilisateur
+            // Vérifier s'il y a des changements et notifier l'membres
             // Implémentation optionnelle
         });
     }

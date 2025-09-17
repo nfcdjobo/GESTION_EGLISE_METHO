@@ -168,8 +168,8 @@ return new class extends Migration
 
             // Audit et gestion
             $table->uuid('responsable_contact_id')->nullable()->comment('Responsable de ces informations');
-            $table->uuid('cree_par')->nullable()->comment('Utilisateur qui a créé');
-            $table->uuid('modifie_par')->nullable()->comment('Dernier utilisateur ayant modifié');
+            $table->uuid('cree_par')->nullable()->comment('Membres qui a créé');
+            $table->uuid('modifie_par')->nullable()->comment('Dernier membres ayant modifié');
             $table->boolean('verifie')->default(false)->comment('Informations vérifiées');
             $table->timestamp('derniere_verification')->nullable()->comment('Dernière vérification');
 

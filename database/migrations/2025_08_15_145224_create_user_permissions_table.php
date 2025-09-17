@@ -17,14 +17,14 @@ return new class extends Migration
             $table->uuid('id')->primary();
 
             // Relations principales
-            $table->uuid('user_id')->comment('Référence vers l\'utilisateur');
+            $table->uuid('user_id')->comment('Référence vers l\'membres');
             $table->uuid('permission_id')->comment('Référence vers la permission');
 
             // État de la permission
             $table->boolean('is_granted')->default(true)->comment('Permission accordée ou révoquée');
 
             // Informations d'attribution
-            $table->uuid('granted_by')->nullable()->comment('Utilisateur qui a accordé la permission');
+            $table->uuid('granted_by')->nullable()->comment('Membres qui a accordé la permission');
             $table->timestamp('granted_at')->useCurrent()->comment('Date d\'attribution de la permission');
 
             // Gestion de l'expiration
@@ -36,7 +36,7 @@ return new class extends Migration
             $table->json('metadata')->nullable()->comment('Données supplémentaires en JSON');
 
             // Audit et traçabilité
-            $table->uuid('revoked_by')->nullable()->comment('Utilisateur qui a révoqué la permission');
+            $table->uuid('revoked_by')->nullable()->comment('Membres qui a révoqué la permission');
             $table->timestamp('revoked_at')->nullable()->comment('Date de révocation');
             $table->text('revocation_reason')->nullable()->comment('Raison de la révocation');
 
@@ -105,7 +105,7 @@ return new class extends Migration
         ");
 
         // Commentaire sur la table
-        DB::statement("COMMENT ON TABLE user_permissions IS 'Table de liaison entre utilisateurs et permissions avec gestion des expirations et audit'");
+        DB::statement("COMMENT ON TABLE user_permissions IS 'Table de liaison entre membres et permissions avec gestion des expirations et audit'");
 
         // Commentaires sur les colonnes principales
         DB::statement("COMMENT ON COLUMN user_permissions.is_expired IS 'Flag calculé automatiquement par trigger'");

@@ -58,7 +58,7 @@ class PermissionAuditLog extends Model
     ];
 
     /**
-     * Relation avec l'utilisateur qui a effectué l'action
+     * Relation avec l'membres qui a effectué l'action
      */
     public function user()
     {
@@ -66,7 +66,7 @@ class PermissionAuditLog extends Model
     }
 
     /**
-     * Relation avec l'utilisateur cible
+     * Relation avec l'membres cible
      */
     public function targetUser()
     {
@@ -149,7 +149,7 @@ class PermissionAuditLog extends Model
     }
 
     /**
-     * Scope pour filtrer par utilisateur
+     * Scope pour filtrer par membres
      */
     public function scopeByUser($query, $userId)
     {
@@ -157,7 +157,7 @@ class PermissionAuditLog extends Model
     }
 
     /**
-     * Scope pour filtrer par utilisateur cible
+     * Scope pour filtrer par membres cible
      */
     public function scopeByTargetUser($query, $userId)
     {

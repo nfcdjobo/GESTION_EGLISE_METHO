@@ -24,6 +24,7 @@
         </nav>
     </div>
 
+    @can('roles.create')
     <form action="{{ route('private.roles.store') }}" method="POST" id="roleForm" class="space-y-8">
         @csrf
 
@@ -166,11 +167,11 @@
                         </div>
                         <div class="flex items-center justify-between">
                             <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">20-39</span>
-                            <span class="text-sm text-slate-700">Membres Actifs</span>
+                            <span class="text-sm text-slate-700" Actifs</span>
                         </div>
                         <div class="flex items-center justify-between">
                             <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">10-19</span>
-                            <span class="text-sm text-slate-700">Membres</span>
+                            <span class="text-sm text-slate-700"</span>
                         </div>
                         <div class="flex items-center justify-between">
                             <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-800">0-9</span>
@@ -287,6 +288,7 @@
             </div>
         </div>
     </form>
+    @endcan
 </div>
 
 @push('scripts')

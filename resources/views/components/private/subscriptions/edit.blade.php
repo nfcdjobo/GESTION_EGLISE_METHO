@@ -89,7 +89,7 @@
                                 @endif
                                 <div class="flex items-center gap-4 mt-3 text-sm text-slate-600">
                                     <span><i class="fas fa-calendar mr-1"></i>{{ $subscription['fimeco']['debut'] }} - {{ $subscription['fimeco']['fin'] }}</span>
-                                    <span><i class="fas fa-target mr-1"></i>{{ number_format($subscription['fimeco']['cible'], 0, ',', ' ') }} FCFA</span>
+                                    <span><i class="fas fa-bullseye mr-1"></i>{{ number_format($subscription['fimeco']['cible'], 0, ',', ' ') }} FCFA</span>
                                     <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium
                                         @if($subscription['fimeco']['statut'] === 'active') bg-green-100 text-green-800
                                         @elseif($subscription['fimeco']['statut'] === 'cloturee') bg-red-100 text-red-800

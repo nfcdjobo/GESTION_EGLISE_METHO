@@ -36,6 +36,7 @@ class DashboardController extends Controller
      */
     public function index(Request $request)
     {
+
         try {
             $dashboardData = [
                 'statistiques_generales' => $this->getStatistiquesGenerales(),
@@ -394,7 +395,7 @@ class DashboardController extends Controller
                 'type' => 'warning',
                 'titre' => 'Cultes à confirmer',
                 'message' => "{$cultesAction} culte(s) nécessitent une confirmation",
-                'action_url' => '/cultes'
+                'action_url' => route('private.cultes.index')
             ];
         }
 

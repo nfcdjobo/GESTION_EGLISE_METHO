@@ -7,7 +7,7 @@ use App\Http\Controllers\Private\Api\PermissionApiController;
 
 Route::middleware(['auth:sanctum'])->prefix('v1')->group(function () {
 
-    // API Permissions utilisateur
+    // API Permissions membres
     Route::prefix('users/{user}')->group(function () {
         Route::get('/permissions', [PermissionApiController::class, 'userPermissions']);
         Route::get('/permissions/all', [PermissionApiController::class, 'allUserPermissions']);

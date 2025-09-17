@@ -152,7 +152,7 @@
                             <label class="block text-sm font-medium text-slate-700 mb-2">Téléchargé par</label>
                             <select name="telecharge_par"
                                 class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
-                                <option value="">Tous les utilisateurs</option>
+                                <option value="">Tous les membres</option>
                                 @foreach ($uploaders as $uploader)
                                     <option value="{{ $uploader->id }}"
                                         {{ ($currentFilters['telecharge_par'] ?? '') == $uploader->id ? 'selected' : '' }}>
@@ -486,9 +486,9 @@
                                         <div class="text-xs text-slate-500">
                                             {{ $media->created_at->diffForHumans() }}
                                         </div>
-                                        @can(['multimedia.approve', 'multimedia.reject', 'multimedia.toggle-featured'])
+                                        @canany(['multimedia.approve', 'multimedia.reject', 'multimedia.toggle-featured'])
                                             <div class="flex items-center space-x-1">
-                                                @can(['multimedia.approve', 'multimedia.reject'])
+                                                @canany(['multimedia.approve', 'multimedia.reject'])
                                                     @if ($media->statut_moderation == 'en_attente')
                                                         @can('multimedia.approve')
                                                             <button type="button"
@@ -507,7 +507,7 @@
                                                             </button>
                                                         @endcan
                                                     @endif
-                                                @endcan
+                                               @endcanany
                                                 @can('multimedia.toggle-featured')
                                                     <button type="button" onclick="toggleFeatured('{{ $media->id }}')"
                                                         class="text-yellow-600 hover:text-yellow-700 transition-colors {{ $media->est_featured ? 'opacity-100' : 'opacity-50' }}"
@@ -516,7 +516,7 @@
                                                     </button>
                                                 @endcan
                                             </div>
-                                        @endcan
+                                        @endcanany
                                     </div>
                                 </div>
                             </div>
@@ -617,7 +617,7 @@
                                         <i class="fas fa-download text-sm"></i>
                                     </a>
                                     @endcan
-                                    @can(['multimedia.approve', 'multimedia.reject'])
+                                    @canany(['multimedia.approve', 'multimedia.reject'])
                                         @if ($media->statut_moderation == 'en_attente')
                                             @can('multimedia.approve')
                                             <button type="button" onclick="moderateMedia('{{ $media->id }}', 'approve')"
@@ -634,7 +634,7 @@
                                             </button>
                                             @endcan
                                         @endif
-                                    @endcan
+                                    @endcanany
                                 </div>
                             </div>
                         @endforeach

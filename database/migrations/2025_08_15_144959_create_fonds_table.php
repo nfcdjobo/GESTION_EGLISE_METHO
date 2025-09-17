@@ -113,7 +113,7 @@ return new class extends Migration
             $table->string('lieu_collecte')->nullable()->comment('Lieu de collecte (église principale, annexe, etc.)');
 
             // Audit et traçabilité
-            $table->uuid('cree_par')->nullable()->comment('Utilisateur créateur');
+            $table->uuid('cree_par')->nullable()->comment('Membres créateur');
             $table->uuid('modifie_par')->nullable()->comment('Dernier modificateur');
             $table->timestamp('derniere_verification')->nullable()->comment('Dernière vérification comptable');
             $table->uuid('verifie_par')->nullable()->comment('Vérificateur comptable');

@@ -26,7 +26,7 @@ class PasswordChangeAttempt extends Model
     ];
 
     /**
-     * Relation avec l'utilisateur
+     * Relation avec l'membres
      */
     public function user()
     {
@@ -34,7 +34,7 @@ class PasswordChangeAttempt extends Model
     }
 
     /**
-     * Vérifier si l'utilisateur peut changer son mot de passe
+     * Vérifier si l'membres peut changer son mot de passe
      */
     public static function canChangePassword($userId)
     {

@@ -21,9 +21,9 @@
                     <button type="button" onclick="openPlanificationModal()" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white text-sm font-medium rounded-xl hover:from-green-700 hover:to-emerald-700 transition-all duration-200 shadow-md hover:shadow-lg">
                         <i class="fas fa-calendar-plus mr-2"></i> Planifier visite
                     </button>
-                    <button type="button" onclick="exportSuivi()" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white text-sm font-medium rounded-xl hover:from-purple-700 hover:to-pink-700 transition-all duration-200 shadow-md hover:shadow-lg">
+                    {{-- <button type="button" onclick="exportSuivi()" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white text-sm font-medium rounded-xl hover:from-purple-700 hover:to-pink-700 transition-all duration-200 shadow-md hover:shadow-lg">
                         <i class="fas fa-download mr-2"></i> Exporter
-                    </button>
+                    </button> --}}
                 </div>
             </div>
         </div>
@@ -419,9 +419,6 @@
                         <i class="fas fa-calendar-plus mr-2"></i> Planifier en masse
                     </button>
 
-                    <button type="button" onclick="genererRapport()" class="w-full inline-flex items-center justify-center px-4 py-2 bg-gradient-to-r from-amber-600 to-orange-600 text-white text-sm font-medium rounded-xl hover:from-amber-700 hover:to-orange-700 transition-all duration-200">
-                        <i class="fas fa-chart-line mr-2"></i> Générer rapport
-                    </button>
                 </div>
             </div>
 
@@ -677,13 +674,7 @@ function savePlanification() {
     });
 }
 
-function exportSuivi() {
-    window.open('/private/suivi-pastoral/export', '_blank');
-}
 
-function genererRapport() {
-    window.open('/private/suivi-pastoral/rapport', '_blank');
-}
 
 // Fermer les modals en cliquant à l'extérieur
 document.getElementById('planificationModal').addEventListener('click', function(e) {

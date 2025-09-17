@@ -465,7 +465,7 @@ function showSearchResults(results) {
 }
 
 function selectExistingUser(id, prenom, nom, email, telephone) {
-    // Remplir le formulaire avec les données de l'utilisateur sélectionné
+    // Remplir le formulaire avec les données de l'membres sélectionné
     document.querySelector('input[name="participant_id"]')?.remove();
     const hiddenInput = document.createElement('input');
     hiddenInput.type = 'hidden';

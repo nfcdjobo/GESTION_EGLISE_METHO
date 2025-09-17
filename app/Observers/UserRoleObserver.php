@@ -29,10 +29,10 @@ class UserRoleObserver
             'user_agent' => request()->userAgent(),
         ]);
 
-        // Rafraîchir le cache de l'utilisateur
+        // Rafraîchir le cache de l'membres
         dispatch(new RefreshPermissionCache($userRole->user_id));
 
-        Log::info("Rôle attribué à un utilisateur", [
+        Log::info("Rôle attribué à un membres", [
             'user_id' => $userRole->user_id,
             'role_id' => $userRole->role_id,
             'assigned_by' => $userRole->attribue_par,
@@ -66,10 +66,10 @@ class UserRoleObserver
             'user_agent' => request()->userAgent(),
         ]);
 
-        // Rafraîchir le cache de l'utilisateur
+        // Rafraîchir le cache de l'membres
         dispatch(new RefreshPermissionCache($userRole->user_id));
 
-        Log::info("Rôle utilisateur mis à jour", [
+        Log::info("Rôle membres mis à jour", [
             'user_id' => $userRole->user_id,
             'role_id' => $userRole->role_id,
             'action' => $action,
@@ -94,10 +94,10 @@ class UserRoleObserver
             'user_agent' => request()->userAgent(),
         ]);
 
-        // Rafraîchir le cache de l'utilisateur
+        // Rafraîchir le cache de l'membres
         dispatch(new RefreshPermissionCache($userRole->user_id));
 
-        Log::warning("Rôle retiré d'un utilisateur", [
+        Log::warning("Rôle retiré d'un membres", [
             'user_id' => $userRole->user_id,
             'role_id' => $userRole->role_id,
             'removed_by' => auth()->id(),

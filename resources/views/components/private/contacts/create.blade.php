@@ -45,7 +45,7 @@
                                 <label for="nom_eglise" class="block text-sm font-medium text-slate-700 mb-2">
                                     Nom de l'église <span class="text-red-500">*</span>
                                 </label>
-                                <input type="text" id="nom_eglise" name="nom_eglise" value="{{ old('nom_eglise') }}" required maxlength="200" placeholder="Ex: Église Baptiste de la Paix"
+                                <input type="text" id="nom_eglise" name="nom_eglise" value="{{ old('nom_eglise') ?? env('APP_NAME') }}" required maxlength="200" placeholder="Ex: Église Baptiste de la Paix"
                                     class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors @error('nom_eglise') border-red-500 focus:ring-red-500 focus:border-red-500 @enderror">
                                 @error('nom_eglise')
                                     <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
@@ -408,7 +408,7 @@
     <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
         <strong class="font-bold">Accès refusé!</strong>
         <span class="block sm:inline">Vous n'avez pas la permission de créer un contact.</span>
-        
+
     </div>
     @endcan
 </div>

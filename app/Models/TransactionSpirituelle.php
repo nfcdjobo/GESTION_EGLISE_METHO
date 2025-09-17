@@ -162,7 +162,7 @@ class TransactionSpirituelle extends Model
     }
 
     /**
-     * Utilisateur qui a créé la transaction
+     * Membres qui a créé la transaction
      */
     public function createur()
     {
@@ -170,7 +170,7 @@ class TransactionSpirituelle extends Model
     }
 
     /**
-     * Dernier utilisateur qui a modifié la transaction
+     * Dernier membres qui a modifié la transaction
      */
     public function modificateur()
     {
@@ -178,7 +178,7 @@ class TransactionSpirituelle extends Model
     }
 
     /**
-     * Utilisateur qui a vérifié la transaction
+     * Membres qui a vérifié la transaction
      */
     public function verificateur()
     {

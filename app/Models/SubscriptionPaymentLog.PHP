@@ -56,7 +56,7 @@ class SubscriptionPaymentLog extends Model
         return $query->where('action', $action);
     }
 
-    public function scopeParUtilisateur($query, $userId)
+    public function scopeParMembres($query, $userId)
     {
         return $query->where('user_id', $userId);
     }

@@ -74,8 +74,8 @@
                             $currentIndex = array_search($projet->statut, $etapesOrdered);
 
                             // Gestion spéciale : si le projet est suspendu ou annulé, on garde l'index courant
-if (in_array($projet->statut, ['suspendu', 'annule'])) {
-    $currentIndex = array_search($projet->statut_precedent ?? 'conception', $etapesOrdered);
+                            if (in_array($projet->statut, ['suspendu', 'annule'])) {
+                                $currentIndex = array_search($projet->statut_precedent ?? 'conception', $etapesOrdered);
                             }
                         @endphp
 
@@ -186,46 +186,57 @@ if (in_array($projet->statut, ['suspendu', 'annule'])) {
 
                     <div class="flex flex-wrap gap-2">
                         {{-- APPROBATION --}}
-                        @if ($projet->peutEtreApprouve())
-                            <button type="button" onclick="approveProject()"
-                                class="inline-flex items-center px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700 transition-colors shadow-sm">
-                                <i class="fas fa-check mr-2"></i> Approuver
-                            </button>
-                        @endif
+                        @can('projets.approve')
+                            @if ($projet->peutEtreApprouve())
+                                <button type="button" onclick="approveProject()"
+                                    class="inline-flex items-center px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700 transition-colors shadow-sm">
+                                    <i class="fas fa-check mr-2"></i> Approuver
+                                </button>
+                            @endif
+                        @endcan
 
                         {{-- PLANIFICATION --}}
-                        @if ($projet->peutEtrePlanifie())
-                            <button type="button" onclick="planifyProject()"
-                                class="inline-flex items-center px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 transition-colors shadow-sm">
-                                <i class="fas fa-calendar-check mr-2"></i> Planifier
-                            </button>
-                        @endif
+                        @can('projets.plan')
+                            @if ($projet->peutEtrePlanifie())
+                                <button type="button" onclick="planifyProject()"
+                                    class="inline-flex items-center px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 transition-colors shadow-sm">
+                                    <i class="fas fa-calendar-check mr-2"></i> Planifier
+                                </button>
+                            @endif
+                        @endcan
 
                         {{-- RECHERCHE FINANCEMENT --}}
-                        @if ($projet->peutEtreEnRechercheFinancement())
-                            <button type="button" onclick="searchFunding()"
-                                class="inline-flex items-center px-4 py-2 bg-yellow-600 text-white text-sm font-medium rounded-lg hover:bg-yellow-700 transition-colors shadow-sm">
-                                <i class="fas fa-search-dollar mr-2"></i> Rechercher financement
-                            </button>
-                        @endif
+                        @can('projets.seek-funding')
+                            @if ($projet->peutEtreEnRechercheFinancement())
+                                <button type="button" onclick="searchFunding()"
+                                    class="inline-flex items-center px-4 py-2 bg-yellow-600 text-white text-sm font-medium rounded-lg hover:bg-yellow-700 transition-colors shadow-sm">
+                                    <i class="fas fa-search-dollar mr-2"></i> Rechercher financement
+                                </button>
+                            @endif
+                        @endcan
 
                         {{-- METTRE EN ATTENTE --}}
-                        @if ($projet->peutEtreEnAttente())
-                            <button type="button" onclick="putOnHold()"
-                                class="inline-flex items-center px-4 py-2 bg-orange-600 text-white text-sm font-medium rounded-lg hover:bg-orange-700 transition-colors shadow-sm">
-                                <i class="fas fa-clock mr-2"></i> Mettre en attente
-                            </button>
-                        @endif
+                        @can('projets.put-on-hold')
+                            @if ($projet->peutEtreEnAttente())
+                                <button type="button" onclick="putOnHold()"
+                                    class="inline-flex items-center px-4 py-2 bg-orange-600 text-white text-sm font-medium rounded-lg hover:bg-orange-700 transition-colors shadow-sm">
+                                    <i class="fas fa-clock mr-2"></i> Mettre en attente
+                                </button>
+                            @endif
+                        @endcan
 
                         {{-- DÉMARRER --}}
-                        @if ($projet->peutEtreDemarre())
-                            <button type="button" onclick="startProject()"
-                                class="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors shadow-sm">
-                                <i class="fas fa-play mr-2"></i> Démarrer
-                            </button>
-                        @endif
+                        @can('projets.start')
+                            @if ($projet->peutEtreDemarre())
+                                <button type="button" onclick="startProject()"
+                                    class="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors shadow-sm">
+                                    <i class="fas fa-play mr-2"></i> Démarrer
+                                </button>
+                            @endif
+                        @endcan
 
                         {{-- METTRE À JOUR PROGRESSION --}}
+
                         @if ($projet->statut === 'en_cours')
                             <button type="button" onclick="openProgressModal()"
                                 class="inline-flex items-center px-4 py-2 bg-purple-600 text-white text-sm font-medium rounded-lg hover:bg-purple-700 transition-colors shadow-sm">
@@ -242,20 +253,24 @@ if (in_array($projet->statut, ['suspendu', 'annule'])) {
                         @endif
 
                         {{-- SUSPENDRE --}}
-                        @if ($projet->peutEtreSuspendu())
-                            <button type="button" onclick="suspendProject()"
-                                class="inline-flex items-center px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 transition-colors shadow-sm">
-                                <i class="fas fa-pause mr-2"></i> Suspendre
-                            </button>
-                        @endif
+                        @can('projets.suspend')
+                            @if ($projet->peutEtreSuspendu())
+                                <button type="button" onclick="suspendProject()"
+                                    class="inline-flex items-center px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 transition-colors shadow-sm">
+                                    <i class="fas fa-pause mr-2"></i> Suspendre
+                                </button>
+                            @endif
+                        @endcan
 
                         {{-- REPRENDRE --}}
-                        @if ($projet->peutEtreRepris())
-                            <button type="button" onclick="resumeProject()"
-                                class="inline-flex items-center px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700 transition-colors shadow-sm">
-                                <i class="fas fa-play mr-2"></i> Reprendre
-                            </button>
-                        @endif
+                        @can('projets.update-progress')
+                            @if ($projet->peutEtreRepris())
+                                <button type="button" onclick="resumeProject()"
+                                    class="inline-flex items-center px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700 transition-colors shadow-sm">
+                                    <i class="fas fa-play mr-2"></i> Reprendre
+                                </button>
+                            @endif
+                        @endcan
 
                         {{-- ACTIONS TOUJOURS DISPONIBLES --}}
                         @can('projets.update')
@@ -265,18 +280,21 @@ if (in_array($projet->statut, ['suspendu', 'annule'])) {
                             </a>
                         @endcan
 
-                        <button type="button" onclick="openDuplicateModal()"
-                            class="inline-flex items-center px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 transition-colors shadow-sm">
-                            <i class="fas fa-copy mr-2"></i> Dupliquer
-                        </button>
-
-                        {{-- ANNULER (si possible) --}}
-                        @if ($projet->peutEtreAnnule())
-                            <button type="button" onclick="cancelProject()"
-                                class="inline-flex items-center px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 transition-colors shadow-sm">
-                                <i class="fas fa-times mr-2"></i> Annuler projet
+                        @can('projets.duplicate')
+                            <button type="button" onclick="openDuplicateModal()"
+                                class="inline-flex items-center px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 transition-colors shadow-sm">
+                                <i class="fas fa-copy mr-2"></i> Dupliquer
                             </button>
-                        @endif
+                        @endcan
+                        {{-- ANNULER (si possible) --}}
+                        @can('projets.cancel')
+                            @if ($projet->peutEtreAnnule())
+                                <button type="button" onclick="cancelProject()"
+                                    class="inline-flex items-center px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 transition-colors shadow-sm">
+                                    <i class="fas fa-times mr-2"></i> Annuler projet
+                                </button>
+                            @endif
+                        @endcan
                     </div>
 
 
@@ -507,7 +525,7 @@ if (in_array($projet->statut, ['suspendu', 'annule'])) {
                             @if ($projet->objectif)
                                 <div>
                                     <h3 class="font-semibold text-slate-900 mb-3 flex items-center">
-                                        <i class="fas fa-target text-blue-600 mr-2"></i>
+                                        <i class="fas fa-bullseye text-blue-600 mr-2"></i>
                                         Objectifs
                                     </h3>
                                     <x-ckeditor-display :model="$projet" field="objectif" show-meta="true"

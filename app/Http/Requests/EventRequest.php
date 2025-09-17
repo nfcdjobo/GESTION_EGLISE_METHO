@@ -11,7 +11,7 @@ use Illuminate\Foundation\Http\FormRequest;
 class EventRequest extends FormRequest
 {
     /**
-     * Détermine si l'utilisateur est autorisé à faire cette requête.
+     * Détermine si l'membres est autorisé à faire cette requête.
      */
     public function authorize(): bool
     {
@@ -61,8 +61,14 @@ class EventRequest extends FormRequest
             // Planification temporelle
             'date_debut' => ['required', 'date', 'after_or_equal:today'],
             'date_fin' => ['nullable', 'date', 'after_or_equal:date_debut'],
+            // 'heure_debut' => ['required', 'date_format:H:i'],
+            // 'heure_fin' => ['nullable', 'date_format:H:i', 'after:heure_debut'],
             'heure_debut' => ['required', 'date_format:H:i'],
-            'heure_fin' => ['nullable', 'date_format:H:i', 'after:heure_debut'],
+        'heure_fin' => ['nullable', 'date_format:H:i'],
+
+        'datetime_debut' => ['required', 'date', 'after_or_equal:now'],
+        'datetime_fin' => ['nullable', 'date', 'after:datetime_debut'],
+
             'evenement_multi_jours' => ['nullable', 'boolean'],
             'horaires_detailles' => ['nullable', 'json'],
             'fuseau_horaire' => ['nullable', 'string', 'max:50'],
@@ -326,6 +332,11 @@ class EventRequest extends FormRequest
         ];
     }
 
+
+
+
+
+
     /**
      * Configuration des attributs pour les messages d'erreur
      */
@@ -372,6 +383,18 @@ class EventRequest extends FormRequest
             ]);
         }
 
+        if ($this->date_debut && $this->heure_debut) {
+            $this->merge([
+                'datetime_debut' => $this->date_debut.' '.$this->heure_debut,
+            ]);
+        }
+
+        if ($this->date_fin && $this->heure_fin) {
+            $this->merge([
+                'datetime_fin' => $this->date_fin.' '.$this->heure_fin,
+            ]);
+        }
+
         // Convertir les booléens
         $this->merge([
             'evenement_multi_jours' => $this->boolean('evenement_multi_jours'),
@@ -389,7 +412,7 @@ class EventRequest extends FormRequest
             'evenement_recurrent' => $this->boolean('evenement_recurrent'),
         ]);
 
-        // Assigner l'utilisateur authentifié comme organisateur principal si pas fourni
+        // Assigner l'membres authentifié comme organisateur principal si pas fourni
         if (!$this->has('organisateur_principal_id') && auth()->check()) {
             $this->merge([
                 'organisateur_principal_id' => auth()->id()

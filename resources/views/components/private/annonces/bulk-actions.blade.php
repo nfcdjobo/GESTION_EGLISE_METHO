@@ -1,4 +1,4 @@
-{{-- components/private/annonces/bulk-actions.blade.php --}}
+
 @props([
     'annonces' => collect(),
     'showSelectAll' => true

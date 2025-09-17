@@ -64,18 +64,18 @@ Route::middleware(['auth', 'user.status'])->prefix('dashboard')->name('private.'
 
     // ========== ROUTES D'ACTIONS SPÉCIALES ==========
 
-    // Inscrire un utilisateur à une classe
-    Route::post('/classes/{classe}/inscrire', [ClasseController::class, 'inscrireUtilisateur'])
+    // Inscrire un membres à une classe
+    Route::post('/classes/{classe}/inscrire', [ClasseController::class, 'inscrireMembres'])
         ->middleware('permission:classes.manage-members')
         ->name('classes.inscrire');
 
-    // Désinscrire un utilisateur d'une classe
-    Route::post('/classes/{classe}/desinscrire', [ClasseController::class, 'desinscrireUtilisateur'])
+    // Désinscrire un membres d'une classe
+    Route::post('/classes/{classe}/desinscrire', [ClasseController::class, 'desinscrireMembres'])
         ->middleware('permission:classes.manage-members')
         ->name('classes.desinscrire');
 
-    // Supprimer un utilisateur d'une classe (alias pour compatibilité)
-    Route::delete('/classes/{classe}/membres/{user}', [ClasseController::class, 'desinscrireUtilisateur'])
+    // Supprimer un membres d'une classe (alias pour compatibilité)
+    Route::delete('/classes/{classe}/membres/{user}', [ClasseController::class, 'desinscrireMembres'])
         ->middleware('permission:classes.manage-members')
         ->name('classes.remove-member');
 
@@ -137,10 +137,10 @@ Route::post('/classes/{classe}/ajouter-membres', [ClasseController::class, 'ajou
     ->middleware('permission:classes.manage-members')
     ->name('classes.ajouter-membres');
 
-// Récupérer les utilisateurs disponibles (sans classe) pour une classe
-Route::get('/classes/{classe}/utilisateurs-disponibles', [ClasseController::class, 'getUtilisateursDisponibles'])
+// Récupérer les membres disponibles (sans classe) pour une classe
+Route::get('/classes/{classe}/membres-disponibles', [ClasseController::class, 'getMembressDisponibles'])
     ->middleware('permission:classes.read')
-    ->name('classes.utilisateurs-disponibles');
+    ->name('classes.membres-disponibles');
 
 // ========== ROUTES API POUR LA GESTION DES MEMBRES ==========
 
@@ -156,8 +156,8 @@ Route::post('/classes/{classe}/members/bulk-add', [ClasseController::class, 'ajo
     ->middleware('permission:classes.manage-members')
     ->name('classes.bulk-add-members');
 
-// API: Récupérer les utilisateurs disponibles pour une classe
-Route::get('/classes/{classe}/available-users', [ClasseController::class, 'getUtilisateursDisponibles'])
+// API: Récupérer les membres disponibles pour une classe
+Route::get('/classes/{classe}/available-users', [ClasseController::class, 'getMembressDisponibles'])
     ->middleware('permission:classes.read')
     ->name('classes.available-users');
 });
@@ -171,11 +171,11 @@ Route::middleware(['auth:sanctum'])->prefix('api/v1')->name('api.v1.')->group(fu
     ])->middleware('permission:classes.read');
 
     // Actions spéciales API
-    Route::post('/classes/{classe}/members', [ClasseController::class, 'inscrireUtilisateur'])
+    Route::post('/classes/{classe}/members', [ClasseController::class, 'inscrireMembres'])
         ->middleware('permission:classes.manage-members')
         ->name('classes.add-member');
 
-    Route::delete('/classes/{classe}/members/{user}', [ClasseController::class, 'desinscrireUtilisateur'])
+    Route::delete('/classes/{classe}/members/{user}', [ClasseController::class, 'desinscrireMembres'])
         ->middleware('permission:classes.manage-members')
         ->name('classes.remove-member');
 

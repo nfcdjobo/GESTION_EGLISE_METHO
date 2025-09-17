@@ -229,7 +229,7 @@ class Culte extends Model
     }
 
     /**
-     * Relation avec l'utilisateur créateur
+     * Relation avec l'membres créateur
      */
     public function createur(): BelongsTo
     {
@@ -237,7 +237,7 @@ class Culte extends Model
     }
 
     /**
-     * Relation avec l'utilisateur modificateur
+     * Relation avec l'membres modificateur
      */
     public function modificateur(): BelongsTo
     {

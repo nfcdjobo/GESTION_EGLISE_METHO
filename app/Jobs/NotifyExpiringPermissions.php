@@ -35,7 +35,7 @@ class NotifyExpiringPermissions implements ShouldQueue
             // Obtenir toutes les permissions et rôles qui expirent bientôt
             $expiring = $permissionService->getExpiringPermissions($this->daysBeforeExpiration);
 
-            // Grouper par utilisateur
+            // Grouper par membres
             $userNotifications = [];
 
             // Traiter les permissions directes

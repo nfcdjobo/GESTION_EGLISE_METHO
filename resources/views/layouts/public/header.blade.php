@@ -17,25 +17,7 @@
                     <li><a href="#contact">Contact</a></li>
                     @auth
                         <li>
-                            <form method="POST" action="{{ route('security.logout') }}">
-                                @csrf
-                                <button type="submit"
-                                    style="color: white;
-                                        text-decoration: none;
-                                        font-weight: bold;
-                                        transition: all 0.3s ease;
-                                        padding: 0.5rem 1rem;
-                                        border-radius: 25px;
-                                        background: transparent;
-                                        border: none;
-                                        cursor: pointer;"
-                                    onmouseover="this.style.background='rgba(255,255,255,0.2)'; this.style.transform='translateY(-2px)';"
-                                    onmouseout="this.style.background='transparent'; this.style.transform='none';"
-                                    onfocus="this.style.background='rgba(255,255,255,0.2)'; this.style.transform='translateY(-2px)';"
-                                    onblur="this.style.background='transparent'; this.style.transform='none';">
-                                    Déconnexion
-                                </button>
-                            </form>
+                            <li><a href="{{ route('private.dashboard') }}">Dashboard</a></li>
                         </li>
                     @else
                         <li><a href="{{ route('security.login') }}">Connexion</a></li>
@@ -61,7 +43,7 @@
                 <li><a href="{{route('public.add-donate')}}">Faire un don</a></li>
                 <li><a href="#contact" class="mobile-link">Contact</a></li>
                 @auth
-                    {{-- Si l'utilisateur est connecté --}}
+                    {{-- Si l'membres est connecté --}}
                     <li>
                         <form method="POST" action="{{ route('security.logout') }}">
                             @csrf
@@ -84,7 +66,7 @@
                         </form>
                     </li>
                 @else
-                    {{-- Si l'utilisateur n'est pas connecté --}}
+                    {{-- Si l'membres n'est pas connecté --}}
                     <li><a href="{{ route('security.login') }}">Connexion</a></li>
                 @endauth
             </ul>

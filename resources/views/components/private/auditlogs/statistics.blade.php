@@ -82,7 +82,7 @@
                 </div>
                 <div class="ml-4">
                     <p class="text-2xl font-bold text-slate-800">{{ $stats['most_active_users']->count() }}</p>
-                    <p class="text-sm text-slate-500">Utilisateurs actifs</p>
+                    <p class="text-sm text-slate-500">Membress actifs</p>
                     <p class="text-xs text-purple-600 mt-1">
                         <i class="fas fa-user-friends"></i>
                         Derniers {{ $period }} jours
@@ -212,12 +212,12 @@
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <!-- Utilisateurs les plus actifs -->
+        <!-- Membress les plus actifs -->
         <div class="bg-white/80 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
             <div class="p-6 border-b border-slate-200">
                 <h2 class="text-xl font-bold text-slate-800 flex items-center">
                     <i class="fas fa-trophy text-yellow-600 mr-2"></i>
-                    Utilisateurs les Plus Actifs
+                    Membress les Plus Actifs
                 </h2>
             </div>
             <div class="p-6">
@@ -241,7 +241,7 @@
                                     @endif
                                 </div>
                                 <div class="flex-1">
-                                    <div class="font-semibold text-slate-900">{{ $userStats->user->nom_complet ?? 'Utilisateur inconnu' }}</div>
+                                    <div class="font-semibold text-slate-900">{{ $userStats->user->nom_complet ?? 'Membres inconnu' }}</div>
                                     <div class="text-sm text-slate-500">{{ $userStats->user->email ?? 'N/A' }}</div>
                                 </div>
                                 <div class="text-right">
@@ -261,7 +261,7 @@
                         <div class="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
                             <i class="fas fa-users text-2xl text-slate-400"></i>
                         </div>
-                        <p class="text-slate-500">Aucun utilisateur actif trouvé</p>
+                        <p class="text-slate-500">Aucun membres actif trouvé</p>
                     </div>
                 @endif
             </div>
@@ -284,7 +284,7 @@
                                     {{ $index + 1 }}
                                 </div>
                                 <div class="flex-1">
-                                    <div class="font-semibold text-slate-900">{{ $targetStats->targetUser->nom_complet ?? 'Utilisateur inconnu' }}</div>
+                                    <div class="font-semibold text-slate-900">{{ $targetStats->targetUser->nom_complet ?? 'Membres inconnu' }}</div>
                                     <div class="text-sm text-slate-500">{{ $targetStats->targetUser->email ?? 'N/A' }}</div>
                                 </div>
                                 <div class="text-right">

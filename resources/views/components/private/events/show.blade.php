@@ -347,24 +347,24 @@
                 <div class="p-6 space-y-4">
                     <!-- Date et heure -->
                     <div class="flex items-start space-x-3">
-                        <i class="fas fa-calendar text-blue-600 mt-1"></i>
-                        <div>
-                            <div class="font-semibold text-slate-900">
-                                {{ \Carbon\Carbon::parse($event->date_debut)->format('l d F Y') }}
-                            </div>
-                            <div class="text-sm text-slate-600">
-                                {{ \Carbon\Carbon::parse($event->heure_debut)->format('H:i') }}
-                                @if($event->heure_fin)
-                                    - {{ \Carbon\Carbon::parse($event->heure_fin)->format('H:i') }}
-                                @endif
-                            </div>
-                            @if($event->date_fin && $event->date_fin != $event->date_debut)
-                                <div class="text-sm text-slate-500">
-                                    au {{ \Carbon\Carbon::parse($event->date_fin)->format('d/m/Y') }}
-                                </div>
-                            @endif
-                        </div>
-                    </div>
+    <i class="fas fa-calendar text-blue-600 mt-1"></i>
+    <div>
+        <div class="font-semibold text-slate-900">
+            {{ \Carbon\Carbon::parse($event->date_debut)->locale('fr')->isoFormat('dddd D MMMM Y') }} à {{ \Carbon\Carbon::parse($event->heure_debut)->format('H:i') }}
+        </div>
+        <div class="text-sm text-slate-600">
+            au
+        </div>
+        @if($event->date_fin && $event->date_fin != $event->date_debut)
+            <div class="font-semibold text-slate-900">
+                {{ \Carbon\Carbon::parse($event->date_fin)->locale('fr')->isoFormat('dddd D MMMM Y') }}
+                @if($event->heure_fin)
+                    à {{ \Carbon\Carbon::parse($event->heure_fin)->format('H:i') }}
+                @endif
+            </div>
+        @endif
+    </div>
+</div>
 
                     <!-- Lieu -->
                     <div class="flex items-start space-x-3">

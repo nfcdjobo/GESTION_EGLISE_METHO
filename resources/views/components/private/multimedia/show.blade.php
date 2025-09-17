@@ -29,7 +29,7 @@
                     </a>
                 @endcan
 
-                @can(['multimedia.reject', 'multimedia.approve'])
+                @canany(['multimedia.reject', 'multimedia.approve'])
                     @if($multimedia->statut_moderation == 'en_attente')
                     @can('multimedia.approve')
                         <button type="button" onclick="moderateMedia('approve')" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white text-sm font-medium rounded-xl hover:from-green-700 hover:to-emerald-700 transition-all duration-200 shadow-md hover:shadow-lg">
@@ -42,7 +42,7 @@
                         </button>
                         @endcan
                     @endif
-                @endcan
+                @endcanany
 
                 @can('multimedia.toggle-featured')
                     <button type="button" onclick="toggleFeatured()" class="inline-flex items-center px-4 py-2 {{ $multimedia->est_featured ? 'bg-gradient-to-r from-yellow-600 to-amber-600' : 'bg-slate-400' }} text-white text-sm font-medium rounded-xl hover:from-yellow-700 hover:to-amber-700 transition-all duration-200 shadow-md hover:shadow-lg">
@@ -446,7 +446,7 @@
                             @if($multimedia->uploadedBy)
                                 {{ $multimedia->uploadedBy->name }}
                             @else
-                                Utilisateur supprimé
+                                Membres supprimé
                             @endif
                         </p>
                     </div>

@@ -62,7 +62,7 @@ class AuthenteController extends Controller
     //             $user = User::where('telephone_1', $loginField)->first();
     //         }
 
-    //         // Vérifier si l'utilisateur existe
+    //         // Vérifier si l'membres existe
     //         if (!$user) {
     //             return back()->withErrors([
     //                 'login' => 'Aucun compte trouvé avec ces identifiants.'
@@ -83,7 +83,7 @@ class AuthenteController extends Controller
     //             ])->withInput();
     //         }
 
-    //         // Connexion manuelle de l'utilisateur
+    //         // Connexion manuelle de l'membres
     //         Auth::login($user, $remember);
     //         $request->session()->regenerate();
 
@@ -143,7 +143,7 @@ class AuthenteController extends Controller
             $user = User::whereRaw("REGEXP_REPLACE(telephone_1, '[^0-9+]', '', 'g') = ?", [$cleanPhone])->first();
         }
 
-        // Vérifier si l'utilisateur existe
+        // Vérifier si l'membres existe
         if (!$user) {
             return back()->withErrors([
                 'login' => 'Aucun compte trouvé avec ces identifiants.'
@@ -164,7 +164,7 @@ class AuthenteController extends Controller
             ])->withInput();
         }
 
-        // Connexion manuelle de l'utilisateur
+        // Connexion manuelle de l'membres
         Auth::login($user, $remember);
         $request->session()->regenerate();
 
@@ -218,7 +218,7 @@ class AuthenteController extends Controller
                 return back()->withErrors($validator)->withInput();
             }
 
-            // Créer l'utilisateur
+            // Créer l'membres
             DB::beginTransaction();
 
             $user = User::create([
@@ -241,7 +241,7 @@ class AuthenteController extends Controller
 
             DB::commit();
 
-            // Connecter automatiquement l'utilisateur
+            // Connecter automatiquement l'membres
             Auth::login($user);
 
             return redirect()->route('private.dashboard')->with('success', 'Votre compte a été créé avec succès ! Bienvenue !');
@@ -490,46 +490,46 @@ class AuthenteController extends Controller
     // Méthodes de base du ResourceController (si nécessaire)
     public function index()
     {
-        // Liste des utilisateurs (admin seulement)
+        // Liste des membres (admin seulement)
         $users = User::with('roles')->paginate(20);
         return view('admin.users.index', compact('users'));
     }
 
     public function create()
     {
-        // Formulaire de création d'utilisateur (admin)
+        // Formulaire de création d'membres (admin)
         return view('admin.users.create');
     }
 
     public function store(Request $request)
     {
-        // Logique de création d'utilisateur par admin
+        // Logique de création d'membres par admin
     }
 
     public function show(string $id)
     {
-        // Afficher un utilisateur spécifique
+        // Afficher un membres spécifique
         $user = User::with('roles', 'permissions')->findOrFail($id);
         return view('admin.users.show', compact('user'));
     }
 
     public function edit(string $id)
     {
-        // Formulaire d'édition d'utilisateur
+        // Formulaire d'édition d'membres
         $user = User::findOrFail($id);
         return view('admin.users.edit', compact('user'));
     }
 
     public function update(Request $request, string $id)
     {
-        // Logique de mise à jour d'utilisateur
+        // Logique de mise à jour d'membres
     }
 
     public function destroy(string $id)
     {
-        // Suppression d'utilisateur (soft delete)
+        // Suppression d'membres (soft delete)
         $user = User::findOrFail($id);
         $user->delete();
-        return redirect()->route('admin.users.index')->with('success', 'Utilisateur supprimé.');
+        return redirect()->route('admin.users.index')->with('success', 'Membres supprimé.');
     }
 }

@@ -375,7 +375,7 @@ function collectPriereData() {
         methode_contact: document.getElementById('methode_contact').value,
         instructions: document.getElementById('instructions_priere').value.trim(),
         date_creation: new Date().toISOString(),
-        cree_par: 'current_user' // À remplacer par l'utilisateur connecté
+        cree_par: 'current_user' // À remplacer par l'membres connecté
     };
 }
 

@@ -148,7 +148,7 @@
                                 <select id="audience_cible" name="audience_cible"
                                     class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
                                     <option value="tous" {{ old('audience_cible', $event->audience_cible) == 'tous' ? 'selected' : '' }}>Tous</option>
-                                    <option value="membres" {{ old('audience_cible', $event->audience_cible) == 'membres' ? 'selected' : '' }}>Membres</option>
+                                    <option value="membres" {{ old('audience_cible', $event->audience_cible) == 'membres' ? 'selected' : '' }}</option>
                                     <option value="jeunes" {{ old('audience_cible', $event->audience_cible) == 'jeunes' ? 'selected' : '' }}>Jeunes</option>
                                     <option value="adultes" {{ old('audience_cible', $event->audience_cible) == 'adultes' ? 'selected' : '' }}>Adultes</option>
                                     <option value="familles" {{ old('audience_cible', $event->audience_cible) == 'familles' ? 'selected' : '' }}>Familles</option>

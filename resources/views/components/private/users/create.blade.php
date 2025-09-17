@@ -1,12 +1,12 @@
 @extends('layouts.private.main')
-@section('title', 'Créer un utilisateur')
+@section('title', 'Créer un membres')
 
 @section('content')
 <div class="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 py-8">
     <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
         <!-- Page Title -->
         <div class="mb-8">
-            <h1 class="text-3xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent">Créer un Utilisateur</h1>
+            <h1 class="text-3xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent">Créer un Membres</h1>
             <p class="text-slate-500 mt-1">Ajouter un nouveau membre à votre communauté - {{ \Carbon\Carbon::now()->format('l d F Y') }}</p>
         </div>
 
@@ -15,7 +15,7 @@
             <div class="bg-gradient-to-r from-indigo-600 via-purple-600 to-blue-600 px-6 sm:px-8 py-6">
                 <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
                     <div class="mb-4 sm:mb-0">
-                        <h2 class="text-2xl sm:text-3xl font-bold text-white">Créer un nouvel utilisateur</h2>
+                        <h2 class="text-2xl sm:text-3xl font-bold text-white">Créer un nouvel membres</h2>
                         <p class="text-indigo-100 mt-2 text-sm sm:text-base">Remplissez les informations ci-dessous pour créer un compte</p>
                     </div>
                     <div class="flex flex-col sm:flex-row gap-3">
@@ -368,8 +368,8 @@
                 <div class="p-6">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div class="md:col-span-2 space-y-2">
-                            <label for="password" class="block text-sm font-medium text-slate-700">Mot de passe *</label>
-                            <input type="password" name="password" id="password" required
+                            <label for="password" class="block text-sm font-medium text-slate-700">Mot de passe </label>
+                            <input type="password" name="password" id="password"
                                    class="w-full px-4 py-3 border-2 border-slate-200 rounded-xl focus:border-indigo-500 focus:ring-0 transition-all duration-200 hover:border-slate-300 @error('password') border-red-300 @enderror">
                             <p class="mt-1 text-sm text-slate-500">
                                 Le mot de passe doit contenir au moins 8 caractères, incluant des majuscules, minuscules et chiffres.
@@ -408,7 +408,7 @@
                     <i class="fas fa-times mr-2"></i>Annuler
                 </a>
                 <button type="submit" class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-medium rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-200 shadow-md hover:shadow-lg">
-                    <i class="fas fa-save mr-2"></i>Créer l'utilisateur
+                    <i class="fas fa-save mr-2"></i>Créer l'membres
                 </button>
             </div>
         </form>

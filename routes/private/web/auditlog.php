@@ -24,7 +24,7 @@ Route::prefix('admin')->middleware(['auth', 'permission:admin.access'])->name('p
         Route::get('/stats/dashboard', [PermissionAuditLogController::class, 'statistics'])
             ->name('statistics');
 
-        // Route pour afficher les logs d'un utilisateur spécifique
+        // Route pour afficher les logs d'un membres spécifique
         Route::get('/user/{user}/logs', [PermissionAuditLogController::class, 'userLogs'])
             ->name('user.logs');
 
@@ -68,7 +68,7 @@ Route::prefix('api/admin')->middleware(['auth', 'permission:audit.read'])->name(
     Route::get('/audit/stats', [PermissionAuditLogController::class, 'statistics'])
         ->name('stats.data');
 
-    // API pour la recherche autocomplete d'utilisateurs
+    // API pour la recherche autocomplete d'membres
     Route::get('/audit/users/search', function(Request $request) {
         $query = $request->get('q');
         return User::where('nom', 'like', "%{$query}%")

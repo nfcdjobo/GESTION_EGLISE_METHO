@@ -73,7 +73,7 @@ class AuthServiceProvider extends ServiceProvider
      */
     protected function registerCustomGates(): void
     {
-        // Gate pour vérifier si un utilisateur peut gérer un autre utilisateur
+        // Gate pour vérifier si un membres peut gérer un autre membres
         Gate::define('manage-user', function (User $authUser, User $targetUser) {
             // Ne peut pas se gérer soi-même sauf super admin
             if ($authUser->id === $targetUser->id && !$authUser->isSuperAdmin()) {

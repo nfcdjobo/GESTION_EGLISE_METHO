@@ -11,12 +11,12 @@ use Illuminate\Support\Collection;
 trait HasPermissions
 {
     /**
-     * Cache des permissions de l'utilisateur
+     * Cache des permissions de l'membres
      */
     protected ?Collection $permissionsCache = null;
 
     /**
-     * Vérifier si l'utilisateur a une ou plusieurs permissions
+     * Vérifier si l'membres a une ou plusieurs permissions
      */
     public function hasPermission($permissions): bool
     {
@@ -34,7 +34,7 @@ trait HasPermissions
     }
 
     /**
-     * Vérifier si l'utilisateur a au moins une des permissions
+     * Vérifier si l'membres a au moins une des permissions
      */
     public function hasAnyPermission(array $permissions): bool
     {
@@ -47,7 +47,7 @@ trait HasPermissions
     }
 
     /**
-     * Vérifier si l'utilisateur a toutes les permissions
+     * Vérifier si l'membres a toutes les permissions
      */
     public function hasAllPermissions(array $permissions): bool
     {
@@ -60,7 +60,7 @@ trait HasPermissions
     }
 
     /**
-     * Vérifier si l'utilisateur a une permission sur une ressource spécifique
+     * Vérifier si l'membres a une permission sur une ressource spécifique
      */
     public function hasResourcePermission(string $resource, string $action): bool
     {
@@ -73,7 +73,7 @@ trait HasPermissions
     }
 
     /**
-     * Obtenir toutes les permissions de l'utilisateur (directes + via rôles)
+     * Obtenir toutes les permissions de l'membres (directes + via rôles)
      */
     public function getAllPermissions(): Collection
     {
@@ -139,7 +139,7 @@ trait HasPermissions
     }
 
     /**
-     * Vérifier si l'utilisateur a un rôle
+     * Vérifier si l'membres a un rôle
      */
     public function hasRole($roles): bool
     {
@@ -163,7 +163,7 @@ trait HasPermissions
     }
 
     /**
-     * Vérifier si l'utilisateur a au moins un des rôles
+     * Vérifier si l'membres a au moins un des rôles
      */
     public function hasAnyRole(array $roles): bool
     {
@@ -176,7 +176,7 @@ trait HasPermissions
     }
 
     /**
-     * Vérifier si l'utilisateur a tous les rôles
+     * Vérifier si l'membres a tous les rôles
      */
     public function hasAllRoles(array $roles): bool
     {
@@ -189,7 +189,7 @@ trait HasPermissions
     }
 
     /**
-     * Attribuer un rôle à l'utilisateur
+     * Attribuer un rôle à l'membres
      */
     public function assignRole($role, $assignedBy = null, $expiresAt = null): void
     {
@@ -209,7 +209,7 @@ trait HasPermissions
     }
 
     /**
-     * Retirer un rôle de l'utilisateur
+     * Retirer un rôle de l'membres
      */
     public function removeRole($role): void
     {
@@ -225,7 +225,7 @@ trait HasPermissions
     }
 
     /**
-     * Synchroniser les rôles de l'utilisateur
+     * Synchroniser les rôles de l'membres
      */
     public function syncRoles(array $roles, $assignedBy = null): void
     {
@@ -255,7 +255,7 @@ trait HasPermissions
     }
 
     /**
-     * Accorder une permission directe à l'utilisateur
+     * Accorder une permission directe à l'membres
      */
     public function grantPermission($permission, $grantedBy = null, $expiresAt = null, $reason = null): void
     {
@@ -317,7 +317,7 @@ trait HasPermissions
     }
 
     /**
-     * Vérifier si l'utilisateur est super admin
+     * Vérifier si l'membres est super admin
      */
     public function isSuperAdmin(): bool
     {
@@ -325,7 +325,7 @@ trait HasPermissions
     }
 
     /**
-     * Vérifier si l'utilisateur est admin
+     * Vérifier si l'membres est admin
      */
     public function isAdmin(): bool
     {
@@ -333,7 +333,7 @@ trait HasPermissions
     }
 
     /**
-     * Obtenir le niveau hiérarchique le plus élevé de l'utilisateur
+     * Obtenir le niveau hiérarchique le plus élevé de l'membres
      */
     public function getHighestRoleLevel(): ?int
     {
@@ -353,7 +353,7 @@ trait HasPermissions
     }
 
     /**
-     * Vérifier si l'utilisateur peut gérer un autre utilisateur
+     * Vérifier si l'membres peut gérer un autre membres
      */
     public function canManageUser(User $targetUser): bool
     {
@@ -370,7 +370,7 @@ trait HasPermissions
             return false;
         }
 
-        // Un utilisateur peut gérer ceux de niveau inférieur
+        // Un membres peut gérer ceux de niveau inférieur
         return $myLevel > $targetLevel;
     }
 

@@ -40,9 +40,9 @@ class FixPasswordHashing extends Command
             }
         }
 
-        $this->info('🔍 Recherche des utilisateurs avec des mots de passe non-hachés...');
+        $this->info('🔍 Recherche des membres avec des mots de passe non-hachés...');
 
-        // Récupérer tous les utilisateurs
+        // Récupérer tous les membres
         $users = User::all();
         $fixedCount = 0;
         $errorCount = 0;
@@ -70,7 +70,7 @@ class FixPasswordHashing extends Command
                     $user->save();
 
                     $this->warn("🔧 {$user->email} - Mot de passe réinitialisé : {$tempPassword}");
-                    $this->warn("   ⚠️  L'utilisateur devra changer son mot de passe à la prochaine connexion");
+                    $this->warn("   ⚠️  L'membres devra changer son mot de passe à la prochaine connexion");
 
                     $fixedCount++;
                 }
@@ -83,14 +83,14 @@ class FixPasswordHashing extends Command
 
         // Résumé
         $this->info("\n📊 Résumé :");
-        $this->info("   Total d'utilisateurs : " . $users->count());
+        $this->info("   Total d'membres : " . $users->count());
         $this->info("   Déjà hachés correctement : {$alreadyHashedCount}");
         $this->info("   " . ($dryRun ? 'À corriger' : 'Corrigés') . " : {$fixedCount}");
         $this->info("   Erreurs : {$errorCount}");
 
         if (!$dryRun && $fixedCount > 0) {
             $this->warn("\n⚠️  IMPORTANT :");
-            $this->warn("   Les utilisateurs avec des mots de passe réinitialisés doivent :");
+            $this->warn("   Les membres avec des mots de passe réinitialisés doivent :");
             $this->warn("   1. Utiliser leur nouveau mot de passe temporaire pour se connecter");
             $this->warn("   2. Changer immédiatement leur mot de passe via leur profil");
             $this->warn("   3. Ou utiliser la fonction 'Mot de passe oublié'");

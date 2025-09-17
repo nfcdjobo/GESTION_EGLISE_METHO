@@ -318,7 +318,7 @@ class InscriptionEvent extends Model
     {
         $errors = [];
 
-        // Vérifier que l'utilisateur n'est pas déjà inscrit à cet événement
+        // Vérifier que l'membres n'est pas déjà inscrit à cet événement
         $existingInscription = self::actives()
             ->where('inscrit_id', $this->inscrit_id)
             ->where('event_id', $this->event_id)
@@ -326,7 +326,7 @@ class InscriptionEvent extends Model
             ->first();
 
         if ($existingInscription) {
-            $errors[] = "L'utilisateur est déjà inscrit à cet événement.";
+            $errors[] = "L'membres est déjà inscrit à cet événement.";
         }
 
         // Vérifier la capacité de l'événement

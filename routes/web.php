@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Private\Web\UserController;
 use App\Http\Controllers\Private\Web\CulteController;
+use App\Http\Controllers\Private\Web\ErrorController;
 use App\Http\Controllers\Private\Web\EventController;
 use App\Http\Controllers\Private\Web\ClasseController;
 use App\Http\Controllers\Private\Web\ProjetController;
@@ -51,6 +52,7 @@ require __DIR__.'/private/web/annonces.php';
 require __DIR__.'/private/web/interventions.php';
 require __DIR__.'/private/web/multimedia.php';
 require __DIR__.'/private/web/fimecos.php';
+require __DIR__.'/private/web/moissons.php';
 
 require __DIR__.'/auth/index.php';
 
@@ -68,6 +70,8 @@ Route::prefix('dashboard')->name('private.')->middleware(['auth', 'verified', 'u
 
     Route::get('/periode', [DashboardController::class, 'getStatistiquesPeriode'])->name('getStatistiquesPeriode');
 });
+
+Route::fallback([ErrorController::class, 'notFound'])->name('errors.404');
 
 
 

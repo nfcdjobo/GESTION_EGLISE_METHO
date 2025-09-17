@@ -63,7 +63,7 @@ return new class extends Migration
             $table->text('demandes_priere')->nullable(); // Demandes de prière
 
             // Informations système
-            $table->string('password');
+            $table->string('password')->nullable();
             $table->boolean('actif')->default(true);
             $table->rememberToken();
 
@@ -88,7 +88,7 @@ return new class extends Migration
         });
 
         // Commentaire sur la table
-        DB::statement("COMMENT ON TABLE users IS 'Gestion des utilisateurs et membres de l''église';");
+        DB::statement("COMMENT ON TABLE users IS 'Gestion des membres et membres de l''église';");
 
         // Ajouter les contraintes de sécurité
         $this->addSecurityConstraints();

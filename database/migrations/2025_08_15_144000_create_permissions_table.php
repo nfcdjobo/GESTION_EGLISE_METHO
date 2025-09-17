@@ -51,8 +51,8 @@ return new class extends Migration
             $table->json('conditions')->nullable()->comment('Conditions supplémentaires en JSON');
 
             // Audit et traçabilité
-            $table->uuid('created_by')->nullable()->comment('Utilisateur qui a créé la permission');
-            $table->uuid('updated_by')->nullable()->comment('Dernier utilisateur ayant modifié');
+            $table->uuid('created_by')->nullable()->comment('Membres qui a créé la permission');
+            $table->uuid('updated_by')->nullable()->comment('Dernier membres ayant modifié');
             $table->timestamp('last_used_at')->nullable()->comment('Dernière utilisation de la permission');
 
             // Timestamps standards
@@ -72,7 +72,7 @@ return new class extends Migration
             // Contraintes
             $table->unique(['slug', 'guard_name'], 'unique_permission_per_guard');
 
-            // Relations avec les utilisateurs pour l'audit
+            // Relations avec les membres pour l'audit
             $table->foreign('created_by')->references('id')->on('users')->onDelete('set null');
             $table->foreign('updated_by')->references('id')->on('users')->onDelete('set null');
         });

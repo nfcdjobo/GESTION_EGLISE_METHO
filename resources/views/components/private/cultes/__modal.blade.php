@@ -258,10 +258,10 @@ function updateStatus() {
         return;
     }
 
-    fetch(`/private/cultes/${currentCulteId}/statut`, {
+    fetch(`{{route('private.cultes.statut', ':culte')}}`.replace(':culte', currentCulteId), {
         method: 'PATCH',
         headers: {
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+            'X-CSRF-TOKEN': '{{ csrf_token() }}',
             'Accept': 'application/json'
         },
         body: formData
@@ -313,10 +313,10 @@ function duplicateCulte() {
         return;
     }
 
-    fetch(`/private/cultes/${currentCulteId}/dupliquer`, {
+    fetch(`{{route('private.cultes.dupliquer', ':culte')}}`.replace(':culte', currentCulteId), {
         method: 'POST',
         headers: {
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+            'X-CSRF-TOKEN': '{{ csrf_token() }}',
             'Accept': 'application/json'
         },
         body: formData
@@ -326,7 +326,7 @@ function duplicateCulte() {
         if (data.success) {
             showToast('Culte dupliqué avec succès', 'success');
             closeDuplicateModal();
-            window.location.href = `/private/cultes/${data.data.id}`;
+            window.location.href = `{{route('private.cultes.show', ':culte')}}`.replace(':culte', data.data.id);
         } else {
             showToast(data.message || 'Une erreur est survenue', 'error');
         }
@@ -367,11 +367,11 @@ function closeDeleteModal() {
 function executeDelete() {
     if (!currentCulteId) return;
 
-    fetch(`/private/cultes/${currentCulteId}`, {
+    fetch(`{{route('private.cultes.destroy', ':culte')}}`.replace(':culte', currentCulteId), {
         method: 'DELETE',
         headers: {
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-            'Accept': 'application/json'
+            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+            'Accept': 'application/json',
         }
     })
     .then(response => response.json())
@@ -411,8 +411,9 @@ function showCulteDetails(culteId) {
     modal.classList.remove('hidden');
 
     // Charger les détails via AJAX
-    fetch(`/private/cultes/${culteId}`, {
+    fetch(`{{route('private.cultes.show', ':culte')}}`.replace(':culte', culteId), {
         headers: {
+            'X-CSRF-TOKEN': '{{ csrf_token() }}',
             'Accept': 'application/json',
             'X-Requested-With': 'XMLHttpRequest'
         }
@@ -422,7 +423,7 @@ function showCulteDetails(culteId) {
         if (data.success) {
             const culte = data.data;
             content.innerHTML = generateCulteInfoHTML(culte);
-            viewLink.href = `/private/cultes/${culteId}`;
+            viewLink.href =`{{route('private.cultes.show', ':culte')}}`.replace(':culte', culteId);
         } else {
             content.innerHTML = `
                 <div class="text-center py-8">

@@ -181,7 +181,7 @@ class RapportReunion extends Model
     }
 
     /**
-     * Relation avec l'utilisateur créateur
+     * Relation avec l'membres créateur
      */
     public function createur(): BelongsTo
     {
@@ -538,7 +538,7 @@ class RapportReunion extends Model
     }
 
     /**
-     * Vérifier si l'utilisateur peut modifier ce rapport
+     * Vérifier si l'membres peut modifier ce rapport
      */
     public function peutEtreModifiePar(User $user): bool
     {

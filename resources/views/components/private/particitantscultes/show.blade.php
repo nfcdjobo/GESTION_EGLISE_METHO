@@ -30,7 +30,7 @@
                 </div>
 
                 <!-- Actions rapides -->
-                @can(['participants-cultes.confirm-presence', 'participants-cultes.update'])
+                @canany(['participants-cultes.confirm-presence', 'participants-cultes.update'])
                 <div class="flex items-center space-x-2">
                     @can('participants-cultes.update')
                     <button type="button" onclick="editParticipation()"
@@ -47,7 +47,7 @@
                     @endif
                     @endcan
                 </div>
-                @endcan
+                @endcanany
             </div>
         </div>
 

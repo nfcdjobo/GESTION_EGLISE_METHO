@@ -378,7 +378,7 @@
                             </div>
                         </div>
 
-                        <!-- Champs pour créer un nouvel utilisateur -->
+                        <!-- Champs pour créer un nouvel membres -->
                         <div id="newUserFields" class="md:col-span-2 hidden">
                             <div class="bg-blue-50 border border-blue-200 rounded-xl p-4">
                                 <h4 class="text-sm font-medium text-blue-900 mb-3">Informations du nouveau participant</h4>
@@ -488,7 +488,7 @@
         </div>
     </div>
 
-    
+
 
     <?php $__env->startPush('scripts'); ?>
     <script>
@@ -902,7 +902,7 @@
             }, 5000);
         }
 
-        // Fonction utilitaire pour enlever l'erreur quand l'utilisateur commence à taper
+        // Fonction utilitaire pour enlever l'erreur quand l'membres commence à taper
         function setupFieldErrorClearance() {
             const fields = [
                 'participantSearch', 'newPrenom', 'newNom', 'newSexe',

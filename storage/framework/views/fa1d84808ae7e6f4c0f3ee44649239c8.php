@@ -4,9 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Connexion - Plateforme de l'Église</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+
+    
+
+    
+    <script src="<?php echo e(asset('js/cdn.tailwindcss.com.js')); ?>"></script>
+    <link rel="stylesheet" href="<?php echo e(asset('css/all.min.css')); ?>">
     <link rel="icon" href="https://www.cevaa.org/la-communaute/fiches-deglises/afrique-occidentale-centrafrique/logo-emci.png/image_preview" type="image/png" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body class="bg-gradient-to-br from-blue-50 via-white to-purple-50 min-h-screen flex items-center justify-center p-4">
 
@@ -192,8 +196,6 @@ unset($__errorArgs, $__bag); ?>
 
                     <!-- Se souvenir de moi -->
                     <div class="flex items-center justify-between">
-                        
-
                         <div class="flex items-center">
                             <input
                                 id="remember"
@@ -220,18 +222,8 @@ unset($__errorArgs, $__bag); ?>
                         Se connecter
                     </button>
                 </form>
-
-                <!-- Divider -->
-                
-
-
-
-                <!-- Lien d'inscription -->
-                
             </div>
 
-            <!-- SECTION INSCRIPTION -->
-            
 
             <!-- SECTION MOT DE PASSE OUBLIÉ -->
             <div id="forgotSection" class="section hidden">

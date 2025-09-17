@@ -16,16 +16,13 @@ class ProgrammeController extends Controller
 {
 
     public function __construct()
-    {
-
-        $this->middleware('auth');
-        $this->middleware('permission:programmes.read')->only(['index', 'show', 'statistics']);
-        $this->middleware('permission:programmes.create')->only(['create', 'store']);
-        $this->middleware('permission:programmes.update')->only(['edit', 'update', 'toggle']);
-        $this->middleware('permission:programmes.delete')->only(['destroy']);
-        $this->middleware('permission:programmes.manage')->only(['bulkAssign', 'bulkActions', 'clone']);
-        $this->middleware('permission:programmes.export')->only(['export']);
-    }
+{
+    $this->middleware('auth');
+    $this->middleware('permission:programmes.read')->only(['index', 'show', 'actifs', 'planning', 'statistiques']);
+    $this->middleware('permission:programmes.create')->only(['create', 'store', 'dupliquer']);
+    $this->middleware('permission:programmes.update')->only(['edit', 'update', 'activer', 'suspendre', 'terminer', 'annuler']);
+    $this->middleware('permission:programmes.delete')->only(['destroy']);
+}
 
     /**
      * Vérifier si c'est une requête API
@@ -55,7 +52,7 @@ class ProgrammeController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Programme::with(['responsablePrincipal', 'createurUtilisateur']);
+        $query = Programme::with(['responsablePrincipal', 'createurMembres']);
 
         // Filtres
         if ($request->filled('type')) {
@@ -128,7 +125,7 @@ class ProgrammeController extends Controller
                 return response()->json([
                     'success' => true,
                     'message' => 'Programme créé avec succès.',
-                    'data' => $programme->load(['responsablePrincipal', 'createurUtilisateur'])
+                    'data' => $programme->load(['responsablePrincipal', 'createurMembres'])
                 ], 201);
             }
 
@@ -158,7 +155,7 @@ class ProgrammeController extends Controller
      */
     public function show(Programme $programme, Request $request)
     {
-        $programme->load(['responsablePrincipal', 'createurUtilisateur', 'modificateurUtilisateur']);
+        $programme->load(['responsablePrincipal', 'createurMembres', 'modificateurMembres']);
 
         if ($this->isApiRequest($request)) {
             return response()->json([
@@ -214,7 +211,7 @@ class ProgrammeController extends Controller
                 return response()->json([
                     'success' => true,
                     'message' => 'Programme mis à jour avec succès.',
-                    'data' => $programme->fresh()->load(['responsablePrincipal', 'createurUtilisateur'])
+                    'data' => $programme->fresh()->load(['responsablePrincipal', 'createurMembres'])
                 ]);
             }
 
@@ -520,7 +517,7 @@ dd( $e->getMessage());
                 return response()->json([
                     'success' => true,
                     'message' => 'Programme dupliqué avec succès.',
-                    'data' => $nouveauProgramme->load(['responsablePrincipal', 'createurUtilisateur'])
+                    'data' => $nouveauProgramme->load(['responsablePrincipal', 'createurMembres'])
                 ], 201);
             }
 

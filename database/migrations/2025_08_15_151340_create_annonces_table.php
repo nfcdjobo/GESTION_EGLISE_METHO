@@ -64,7 +64,7 @@ return new class extends Migration
             ])->default('brouillon')->comment('Statut de l\'annonce');
 
             // Audit minimal
-            $table->uuid('cree_par')->nullable()->comment('Utilisateur créateur');
+            $table->uuid('cree_par')->nullable()->comment('Membres créateur');
 
             // Timestamps
             $table->timestamps();

@@ -547,6 +547,106 @@ namespace App\Models{
 namespace App\Models{
 /**
  * @property string $id
+ * @property string $moisson_id
+ * @property string $categorie Type d'engagement
+ * @property string|null $donateur_id Existe si catégorie est une personne physique
+ * @property string|null $nom_entite Nom de l'entité morale si applicable
+ * @property string|null $description Description de l'engagement
+ * @property string|null $telephone
+ * @property string|null $email
+ * @property string|null $adresse
+ * @property string $cible C'est l'objectif à atteindre mais on peut aller au-delà
+ * @property string $montant_solde L'ensemble des montants déjà collectés
+ * @property string $reste Reste à solder
+ * @property string $montant_supplementaire Existe lorsque montant_solde > cible
+ * @property string $collecter_par
+ * @property \Illuminate\Support\Carbon $collecter_le
+ * @property string $creer_par
+ * @property \Illuminate\Support\Carbon|null $date_echeance Date limite pour honorer l'engagement
+ * @property \Illuminate\Support\Carbon|null $date_rappel Date de rappel automatique
+ * @property array|null $editeurs Historique des modifications en JSONB
+ * @property bool $status
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property-read mixed $categorie_libelle
+ * @property-read \App\Models\User $collecteur
+ * @property-read \App\Models\User $createur
+ * @property-read mixed $doit_etre_rappele
+ * @property-read \App\Models\User|null $donateur
+ * @property-read mixed $est_en_retard
+ * @property-read mixed $est_entite_morale
+ * @property-read mixed $jours_retard
+ * @property-read \App\Models\Moisson $moisson
+ * @property-read mixed $niveau_urgence
+ * @property-read mixed $niveau_urgence_libelle
+ * @property-read mixed $nom_donateur
+ * @property-read mixed $objectif_atteint
+ * @property-read mixed $pourcentage_realise
+ * @method static \Illuminate\Database\Eloquent\Builder|EngagementMoisson aRappeler(?\Carbon\Carbon $date = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|EngagementMoisson actif()
+ * @method static \Illuminate\Database\Eloquent\Builder|EngagementMoisson avecMoisson()
+ * @method static \Illuminate\Database\Eloquent\Builder|EngagementMoisson enRetard()
+ * @method static \Illuminate\Database\Eloquent\Builder|EngagementMoisson entiteMorale()
+ * @method static \Illuminate\Database\Eloquent\Builder|EngagementMoisson entitePhysique()
+ * @method static \Illuminate\Database\Eloquent\Builder|EngagementMoisson newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|EngagementMoisson newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|EngagementMoisson objectifAtteint()
+ * @method static \Illuminate\Database\Eloquent\Builder|EngagementMoisson onlyTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|EngagementMoisson parCategorie(string $categorie)
+ * @method static \Illuminate\Database\Eloquent\Builder|EngagementMoisson parNiveauUrgence(string $niveau)
+ * @method static \Illuminate\Database\Eloquent\Builder|EngagementMoisson query()
+ * @method static \Illuminate\Database\Eloquent\Builder|EngagementMoisson rechercheTexte(string $terme)
+ * @method static \Illuminate\Database\Eloquent\Builder|EngagementMoisson whereAdresse($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|EngagementMoisson whereCategorie($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|EngagementMoisson whereCible($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|EngagementMoisson whereCollecterLe($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|EngagementMoisson whereCollecterPar($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|EngagementMoisson whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|EngagementMoisson whereCreerPar($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|EngagementMoisson whereDateEcheance($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|EngagementMoisson whereDateRappel($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|EngagementMoisson whereDeletedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|EngagementMoisson whereDescription($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|EngagementMoisson whereDonateurId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|EngagementMoisson whereEditeurs($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|EngagementMoisson whereEmail($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|EngagementMoisson whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|EngagementMoisson whereMoissonId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|EngagementMoisson whereMontantSolde($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|EngagementMoisson whereMontantSupplementaire($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|EngagementMoisson whereNomEntite($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|EngagementMoisson whereReste($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|EngagementMoisson whereStatus($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|EngagementMoisson whereTelephone($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|EngagementMoisson whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|EngagementMoisson withTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|EngagementMoisson withoutTrashed()
+ */
+	class EngagementMoisson extends \Eloquent {}
+}
+
+namespace App\Models{
+/**
+ * @property-read string|null $country_name
+ * @property-read string $formatted_user_agent
+ * @property-read string $short_url
+ * @property-read \App\Models\User|null $user
+ * @method static \Illuminate\Database\Eloquent\Builder|Error404Log byPath(string $path)
+ * @method static \Illuminate\Database\Eloquent\Builder|Error404Log inLastDays(int $days)
+ * @method static \Illuminate\Database\Eloquent\Builder|Error404Log newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Error404Log newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Error404Log notFromBots()
+ * @method static \Illuminate\Database\Eloquent\Builder|Error404Log query()
+ * @method static \Illuminate\Database\Eloquent\Builder|Error404Log today()
+ * @method static \Illuminate\Database\Eloquent\Builder|Error404Log unresolved()
+ */
+	class Error404Log extends \Eloquent {}
+}
+
+namespace App\Models{
+/**
+ * @property string $id
  * @property string $titre Titre de lévénement
  * @property string|null $sous_titre Sous-titre de lévénement
  * @property string|null $description Description détaillée
@@ -776,16 +876,20 @@ namespace App\Models{
  * @property string|null $description
  * @property \Illuminate\Support\Carbon $debut
  * @property \Illuminate\Support\Carbon $fin
+ * @property string $cible Le montant cible: c'est un montant prévu. En un mot c'est l'objectif à atteindre et cet objectif doit forcement être atteint avant que d'autre fimeco soit créé
+ * @property string $montant_solde Le montant soldé: c'est l'ensemble de tous les paiements déjà effectué par les souscripteurs et ce montant vient de la table subscriptions. Mise à jour automatique
+ * @property string $reste C'est l'ensemble des montants non soldés. Mise à jour automatique
+ * @property string $montant_supplementaire Le montant supplémentaire existe si montant_solde supérieur à la cible. Mise à jour automatique
+ * @property string $progression Progression ou évolution de montant soldé en %
+ * @property string $statut_global Mise à jour automatique: tres_faible <=25%, 25%<en_cours<=75%, 75%<presque_atteint<=99,99% et objectif_atteint >=100%
  * @property string $statut
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
- * @property-read bool $est_en_cours
- * @property-read bool $est_terminee
- * @property-read int $nombre_membres_souscripteurs
- * @property-read int $nombre_total_souscriptions
- * @property-read string $total_paye
- * @property-read string $total_souscriptions
+ * @property-read bool $en_retard
+ * @property-read int $jours_restants
+ * @property-read bool $objectif_atteint
+ * @property-read string $progression_formattee
  * @property-read \App\Models\User|null $responsable
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Subscription> $subscriptions
  * @property-read int|null $subscriptions_count
@@ -793,23 +897,30 @@ namespace App\Models{
  * @property-read int|null $subscriptions_actives_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Subscription> $subscriptionsCompletes
  * @property-read int|null $subscriptions_completes_count
- * @method static \Illuminate\Database\Eloquent\Builder|Fimeco aVenir()
- * @method static \Illuminate\Database\Eloquent\Builder|Fimeco active()
+ * @method static \Illuminate\Database\Eloquent\Builder|Fimeco actifs()
  * @method static \Illuminate\Database\Eloquent\Builder|Fimeco enCours()
  * @method static \Illuminate\Database\Eloquent\Builder|Fimeco newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Fimeco newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Fimeco objectifAtteint()
  * @method static \Illuminate\Database\Eloquent\Builder|Fimeco onlyTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|Fimeco periode($debut = null, $fin = null)
  * @method static \Illuminate\Database\Eloquent\Builder|Fimeco query()
- * @method static \Illuminate\Database\Eloquent\Builder|Fimeco terminee()
+ * @method static \Illuminate\Database\Eloquent\Builder|Fimeco recherche($terme)
+ * @method static \Illuminate\Database\Eloquent\Builder|Fimeco whereCible($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Fimeco whereCreatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Fimeco whereDebut($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Fimeco whereDeletedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Fimeco whereDescription($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Fimeco whereFin($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Fimeco whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Fimeco whereMontantSolde($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Fimeco whereMontantSupplementaire($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Fimeco whereNom($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Fimeco whereProgression($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Fimeco whereResponsableId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Fimeco whereReste($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Fimeco whereStatut($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Fimeco whereStatutGlobal($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Fimeco whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Fimeco withTrashed()
  * @method static \Illuminate\Database\Eloquent\Builder|Fimeco withoutTrashed()
@@ -1086,6 +1197,66 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|Module query()
  */
 	class Module extends \Eloquent {}
+}
+
+namespace App\Models{
+/**
+ * @property string $id ID généré automatiquement
+ * @property string $theme Le thème de la prédication
+ * @property \Illuminate\Support\Carbon $date La date de la célébration de la moisson
+ * @property string $cible Le montant cible: c'est un montant prévu.
+ * @property string $montant_solde Le montant soldé: c'est l'ensemble de tous les fonds collectés et ces fonds viennent des tables passages moissons, vente_moissons et engagement_moissons. Le montant total peut aller au-delà du cible, en dessous du cible ou égal au cible. Mise à jour automatique
+ * @property string $reste C'est l'ensemble des montants non soldés. Mise à jour automatique
+ * @property string $montant_supplementaire Le montant supplémentaire existe si cible inférieur au montant_total. Mise à jour automatique
+ * @property array|null $passages_bibliques Les passages bibliques en JSONB contenant le livre chapitre allant de x à y mais le y est optionnel
+ * @property string $culte_id Le culte
+ * @property string $creer_par Celui qui fait l'enregistrement
+ * @property array|null $editeurs Historique des modifications en JSONB avec l'identifiant de celui qui a effectué la mise à jour, date de mise à jour
+ * @property bool $status Statut de la moisson
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property-read \App\Models\User $createur
+ * @property-read \App\Models\Culte $culte
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\EngagementMoisson> $engagementMoissons
+ * @property-read int|null $engagement_moissons_count
+ * @property-read array $passages_bibliques_formatted
+ * @property-read mixed $objectif_atteint
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\PassageMoisson> $passageMoissons
+ * @property-read int|null $passage_moissons_count
+ * @property-read mixed $pourcentage_realise
+ * @property-read mixed $statut_progression
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\VenteMoisson> $venteMoissons
+ * @property-read int|null $vente_moissons_count
+ * @method static \Illuminate\Database\Eloquent\Builder|Moisson actif()
+ * @method static \Illuminate\Database\Eloquent\Builder|Moisson avecStatistiques()
+ * @method static \Database\Factories\MoissonFactory factory($count = null, $state = [])
+ * @method static \Illuminate\Database\Eloquent\Builder|Moisson newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Moisson newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Moisson objectifAtteint()
+ * @method static \Illuminate\Database\Eloquent\Builder|Moisson onlyTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|Moisson parDate($dateDebut = null, $dateFin = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|Moisson parStatutProgression($statut)
+ * @method static \Illuminate\Database\Eloquent\Builder|Moisson query()
+ * @method static \Illuminate\Database\Eloquent\Builder|Moisson whereCible($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Moisson whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Moisson whereCreerPar($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Moisson whereCulteId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Moisson whereDate($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Moisson whereDeletedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Moisson whereEditeurs($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Moisson whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Moisson whereMontantSolde($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Moisson whereMontantSupplementaire($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Moisson wherePassagesBibliques($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Moisson whereReste($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Moisson whereStatus($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Moisson whereTheme($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Moisson whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Moisson withTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|Moisson withoutTrashed()
+ */
+	class Moisson extends \Eloquent {}
 }
 
 namespace App\Models{
@@ -1384,6 +1555,66 @@ namespace App\Models{
 namespace App\Models{
 /**
  * @property string $id
+ * @property string $moisson_id
+ * @property string $categorie Catégorie de passage
+ * @property string|null $classe_id Si le type est le passage de la classe communautaire alors classe_id prend l'identifiant de la classe sinon null
+ * @property string $cible C'est l'objectif à atteindre mais on peut aller au-delà
+ * @property string $montant_solde L'ensemble des montants déjà collectés
+ * @property string $reste Reste à solder
+ * @property string $montant_supplementaire Existe lorsque montant_solde > cible
+ * @property string $collecter_par
+ * @property \Illuminate\Support\Carbon $collecte_le
+ * @property string $creer_par
+ * @property array|null $editeurs Historique des modifications en JSONB
+ * @property bool $status
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property-read mixed $categorie_libelle
+ * @property-read \App\Models\Classe|null $classe
+ * @property-read \App\Models\User $collecteur
+ * @property-read \App\Models\User $createur
+ * @property-read mixed $est_classe_communautaire
+ * @property-read \App\Models\Moisson $moisson
+ * @property-read mixed $objectif_atteint
+ * @property-read mixed $pourcentage_realise
+ * @method static \Illuminate\Database\Eloquent\Builder|PassageMoisson actif()
+ * @method static \Illuminate\Database\Eloquent\Builder|PassageMoisson avecMoisson()
+ * @method static \Illuminate\Database\Eloquent\Builder|PassageMoisson classeCommunautaire()
+ * @method static \Illuminate\Database\Eloquent\Builder|PassageMoisson enRetard()
+ * @method static \Database\Factories\PassageMoissonFactory factory($count = null, $state = [])
+ * @method static \Illuminate\Database\Eloquent\Builder|PassageMoisson newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|PassageMoisson newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|PassageMoisson objectifAtteint()
+ * @method static \Illuminate\Database\Eloquent\Builder|PassageMoisson onlyTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|PassageMoisson parCategorie(string $categorie)
+ * @method static \Illuminate\Database\Eloquent\Builder|PassageMoisson parPeriode($dateDebut = null, $dateFin = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|PassageMoisson query()
+ * @method static \Illuminate\Database\Eloquent\Builder|PassageMoisson whereCategorie($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PassageMoisson whereCible($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PassageMoisson whereClasseId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PassageMoisson whereCollecteLe($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PassageMoisson whereCollecterPar($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PassageMoisson whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PassageMoisson whereCreerPar($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PassageMoisson whereDeletedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PassageMoisson whereEditeurs($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PassageMoisson whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PassageMoisson whereMoissonId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PassageMoisson whereMontantSolde($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PassageMoisson whereMontantSupplementaire($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PassageMoisson whereReste($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PassageMoisson whereStatus($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PassageMoisson whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PassageMoisson withTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|PassageMoisson withoutTrashed()
+ */
+	class PassageMoisson extends \Eloquent {}
+}
+
+namespace App\Models{
+/**
+ * @property string $id
  * @property string $user_id
  * @property string $type
  * @property string|null $ip_address
@@ -1477,20 +1708,6 @@ namespace App\Models{
 
 namespace App\Models{
 /**
- * @property string $id
- * @property string $action
- * @property string $model_type
- * @property string $model_id
- * @property string|null $user_id
- * @property string|null $target_user_id
- * @property array|null $changes
- * @property array|null $original
- * @property string|null $ip_address
- * @property string|null $user_agent
- * @property string|null $session_id
- * @property array|null $context
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read mixed $action_name
  * @property-read mixed $description
  * @property-read mixed $formatted_changes
@@ -1506,20 +1723,6 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|PermissionAuditLog newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|PermissionAuditLog query()
  * @method static \Illuminate\Database\Eloquent\Builder|PermissionAuditLog recent($days = 7)
- * @method static \Illuminate\Database\Eloquent\Builder|PermissionAuditLog whereAction($value)
- * @method static \Illuminate\Database\Eloquent\Builder|PermissionAuditLog whereChanges($value)
- * @method static \Illuminate\Database\Eloquent\Builder|PermissionAuditLog whereContext($value)
- * @method static \Illuminate\Database\Eloquent\Builder|PermissionAuditLog whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|PermissionAuditLog whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|PermissionAuditLog whereIpAddress($value)
- * @method static \Illuminate\Database\Eloquent\Builder|PermissionAuditLog whereModelId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|PermissionAuditLog whereModelType($value)
- * @method static \Illuminate\Database\Eloquent\Builder|PermissionAuditLog whereOriginal($value)
- * @method static \Illuminate\Database\Eloquent\Builder|PermissionAuditLog whereSessionId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|PermissionAuditLog whereTargetUserId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|PermissionAuditLog whereUpdatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|PermissionAuditLog whereUserAgent($value)
- * @method static \Illuminate\Database\Eloquent\Builder|PermissionAuditLog whereUserId($value)
  */
 	class PermissionAuditLog extends \Eloquent {}
 }
@@ -1547,12 +1750,12 @@ namespace App\Models{
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
- * @property-read \App\Models\User|null $createurUtilisateur
+ * @property-read \App\Models\User|null $createurMembres
  * @property-read mixed $horaires
  * @property-read mixed $jours_semaine_texte
  * @property-read mixed $nom_complet
- * @property-read mixed $statut_badge
- * @property-read \App\Models\User|null $modificateurUtilisateur
+ * @property-read string $statut_badge
+ * @property-read \App\Models\User|null $modificateurMembres
  * @property-read \App\Models\User|null $responsablePrincipal
  * @method static \Illuminate\Database\Eloquent\Builder|Programme actifs()
  * @method static \Illuminate\Database\Eloquent\Builder|Programme enCours()
@@ -2165,7 +2368,7 @@ namespace App\Models{
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
- * @property-read mixed $nombre_utilisateurs
+ * @property-read mixed $nombre_membress
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Permission> $permissions
  * @property-read int|null $permissions_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\User> $users
@@ -2251,39 +2454,47 @@ namespace App\Models{
  * @property string $montant_souscrit
  * @property string $montant_paye
  * @property string $reste_a_payer
- * @property string $statut
+ * @property string $cible Copie de la cible du FIMECO pour éviter les jointures coûteuses
+ * @property string $montant_solde Le montant soldé: c'est l'ensemble de tous les paiements déjà effectué par les souscripteurs et ce montant vient de la table paiement_souscriptions. Mise à jour automatique
+ * @property string $reste C'est l'ensemble des montants non soldés. Mise à jour automatique
+ * @property string $montant_supplementaire Le montant supplémentaire existe si cible inférieur au cible. Mise à jour automatique
+ * @property string $progression Progression ou évolution de montant soldé en %
+ * @property string $statut_global Mise à jour automatique: tres_faible <=25%, 25%<en_cours<=75%, 75%<presque_atteint<=99,99% et objectif_atteint >=100%
+ * @property string $statut Mise à jour automatique en fonction du reste à payer
  * @property \Illuminate\Support\Carbon $date_souscription
  * @property \Illuminate\Support\Carbon|null $date_echeance
- * @property int $version
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property-read \App\Models\Fimeco|null $fimeco
- * @property-read bool $est_en_retard
- * @property-read bool $est_soldee
- * @property-read bool $est_sur_payee
- * @property-read string $montant_sur_paye
- * @property-read float $pourcentage_paye
- * @property-read string $prochain_montant_minimum
- * @property-read string $reste_a_payer__real
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\SubscriptionPaymentLog> $logs
- * @property-read int|null $logs_count
+ * @property-read \App\Models\SubscriptionPayment|null $dernier_paiement
+ * @property-read bool $en_retard
+ * @property-read bool $est_complete
+ * @property-read int $jours_restants
+ * @property-read int $jours_retard
+ * @property-read float $montant_total_paye
+ * @property-read int $nombre_paiements
+ * @property-read string $progression_formattee
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\SubscriptionPayment> $payments
  * @property-read int|null $payments_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\SubscriptionPayment> $paymentsEnAttente
+ * @property-read int|null $payments_en_attente_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\SubscriptionPayment> $paymentsValides
  * @property-read int|null $payments_valides_count
  * @property-read \App\Models\User|null $souscripteur
- * @method static \Illuminate\Database\Eloquent\Builder|Subscription active()
- * @method static \Illuminate\Database\Eloquent\Builder|Subscription completementPayee()
+ * @method static \Illuminate\Database\Eloquent\Builder|Subscription actives()
+ * @method static \Illuminate\Database\Eloquent\Builder|Subscription completes()
+ * @method static \Illuminate\Database\Eloquent\Builder|Subscription echeanceProche($jours = 30)
  * @method static \Illuminate\Database\Eloquent\Builder|Subscription enRetard()
  * @method static \Illuminate\Database\Eloquent\Builder|Subscription newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Subscription newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Subscription onlyTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|Subscription partiellementPayee()
+ * @method static \Illuminate\Database\Eloquent\Builder|Subscription partielles()
+ * @method static \Illuminate\Database\Eloquent\Builder|Subscription periodeSouscription($debut = null, $fin = null)
  * @method static \Illuminate\Database\Eloquent\Builder|Subscription pourFimeco($fimecoId)
- * @method static \Illuminate\Database\Eloquent\Builder|Subscription pourUtilisateur($userId)
+ * @method static \Illuminate\Database\Eloquent\Builder|Subscription pourSouscripteur($souscripteurId)
  * @method static \Illuminate\Database\Eloquent\Builder|Subscription query()
- * @method static \Illuminate\Database\Eloquent\Builder|Subscription surPayee()
+ * @method static \Illuminate\Database\Eloquent\Builder|Subscription whereCible($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Subscription whereCreatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Subscription whereDateEcheance($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Subscription whereDateSouscription($value)
@@ -2291,12 +2502,16 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|Subscription whereFimecoId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Subscription whereId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Subscription whereMontantPaye($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Subscription whereMontantSolde($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Subscription whereMontantSouscrit($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Subscription whereMontantSupplementaire($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Subscription whereProgression($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Subscription whereReste($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Subscription whereResteAPayer($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Subscription whereSouscripteurId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Subscription whereStatut($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Subscription whereStatutGlobal($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Subscription whereUpdatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Subscription whereVersion($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Subscription withTrashed()
  * @method static \Illuminate\Database\Eloquent\Builder|Subscription withoutTrashed()
  */
@@ -2318,34 +2533,43 @@ namespace App\Models{
  * @property \Illuminate\Support\Carbon|null $date_validation
  * @property string|null $commentaire
  * @property int $subscription_version_at_payment
+ * @property string|null $payment_hash
+ * @property \Illuminate\Support\Carbon|null $date_paiement_only
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property-read int $age_jours
+ * @property-read int|null $delai_validation_heures
  * @property-read bool $est_en_attente
+ * @property-read bool $est_rejete
  * @property-read bool $est_valide
- * @property-read bool $peut_etre_annule
- * @property-read bool $peut_etre_valide
+ * @property-read string $montant_formatte
+ * @property-read bool $necessite_reference
  * @property-read \App\Models\Subscription|null $subscription
  * @property-read \App\Models\User|null $validateur
- * @method static \Illuminate\Database\Eloquent\Builder|SubscriptionPayment annule()
+ * @method static \Illuminate\Database\Eloquent\Builder|SubscriptionPayment aujourdhui()
+ * @method static \Illuminate\Database\Eloquent\Builder|SubscriptionPayment avecReference()
  * @method static \Illuminate\Database\Eloquent\Builder|SubscriptionPayment enAttente()
  * @method static \Illuminate\Database\Eloquent\Builder|SubscriptionPayment newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|SubscriptionPayment newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|SubscriptionPayment onlyTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|SubscriptionPayment parPeriode($dateDebut, $dateFin)
- * @method static \Illuminate\Database\Eloquent\Builder|SubscriptionPayment parType(string $type)
+ * @method static \Illuminate\Database\Eloquent\Builder|SubscriptionPayment parType($type)
+ * @method static \Illuminate\Database\Eloquent\Builder|SubscriptionPayment parValidateur($validateurId)
+ * @method static \Illuminate\Database\Eloquent\Builder|SubscriptionPayment periode($debut = null, $fin = null)
  * @method static \Illuminate\Database\Eloquent\Builder|SubscriptionPayment query()
- * @method static \Illuminate\Database\Eloquent\Builder|SubscriptionPayment refuse()
- * @method static \Illuminate\Database\Eloquent\Builder|SubscriptionPayment valide()
+ * @method static \Illuminate\Database\Eloquent\Builder|SubscriptionPayment rejetes()
+ * @method static \Illuminate\Database\Eloquent\Builder|SubscriptionPayment valides()
  * @method static \Illuminate\Database\Eloquent\Builder|SubscriptionPayment whereAncienReste($value)
  * @method static \Illuminate\Database\Eloquent\Builder|SubscriptionPayment whereCommentaire($value)
  * @method static \Illuminate\Database\Eloquent\Builder|SubscriptionPayment whereCreatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|SubscriptionPayment whereDatePaiement($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|SubscriptionPayment whereDatePaiementOnly($value)
  * @method static \Illuminate\Database\Eloquent\Builder|SubscriptionPayment whereDateValidation($value)
  * @method static \Illuminate\Database\Eloquent\Builder|SubscriptionPayment whereDeletedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|SubscriptionPayment whereId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|SubscriptionPayment whereMontant($value)
  * @method static \Illuminate\Database\Eloquent\Builder|SubscriptionPayment whereNouveauReste($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|SubscriptionPayment wherePaymentHash($value)
  * @method static \Illuminate\Database\Eloquent\Builder|SubscriptionPayment whereReferencePaiement($value)
  * @method static \Illuminate\Database\Eloquent\Builder|SubscriptionPayment whereStatut($value)
  * @method static \Illuminate\Database\Eloquent\Builder|SubscriptionPayment whereSubscriptionId($value)
@@ -2382,8 +2606,8 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|SubscriptionPaymentLog newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|SubscriptionPaymentLog newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|SubscriptionPaymentLog parAction(string $action)
+ * @method static \Illuminate\Database\Eloquent\Builder|SubscriptionPaymentLog parMembres($userId)
  * @method static \Illuminate\Database\Eloquent\Builder|SubscriptionPaymentLog parPeriode($dateDebut, $dateFin)
- * @method static \Illuminate\Database\Eloquent\Builder|SubscriptionPaymentLog parUtilisateur($userId)
  * @method static \Illuminate\Database\Eloquent\Builder|SubscriptionPaymentLog query()
  * @method static \Illuminate\Database\Eloquent\Builder|SubscriptionPaymentLog whereAction($value)
  * @method static \Illuminate\Database\Eloquent\Builder|SubscriptionPaymentLog whereAncienMontantPaye($value)
@@ -2826,5 +3050,66 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|UserRole withoutTrashed()
  */
 	class UserRole extends \Eloquent {}
+}
+
+namespace App\Models{
+/**
+ * @property string $id
+ * @property string $moisson_id
+ * @property string $categorie Type de vente pour la moisson
+ * @property string $cible C'est l'objectif à atteindre mais on peut aller au-delà
+ * @property string $montant_solde L'ensemble des montants déjà collectés
+ * @property string $reste Reste à solder
+ * @property string $montant_supplementaire Existe lorsque montant_solde > cible
+ * @property string $collecter_par
+ * @property \Illuminate\Support\Carbon $collecte_le
+ * @property string $creer_par
+ * @property int|null $quantite Quantité vendue si applicable
+ * @property string|null $prix_unitaire Prix unitaire si applicable
+ * @property string|null $description Description détaillée de la vente
+ * @property array|null $editeurs Historique des modifications en JSONB
+ * @property bool $status
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property-read mixed $categorie_libelle
+ * @property-read \App\Models\User $collecteur
+ * @property-read \App\Models\User $createur
+ * @property-read \App\Models\Moisson $moisson
+ * @property-read mixed $objectif_atteint
+ * @property-read mixed $pourcentage_realise
+ * @method static \Illuminate\Database\Eloquent\Builder|VenteMoisson actif()
+ * @method static \Illuminate\Database\Eloquent\Builder|VenteMoisson avecMoisson()
+ * @method static \Database\Factories\VenteMoissonFactory factory($count = null, $state = [])
+ * @method static \Illuminate\Database\Eloquent\Builder|VenteMoisson newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|VenteMoisson newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|VenteMoisson objectifAtteint()
+ * @method static \Illuminate\Database\Eloquent\Builder|VenteMoisson onlyTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|VenteMoisson parCategorie(string $categorie)
+ * @method static \Illuminate\Database\Eloquent\Builder|VenteMoisson parPeriode($dateDebut = null, $dateFin = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|VenteMoisson query()
+ * @method static \Illuminate\Database\Eloquent\Builder|VenteMoisson rechercheDescription(string $terme)
+ * @method static \Illuminate\Database\Eloquent\Builder|VenteMoisson whereCategorie($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|VenteMoisson whereCible($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|VenteMoisson whereCollecteLe($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|VenteMoisson whereCollecterPar($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|VenteMoisson whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|VenteMoisson whereCreerPar($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|VenteMoisson whereDeletedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|VenteMoisson whereDescription($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|VenteMoisson whereEditeurs($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|VenteMoisson whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|VenteMoisson whereMoissonId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|VenteMoisson whereMontantSolde($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|VenteMoisson whereMontantSupplementaire($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|VenteMoisson wherePrixUnitaire($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|VenteMoisson whereQuantite($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|VenteMoisson whereReste($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|VenteMoisson whereStatus($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|VenteMoisson whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|VenteMoisson withTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|VenteMoisson withoutTrashed()
+ */
+	class VenteMoisson extends \Eloquent {}
 }
 

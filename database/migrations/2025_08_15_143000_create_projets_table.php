@@ -176,8 +176,8 @@ return new class extends Migration {
             $table->text('historique_modifications')->nullable()->comment('Historique des modifications');
 
             // Audit et traçabilité
-            $table->uuid('cree_par')->nullable()->comment('Utilisateur qui a créé le projet');
-            $table->uuid('modifie_par')->nullable()->comment('Dernier utilisateur ayant modifié');
+            $table->uuid('cree_par')->nullable()->comment('Membres qui a créé le projet');
+            $table->uuid('modifie_par')->nullable()->comment('Dernier membres ayant modifié');
             $table->timestamp('derniere_activite_date')->nullable()->comment('Date de dernière activité');
             $table->uuid('derniere_activite_par')->nullable()->comment('Auteur de la dernière activité');
 

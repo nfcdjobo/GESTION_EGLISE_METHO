@@ -23,7 +23,7 @@
             </ol>
         </nav>
     </div>
-
+    @can('reunions.create')
     <form action="{{ route('private.reunions.store') }}" method="POST" enctype="multipart/form-data" id="reunionForm" class="space-y-8">
         @csrf
 
@@ -552,6 +552,7 @@
             </div>
         </div>
     </form>
+    @endcan
 </div>
 
 {{-- Inclure les ressources CKEditor --}}

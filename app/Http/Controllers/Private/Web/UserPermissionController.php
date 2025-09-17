@@ -28,7 +28,7 @@ class UserPermissionController extends Controller
     }
 
     /**
-     * Afficher les permissions d'un utilisateur
+     * Afficher les permissions d'un membres
      */
     public function index(User $user)
     {
@@ -80,7 +80,7 @@ class UserPermissionController extends Controller
     }
 
     /**
-     * Accorder une permission à un utilisateur
+     * Accorder une permission à un membres
      */
     public function grant(Request $request, User $user)
     {
@@ -138,7 +138,7 @@ class UserPermissionController extends Controller
     }
 
     /**
-     * Révoquer une permission d'un utilisateur
+     * Révoquer une permission d'un membres
      */
     public function revoke(Request $request, User $user)
     {
@@ -190,7 +190,7 @@ class UserPermissionController extends Controller
     }
 
     /**
-     * Synchroniser les permissions d'un utilisateur
+     * Synchroniser les permissions d'un membres
      */
     public function sync(Request $request, User $user)
     {
@@ -242,7 +242,7 @@ class UserPermissionController extends Controller
     }
 
     /**
-     * Afficher l'audit des permissions d'un utilisateur
+     * Afficher l'audit des permissions d'un membres
      */
     public function audit(User $user)
     {
@@ -284,7 +284,7 @@ class UserPermissionController extends Controller
     }
 
     /**
-     * Afficher les rôles d'un utilisateur
+     * Afficher les rôles d'un membres
      */
     public function roles(User $user)
     {
@@ -302,7 +302,7 @@ class UserPermissionController extends Controller
     }
 
     /**
-     * Attribuer un rôle à un utilisateur
+     * Attribuer un rôle à un membres
      */
     public function assignRole(Request $request, User $user)
     {
@@ -320,7 +320,7 @@ class UserPermissionController extends Controller
                 ? \Carbon\Carbon::parse($validated['expires_at'])
                 : null;
 
-            // Vérifier que l'utilisateur actuel peut attribuer ce rôle
+            // Vérifier que l'membres actuel peut attribuer ce rôle
             /** @var User|null $user */
             $user = auth()->user();
             if (!$user->isSuperAdmin()) {
@@ -370,7 +370,7 @@ class UserPermissionController extends Controller
     }
 
     /**
-     * Retirer un rôle d'un utilisateur
+     * Retirer un rôle d'un membres
      */
     public function removeRole(Request $request, User $user)
     {
@@ -415,7 +415,7 @@ class UserPermissionController extends Controller
     }
 
     /**
-     * Synchroniser les rôles d'un utilisateur
+     * Synchroniser les rôles d'un membres
      */
     public function syncRoles(Request $request, User $user)
     {
@@ -442,7 +442,7 @@ class UserPermissionController extends Controller
     }
 
     /**
-     * Voir mes permissions (utilisateur connecté)
+     * Voir mes permissions (membres connecté)
      */
     public function myPermissions()
     {
@@ -479,7 +479,7 @@ class UserPermissionController extends Controller
     }
 
     /**
-     * Voir mes rôles (utilisateur connecté)
+     * Voir mes rôles (membres connecté)
      */
     public function myRoles()
     {

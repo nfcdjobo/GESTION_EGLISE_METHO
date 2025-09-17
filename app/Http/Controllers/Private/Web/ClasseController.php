@@ -9,11 +9,24 @@ use Illuminate\Http\Response;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 
 class ClasseController extends Controller
 {
+
+    public function __construct()
+    {
+        $this->middleware('auth');
+        $this->middleware('permission:classes.read')->only(['index', 'show', 'statistiques', 'getMembers', 'getUtilisateursDisponibles']);
+        $this->middleware('permission:classes.create')->only(['create', 'store']);
+        $this->middleware('permission:classes.update')->only(['edit', 'update', 'toggleStatus', 'duplicate', 'archive', 'restore', 'inscrireUtilisateur', 'desinscrireUtilisateur', 'ajouterNouveauxMembres']);
+        $this->middleware('permission:classes.delete')->only(['destroy', 'bulkActions']);
+        $this->middleware('permission:classes.export')->only(['export']);
+    }
+
+
     /**
      * Affiche la liste des classes
      */
@@ -39,9 +52,19 @@ class ClasseController extends Controller
                 $search = $request->search;
                 $query->where(function ($q) use ($search) {
                     $q->where('nom', 'like', "%{$search}%")
-                      ->orWhere('description', 'like', "%{$search}%")
-                      ->orWhere('tranche_age', 'like', "%{$search}%");
+                        ->orWhere('description', 'like', "%{$search}%")
+                        ->orWhere('tranche_age', 'like', "%{$search}%");
                 });
+            }
+
+            $user = Auth::user();
+            $roles = $user->roles;
+
+            $role = $roles->where('slug', 'regisseur')->first();
+
+            if($role){
+                dd($role);
+                $query->where('responsable_id', $user->id);
             }
 
             // Pagination
@@ -55,6 +78,8 @@ class ClasseController extends Controller
                 return $classe;
             });
 
+
+
             // Retourner selon le type de requête
             if ($this->isApiRequest($request)) {
                 return response()->json([
@@ -64,7 +89,9 @@ class ClasseController extends Controller
                 ]);
             }
 
-            // dd($classes);
+
+
+
 
             // Pour les requêtes web, retourner la vue
             return view('components.private.classes.index', compact('classes'));
@@ -166,12 +193,12 @@ class ClasseController extends Controller
 
             $classe = Classe::create($data);
 
-            if($classe->enseignant_principal_id){
+            if ($classe->enseignant_principal_id) {
                 $enseignantPrincipal = User::find($classe->enseignant_principal_id);
                 $enseignantPrincipal->update(['classe_id' => $classe->id]);
             }
 
-            if($classe->responsable_id){
+            if ($classe->responsable_id) {
                 $responsable = User::find($classe->responsable_id);
                 $responsable->update(['classe_id' => $classe->id]);
             }
@@ -193,7 +220,7 @@ class ClasseController extends Controller
             }
 
             return redirect()->route('private.classes.show', $classe->id)
-                           ->with('success', 'Classe créée avec succès');
+                ->with('success', 'Classe créée avec succès');
 
         } catch (\Exception $e) {
             DB::rollBack();
@@ -207,7 +234,7 @@ class ClasseController extends Controller
             }
 
             return back()->withErrors(['error' => 'Erreur lors de la création de la classe'])
-                         ->withInput();
+                ->withInput();
         }
     }
 
@@ -216,14 +243,15 @@ class ClasseController extends Controller
      */
     public function show(Request $request, $id)
     {
+
         try {
             $classe = Classe::with([
                 'responsable',
                 'enseignantPrincipal',
                 'membres' => function ($query) {
                     $query->select('id', 'prenom', 'nom', 'email', 'telephone_1', 'classe_id', 'statut_membre')
-                          ->orderBy('prenom')
-                          ->orderBy('nom');
+                        ->orderBy('prenom')
+                        ->orderBy('nom');
                 }
             ])->findOrFail($id);
 
@@ -239,6 +267,7 @@ class ClasseController extends Controller
                 ]);
             }
 
+
             return view('components.private.classes.show', compact('classe'));
 
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
@@ -250,7 +279,7 @@ class ClasseController extends Controller
             }
 
             return redirect()->route('private.classes.index')
-                           ->withErrors(['error' => 'Classe non trouvée']);
+                ->withErrors(['error' => 'Classe non trouvée']);
         } catch (\Exception $e) {
             if ($this->isApiRequest($request)) {
                 return response()->json([
@@ -303,7 +332,7 @@ class ClasseController extends Controller
             }
 
             return redirect()->route('private.classes.index')
-                           ->withErrors(['error' => 'Classe non trouvée']);
+                ->withErrors(['error' => 'Classe non trouvée']);
         } catch (\Exception $e) {
             if ($this->isApiRequest($request)) {
                 return response()->json([
@@ -376,12 +405,12 @@ class ClasseController extends Controller
 
 
 
-            if($classe->enseignant_principal_id){
+            if ($classe->enseignant_principal_id) {
                 $enseignantPrincipal = User::find($classe->enseignant_principal_id);
                 $enseignantPrincipal->update(['classe_id' => $classe->id]);
             }
 
-            if($classe->responsable_id){
+            if ($classe->responsable_id) {
                 $responsable = User::find($classe->responsable_id);
                 $responsable->update(['classe_id' => $classe->id]);
             }
@@ -401,7 +430,7 @@ class ClasseController extends Controller
             }
 
             return redirect()->route('private.classes.show', $classe->id)
-                           ->with('success', 'Classe mise à jour avec succès');
+                ->with('success', 'Classe mise à jour avec succès');
 
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
             DB::rollBack();
@@ -414,7 +443,7 @@ class ClasseController extends Controller
             }
 
             return redirect()->route('private.classes.index')
-                           ->withErrors(['error' => 'Classe non trouvée']);
+                ->withErrors(['error' => 'Classe non trouvée']);
         } catch (\Exception $e) {
             DB::rollBack();
 
@@ -427,7 +456,7 @@ class ClasseController extends Controller
             }
 
             return back()->withErrors(['error' => 'Erreur lors de la mise à jour de la classe'])
-                         ->withInput();
+                ->withInput();
         }
     }
 
@@ -470,7 +499,7 @@ class ClasseController extends Controller
             }
 
             return redirect()->route('private.classes.index')
-                           ->with('success', 'Classe supprimée avec succès');
+                ->with('success', 'Classe supprimée avec succès');
 
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
             if ($this->isApiRequest($request)) {
@@ -481,7 +510,7 @@ class ClasseController extends Controller
             }
 
             return redirect()->route('private.classes.index')
-                           ->withErrors(['error' => 'Classe non trouvée']);
+                ->withErrors(['error' => 'Classe non trouvée']);
         } catch (\Exception $e) {
             DB::rollBack();
 
@@ -737,10 +766,10 @@ class ClasseController extends Controller
     private function isApiRequest(Request $request)
     {
         return $request->wantsJson() ||
-               $request->expectsJson() ||
-               $request->is('api/*') ||
-               $request->header('Accept') === 'application/json' ||
-               $request->ajax();
+            $request->expectsJson() ||
+            $request->is('api/*') ||
+            $request->header('Accept') === 'application/json' ||
+            $request->ajax();
     }
 
     /**
@@ -832,7 +861,7 @@ class ClasseController extends Controller
             }
 
             return redirect()->route('private.classes.edit', $nouvelleClasse->id)
-                           ->with('success', 'Classe dupliquée avec succès');
+                ->with('success', 'Classe dupliquée avec succès');
 
         } catch (\Exception $e) {
             DB::rollBack();
@@ -856,7 +885,7 @@ class ClasseController extends Controller
     {
         try {
             $classe = Classe::with(['responsable', 'enseignantPrincipal', 'membres'])
-                          ->findOrFail($id);
+                ->findOrFail($id);
 
             $format = $request->get('format', 'csv');
 
@@ -1046,7 +1075,7 @@ class ClasseController extends Controller
             'Content-Disposition' => 'attachment; filename="classe-' . $classe->nom . '.csv"',
         ];
 
-        $callback = function() use ($classe) {
+        $callback = function () use ($classe) {
             $file = fopen('php://output', 'w');
             fputcsv($file, ['Prénom', 'Nom', 'Email', 'Téléphone', 'Statut']);
 
@@ -1098,9 +1127,9 @@ class ClasseController extends Controller
                 $search = $request->search;
                 $query->where(function ($q) use ($search) {
                     $q->where('prenom', 'like', "%{$search}%")
-                      ->orWhere('nom', 'like', "%{$search}%")
-                      ->orWhere('email', 'like', "%{$search}%")
-                      ->orWhere('telephone_1', 'like', "%{$search}%");
+                        ->orWhere('nom', 'like', "%{$search}%")
+                        ->orWhere('email', 'like', "%{$search}%")
+                        ->orWhere('telephone_1', 'like', "%{$search}%");
                 });
             }
 
@@ -1167,7 +1196,7 @@ class ClasseController extends Controller
             }
 
             return redirect()->route('private.classes.index')
-                           ->withErrors(['error' => 'Classe non trouvée']);
+                ->withErrors(['error' => 'Classe non trouvée']);
         } catch (\Exception $e) {
             if ($this->isApiRequest($request)) {
                 return response()->json([
@@ -1369,8 +1398,8 @@ class ClasseController extends Controller
                 $search = $request->search;
                 $query->where(function ($q) use ($search) {
                     $q->where('prenom', 'like', "%{$search}%")
-                      ->orWhere('nom', 'like', "%{$search}%")
-                      ->orWhere('email', 'like', "%{$search}%");
+                        ->orWhere('nom', 'like', "%{$search}%")
+                        ->orWhere('email', 'like', "%{$search}%");
                 });
             }
 
@@ -1445,7 +1474,7 @@ class ClasseController extends Controller
                 ]);
             }
 
-            return view('components.private.classes.utilisateurs-disponibles', compact('classe', 'utilisateurs'));
+            return view('components.private.classes.membres-disponibles', compact('classe', 'utilisateurs'));
 
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
             if ($this->isApiRequest($request)) {
@@ -1456,7 +1485,7 @@ class ClasseController extends Controller
             }
 
             return redirect()->route('private.classes.index')
-                           ->withErrors(['error' => 'Classe non trouvée']);
+                ->withErrors(['error' => 'Classe non trouvée']);
         } catch (\Exception $e) {
             if ($this->isApiRequest($request)) {
                 return response()->json([

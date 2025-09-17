@@ -382,25 +382,33 @@
         </div>
         <div class="p-6">
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                @can('rapports-reunions.create')
                 <a href="{{ route('private.rapports-reunions.create') }}" class="flex items-center justify-center p-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-200 shadow-md hover:shadow-lg">
                     <i class="fas fa-plus mr-2"></i>
                     <span class="font-medium">Nouveau Rapport</span>
                 </a>
+                @endcan
 
+                @can('rapports-reunions.manage-attendance')
                 <a href="{{ route('private.rapports-reunions.en-attente') }}" class="flex items-center justify-center p-4 bg-gradient-to-r from-amber-600 to-orange-600 text-white rounded-xl hover:from-amber-700 hover:to-orange-700 transition-all duration-200 shadow-md hover:shadow-lg">
                     <i class="fas fa-clock mr-2"></i>
                     <span class="font-medium">En Attente</span>
                 </a>
+                @endcan
 
+                @can('rapports-reunions.manage')
                 <a href="{{ route('private.rapports-reunions.mes-rapports') }}" class="flex items-center justify-center p-4 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-xl hover:from-green-700 hover:to-emerald-700 transition-all duration-200 shadow-md hover:shadow-lg">
                     <i class="fas fa-user mr-2"></i>
                     <span class="font-medium">Mes Rapports</span>
                 </a>
+                @endcan
 
+                @can('rapports-reunions.export')
                 <a href="{{ route('private.rapports-reunions.export', ['format' => 'excel']) }}" class="flex items-center justify-center p-4 bg-gradient-to-r from-cyan-600 to-blue-600 text-white rounded-xl hover:from-cyan-700 hover:to-blue-700 transition-all duration-200 shadow-md hover:shadow-lg">
                     <i class="fas fa-download mr-2"></i>
                     <span class="font-medium">Export Excel</span>
                 </a>
+                @endcan
             </div>
         </div>
     </div>

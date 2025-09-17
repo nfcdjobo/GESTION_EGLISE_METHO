@@ -274,7 +274,7 @@ class PaymentService
     }
 
     /**
-     * Récupérer l'historique des paiements d'un utilisateur
+     * Récupérer l'historique des paiements d'un membres
      *
      * @param string $userId
      * @param array $filters
@@ -314,7 +314,7 @@ class PaymentService
     }
 
     /**
-     * Calculer les statistiques de paiements d'un utilisateur
+     * Calculer les statistiques de paiements d'un membres
      *
      * @param string $userId
      * @return array

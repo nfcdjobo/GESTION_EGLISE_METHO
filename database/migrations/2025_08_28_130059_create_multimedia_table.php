@@ -212,9 +212,9 @@ return new class extends Migration
             $table->text('avertissement')->nullable()->comment('Avertissement si contenu sensible');
 
             // Traçabilité et audit
-            $table->uuid('telecharge_par')->comment('Utilisateur qui a téléchargé');
-            $table->uuid('cree_par')->nullable()->comment('Utilisateur créateur');
-            $table->uuid('modifie_par')->nullable()->comment('Dernier utilisateur modificateur');
+            $table->uuid('telecharge_par')->comment('Membres qui a téléchargé');
+            $table->uuid('cree_par')->nullable()->comment('Membres créateur');
+            $table->uuid('modifie_par')->nullable()->comment('Dernier membres modificateur');
             $table->json('historique_modifications')->nullable()->comment('Historique des modifications');
 
             // Timestamps standards

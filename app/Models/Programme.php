@@ -76,12 +76,12 @@ class Programme extends Model
         return $this->belongsTo(User::class, 'responsable_principal_id');
     }
 
-    public function createurUtilisateur(): BelongsTo
+    public function createurMembres(): BelongsTo
     {
         return $this->belongsTo(User::class, 'cree_par');
     }
 
-    public function modificateurUtilisateur(): BelongsTo
+    public function modificateurMembres(): BelongsTo
     {
         return $this->belongsTo(User::class, 'modifie_par');
     }
@@ -107,10 +107,10 @@ class Programme extends Model
     public function scopeEnCours($query)
     {
         return $query->where('statut', 'actif')
-                    ->where(function ($q) {
-                        $q->whereNull('date_fin')
-                          ->orWhere('date_fin', '>=', now()->toDateString());
-                    });
+            ->where(function ($q) {
+                $q->whereNull('date_fin')
+                    ->orWhere('date_fin', '>=', now()->toDateString());
+            });
     }
 
     public function scopeParFrequence($query, $frequence)
@@ -157,18 +157,17 @@ class Programme extends Model
         return $this->heure_debut->format('H:i') . ' - ' . $this->heure_fin->format('H:i');
     }
 
-    public function getStatutBadgeAttribute()
-    {
-        $badges = [
-            'planifie' => 'info',
-            'actif' => 'success',
-            'suspendu' => 'warning',
-            'termine' => 'secondary',
-            'annule' => 'danger'
-        ];
-
-        return $badges[$this->statut] ?? 'light';
-    }
+    public function getStatutBadgeAttribute(): string
+{
+    return match ($this->statut) {
+        'planifie' => 'blue',
+        'actif' => 'green',
+        'suspendu' => 'yellow',
+        'termine' => 'gray',
+        'annule' => 'red',
+        default => 'gray',
+    };
+}
 
     /**
      * Méthodes utiles
@@ -189,7 +188,7 @@ class Programme extends Model
     public function estTermine()
     {
         return $this->statut === 'termine' ||
-               ($this->date_fin && $this->date_fin < now()->toDateString());
+            ($this->date_fin && $this->date_fin < now()->toDateString());
     }
 
     public function estEnCours()
@@ -290,4 +289,14 @@ class Programme extends Model
         'termine' => 'Terminé',
         'annule' => 'Annulé'
     ];
+
+    // public const STATUTS_BADGES = [
+    //     'planifie' => 'blue',
+    //     'actif' => 'green',
+    //     'suspendu' => 'yellow',
+    //     'termine' => 'gray',
+    //     'annule' => 'red'
+    // ];
+
+
 }

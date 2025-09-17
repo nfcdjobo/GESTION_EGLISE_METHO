@@ -11,7 +11,7 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // Ordre important : les permissions d'abord, puis les utilisateurs
+        // Ordre important : les permissions d'abord, puis les membres
         $this->call([
             PermissionSeeder::class,
             UserSeeder::class,

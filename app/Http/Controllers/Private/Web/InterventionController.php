@@ -17,6 +17,16 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class InterventionController extends Controller
 {
+
+    public function __construct()
+{
+    $this->middleware('auth');
+    $this->middleware('permission:interventions.read')->only(['index', 'show', 'parEvenement', 'trash']);
+    $this->middleware('permission:interventions.create')->only(['create', 'store']);
+    $this->middleware('permission:interventions.update')->only(['edit', 'update', 'restore', 'changeStatut']);
+    $this->middleware('permission:interventions.delete')->only(['destroy']);
+}
+
     /**
      * Afficher la liste des interventions avec filtrage et pagination
      */

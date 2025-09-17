@@ -1,4 +1,4 @@
-{{-- components/private/annonces/notifications.blade.php --}}
+
 @props([
     'position' => 'top-right', // top-right, top-left, bottom-right, bottom-left
     'autoHide' => true,

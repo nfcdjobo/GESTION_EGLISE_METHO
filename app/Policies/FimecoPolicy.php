@@ -14,7 +14,7 @@ class FimecoPolicy
 {
     public function viewAny(User $user): bool
     {
-        return true; // Tous les utilisateurs authentifiés peuvent voir les FIMECO
+        return true; // Tous les membres authentifiés peuvent voir les FIMECO
     }
 
     public function view(User $user, Fimeco $fimeco): bool

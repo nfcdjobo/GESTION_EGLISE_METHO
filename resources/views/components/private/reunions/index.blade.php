@@ -23,12 +23,15 @@
                             <i class="fas fa-plus mr-2"></i> Nouvelle Réunion
                         </a>
                     @endcan
+
                     <a href="{{ route('private.reunions.calendrier') }}" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white text-sm font-medium rounded-xl hover:from-green-700 hover:to-emerald-700 transition-all duration-200 shadow-md hover:shadow-lg">
                         <i class="fas fa-calendar mr-2"></i> Calendrier
                     </a>
+                    @can('reunions.statistics')
                     <a href="{{ route('private.reunions.statistiques') }}" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-cyan-600 to-blue-600 text-white text-sm font-medium rounded-xl hover:from-cyan-700 hover:to-blue-700 transition-all duration-200 shadow-md hover:shadow-lg">
                         <i class="fas fa-chart-bar mr-2"></i> Statistiques
                     </a>
+                    @endcan
                 </div>
             </div>
         </div>
@@ -294,11 +297,9 @@
                             <!-- Actions -->
                             <div class="flex items-center justify-between pt-4 border-t border-slate-200">
                                 <div class="flex items-center space-x-2">
-                                    @can('reunions.read')
                                         <a href="{{ route('private.reunions.show', $reunion) }}" class="inline-flex items-center justify-center w-8 h-8 text-cyan-600 bg-cyan-100 rounded-lg hover:bg-cyan-200 transition-colors" title="Voir">
                                             <i class="fas fa-eye text-sm"></i>
                                         </a>
-                                    @endcan
 
                                     @can('reunions.update')
                                         <a href="{{ route('private.reunions.edit', $reunion) }}" class="inline-flex items-center justify-center w-8 h-8 text-yellow-600 bg-yellow-100 rounded-lg hover:bg-yellow-200 transition-colors" title="Modifier">
@@ -306,19 +307,23 @@
                                         </a>
                                     @endcan
 
+                                    @can('reunions.start')
                                     @if($reunion->peutCommencer())
                                         <button type="button" onclick="changerStatut('{{ $reunion->id }}', 'commencer')" class="inline-flex items-center justify-center w-8 h-8 text-green-600 bg-green-100 rounded-lg hover:bg-green-200 transition-colors" title="Commencer">
                                             <i class="fas fa-play text-sm"></i>
                                         </button>
                                     @endif
+                                    @endcan
 
+                                    @can('reunions.end')
                                     @if($reunion->peutEtreTerminee())
                                         <button type="button" onclick="changerStatut('{{ $reunion->id }}', 'terminer')" class="inline-flex items-center justify-center w-8 h-8 text-blue-600 bg-blue-100 rounded-lg hover:bg-blue-200 transition-colors" title="Terminer">
                                             <i class="fas fa-stop text-sm"></i>
                                         </button>
                                     @endif
+                                    @endcan
 
-                                    @can('reunions.create')
+                                    @can('reunions.duplicate')
                                         <button type="button" onclick="openDuplicateModal('{{ $reunion->id }}')" class="inline-flex items-center justify-center w-8 h-8 text-purple-600 bg-purple-100 rounded-lg hover:bg-purple-200 transition-colors" title="Dupliquer">
                                             <i class="fas fa-copy text-sm"></i>
                                         </button>
@@ -326,11 +331,13 @@
                                 </div>
 
                                 <div class="flex items-center space-x-2">
+                                    @can('reunions.cancel')
                                     @if($reunion->peutEtreAnnulee())
                                         <button type="button" onclick="openAnnulerModal('{{ $reunion->id }}')" class="inline-flex items-center justify-center w-8 h-8 text-red-600 bg-red-100 rounded-lg hover:bg-red-200 transition-colors" title="Annuler">
                                             <i class="fas fa-times text-sm"></i>
                                         </button>
                                     @endif
+                                    @endcan
 
                                     @can('reunions.delete')
                                         @if(in_array($reunion->statut, ['planifiee', 'confirmee']))
@@ -403,9 +410,11 @@
             <button type="button" onclick="closeDuplicateModal()" class="px-4 py-2 text-slate-700 bg-slate-100 rounded-xl hover:bg-slate-200 transition-colors">
                 Annuler
             </button>
+            @can('reunions.duplicate')
             <button type="button" onclick="dupliquerReunion()" class="px-4 py-2 bg-purple-600 text-white rounded-xl hover:bg-purple-700 transition-colors">
                 Dupliquer
             </button>
+            @endcan
         </div>
     </div>
 </div>
@@ -438,9 +447,11 @@
             <button type="button" onclick="closeAnnulerModal()" class="px-4 py-2 text-slate-700 bg-slate-100 rounded-xl hover:bg-slate-200 transition-colors">
                 Annuler
             </button>
+            @can('reunions.cancel')
             <button type="button" onclick="annulerReunion()" class="px-4 py-2 bg-red-600 text-white rounded-xl hover:bg-red-700 transition-colors">
                 Confirmer l'annulation
             </button>
+            @endcan
         </div>
     </div>
 </div>

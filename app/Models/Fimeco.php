@@ -1,5 +1,4 @@
 <?php
-// app/Models/Fimeco.php
 
 namespace App\Models;
 
@@ -9,11 +8,12 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Carbon\Carbon;
 
 class Fimeco extends Model
 {
     use HasFactory, HasUuids, SoftDeletes;
+
+    protected $table = 'fimecos';
 
     protected $fillable = [
         'responsable_id',
@@ -21,153 +21,211 @@ class Fimeco extends Model
         'description',
         'debut',
         'fin',
-        'statut'
+        'cible',
+        'statut',
     ];
 
     protected $casts = [
         'debut' => 'date',
-        'fin' => 'date'
+        'fin' => 'date',
+        'cible' => 'decimal:2',
+        'montant_solde' => 'decimal:2',
+        'reste' => 'decimal:2',
+        'montant_supplementaire' => 'decimal:2',
+        'progression' => 'decimal:2',
+        'statut_global' => 'string',
+        'statut' => 'string',
     ];
 
     protected $attributes = [
-        'statut' => 'active'
+        'montant_solde' => 0,
+        'reste' => 0,
+        'montant_supplementaire' => 0,
+        'progression' => 0,
+        'statut_global' => 'tres_faible',
+        'statut' => 'active',
     ];
 
     // Relations
+
+    /**
+     * Relation avec l'utilisateur responsable
+     */
     public function responsable(): BelongsTo
     {
         return $this->belongsTo(User::class, 'responsable_id');
     }
 
+    /**
+     * Relation avec les souscriptions
+     */
     public function subscriptions(): HasMany
     {
-        return $this->hasMany(Subscription::class);
+        return $this->hasMany(Subscription::class, 'fimeco_id');
     }
 
+    /**
+     * Relation avec les souscriptions actives uniquement
+     */
     public function subscriptionsActives(): HasMany
     {
-        return $this->hasMany(Subscription::class)
-                    ->whereIn('statut', ['active', 'partiellement_payee']);
+        return $this->hasMany(Subscription::class, 'fimeco_id')->where('statut', '!=', 'inactive');
     }
 
+    /**
+     * Relation avec les souscriptions complètement payées
+     */
     public function subscriptionsCompletes(): HasMany
     {
-        return $this->hasMany(Subscription::class)
-                    ->where('statut', 'completement_payee');
+        return $this->hasMany(Subscription::class, 'fimeco_id')->where('statut', 'completement_payee');
     }
 
     // Scopes
-    public function scopeActive($query)
+
+    /**
+     * Scope pour les FIMECO actifs
+     */
+    public function scopeActifs($query)
     {
         return $query->where('statut', 'active');
     }
 
+    /**
+     * Scope pour les FIMECO avec objectif atteint
+     */
+    public function scopeObjectifAtteint($query)
+    {
+        return $query->where('statut_global', 'objectif_atteint');
+    }
+
+    /**
+     * Scope pour les FIMECO en cours
+     */
     public function scopeEnCours($query)
     {
-        return $query->where('debut', '<=', now())
-                    ->where('fin', '>=', now())
-                    ->where('statut', 'active');
+        return $query->whereIn('statut_global', ['en_cours', 'presque_atteint']);
     }
 
-    public function scopeAVenir($query)
+    /**
+     * Scope pour filtrer par période
+     */
+    public function scopePeriode($query, $debut = null, $fin = null)
     {
-        return $query->where('debut', '>', now());
+        if ($debut) {
+            $query->where('debut', '>=', $debut);
+        }
+        if ($fin) {
+            $query->where('fin', '<=', $fin);
+        }
+        return $query;
     }
 
-    public function scopeTerminee($query)
+    /**
+     * Scope pour recherche textuelle
+     */
+    public function scopeRecherche($query, $terme)
     {
-        return $query->where('fin', '<', now())
-                    ->orWhere('statut', 'cloturee');
+        return $query->where('nom', 'ILIKE', "%{$terme}%")->orWhere('description', 'ILIKE', "%{$terme}%");
     }
 
-    // Accessors & Mutators
-    public function getEstEnCoursAttribute(): bool
+    // Accesseurs
+
+    /**
+     * Retourne le pourcentage de progression formaté
+     */
+    public function getProgressionFormatteeAttribute(): string
     {
-        return $this->debut <= now() &&
-               $this->fin >= now() &&
-               $this->statut === 'active';
+        return number_format($this->progression, 2) . '%';
     }
 
-    public function getEstTermineeAttribute(): bool
+    /**
+     * Vérifie si l'objectif est atteint
+     */
+    public function getObjectifAtteintAttribute(): bool
     {
-        return $this->fin < now() || $this->statut === 'cloturee';
+        return $this->statut_global === 'objectif_atteint';
     }
 
-    public function getTotalSouscriptionsAttribute(): string
+    /**
+     * Retourne le nombre de jours restants
+     */
+    public function getJoursRestantsAttribute(): int
     {
-        return $this->subscriptions()
-                   ->sum('montant_souscrit');
+        return max(0, now()->diffInDays($this->fin, false));
     }
 
-    public function getTotalPayeAttribute(): string
+    /**
+     * Vérifie si le FIMECO est en retard
+     */
+    public function getEnRetardAttribute(): bool
     {
-        return $this->subscriptions()
-                   ->sum('montant_paye');
+        return $this->fin < now() && $this->statut_global !== 'objectif_atteint';
     }
 
-    public function getNombreMembresSouscripteursAttribute(): int
-    {
-        return $this->subscriptions()->distinct('souscripteur_id')->count();
-    }
+    // Méthodes métier
 
-    public function getNombreTotalSouscriptionsAttribute(): int
+    /**
+     * Calcule les statistiques complètes du FIMECO
+     */
+    public function getStatistiques(): array
     {
-        return $this->subscriptions()->count();
-    }
-
-    // Methods
-    public function peutEtreSouscrite(): bool
-    {
-        return $this->est_en_cours && $this->statut === 'active';
-    }
-
-    public function cloturer(): bool
-    {
-        $this->statut = 'cloturee';
-        return $this->save();
-    }
-
-    public function calculerStatistiques(): array
-    {
-        $totalSouscriptions = $this->total_souscriptions;
-        $totalPaye = $this->total_paye;
-        $nombreSouscripteurs = $this->nombre_membres_souscripteurs;
+        $subscriptions = $this->subscriptions()->get();
 
         return [
-            'total_souscriptions' => $totalSouscriptions,
-            'total_paye' => $totalPaye,
-            'nombre_souscripteurs' => $nombreSouscripteurs,
-            'nombre_total_souscriptions' => $this->nombre_total_souscriptions,
-            'montant_moyen_souscription' => $nombreSouscripteurs > 0 ?
-                ($totalSouscriptions / $nombreSouscripteurs) : 0,
-            'taux_realisation_paiements' => $totalSouscriptions > 0 ?
-                round(($totalPaye / $totalSouscriptions) * 100, 2) : 0,
+            'nb_souscriptions_total' => $subscriptions->count(),
+            'nb_souscriptions_actives' => $subscriptions->where('statut', '!=', 'inactive')->count(),
+            'nb_souscriptions_completes' => $subscriptions->where('statut', 'completement_payee')->count(),
+            'nb_souscriptions_partielles' => $subscriptions->where('statut', 'partiellement_payee')->count(),
+            'nb_souscriptions_inactives' => $subscriptions->where('statut', 'inactive')->count(),
+            'montant_total_souscrit' => $subscriptions->sum('montant_souscrit'),
+            'montant_total_paye' => $subscriptions->sum('montant_paye'),
+            'progression_moyenne_souscriptions' => $subscriptions->avg('progression') ?? 0,
+            'nb_souscriptions_en_retard' => $subscriptions->filter(function ($s) {
+                return $s->date_echeance && $s->date_echeance < now() && $s->statut !== 'completement_payee';
+            })->count(),
         ];
     }
 
-    public function obtenirTopSouscripteurs(int $limite = 10): \Illuminate\Database\Eloquent\Collection
+    /**
+     * Vérifie si une nouvelle souscription peut être créée
+     */
+    public function peutAccepterNouvellesSouscriptions(): bool
     {
-        return $this->subscriptions()
-                   ->with('souscripteur')
-                   ->orderBy('montant_paye', 'desc')
-                   ->limit($limite)
-                   ->get();
+        return $this->statut === 'active' &&
+               $this->fin >= now() &&
+               $this->statut_global !== 'objectif_atteint';
     }
 
-    public function obtenirStatistiquesParMois(): array
+    /**
+     * Retourne le montant encore disponible pour les souscriptions
+     */
+    public function getMontantDisponible(): float
     {
-        return $this->subscriptions()
-                   ->selectRaw('
-                       YEAR(date_souscription) as annee,
-                       MONTH(date_souscription) as mois,
-                       COUNT(*) as nombre_souscriptions,
-                       SUM(montant_souscrit) as total_souscrit,
-                       SUM(montant_paye) as total_paye
-                   ')
-                   ->groupBy('annee', 'mois')
-                   ->orderBy('annee', 'desc')
-                   ->orderBy('mois', 'desc')
-                   ->get()
-                   ->toArray();
+        return max(0, $this->cible - $this->subscriptions()->sum('montant_souscrit'));
+    }
+
+    /**
+     * Retourne les paiements en attente pour ce FIMECO
+     */
+    public function getPaiementsEnAttente()
+    {
+        return SubscriptionPayment::whereHas('subscription', function ($query) {
+            $query->where('fimeco_id', $this->id);
+        })->where('statut', 'en_attente')->get();
+    }
+
+    // Événements du modèle
+
+    protected static function booted()
+    {
+        // Validation avant sauvegarde
+        static::saving(function ($fimeco) {
+            if ($fimeco->fin < $fimeco->debut) {
+                throw new \InvalidArgumentException('La date de fin ne peut pas être antérieure à la date de début');
+            }
+            if ($fimeco->cible <= 0) {
+                throw new \InvalidArgumentException('La cible doit être supérieure à zéro');
+            }
+        });
     }
 }

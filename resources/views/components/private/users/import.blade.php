@@ -1,12 +1,12 @@
 @extends('layouts.private.main')
-@section('title', 'Importer des utilisateurs')
+@section('title', 'Importer des membres')
 
 @section('content')
 <div class="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 py-8">
     <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
         <!-- Page Title -->
         <div class="mb-8">
-            <h1 class="text-3xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent">Importer des Utilisateurs</h1>
+            <h1 class="text-3xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent">Importer des Membres</h1>
             <p class="text-slate-500 mt-1">Importation en lot depuis un fichier CSV - {{ \Carbon\Carbon::now()->format('l d F Y') }}</p>
         </div>
 
@@ -15,8 +15,8 @@
             <div class="bg-gradient-to-r from-green-600 via-emerald-600 to-teal-600 px-6 sm:px-8 py-6">
                 <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
                     <div class="mb-4 sm:mb-0">
-                        <h2 class="text-2xl sm:text-3xl font-bold text-white">Importer des utilisateurs</h2>
-                        <p class="text-green-100 mt-2 text-sm sm:text-base">Importez plusieurs utilisateurs depuis un fichier CSV</p>
+                        <h2 class="text-2xl sm:text-3xl font-bold text-white">Importer des membres</h2>
+                        <p class="text-green-100 mt-2 text-sm sm:text-base">Importez plusieurs membres depuis un fichier CSV</p>
                     </div>
                     <div class="flex flex-col sm:flex-row gap-3">
                         <a href="{{ route('private.users.index') }}"
@@ -76,7 +76,7 @@
                             <ul class="list-disc list-inside space-y-1 text-sm text-purple-800">
                                 <li><strong>date_naissance</strong> : Format YYYY-MM-DD</li>
                                 <li><strong>telephone_2</strong> : Téléphone secondaire</li>
-                                <li><strong>profession</strong> : Profession de l'utilisateur</li>
+                                <li><strong>profession</strong> : Profession de l'membres</li>
                                 <li><strong>employeur</strong> : Nom de l'employeur</li>
                             </ul>
                         </div>
@@ -192,7 +192,7 @@ Pierre,Kouassi,pierre.kouassi@email.com,0147258369,masculin,789 Boulevard du Pro
                                 <input type="checkbox" name="update_existing" id="update_existing" value="1"
                                        class="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 mt-1">
                                 <label for="update_existing" class="ml-3 cursor-pointer">
-                                    <span class="text-sm font-medium text-slate-700">Mettre à jour les utilisateurs existants</span>
+                                    <span class="text-sm font-medium text-slate-700">Mettre à jour les membres existants</span>
                                     <p class="text-sm text-slate-500 mt-1">Si un email existe déjà, mettre à jour les informations au lieu de l'ignorer</p>
                                 </label>
                             </div>
@@ -204,7 +204,7 @@ Pierre,Kouassi,pierre.kouassi@email.com,0147258369,masculin,789 Boulevard du Pro
                                        class="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 mt-1">
                                 <label for="send_welcome_email" class="ml-3 cursor-pointer">
                                     <span class="text-sm font-medium text-slate-700">Envoyer un email de bienvenue</span>
-                                    <p class="text-sm text-slate-500 mt-1">Envoyer un email de bienvenue aux nouveaux utilisateurs créés</p>
+                                    <p class="text-sm text-slate-500 mt-1">Envoyer un email de bienvenue aux nouveaux membres créés</p>
                                 </label>
                             </div>
                         </div>
@@ -358,7 +358,7 @@ document.addEventListener('DOMContentLoaded', function() {
             } else if (progress < 60) {
                 progressText.textContent = 'Validation des données...';
             } else if (progress < 90) {
-                progressText.textContent = 'Création des utilisateurs...';
+                progressText.textContent = 'Création des membres...';
             }
 
             if (progress >= 90) {
@@ -393,7 +393,7 @@ Pierre,Kouassi,pierre.kouassi@email.com,0147258369,masculin,789 Boulevard du Pro
     if (link.download !== undefined) {
         const url = URL.createObjectURL(blob);
         link.setAttribute('href', url);
-        link.setAttribute('download', 'exemple_import_utilisateurs.csv');
+        link.setAttribute('download', 'exemple_import_membres.csv');
         link.style.visibility = 'hidden';
         document.body.appendChild(link);
         link.click();

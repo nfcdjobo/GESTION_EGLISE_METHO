@@ -356,7 +356,7 @@
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                        <label for="date_ouverture_inscription" class="block text-sm font-medium text-slate-700 mb-2">Ouverture des inscriptions</label>
+                        <label for="date_ouverture_inscription" class="block text-sm font-medium text-slate-700 mb-2">Ouverture des inscriptions <span class="text-red-500" id="star-ouverture" style="display:none;">*</span></label>
                         <input type="date" id="date_ouverture_inscription" name="date_ouverture_inscription" value="{{ old('date_ouverture_inscription') }}"
                             class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors @error('date_ouverture_inscription') border-red-500 focus:ring-red-500 focus:border-red-500 @enderror">
                         @error('date_ouverture_inscription')
@@ -365,7 +365,7 @@
                     </div>
 
                     <div>
-                        <label for="date_fermeture_inscription" class="block text-sm font-medium text-slate-700 mb-2">Fermeture des inscriptions</label>
+                        <label for="date_fermeture_inscription" class="block text-sm font-medium text-slate-700 mb-2">Fermeture des inscriptions <span class="text-red-500" id="star-fermeture" style="display:none;">*</span></label>
                         <input type="date" id="date_fermeture_inscription" name="date_fermeture_inscription" value="{{ old('date_fermeture_inscription') }}"
                             class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors @error('date_fermeture_inscription') border-red-500 focus:ring-red-500 focus:border-red-500 @enderror">
                         @error('date_fermeture_inscription')
@@ -534,15 +534,96 @@ document.getElementById('categorie').addEventListener('change', function() {
     updatePreview();
 });
 
-// Gestion des options conditionnelles
+// Gestion des options conditionnelles DJOBO
+// document.getElementById('inscription_requise').addEventListener('change', function() {
+//     const section = document.getElementById('inscription-section');
+//     const date_fin = document.getElementById('date_fin');
+//     const date_ouverture_inscription = document.getElementById('date_ouverture_inscription');
+//     const date_fermeture_inscription = document.getElementById('date_fermeture_inscription');
+//     if (this.checked) {
+//         section.style.display = 'block';
+
+//     } else {
+//         section.style.display = 'none';
+//     }
+// });
+
+
+
+
 document.getElementById('inscription_requise').addEventListener('change', function() {
     const section = document.getElementById('inscription-section');
+    const dateFinEvent = document.getElementById('date_fin');
+    const dateOuverture = document.getElementById('date_ouverture_inscription');
+    const dateFermeture = document.getElementById('date_fermeture_inscription');
+    const starOuverture = document.getElementById('star-ouverture');
+    const starFermeture = document.getElementById('star-fermeture');
+
     if (this.checked) {
+        // Afficher la section
         section.style.display = 'block';
+
+        // Activer et rendre obligatoire
+        dateOuverture.disabled = false;
+        dateFermeture.disabled = false;
+        dateOuverture.required = true;
+        dateFermeture.required = true;
+
+        // Afficher l’étoile rouge
+        starOuverture.style.display = 'inline';
+        starFermeture.style.display = 'inline';
+
+        // Contraintes
+        if (dateFinEvent.value) {
+            dateOuverture.max = dateFinEvent.value;
+            dateFermeture.max = dateFinEvent.value;
+        }
+        if (dateOuverture.value) {
+            dateFermeture.min = dateOuverture.value;
+        }
+
     } else {
+        // Cacher la section
         section.style.display = 'none';
+
+        // Désactiver et enlever obligatoire
+        dateOuverture.disabled = true;
+        dateFermeture.disabled = true;
+        dateOuverture.required = false;
+        dateFermeture.required = false;
+
+        // Enlever l’étoile rouge
+        starOuverture.style.display = 'none';
+        starFermeture.style.display = 'none';
+
+        // Vider les valeurs
+        dateOuverture.value = '';
+        dateFermeture.value = '';
     }
 });
+
+// Ajuster les contraintes si la date de fin change
+document.getElementById('date_fin').addEventListener('change', function() {
+    const dateOuverture = document.getElementById('date_ouverture_inscription');
+    const dateFermeture = document.getElementById('date_fermeture_inscription');
+    dateOuverture.max = this.value;
+    dateFermeture.max = this.value;
+});
+
+// Ajuster la fermeture par rapport à l’ouverture
+document.getElementById('date_ouverture_inscription').addEventListener('change', function() {
+    const dateFermeture = document.getElementById('date_fermeture_inscription');
+    dateFermeture.min = this.value;
+});
+
+
+
+
+
+
+
+
+
 
 document.getElementById('inscription_payante').addEventListener('change', function() {
     const section = document.getElementById('prix-section');

@@ -17,25 +17,7 @@
                     <li><a href="#contact">Contact</a></li>
                     <?php if(auth()->guard()->check()): ?>
                         <li>
-                            <form method="POST" action="<?php echo e(route('security.logout')); ?>">
-                                <?php echo csrf_field(); ?>
-                                <button type="submit"
-                                    style="color: white;
-                                        text-decoration: none;
-                                        font-weight: bold;
-                                        transition: all 0.3s ease;
-                                        padding: 0.5rem 1rem;
-                                        border-radius: 25px;
-                                        background: transparent;
-                                        border: none;
-                                        cursor: pointer;"
-                                    onmouseover="this.style.background='rgba(255,255,255,0.2)'; this.style.transform='translateY(-2px)';"
-                                    onmouseout="this.style.background='transparent'; this.style.transform='none';"
-                                    onfocus="this.style.background='rgba(255,255,255,0.2)'; this.style.transform='translateY(-2px)';"
-                                    onblur="this.style.background='transparent'; this.style.transform='none';">
-                                    Déconnexion
-                                </button>
-                            </form>
+                            <li><a href="<?php echo e(route('private.dashboard')); ?>">Dashboard</a></li>
                         </li>
                     <?php else: ?>
                         <li><a href="<?php echo e(route('security.login')); ?>">Connexion</a></li>

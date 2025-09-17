@@ -239,11 +239,11 @@
                                         <div class="flex items-center space-x-2">
                                             @can('events.manage_inscriptions')
                                                 @if($inscription->est_active)
-                                                    <button type="button" onclick="cancelInscription('{{ $inscription->id }}')" class="inline-flex items-center justify-center w-8 h-8 text-red-600 bg-red-100 rounded-lg hover:bg-red-200 transition-colors" title="Annuler">
+                                                    <button type="button" onclick="annulerInscription('{{ $inscription->id }}')" class="inline-flex items-center justify-center w-8 h-8 text-red-600 bg-red-100 rounded-lg hover:bg-red-200 transition-colors" title="Annuler">
                                                         <i class="fas fa-times text-sm"></i>
                                                     </button>
                                                 @elseif($inscription->est_annulee && $inscription->peutEtreReactivee())
-                                                    <button type="button" onclick="reactivateInscription('{{ $inscription->id }}')" class="inline-flex items-center justify-center w-8 h-8 text-green-600 bg-green-100 rounded-lg hover:bg-green-200 transition-colors" title="Réactiver">
+                                                    <button type="button" onclick="reactiverInscription('{{ $inscription->id }}')" class="inline-flex items-center justify-center w-8 h-8 text-green-600 bg-green-100 rounded-lg hover:bg-green-200 transition-colors" title="Réactiver">
                                                         <i class="fas fa-redo text-sm"></i>
                                                     </button>
                                                 @endif
@@ -306,7 +306,7 @@
                 <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mr-4">
                     <i class="fas fa-user-plus text-blue-600 text-xl"></i>
                 </div>
-                <h3 class="text-lg font-semibold text-slate-900">Ajouter une inscription</h3>
+                <h3 class="text-lg font-semibold text-slate-900">Ajouter une inscription 55888</h3>
             </div>
             <form id="addInscriptionForm">
                 @csrf
@@ -314,17 +314,9 @@
                     <label class="block text-sm font-medium text-slate-700 mb-2">Participant</label>
                     <select id="inscrit_id" name="inscrit_id" required class="w-full px-3 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
                         <option value="">Sélectionner un participant</option>
-                        {{-- @foreach($users as $user)
-                            <optgroup label="Culte {{ $culte->date_culte->format('d/m/Y') }}">
-                                @foreach($culte->participants as $participant)
-                                    <option value="{{ $participant->id }}">{{ $participant->prenom }} {{ $participant->nom }}</option>
-                                @endforeach
-                            </optgroup>
-                        @endforeach --}}
+
                         @foreach($users as $user)
-
-                                    <option value="{{ $user->id }}">{{ $user->prenom }} {{ $user->nom }}</option>
-
+                            <option value="{{ $user->id }}">{{ $user->prenom }} {{ $user->nom }}</option>
                         @endforeach
                     </select>
                 </div>
@@ -401,11 +393,18 @@ document.getElementById('confirmAddInscription').addEventListener('click', funct
 });
 
 // Annuler inscription
-function cancelInscription(inscriptionId) {
+function annulerInscription(inscription) {
     if (!confirm('Êtes-vous sûr de vouloir annuler cette inscription ?')) return;
 
-    fetch(`{{ route('private.events.inscriptions', $event) }}/${inscriptionId}/cancel`, {
-        method: 'POST',
+    // Demande la raison à l'membres
+    let raison = prompt('Veuillez indiquer la raison de la réactivation :');
+    if (!raison) {
+        alert('La réactivation nécessite une raison.');
+        return;
+    }
+
+    fetch(`{{route('private.events.inscriptions.annuler', [$event, ':inscription'])}}`.replace(':inscription', inscription), {
+        method: 'PUT',
         headers: {
             'X-CSRF-TOKEN': '{{ csrf_token() }}',
             'Content-Type': 'application/json',
@@ -426,11 +425,47 @@ function cancelInscription(inscriptionId) {
     });
 }
 
+function reactiverInscription(inscription) {
+
+    if (!confirm('Êtes-vous sûr de vouloir annuler cette inscription ?')) return;
+
+    // Demande la raison à l'membres
+    let raison = prompt('Veuillez indiquer la raison de la réactivation :');
+    if (!raison) {
+        alert('La réactivation nécessite une raison.');
+        return;
+    }
+
+    fetch(`{{route('private.events.inscriptions.reactivate', [$event, ':inscription'])}}`.replace(':inscription', inscription), {
+        method: 'PUT',
+        headers: {
+            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+        },
+        body: JSON.stringify({
+            raison
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            location.reload();
+        } else {
+            alert(data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Erreur:', error);
+        alert('Une erreur est survenue');
+    });
+}
+
 // Réactiver inscription
-function reactivateInscription(inscriptionId) {
+function reactivateInscription(inscription) {
     if (!confirm('Êtes-vous sûr de vouloir réactiver cette inscription ?')) return;
 
-    fetch(`{{ route('private.events.inscriptions', $event) }}/${inscriptionId}/reactivate`, {
+    fetch(`{{route('private.events.inscriptions.reactivate', [$event, ':inscription'])}}`.replace(':inscription', inscription), {
         method: 'POST',
         headers: {
             'X-CSRF-TOKEN': '{{ csrf_token() }}',
@@ -453,10 +488,10 @@ function reactivateInscription(inscriptionId) {
 }
 
 // Supprimer inscription
-function deleteInscription(inscriptionId) {
+function deleteInscription(inscription) {
     if (!confirm('Êtes-vous sûr de vouloir supprimer définitivement cette inscription ?')) return;
 
-    fetch(`{{ route('private.events.inscriptions', $event) }}/${inscriptionId}`, {
+    fetch(`{{route('private.events.inscriptions.supprimer', [$event, ':inscription'])}}`.replace(':inscription', inscription), {
         method: 'DELETE',
         headers: {
             'X-CSRF-TOKEN': '{{ csrf_token() }}',
@@ -479,7 +514,7 @@ function deleteInscription(inscriptionId) {
 }
 
 // Modifier inscription
-function editInscription(inscriptionId) {
+function editInscription(inscription) {
     // Redirection vers page de modification
     alert('Fonctionnalité de modification à implémenter');
 }

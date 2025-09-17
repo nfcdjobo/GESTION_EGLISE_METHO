@@ -18,7 +18,7 @@ class CreerSouscriptionRequest extends FormRequest
 
     public function rules(): array
     {
-        
+
         return [
             'souscripteur_id' => ['required', 'exists:users,id'],
             'fimeco_id' => ['required', 'uuid', 'exists:fimecos,id'],
@@ -56,7 +56,7 @@ class CreerSouscriptionRequest extends FormRequest
                 }
             }
 
-            // Vérifier si l'utilisateur n'a pas déjà souscrit
+            // Vérifier si l'membres n'a pas déjà souscrit
             if ($this->fimeco_id && auth()->check()) {
                 $existingSubscription = \App\Models\Subscription::where('fimeco_id', $this->fimeco_id)
                     ->where('souscripteur_id', $this->souscripteur_id)

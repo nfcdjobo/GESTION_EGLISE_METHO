@@ -73,7 +73,7 @@
                                     <label for="name" class="block text-sm font-medium text-slate-700 mb-2">
                                         Nom de la permission <span class="text-red-500">*</span>
                                     </label>
-                                    <input type="text" id="name" name="name" value="{{ old('name', $permission->name) }}" required maxlength="100" placeholder="Ex: Consulter les utilisateurs"
+                                    <input type="text" id="name" name="name" value="{{ old('name', $permission->name) }}" required maxlength="100" placeholder="Ex: Consulter les membres"
                                         class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors @error('name') border-red-500 focus:ring-red-500 focus:border-red-500 @enderror">
                                     @error('name')
                                         <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
@@ -205,7 +205,7 @@
                                 @endif
                             </div>
 
-                            <!-- Conditions JSON (pour les utilisateurs avancés) -->
+                            <!-- Conditions JSON (pour les membres avancés) -->
                             @if($permission->conditions || auth()->user()->isSuperAdmin())
                                 <div>
                                     <label for="conditions" class="block text-sm font-medium text-slate-700 mb-2">
@@ -286,7 +286,7 @@
                                 <span class="text-lg font-bold text-slate-900">{{ $permission->roles->count() }}</span>
                             </div>
                             <div class="flex items-center justify-between">
-                                <span class="text-sm font-medium text-slate-700">Utilisateurs directs:</span>
+                                <span class="text-sm font-medium text-slate-700">Membress directs:</span>
                                 <span class="text-lg font-bold text-slate-900">{{ $permission->users->count() }}</span>
                             </div>
                             <div class="pt-3 border-t border-slate-200">
@@ -354,7 +354,7 @@ document.getElementById('action').addEventListener('change', updateSlug);
 
 function updateSlug() {
     // Ne pas régénérer automatiquement le slug lors de la modification
-    // L'utilisateur peut le faire manuellement si nécessaire
+    // L'membres peut le faire manuellement si nécessaire
     updatePreview();
 }
 

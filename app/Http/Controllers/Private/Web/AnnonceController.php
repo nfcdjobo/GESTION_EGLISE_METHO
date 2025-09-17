@@ -17,9 +17,10 @@ class AnnonceController extends Controller
     public function __construct()
     {
         $this->middleware('auth');
-        $this->middleware('can:create,App\Models\Annonce')->only(['create', 'store']);
-        $this->middleware('can:update,annonce')->only(['edit', 'update']);
-        $this->middleware('can:delete,annonce')->only(['destroy']);
+        $this->middleware('permission:annonces.read')->only(['index', 'show', 'annoncesActives', 'pourCulte', 'urgentes', 'statistiques']);
+        $this->middleware('permission:annonces.create')->only(['create', 'store']);
+        $this->middleware('permission:annonces.update')->only(['edit', 'update', 'publier', 'archiver', 'dupliquer']);
+        $this->middleware('permission:annonces.delete')->only(['destroy']);
     }
 
     /**

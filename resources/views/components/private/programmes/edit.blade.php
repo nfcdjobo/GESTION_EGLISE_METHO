@@ -312,10 +312,10 @@
                             <span class="font-medium text-slate-700">Créé le:</span>
                             <span class="text-slate-900">{{ $programme->created_at->format('d/m/Y') }}</span>
                         </div>
-                        @if($programme->createurUtilisateur)
+                        @if($programme->createurMembres)
                         <div class="flex justify-between">
                             <span class="font-medium text-slate-700">Créé par:</span>
-                            <span class="text-slate-900">{{ $programme->createurUtilisateur->prenom }} {{ $programme->createurUtilisateur->nom }}</span>
+                            <span class="text-slate-900">{{ $programme->createurMembres->prenom }} {{ $programme->createurMembres->nom }}</span>
                         </div>
                         @endif
                         @if($programme->updated_at != $programme->created_at)
@@ -324,10 +324,10 @@
                             <span class="text-slate-900">{{ $programme->updated_at->format('d/m/Y H:i') }}</span>
                         </div>
                         @endif
-                        @if($programme->modificateurUtilisateur && $programme->updated_at != $programme->created_at)
+                        @if($programme->modificateurMembres && $programme->updated_at != $programme->created_at)
                         <div class="flex justify-between">
                             <span class="font-medium text-slate-700">Modifié par:</span>
-                            <span class="text-slate-900">{{ $programme->modificateurUtilisateur->prenom }} {{ $programme->modificateurUtilisateur->nom }}</span>
+                            <span class="text-slate-900">{{ $programme->modificateurMembres->prenom }} {{ $programme->modificateurMembres->nom }}</span>
                         </div>
                         @endif
                     </div>
@@ -376,7 +376,7 @@
                         <label class="block text-sm font-medium text-slate-700 mb-2">Statut actuel</label>
                         <div class="flex items-center h-12">
                             <span class="inline-flex items-center px-3 py-2 rounded-full text-sm font-medium bg-{{ $programme->statut_badge }}-100 text-{{ $programme->statut_badge }}-800">
-                                <i class="fas fa-circle mr-2"></i>
+                                <span class="w-2 h-2 mr-2 rounded-full bg-{{ $programme->statut_badge }}-500"></span>
                                 {{ \App\Models\Programme::STATUTS[$programme->statut] ?? $programme->statut }}
                             </span>
                         </div>

@@ -23,7 +23,7 @@ class CheckPermission
             }
             return redirect()->route('security.login');
         }
-// dd(25);
+
         /** @var User|null $user */
         $user = auth()->user();
 
@@ -32,7 +32,7 @@ class CheckPermission
             return $next($request);
         }
 
-        // Vérifier si l'utilisateur a au moins une des permissions
+        // Vérifier si l'membres a au moins une des permissions
         if (count($permissions) > 0) {
             if (!$user->hasAnyPermission($permissions)) {
 

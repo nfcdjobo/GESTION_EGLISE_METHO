@@ -476,7 +476,7 @@ function closeInfoPanel() {
     currentContact = null;
 }
 
-// Centrer sur l'utilisateur
+// Centrer sur l'membres
 function centerOnUser() {
     if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(function(position) {
@@ -515,7 +515,7 @@ function zoomOut() {
 function viewContact(contactId = null) {
     const id = contactId || (currentContact ? currentContact.id : null);
     if (id) {
-        window.open(`/private/contacts/${id}`, '_blank');
+        window.open(`{{route('private.contacts.show', ':contact')}}`.replace(':contact', id), '_blank');
     }
 }
 

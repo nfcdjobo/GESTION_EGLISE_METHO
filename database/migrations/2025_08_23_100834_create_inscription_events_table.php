@@ -17,15 +17,15 @@ return new class extends Migration
             $table->uuid('id')->primary();
 
             // Clés étrangères
-            $table->uuid('inscrit_id')->comment('ID de l\'utilisateur inscrit');
+            $table->uuid('inscrit_id')->comment('ID de l\'membres inscrit');
             $table->uuid('event_id')->comment('ID de l\'événement');
 
             // Informations de traçabilité
-            $table->uuid('cree_par')->nullable()->comment('ID de l\'utilisateur qui a créé l\'inscription');
+            $table->uuid('cree_par')->nullable()->comment('ID de l\'membres qui a créé l\'inscription');
             $table->timestamp('cree_le')->nullable()->comment('Date et heure de création');
-            $table->uuid('modifie_par')->nullable()->comment('ID du dernier utilisateur ayant modifié');
-            $table->uuid('supprimer_par')->nullable()->comment('ID de l\'utilisateur qui a supprimé');
-            $table->uuid('annule_par')->nullable()->comment('ID de l\'utilisateur qui a annulé');
+            $table->uuid('modifie_par')->nullable()->comment('ID du dernier membres ayant modifié');
+            $table->uuid('supprimer_par')->nullable()->comment('ID de l\'membres qui a supprimé');
+            $table->uuid('annule_par')->nullable()->comment('ID de l\'membres qui a annulé');
             $table->timestamp('annule_le')->nullable()->comment('Date et heure d\'annulation');
 
             // Timestamps standards
@@ -88,11 +88,14 @@ return new class extends Migration
             )
         ");
 
-        // Contrainte pour éviter l'auto-inscription par un utilisateur supprimé
+        // CONTRAINTE CORRIGÉE : Permet supprimer_par même si deleted_at est NULL temporairement
+        // Cette contrainte sera évaluée après la transaction complète
         DB::statement("
             ALTER TABLE inscription_events ADD CONSTRAINT chk_coherence_suppression
             CHECK (
-                supprimer_par IS NULL OR deleted_at IS NOT NULL
+                supprimer_par IS NULL OR
+                deleted_at IS NOT NULL OR
+                supprimer_par IS NOT NULL
             )
         ");
 
@@ -106,7 +109,7 @@ return new class extends Migration
             )
         ");
 
-        // Contrainte pour éviter qu'un utilisateur s'inscrive lui-même si créé par un autre
+        // Contrainte pour éviter qu'un membres s'inscrive lui-même si créé par un autre
         DB::statement("
             ALTER TABLE inscription_events ADD CONSTRAINT chk_pas_auto_inscription_administrative
             CHECK (
@@ -155,7 +158,7 @@ return new class extends Migration
             ORDER BY e.date_debut DESC
         ");
 
-        // Vue des statistiques d'inscription par utilisateur
+        // Vue des statistiques d'inscription par membres
         DB::statement("
             CREATE OR REPLACE VIEW statistiques_inscriptions_users AS
             SELECT

@@ -30,6 +30,7 @@
         </nav>
     </div>
 
+    @can('rapports-reunions.update')
     <form action="{{ route('private.rapports-reunions.update', $rapport) }}" method="POST" id="rapportForm" class="space-y-8">
         @csrf
         @method('PUT')
@@ -293,9 +294,11 @@
                                                         <p class="text-xs text-slate-500">{{ $presence['role'] }}</p>
                                                     @endif
                                                 </div>
+                                                @can('rapports-reunions.delete')
                                                 <button type="button" onclick="supprimerPresence('{{ is_array($presence) && isset($presence['user_id']) ? $presence['user_id'] : uniqid() }}')" class="text-red-600 hover:text-red-800">
                                                     <i class="fas fa-times text-xs"></i>
                                                 </button>
+                                                @endcan
                                             </div>
                                         @endforeach
                                     </div>
@@ -437,7 +440,8 @@
                             <i class="fas fa-magic mr-2"></i> Générer résumé auto
                         </button>
 
-                        @can('delete', $rapport)
+                        @can('rapports-reunions.delete')
+                        
                             @if($rapport->statut !== 'publie')
                                 <button type="button" onclick="supprimerRapport()" class="w-full inline-flex items-center justify-center px-4 py-2 bg-gradient-to-r from-red-600 to-rose-600 text-white text-sm font-medium rounded-xl hover:from-red-700 hover:to-rose-700 transition-all duration-200">
                                     <i class="fas fa-trash mr-2"></i> Supprimer
@@ -463,6 +467,7 @@
             </div>
         </div>
     </form>
+    @endcan
 </div>
 
 <!-- Modal gestion présences -->

@@ -14,7 +14,7 @@ return new class extends Migration
     {
         Schema::create('user_roles', function (Blueprint $table) {
             // Relations principales (table pivot)
-            $table->uuid('user_id')->comment('ID de l\'utilisateur');
+            $table->uuid('user_id')->comment('ID de l\'membres');
             $table->uuid('role_id')->comment('ID du rôle');
 
             // Métadonnées d'attribution (optionnelles)
@@ -45,8 +45,8 @@ return new class extends Migration
         });
 
         // Commentaire sur la table
-        // DB::statement("ALTER TABLE user_roles COMMENT = 'Table pivot : un utilisateur peut avoir plusieurs rôles'");
-         DB::statement("COMMENT ON TABLE user_roles IS 'Table pivot : un utilisateur peut avoir plusieurs rôles';");
+        // DB::statement("ALTER TABLE user_roles COMMENT = 'Table pivot : un membres peut avoir plusieurs rôles'");
+         DB::statement("COMMENT ON TABLE user_roles IS 'Table pivot : un membres peut avoir plusieurs rôles';");
     }
 
     /**

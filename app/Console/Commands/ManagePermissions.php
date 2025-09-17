@@ -19,7 +19,7 @@ class ManagePermissions extends Command
      */
     protected $signature = 'permission:manage
                             {action : Action à effectuer (create-role|create-permission|assign-role|grant-permission|revoke-permission|list-roles|list-permissions|audit-user|cleanup|stats)}
-                            {--user= : ID ou email de l\'utilisateur}
+                            {--user= : ID ou email de l\'membres}
                             {--role= : Slug du rôle}
                             {--permission= : Slug de la permission}
                             {--name= : Nom du rôle ou de la permission}
@@ -129,11 +129,11 @@ class ManagePermissions extends Command
     }
 
     /**
-     * Attribuer un rôle à un utilisateur
+     * Attribuer un rôle à un membres
      */
     protected function assignRole(): int
     {
-        $userIdentifier = $this->option('user') ?? $this->ask('Email ou ID de l\'utilisateur');
+        $userIdentifier = $this->option('user') ?? $this->ask('Email ou ID de l\'membres');
         $roleSlug = $this->option('role') ?? $this->ask('Slug du rôle');
         $expires = $this->option('expires');
 
@@ -154,11 +154,11 @@ class ManagePermissions extends Command
     }
 
     /**
-     * Accorder une permission à un utilisateur
+     * Accorder une permission à un membres
      */
     protected function grantPermission(): int
     {
-        $userIdentifier = $this->option('user') ?? $this->ask('Email ou ID de l\'utilisateur');
+        $userIdentifier = $this->option('user') ?? $this->ask('Email ou ID de l\'membres');
         $permissionSlug = $this->option('permission') ?? $this->ask('Slug de la permission');
         $expires = $this->option('expires');
         $reason = $this->option('reason');
@@ -186,11 +186,11 @@ class ManagePermissions extends Command
     }
 
     /**
-     * Révoquer une permission d'un utilisateur
+     * Révoquer une permission d'un membres
      */
     protected function revokePermission(): int
     {
-        $userIdentifier = $this->option('user') ?? $this->ask('Email ou ID de l\'utilisateur');
+        $userIdentifier = $this->option('user') ?? $this->ask('Email ou ID de l\'membres');
         $permissionSlug = $this->option('permission') ?? $this->ask('Slug de la permission');
         $reason = $this->option('reason') ?? $this->ask('Raison de la révocation (optionnel)');
 
@@ -219,7 +219,7 @@ class ManagePermissions extends Command
             ->get();
 
         $this->table(
-            ['ID', 'Nom', 'Slug', 'Niveau', 'Utilisateurs', 'Permissions', 'Système'],
+            ['ID', 'Nom', 'Slug', 'Niveau', 'Membress', 'Permissions', 'Système'],
             $roles->map(function ($role) {
                 return [
                     $role->id,
@@ -268,16 +268,16 @@ class ManagePermissions extends Command
     }
 
     /**
-     * Auditer les permissions d'un utilisateur
+     * Auditer les permissions d'un membres
      */
     protected function auditUser(): int
     {
-        $userIdentifier = $this->option('user') ?? $this->ask('Email ou ID de l\'utilisateur');
+        $userIdentifier = $this->option('user') ?? $this->ask('Email ou ID de l\'membres');
         $user = $this->findUser($userIdentifier);
 
         $audit = $this->permissionService->auditUserPermissions($user);
 
-        $this->info("\n👤 Utilisateur: {$audit['user']['name']} ({$audit['user']['email']})");
+        $this->info("\n👤 Membres: {$audit['user']['name']} ({$audit['user']['email']})");
 
         // Rôles
         $this->info("\n📋 Rôles actifs:");
@@ -351,7 +351,7 @@ class ManagePermissions extends Command
         $this->line("  • Total: {$stats['total_roles']}");
         $this->line("  • Système: {$stats['system_roles']}");
 
-        $this->info("\n👥 Utilisateurs:");
+        $this->info("\n👥 Membress:");
         $this->line("  • Avec rôles: {$stats['users_with_roles']}");
         $this->line("  • Avec permissions directes: {$stats['users_with_direct_permissions']}");
 
@@ -373,12 +373,12 @@ class ManagePermissions extends Command
         $this->info("Actions disponibles:");
         $this->line("  • create-role       : Créer un nouveau rôle");
         $this->line("  • create-permission : Créer une nouvelle permission");
-        $this->line("  • assign-role       : Attribuer un rôle à un utilisateur");
-        $this->line("  • grant-permission  : Accorder une permission à un utilisateur");
-        $this->line("  • revoke-permission : Révoquer une permission d'un utilisateur");
+        $this->line("  • assign-role       : Attribuer un rôle à un membres");
+        $this->line("  • grant-permission  : Accorder une permission à un membres");
+        $this->line("  • revoke-permission : Révoquer une permission d'un membres");
         $this->line("  • list-roles        : Lister tous les rôles");
         $this->line("  • list-permissions  : Lister toutes les permissions");
-        $this->line("  • audit-user        : Auditer les permissions d'un utilisateur");
+        $this->line("  • audit-user        : Auditer les permissions d'un membres");
         $this->line("  • cleanup           : Nettoyer les permissions expirées");
         $this->line("  • stats             : Afficher les statistiques du système");
 
@@ -386,7 +386,7 @@ class ManagePermissions extends Command
     }
 
     /**
-     * Trouver un utilisateur par email ou ID
+     * Trouver un membres par email ou ID
      */
     protected function findUser(string $identifier): User
     {

@@ -69,7 +69,7 @@
                     </span>
                 </div>
                 <div>
-                    <span class="text-sm font-medium text-slate-700">Utilisateurs:</span>
+                    <span class="text-sm font-medium text-slate-700">Membress:</span>
                     <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 ml-2"><?php echo e($role->users()->count()); ?></span>
                 </div>
                 <div>

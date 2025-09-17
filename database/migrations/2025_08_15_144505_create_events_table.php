@@ -216,8 +216,8 @@ return new class extends Migration {
             $table->date('prochaine_occurrence')->nullable()->comment('Prochaine occurrence');
 
             // Audit et traçabilité
-            $table->uuid('cree_par')->nullable()->comment('Utilisateur qui a créé lévénement');
-            $table->uuid('modifie_par')->nullable()->comment('Dernier utilisateur ayant modifié');
+            $table->uuid('cree_par')->nullable()->comment('Membres qui a créé lévénement');
+            $table->uuid('modifie_par')->nullable()->comment('Dernier membres ayant modifié');
             $table->timestamp('derniere_activite')->nullable()->comment('Dernière activité');
 
             // Timestamps standards

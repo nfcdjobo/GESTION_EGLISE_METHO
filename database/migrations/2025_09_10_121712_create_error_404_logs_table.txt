@@ -1,0 +1,81 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        Schema::create('error_404_logs', function (Blueprint $table) {
+            // Utilisation d'UUID comme clé primaire
+            $table->uuid('id')->primary();
+
+            // Informations sur l'URL et la requête
+            $table->text('url')->comment('URL complète demandée');
+            $table->string('path', 500)->comment('Chemin de l\'URL');
+            $table->string('method', 10)->comment('Méthode HTTP utilisée');
+
+            // Informations sur le client
+            $table->ipAddress('ip')->comment('Adresse IP du client');
+            $table->text('user_agent')->nullable()->comment('User-Agent du navigateur');
+            $table->text('referrer')->nullable()->comment('Page de référence');
+
+            // Informations sur l'membres (si connecté)
+            $table->uuid('user_id')->nullable()->comment('ID de l\'membres connecté');
+            $table->string('session_id', 40)->nullable()->comment('ID de session');
+
+            // Informations contextuelles
+            $table->json('request_data')->nullable()->comment('Données de la requête (GET, POST)');
+            $table->json('headers')->nullable()->comment('En-têtes HTTP importants');
+            $table->string('locale', 5)->nullable()->comment('Langue de l\'interface');
+
+            // Informations de géolocalisation (optionnel)
+            $table->string('country_code', 2)->nullable()->comment('Code pays (ISO 2)');
+            $table->string('city', 100)->nullable()->comment('Ville approximative');
+
+            // Métriques
+            $table->unsignedInteger('response_time')->nullable()->comment('Temps de réponse en millisecondes');
+            $table->boolean('is_bot')->default(false)->comment('Requête provenant d\'un bot');
+            $table->boolean('is_mobile')->default(false)->comment('Requête depuis un mobile');
+
+            // Suivi et résolution
+            $table->boolean('is_resolved')->default(false)->comment('Erreur résolue/redirigée');
+            $table->string('resolution_type', 50)->nullable()->comment('Type de résolution appliquée');
+            $table->text('resolution_notes')->nullable()->comment('Notes sur la résolution');
+
+            // Horodatage
+            $table->timestamps();
+
+            // Index pour les performances
+            $table->index(['created_at'], 'idx_error_404_logs_created_at');
+            $table->index(['path'], 'idx_error_404_logs_path');
+            $table->index(['user_id'], 'idx_error_404_logs_user_id');
+            $table->index(['ip'], 'idx_error_404_logs_ip');
+            $table->index(['is_resolved'], 'idx_error_404_logs_resolved');
+
+            // Index composé pour les requêtes fréquentes
+            $table->index(['created_at', 'path'], 'idx_error_404_logs_date_path');
+            $table->index(['user_id', 'created_at'], 'idx_error_404_logs_user_date');
+
+            // Index pour les statistiques
+            $table->index(['is_bot', 'created_at'], 'idx_error_404_logs_bot_date');
+            $table->index(['is_mobile', 'created_at'], 'idx_error_404_logs_mobile_date');
+        });
+
+        // Ajouter des commentaires sur la table
+        DB::statement("COMMENT ON TABLE error_404_logs IS 'Journal des erreurs 404 avec analytics détaillés'");
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::dropIfExists('error_404_logs');
+    }
+};

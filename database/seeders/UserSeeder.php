@@ -15,7 +15,7 @@ class UserSeeder extends Seeder
      */
     public function run(): void
     {
-        // Créer l'utilisateur Super Admin
+        // Créer l'membres Super Admin
         $superAdmin = User::updateOrCreate(
             ['email' => 'nfcdjobo@gmail.com'],
             [
@@ -44,7 +44,7 @@ class UserSeeder extends Seeder
             ]
         );
 
-        // Attribuer le rôle Super Admin
+        // Attribuer le rôle Sécrétaire
         $superAdminRole = Role::where('slug', 'secretaire')->first();
         if ($superAdminRole) {
             $superAdmin->roles()->syncWithoutDetaching([$superAdminRole->id => [
@@ -55,8 +55,7 @@ class UserSeeder extends Seeder
         }
 
 
-
-        $this->command->info('✅ Utilisateurs de base créés avec succès !');
+        $this->command->info('✅ Membress de base créés avec succès !');
         $this->command->info('📧 Comptes administratifs :');
         $this->command->info('   - nfcdjobo@gmail.com (Secrétaire)');
 

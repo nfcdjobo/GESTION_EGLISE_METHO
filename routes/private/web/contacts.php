@@ -218,7 +218,7 @@ Route::prefix('mobile/v1')->name('mobile.v1.')->middleware(['auth:sanctum'])->gr
     // Partage de contact
     Route::post('contacts/{contact}/share', [ContactController::class, 'shareContact'])->name('contacts.share');
 
-    // Favoris utilisateur
+    // Favoris membres
     Route::post('contacts/{contact}/favorite', [ContactController::class, 'toggleFavorite'])->name('contacts.favorite');
     Route::get('contacts/favorites', [ContactController::class, 'getUserFavorites'])->name('contacts.favorites');
 });
@@ -302,7 +302,7 @@ Route::pattern('denomination', '[a-zA-Z\-\s]+'); // Dénomination
 |
 | ROUTES MOBILES :
 | - GET /mobile/v1/contacts/nearby               -> Contacts proches (mobile)
-| - GET /mobile/v1/contacts/favorites            -> Favoris utilisateur
+| - GET /mobile/v1/contacts/favorites            -> Favoris membres
 | - POST /mobile/v1/contacts/{id}/favorite       -> Ajouter/retirer favori
 |
 */

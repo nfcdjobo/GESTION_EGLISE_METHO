@@ -99,7 +99,7 @@ class GeneratePermissionReport implements ShouldQueue
         if ($this->format === 'csv') {
             $csv = "RAPPORT DES PERMISSIONS\n";
             $csv .= "Généré le : " . date('d/m/Y H:i:s') . "\n\n";
-            $csv .= "ID,Nom,Slug,Ressource,Action,Catégorie,Actif,Système,Nb Rôles,Nb Utilisateurs,Dernière utilisation\n";
+            $csv .= "ID,Nom,Slug,Ressource,Action,Catégorie,Actif,Système,Nb Rôles,Nb Membress,Dernière utilisation\n";
 
             foreach ($permissions as $permission) {
                 $csv .= sprintf(
@@ -153,7 +153,7 @@ class GeneratePermissionReport implements ShouldQueue
         if ($this->format === 'csv') {
             $csv = "RAPPORT DES RÔLES\n";
             $csv .= "Généré le : " . date('d/m/Y H:i:s') . "\n\n";
-            $csv .= "ID,Nom,Slug,Niveau,Système,Nb Utilisateurs,Nb Permissions\n";
+            $csv .= "ID,Nom,Slug,Niveau,Système,Nb Membress,Nb Permissions\n";
 
             foreach ($roles as $role) {
                 $csv .= sprintf(
@@ -179,7 +179,7 @@ class GeneratePermissionReport implements ShouldQueue
     }
 
     /**
-     * Générer le rapport des utilisateurs
+     * Générer le rapport des membres
      */
     protected function generateUsersReport(): string
     {
@@ -241,7 +241,7 @@ class GeneratePermissionReport implements ShouldQueue
         if ($this->format === 'csv') {
             $csv = "RAPPORT D'AUDIT - 30 DERNIERS JOURS\n";
             $csv .= "Généré le : " . date('d/m/Y H:i:s') . "\n\n";
-            $csv .= "Utilisateur,Permission,Action,Date,Raison\n";
+            $csv .= "Membres,Permission,Action,Date,Raison\n";
 
             foreach ($recentChanges as $change) {
                 $action = $change->is_granted ? 'Accordée' : 'Révoquée';

@@ -540,7 +540,7 @@ function collectTemoignageData() {
         niveau_emotion: parseInt(document.getElementById('niveau_emotion').value),
         actions_suivi: actionsSuivi,
         date_creation: new Date().toISOString(),
-        cree_par: 'current_user' // À remplacer par l'utilisateur connecté
+        cree_par: 'current_user' // À remplacer par l'membres connecté
     };
 }
 

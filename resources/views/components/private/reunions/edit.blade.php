@@ -31,7 +31,7 @@
             </ol>
         </nav>
     </div>
-
+    @can('reunions.update')
     <form action="{{ route('private.reunions.update', $reunion) }}" method="POST" enctype="multipart/form-data" id="reunionEditForm" class="space-y-8">
         @csrf
         @method('PUT')
@@ -692,21 +692,27 @@
                             <i class="fas fa-eye mr-2"></i> Voir les détails
                         </a>
 
+                        @can('reunions.cancel')
                         @if($reunion->peutEtreAnnulee())
                             <button onclick="openAnnulerModal('{{ $reunion->id }}')" class="w-full inline-flex items-center justify-center px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-xl hover:bg-red-700 transition-colors">
                                 <i class="fas fa-times mr-2"></i> Annuler la réunion
                             </button>
                         @endif
+                        @endcan
 
+                        @can('reunions.upcoming')
                         @if($reunion->peutEtreReportee())
                             <button onclick="openReporterModal('{{ $reunion->id }}')" class="w-full inline-flex items-center justify-center px-4 py-2 bg-purple-600 text-white text-sm font-medium rounded-xl hover:bg-purple-700 transition-colors">
                                 <i class="fas fa-calendar-alt mr-2"></i> Reporter la réunion
                             </button>
                         @endif
+                        @endcan
 
+                        @can('reunions.duplicate')
                         <button onclick="openDuplicateModal('{{ $reunion->id }}')" class="w-full inline-flex items-center justify-center px-4 py-2 bg-gray-600 text-white text-sm font-medium rounded-xl hover:bg-gray-700 transition-colors">
                             <i class="fas fa-copy mr-2"></i> Dupliquer
                         </button>
+                        @endcan
                     </div>
                 </div>
             </div>
@@ -729,6 +735,7 @@
             </div>
         </div>
     </form>
+    @endcan
 </div>
 
 <!-- Modals -->

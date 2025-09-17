@@ -81,7 +81,7 @@ return new class extends Migration
             $table->text('notes')->nullable()->comment('Notes supplémentaires');
 
             // Audit
-            $table->uuid('cree_par')->nullable()->comment('Utilisateur créateur');
+            $table->uuid('cree_par')->nullable()->comment('Membres créateur');
             $table->uuid('modifie_par')->nullable()->comment('Dernier modificateur');
 
             // Timestamps

@@ -317,7 +317,7 @@
                             </div>
                             <div class="text-right">
                                 <div class="text-sm font-bold text-blue-600">{{ $members[$i-1] }}</div>
-                                <div class="text-xs text-slate-500">membres</div>
+                                <div class="text-xs text-slate-500"</div>
                             </div>
                         </div>
                     @endfor

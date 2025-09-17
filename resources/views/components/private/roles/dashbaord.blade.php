@@ -32,7 +32,7 @@
                                     <div class="action-icon">
                                         <i class="fa fa-users fa-2x text-success"></i>
                                     </div>
-                                    <h6 class="mt-2">Gérer Utilisateurs</h6>
+                                    <h6 class="mt-2">Gérer Membress</h6>
                                 </a>
                             </div>
                             <div class="col-md-2">
@@ -107,7 +107,7 @@
                                 <i class="fa fa-user-check fa-3x text-success"></i>
                             </div>
                             <h2 class="metric-value text-success">{{ $metrics['active_users'] ?? 0 }}</h2>
-                            <p class="metric-label">Utilisateurs Actifs</p>
+                            <p class="metric-label">Membress Actifs</p>
                             <div class="metric-trend">
                                 <small class="text-muted">
                                     {{ $metrics['coverage_rate'] ?? 0 }}% de couverture
@@ -167,7 +167,7 @@
                 <div class="white_shd full margin_bottom_30">
                     <div class="full graph_head">
                         <div class="heading1 margin_0 d-flex justify-content-between align-items-center">
-                            <h2>Évolution des Rôles et Utilisateurs</h2>
+                            <h2>Évolution des Rôles et Membress</h2>
                             <div class="chart-controls">
                                 <select class="form-select form-select-sm" id="chartPeriod" onchange="updateCharts()">
                                     <option value="7">7 derniers jours</option>
@@ -311,7 +311,7 @@
                                             <small class="text-muted">{{ $alert->created_at->diffForHumans() }}</small>
                                         </div>
                                     </div>
-                                    <button type="button" class="btn-close" data-bs-dismiss="alert" onclick="dismissAlert('{{ $alert->id }}')"></button>
+                                    {{-- <button type="button" class="btn-close" data-bs-dismiss="alert" onclick="dismissAlert('{{ $alert->id }}')"></button> --}}
                                 </div>
                             @empty
                                 <div class="alert alert-success text-center" role="alert">
@@ -356,7 +356,7 @@
                                                 @if($role->is_system_role)
                                                     <i class="fa fa-lock text-warning ms-1"></i>
                                                 @endif
-                                                <br><small class="text-muted">{{ $role->users_count }} utilisateur(s)</small>
+                                                <br><small class="text-muted">{{ $role->users_count }} membres(s)</small>
                                             </div>
                                             <div class="usage-progress">
                                                 @php
@@ -582,7 +582,7 @@ const evolutionChart = new Chart(evolutionCtx, {
                 fill: true
             },
             {
-                label: 'Utilisateurs assignés',
+                label: 'Membress assignés',
                 data: dashboardData.evolution.users || [],
                 borderColor: '#28a745',
                 backgroundColor: 'rgba(40, 167, 69, 0.1)',
@@ -655,64 +655,47 @@ new Chart(levelCtx, {
 
 // Mise à jour des graphiques
 function updateCharts() {
-    // const period = document.getElementById('chartPeriod').value;
+    const period = document.getElementById('chartPeriod').value;
 
-    // fetch(`{..{ route('private.roles.dashboard') }..}?period=${period}&ajax=1`, {
-    //     headers: {
-    //         'Accept': 'application/json',
-    //         'X-CSRF-TOKEN': '{{ csrf_token() }}'
-    //     }
-    // })
-    // .then(response => response.json())
-    // .then(data => {
-    //     // Mettre à jour les données du graphique d'évolution
-    //     evolutionChart.data.labels = data.evolution.labels;
-    //     evolutionChart.data.datasets[0].data = data.evolution.roles;
-    //     evolutionChart.data.datasets[1].data = data.evolution.users;
-    //     evolutionChart.data.datasets[2].data = data.evolution.permissions;
-    //     evolutionChart.update();
-    // })
-    // .catch(error => {
-    //     console.error('Erreur lors de la mise à jour:', error);
-    // });
+    fetch(`{{ route('private.roles.dashboard') }}?period=${period}&ajax=1`, {
+        headers: {
+            'Accept': 'application/json',
+            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        // Mettre à jour les données du graphique d'évolution
+        evolutionChart.data.labels = data.evolution.labels;
+        evolutionChart.data.datasets[0].data = data.evolution.roles;
+        evolutionChart.data.datasets[1].data = data.evolution.users;
+        evolutionChart.data.datasets[2].data = data.evolution.permissions;
+        evolutionChart.update();
+    })
+    .catch(error => {
+        console.error('Erreur lors de la mise à jour:', error);
+    });
 }
 
 // Actualisation des alertes
 function refreshAlerts() {
-    // fetch('{..{ route("private.roles.dashboard") }..}?alerts=1', {
-    //     headers: {
-    //         'Accept': 'application/json',
-    //         'X-CSRF-TOKEN': '{{ csrf_token() }}'
-    //     }
-    // })
-    // .then(response => response.json())
-    // .then(data => {
-    //     document.querySelector('.alerts-container').innerHTML = data.alerts_html;
-    // })
-    // .catch(error => {
-    //     console.error('Erreur lors de l\'actualisation des alertes:', error);
-    // });
+    fetch('{{ route("private.roles.dashboard") }}?alerts=1', {
+        headers: {
+            'Accept': 'application/json',
+            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        document.querySelector('.alerts-container').innerHTML = data.alerts_html;
+    })
+    .catch(error => {
+        console.error('Erreur lors de l\'actualisation des alertes:', error);
+    });
 }
 
-// Supprimer une alerte
-function dismissAlert(alertId) {
-    // fetch(`/admin/alerts/${alertId}/dismiss`, {
-    //     method: 'POST',
-    //     headers: {
-    //         'X-CSRF-TOKEN': '{{ csrf_token() }}',
-    //         'Accept': 'application/json'
-    //     }
-    // })
-    // .then(response => response.json())
-    // .then(data => {
-    //     if (!data.success) {
-    //         console.error('Erreur lors de la suppression de l\'alerte');
-    //     }
-    // })
-    // .catch(error => {
-    //     console.error('Erreur:', error);
-    // });
-}
+
+
 
 // Fonctions des raccourcis
 function openBulkAssign() {
@@ -745,25 +728,25 @@ function animateHealthScore() {
 
 // Actualisation automatique des métriques
 function refreshMetrics() {
-    // fetch('{...{ route("private.roles.dashboard") }...}?metrics=1', {
-    //     headers: {
-    //         'Accept': 'application/json',
-    //         'X-CSRF-TOKEN': '{{ csrf_token() }}'
-    //     }
-    // })
-    // .then(response => response.json())
-    // .then(data => {
-    //     // Mettre à jour les métriques principales
-    //     Object.keys(data.metrics).forEach(key => {
-    //         const element = document.querySelector(`[data-metric="${key}"]`);
-    //         if (element) {
-    //             element.textContent = data.metrics[key];
-    //         }
-    //     });
-    // })
-    // .catch(error => {
-    //     console.error('Erreur lors de l\'actualisation des métriques:', error);
-    // });
+    fetch('{{ route("private.roles.dashboard") }}?metrics=1', {
+        headers: {
+            'Accept': 'application/json',
+            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        // Mettre à jour les métriques principales
+        Object.keys(data.metrics).forEach(key => {
+            const element = document.querySelector(`[data-metric="${key}"]`);
+            if (element) {
+                element.textContent = data.metrics[key];
+            }
+        });
+    })
+    .catch(error => {
+        console.error('Erreur lors de l\'actualisation des métriques:', error);
+    });
 }
 
 // Initialisation

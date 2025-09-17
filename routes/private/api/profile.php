@@ -6,7 +6,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Private\UserPermissionController;
 
 
-// Routes pour le profil utilisateur
+// Routes pour le profil membres
 Route::middleware(['auth'])->prefix('profile')->name('profile.')->group(function () {
     Route::get('/permissions', [UserPermissionController::class, 'myPermissions'])->name('permissions');
     Route::get('/roles', [UserPermissionController::class, 'myRoles'])->name('roles');

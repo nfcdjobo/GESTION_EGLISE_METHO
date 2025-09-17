@@ -7,8 +7,6 @@ use App\Http\Controllers\private\Web\RoleController;
 // Routes d'administration des permissions
 Route::middleware(['auth', 'user.status'])->prefix('dashboard')->name('private.')->group(function () {
 
-
-
     // Gestion des rôles
     Route::prefix('roles')->name('roles.')->group(function () {
         Route::get('/', [RoleController::class, 'index'])->name('index');

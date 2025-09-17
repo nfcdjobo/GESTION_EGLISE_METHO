@@ -16,7 +16,7 @@ return new class extends Migration
             $table->uuid('id')->primary();
 
             // Clés étrangères
-            $table->uuid('participant_id')->comment('ID de l\'utilisateur participant');
+            $table->uuid('participant_id')->comment('ID de l\'membres participant');
             $table->uuid('culte_id')->comment('ID du culte');
 
             // Informations de participation

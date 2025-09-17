@@ -33,14 +33,16 @@
                     class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-slate-600 to-gray-600 text-white text-sm font-medium rounded-xl hover:from-slate-700 hover:to-gray-700 transition-all duration-200 shadow-md hover:shadow-lg">
                     <i class="fas fa-arrow-left mr-2"></i> Retour à la liste
                 </a>
-                <button type="button" onclick="exportComparison()"
-                    class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-sm font-medium rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-200 shadow-md hover:shadow-lg">
-                    <i class="fas fa-download mr-2"></i> Exporter
-                </button>
-                <button type="button" onclick="printComparison()"
-                    class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-cyan-600 to-blue-600 text-white text-sm font-medium rounded-xl hover:from-cyan-700 hover:to-blue-700 transition-all duration-200 shadow-md hover:shadow-lg">
-                    <i class="fas fa-print mr-2"></i> Imprimer
-                </button>
+                @can('roles.export')
+                    <button type="button" onclick="exportComparison()"
+                        class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-sm font-medium rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-200 shadow-md hover:shadow-lg">
+                        <i class="fas fa-download mr-2"></i> Exporter
+                    </button>
+                    <button type="button" onclick="printComparison()"
+                        class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-cyan-600 to-blue-600 text-white text-sm font-medium rounded-xl hover:from-cyan-700 hover:to-blue-700 transition-all duration-200 shadow-md hover:shadow-lg">
+                        <i class="fas fa-print mr-2"></i> Imprimer
+                    </button>
+                @endcan
             </div>
         </div>
 
@@ -104,7 +106,7 @@
                                         </div>
                                         <div class="text-center">
                                             <div class="text-xl font-bold text-green-600">{{ $role->users->count() }}</div>
-                                            <div class="text-xs text-slate-500">Utilisateurs</div>
+                                            <div class="text-xs text-slate-500">Membress</div>
                                         </div>
                                     </div>
                                 </div>
@@ -325,8 +327,7 @@
                                             <div class="flex items-center justify-between">
                                                 <div class="flex items-center">
                                                     <i class="fas fa-folder mr-2"></i>
-                                                    <span
-                                                        class="font-semibold category-name">{{ ucfirst($currentCategory) }}</span>
+                                                    <span class="font-semibold category-name">{{ ucfirst($currentCategory) }}</span>
                                                 </div>
                                                 <button type="button" onclick="toggleCategory('{{ $currentCategory }}')"
                                                     id="toggle-{{ $currentCategory }}"

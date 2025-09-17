@@ -34,31 +34,40 @@
                     </a>
                 @endcan
 
+                @can('reunions.confirm')
                 @if($reunion->statut === 'planifiee')
                     <button onclick="changerStatut('{{ $reunion->id }}', 'confirmer')" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white text-sm font-medium rounded-xl hover:from-green-700 hover:to-emerald-700 transition-all duration-200 shadow-md hover:shadow-lg">
                         <i class="fas fa-check mr-2"></i> Confirmer
                     </button>
-                    
-                @endif
 
+                @endif
+                @endcan
+
+                @can('reunions.start')
                 @if($reunion->peutCommencer())
                     <button onclick="changerStatut('{{ $reunion->id }}', 'commencer')" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-600 to-cyan-600 text-white text-sm font-medium rounded-xl hover:from-blue-700 hover:to-cyan-700 transition-all duration-200 shadow-md hover:shadow-lg">
                         <i class="fas fa-play mr-2"></i> Commencer
                     </button>
                 @endif
+                @endcan
 
+                @can('reunions.end')
                 @if($reunion->peutEtreTerminee())
                     <button onclick="changerStatut('{{ $reunion->id }}', 'terminer')" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 text-white text-sm font-medium rounded-xl hover:from-purple-700 hover:to-indigo-700 transition-all duration-200 shadow-md hover:shadow-lg">
                         <i class="fas fa-stop mr-2"></i> Terminer
                     </button>
                 @endif
+                @endcan
 
+                @can('reunions.update')
                 @if($reunion->statut === 'suspendue')
                     <button onclick="changerStatut('{{ $reunion->id }}', 'reprendre')" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-green-600 to-teal-600 text-white text-sm font-medium rounded-xl hover:from-green-700 hover:to-teal-700 transition-all duration-200 shadow-md hover:shadow-lg">
                         <i class="fas fa-play mr-2"></i> Reprendre
                     </button>
                 @endif
+                @endcan
 
+                @can('reunions.suspend')
                 @if($reunion->statut === 'en_cours')
                     <button onclick="openSuspendreModal('{{ $reunion->id }}')" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-orange-600 to-red-600 text-white text-sm font-medium rounded-xl hover:from-orange-700 hover:to-red-700 transition-all duration-200 shadow-md hover:shadow-lg">
                         <i class="fas fa-pause mr-2"></i> Suspendre
@@ -453,24 +462,28 @@
                     @endif
 
                     @if(in_array($reunion->statut, ['en_cours', 'terminee']))
+                        @can('reunions.create')
                         <button onclick="openTemoignageModal('{{$reunion->id}}')" class="w-full inline-flex items-center justify-center px-4 py-2 bg-purple-600 text-white text-sm font-medium rounded-xl hover:bg-purple-700 transition-colors">
                             <i class="fas fa-heart mr-2"></i> Ajouter témoignage
                         </button>
+                        @endcan
 
                         <button onclick="openPriereModal('{{$reunion->id}}')" class="w-full inline-flex items-center justify-center px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-xl hover:bg-green-700 transition-colors">
                             <i class="fas fa-praying-hands mr-2"></i> Demande de prière
                         </button>
                     @endif
-
+                    @can('reunions.create')
                     <button onclick="openRappelModal('{{$reunion->id}}', '{{$reunion}}')" class="w-full inline-flex items-center justify-center px-4 py-2 bg-cyan-600 text-white text-sm font-medium rounded-xl hover:bg-cyan-700 transition-colors">
                         <i class="fas fa-bell mr-2"></i> Envoyer rappel
                     </button>
-
+                    @endcan
+                    @can('reunions.create')
                     @if(!$reunion->est_recurrente)
                         <button onclick="openRecurrenceModal('{{$reunion->id}}', '{{$reunion}}')" class="w-full inline-flex items-center justify-center px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-xl hover:bg-indigo-700 transition-colors">
                             <i class="fas fa-repeat mr-2"></i> Créer récurrence
                         </button>
                     @endif
+                    @endcan
                 </div>
             </div>
 
@@ -516,16 +529,27 @@
 </div>
 
 <!-- Modals -->
+@can('reunions.create')
 @include('components.private.reunions.modals.annuler', $reunion)
+
 @include('components.private.reunions.modals.reporter', $reunion)
+
 @include('components.private.reunions.modals.suspendre', $reunion)
+
 @include('components.private.reunions.modals.duplicate', $reunion)
+
 @include('components.private.reunions.modals.presences', $reunion)
+
 @include('components.private.reunions.modals.evaluation', $reunion)
+
 @include('components.private.reunions.modals.temoignage', $reunion)
+
 @include('components.private.reunions.modals.priere', $reunion)
+
 @include('components.private.reunions.modals.rappel', $reunion)
+
 @include('components.private.reunions.modals.recurrence', $reunion)
+@endcan
 
 
 

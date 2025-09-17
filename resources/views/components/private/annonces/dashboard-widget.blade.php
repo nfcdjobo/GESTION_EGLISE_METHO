@@ -1,4 +1,4 @@
-{{-- components/private/annonces/dashboard-widget.blade.php --}}
+
 @props([
     'compact' => false,
     'showActions' => true

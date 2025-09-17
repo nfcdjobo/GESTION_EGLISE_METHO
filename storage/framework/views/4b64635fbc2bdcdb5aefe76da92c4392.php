@@ -86,6 +86,46 @@ unset($__errorArgs, $__bag); ?>
                         </div>
 
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+                            <div>
+                                <label for="cible" class="block text-sm font-medium text-slate-700 mb-2">
+                                    Cible <span class="text-red-500">*</span>
+                                </label>
+                                <input type="number" id="cible" name="cible" value="<?php echo e(old('cible')); ?>" required min="10"
+                                    class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors <?php $__errorArgs = ['cible'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?> border-red-500 focus:ring-red-500 focus:border-red-500 <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>">
+                                <?php $__errorArgs = ['cible'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                                    <p class="mt-2 text-sm text-red-600"><?php echo e($message); ?></p>
+                                <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
+                            </div>
+                            
+                            <div>
+                                <label for="statut" class="block text-sm font-medium text-slate-700 mb-2">Statut initial</label>
+                                <select id="statut" name="statut"
+                                    class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
+                                    <option value="active" <?php echo e(old('statut', 'active') == 'active' ? 'selected' : ''); ?>>Active</option>
+                                    <option value="inactive" <?php echo e(old('statut') == 'inactive' ? 'selected' : ''); ?>>Inactive</option>
+                                </select>
+                                <p class="mt-1 text-sm text-slate-500">Une FIMECO active peut recevoir des souscriptions</p>
+                            </div>
+
+
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
                                 <label for="debut" class="block text-sm font-medium text-slate-700 mb-2">
                                     Date de début <span class="text-red-500">*</span>
@@ -139,15 +179,7 @@ unset($__errorArgs, $__bag); ?>
 
 
 
-                        <div>
-                            <label for="statut" class="block text-sm font-medium text-slate-700 mb-2">Statut initial</label>
-                            <select id="statut" name="statut"
-                                class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
-                                <option value="active" <?php echo e(old('statut', 'active') == 'active' ? 'selected' : ''); ?>>Active</option>
-                                <option value="inactive" <?php echo e(old('statut') == 'inactive' ? 'selected' : ''); ?>>Inactive</option>
-                            </select>
-                            <p class="mt-1 text-sm text-slate-500">Une FIMECO active peut recevoir des souscriptions</p>
-                        </div>
+
                     </div>
                 </div>
             </div>
@@ -171,7 +203,7 @@ unset($__errorArgs, $__bag); ?>
                             <span class="text-sm font-medium text-slate-700">Durée:</span>
                             <span id="preview-duree" class="text-sm text-slate-600">-</span>
                         </div>
-                        
+
                         <div class="flex items-center justify-between">
                             <span class="text-sm font-medium text-slate-700">Statut:</span>
                             <span id="preview-statut" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">Active</span>

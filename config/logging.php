@@ -73,6 +73,164 @@ return [
             'replace_placeholders' => true,
         ],
 
+
+
+
+        // ==========================================
+        // CHANNELS SPÉCIFIQUES POUR LES ERREURS 404
+        // ==========================================
+
+        /**
+         * Channel principal pour les erreurs 404
+         * Rotation quotidienne avec conservation de 30 jours
+         */
+        // '404' => [
+        //     'driver' => 'daily',
+        //     'path' => storage_path('logs/404.log'),
+        //     'level' => 'info',
+        //     'days' => 30,
+        //     'replace_placeholders' => true,
+        //     'permission' => 0664,
+        // ],
+
+        // Canal spécialisé pour les erreurs 404
+        '404' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/404.log'),
+            'level' => 'info',
+            'days' => 30,
+            'replace_placeholders' => true,
+        ],
+
+        /**
+         * Channel pour les erreurs 404 critiques (attaques potentielles)
+         * Conservation plus longue pour investigation
+         */
+        '404_security' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/404-security.log'),
+            'level' => 'warning',
+            'days' => 90,
+            'replace_placeholders' => true,
+            'permission' => 0664,
+        ],
+
+        /**
+         * Channel pour l'analyse comportementale des membres
+         * Logs des patterns de navigation
+         */
+        'user_behavior' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/user-behavior.log'),
+            'level' => 'info',
+            'days' => 60,
+            'replace_placeholders' => true,
+            'permission' => 0664,
+        ],
+
+        /**
+         * Channel pour les bots et crawlers
+         * Séparation des logs humains/bots pour une meilleure analyse
+         */
+        '404_bots' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/404-bots.log'),
+            'level' => 'info',
+            'days' => 7, // Conservation plus courte pour les bots
+            'replace_placeholders' => true,
+            'permission' => 0664,
+        ],
+
+        /**
+         * Channel pour les métriques et statistiques
+         * Format structuré pour l'analyse automatique
+         */
+        '404_metrics' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/404-metrics.log'),
+            'level' => 'info',
+            'days' => 180, // Conservation longue pour les tendances
+            'replace_placeholders' => true,
+            'permission' => 0664,
+            'tap' => [App\Logging\MetricsFormatter::class],
+        ],
+
+        /**
+         * Channel pour les redirections automatiques
+         * Suivi des redirections appliquées
+         */
+        '404_redirects' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/404-redirects.log'),
+            'level' => 'info',
+            'days' => 30,
+            'replace_placeholders' => true,
+            'permission' => 0664,
+        ],
+
+        /**
+         * Channel pour les alertes et notifications
+         * Pics de trafic, attaques, etc.
+         */
+        '404_alerts' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/404-alerts.log'),
+            'level' => 'warning',
+            'days' => 365, // Conservation longue pour les alertes
+            'replace_placeholders' => true,
+            'permission' => 0664,
+        ],
+
+        // ==========================================
+        // CHANNELS MULTI-DESTINATIONS
+        // ==========================================
+
+        /**
+         * Stack pour erreurs 404 avec multiple outputs
+         */
+        '404_stack' => [
+            'driver' => 'stack',
+            'channels' => ['404', '404_metrics'],
+            'ignore_exceptions' => false,
+        ],
+
+        /**
+         * Channel pour erreurs 404 avec notification Slack
+         * Utile pour les environnements de production
+         */
+        '404_slack' => [
+            'driver' => 'slack',
+            'url' => env('LOG_SLACK_WEBHOOK_URL'),
+            'username' => '404 Monitor',
+            'emoji' => ':warning:',
+            'level' => 'error',
+            'context' => true,
+            'include_extra' => true,
+        ],
+
+        /**
+         * Channel pour erreurs critiques avec email
+         */
+        '404_mail' => [
+            'driver' => 'monolog',
+            'handler' => Monolog\Handler\NativeMailerHandler::class,
+            'handler_with' => [
+                'to' => env('LOG_MAIL_TO', 'admin@example.com'),
+                'subject' => 'Erreurs 404 Critiques',
+                'from' => env('LOG_MAIL_FROM', 'noreply@example.com'),
+            ],
+            'level' => 'critical',
+            'processors' => [PsrLogMessageProcessor::class],
+        ],
+
+
+
+
+
+
+
+
+
         'slack' => [
             'driver' => 'slack',
             'url' => env('LOG_SLACK_WEBHOOK_URL'),
@@ -126,6 +284,8 @@ return [
         'emergency' => [
             'path' => storage_path('logs/laravel.log'),
         ],
+
+
     ],
 
 ];

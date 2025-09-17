@@ -248,7 +248,7 @@ class Multimedia extends Model
     }
 
     /**
-     * Relation avec l'utilisateur qui a téléchargé
+     * Relation avec l'membres qui a téléchargé
      */
     public function uploadedBy(): BelongsTo
     {
@@ -546,11 +546,11 @@ class Multimedia extends Model
     }
 
     /**
-     * Méthode pour vérifier si le média est accessible par un utilisateur
+     * Méthode pour vérifier si le média est accessible par un membres
      */
     public function estAccessiblePar(?User $user = null): bool
     {
-        
+
         if (!$this->est_visible || $this->statut_moderation !== 'approuve') {
             return false;
         }
@@ -565,7 +565,7 @@ class Multimedia extends Model
 
         switch ($this->niveau_acces) {
             case 'membres':
-                return true; // L'utilisateur est connecté donc membre
+                return true; // L'membres est connecté donc membre
             case 'leadership':
                 return $user->hasRole(['leadership', 'pasteur', 'administrateur']);
             case 'administrateurs':

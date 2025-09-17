@@ -4,9 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Connexion - Plateforme de l'Église</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+
+    {{-- <script src="https://cdn.tailwindcss.com"></script> --}}
+
+    {{-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"> --}}
+    <script src="{{asset('js/cdn.tailwindcss.com.js')}}"></script>
+    <link rel="stylesheet" href="{{asset('css/all.min.css')}}">
     <link rel="icon" href="https://www.cevaa.org/la-communaute/fiches-deglises/afrique-occidentale-centrafrique/logo-emci.png/image_preview" type="image/png" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body class="bg-gradient-to-br from-blue-50 via-white to-purple-50 min-h-screen flex items-center justify-center p-4">
 
@@ -166,18 +170,6 @@
 
                     <!-- Se souvenir de moi -->
                     <div class="flex items-center justify-between">
-                        {{-- <div class="flex items-center">
-                            <input
-                                id="remember"
-                                type="checkbox"
-                                name="remember"
-                                class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                            >
-                            <label for="remember" class="ml-2 block text-sm text-gray-700">
-                                Se souvenir de moi
-                            </label>
-                        </div> --}}
-
                         <div class="flex items-center">
                             <input
                                 id="remember"
@@ -203,194 +195,8 @@
                         Se connecter
                     </button>
                 </form>
-
-                <!-- Divider -->
-                {{-- <div class="relative my-6">
-                    <div class="absolute inset-0 flex items-center">
-                        <div class="w-full border-t border-gray-300"></div>
-                    </div>
-                    <div class="relative flex justify-center text-sm">
-                        <span class="px-2 bg-white text-gray-500">Ou</span>
-                    </div>
-                </div> --}}
-
-
-
-                <!-- Lien d'inscription -->
-                {{-- <div class="mt-6 text-center">
-                    <p class="text-gray-600">
-                        Pas encore membre ?
-                        <button type="button" onclick="showSection('register')" class="text-blue-600 hover:text-blue-800 font-semibold transition duration-200">
-                            Créer un compte
-                        </button>
-                    </p>
-                </div> --}}
             </div>
 
-            <!-- SECTION INSCRIPTION -->
-            {{-- <div id="registerSection" class="section hidden">
-                <form method="POST" action="{{ route('security.register') }}" class="space-y-6">
-                    @csrf
-
-                    <div class="grid grid-cols-2 gap-4">
-                        <!-- Prénom -->
-                        <div>
-                            <label for="firstName" class="block text-sm font-medium text-gray-700 mb-2">
-                                <i class="fas fa-user text-gray-400 mr-2"></i>Prénom
-                            </label>
-                            <input
-                                id="firstName"
-                                type="text"
-                                name="first_name"
-                                value="{{ old('first_name') }}"
-                                required
-                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200 @error('first_name') border-red-500 @enderror"
-                                placeholder="Jean"
-                            >
-                            @error('first_name')
-                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                            @enderror
-                        </div>
-
-                        <!-- Nom -->
-                        <div>
-                            <label for="lastName" class="block text-sm font-medium text-gray-700 mb-2">
-                                <i class="fas fa-user text-gray-400 mr-2"></i>Nom
-                            </label>
-                            <input
-                                id="lastName"
-                                type="text"
-                                name="last_name"
-                                value="{{ old('last_name') }}"
-                                required
-                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200 @error('last_name') border-red-500 @enderror"
-                                placeholder="Dupont"
-                            >
-                            @error('last_name')
-                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                            @enderror
-                        </div>
-                    </div>
-
-                    <!-- Email -->
-                    <div>
-                        <label for="registerEmail" class="block text-sm font-medium text-gray-700 mb-2">
-                            <i class="fas fa-envelope text-gray-400 mr-2"></i>Adresse email
-                        </label>
-                        <input
-                            id="registerEmail"
-                            type="email"
-                            name="email"
-                            value="{{ old('email') }}"
-                            required
-                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200 @error('email') border-red-500 @enderror"
-                            placeholder="exemple@email.com"
-                        >
-                        @error('email')
-                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                        @enderror
-                    </div>
-
-                    <!-- Téléphone -->
-                    <div>
-                        <label for="registerPhone" class="block text-sm font-medium text-gray-700 mb-2">
-                            <i class="fas fa-phone text-gray-400 mr-2"></i>Numéro de téléphone
-                        </label>
-                        <input
-                            id="registerPhone"
-                            type="tel"
-                            name="phone"
-                            value="{{ old('phone') }}"
-                            required
-                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200 @error('phone') border-red-500 @enderror"
-                            placeholder="+225 07 12 34 56 78"
-                        >
-                        @error('phone')
-                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                        @enderror
-                    </div>
-
-                    <!-- Mot de passe -->
-                    <div>
-                        <label for="registerPassword" class="block text-sm font-medium text-gray-700 mb-2">
-                            <i class="fas fa-lock text-gray-400 mr-2"></i>Mot de passe
-                        </label>
-                        <div class="relative">
-                            <input
-                                id="registerPassword"
-                                type="password"
-                                name="password"
-                                required
-                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200 @error('password') border-red-500 @enderror"
-                                placeholder="••••••••"
-                            >
-                            <button type="button" onclick="togglePassword('registerPassword')" class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700">
-                                <i id="registerPasswordToggleIcon" class="fas fa-eye"></i>
-                            </button>
-                        </div>
-                        @error('password')
-                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                        @enderror
-                    </div>
-
-                    <!-- Confirmation mot de passe -->
-                    <div>
-                        <label for="confirmPassword" class="block text-sm font-medium text-gray-700 mb-2">
-                            <i class="fas fa-lock text-gray-400 mr-2"></i>Confirmer le mot de passe
-                        </label>
-                        <div class="relative">
-                            <input
-                                id="confirmPassword"
-                                type="password"
-                                name="password_confirmation"
-                                required
-                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200 @error('password_confirmation') border-red-500 @enderror"
-                                placeholder="••••••••"
-                            >
-                            <button type="button" onclick="togglePassword('confirmPassword')" class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700">
-                                <i id="confirmPasswordToggleIcon" class="fas fa-eye"></i>
-                            </button>
-                        </div>
-                        @error('password_confirmation')
-                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                        @enderror
-                    </div>
-
-                    <!-- Conditions d'utilisation -->
-                    <div class="flex items-start">
-                        <input
-                            id="terms"
-                            type="checkbox"
-                            name="terms"
-                            {{ old('terms') ? 'checked' : '' }}
-                            required
-                            class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded mt-1 @error('terms') border-red-500 @enderror"
-                        >
-                        <label for="terms" class="ml-2 block text-sm text-gray-700">
-                            J'accepte les <a href="#" class="text-blue-600 hover:text-blue-800">conditions d'utilisation</a> et la <a href="#" class="text-blue-600 hover:text-blue-800">politique de confidentialité</a>
-                        </label>
-                    </div>
-                    @error('terms')
-                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                    @enderror
-
-                    <!-- Bouton d'inscription -->
-                    <button type="submit" class="w-full bg-gradient-to-r from-green-600 to-blue-600 text-white font-semibold py-3 px-4 rounded-lg hover:from-green-700 hover:to-blue-700 transform hover:scale-[1.02] transition duration-200 shadow-lg">
-                        <i class="fas fa-user-plus mr-2"></i>
-                        Créer mon compte
-                    </button>
-                </form>
-
-                <!-- Retour à la connexion -->
-                <div class="mt-6 text-center">
-                    <p class="text-gray-600">
-                        Déjà membre ?
-                        <button type="button" onclick="showSection('login')" class="text-blue-600 hover:text-blue-800 font-semibold transition duration-200">
-                            Se connecter
-                        </button>
-                    </p>
-                </div>
-            </div> --}}
 
             <!-- SECTION MOT DE PASSE OUBLIÉ -->
             <div id="forgotSection" class="section hidden">

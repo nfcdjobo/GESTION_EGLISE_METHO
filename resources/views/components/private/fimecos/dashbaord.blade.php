@@ -71,7 +71,7 @@
     @endif
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <!-- Statistiques utilisateur -->
+        <!-- Statistiques membres -->
         <div class="lg:col-span-2 space-y-8">
             <!-- Métriques personnelles -->
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -83,7 +83,7 @@
                             </div>
                         </div>
                         <div class="ml-4">
-                            <p class="text-2xl font-bold text-slate-800">{{ number_format($statistiques_utilisateur['total_souscrit'] ?? 0, 0, ',', ' ') }}</p>
+                            <p class="text-2xl font-bold text-slate-800">{{ number_format($statistiques_membres['total_souscrit'] ?? 0, 0, ',', ' ') }}</p>
                             <p class="text-sm text-slate-500">Total souscrit (FCFA)</p>
                         </div>
                     </div>
@@ -97,7 +97,7 @@
                             </div>
                         </div>
                         <div class="ml-4">
-                            <p class="text-2xl font-bold text-slate-800">{{ number_format($statistiques_utilisateur['total_paye'] ?? 0, 0, ',', ' ') }}</p>
+                            <p class="text-2xl font-bold text-slate-800">{{ number_format($statistiques_membres['total_paye'] ?? 0, 0, ',', ' ') }}</p>
                             <p class="text-sm text-slate-500">Total payé (FCFA)</p>
                         </div>
                     </div>
@@ -111,7 +111,7 @@
                             </div>
                         </div>
                         <div class="ml-4">
-                            <p class="text-2xl font-bold text-slate-800">{{ $statistiques_utilisateur['nombre_souscriptions'] ?? 0 }}</p>
+                            <p class="text-2xl font-bold text-slate-800">{{ $statistiques_membres['nombre_souscriptions'] ?? 0 }}</p>
                             <p class="text-sm text-slate-500">Souscriptions</p>
                         </div>
                     </div>
@@ -290,7 +290,7 @@
             @endif
 
             <!-- Progression personnelle -->
-            @if(($statistiques_utilisateur['total_souscrit'] ?? 0) > 0)
+            @if(($statistiques_membres['total_souscrit'] ?? 0) > 0)
                 <div class="bg-white/80 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
                     <div class="p-6 border-b border-slate-200">
                         <h2 class="text-xl font-bold text-slate-800 flex items-center">
@@ -300,8 +300,8 @@
                     </div>
                     <div class="p-6">
                         @php
-                            $tauxPaiement = ($statistiques_utilisateur['total_souscrit'] > 0) ?
-                                           round(($statistiques_utilisateur['total_paye'] / $statistiques_utilisateur['total_souscrit']) * 100, 1) : 0;
+                            $tauxPaiement = ($statistiques_membres['total_souscrit'] > 0) ?
+                                           round(($statistiques_membres['total_paye'] / $statistiques_membres['total_souscrit']) * 100, 1) : 0;
                         @endphp
 
                         <div class="text-center mb-4">
@@ -315,9 +315,9 @@
                         </div>
 
                         <div class="text-center text-sm">
-                            <span class="text-green-600 font-semibold">{{ number_format($statistiques_utilisateur['total_paye'], 0, ',', ' ') }} FCFA</span>
+                            <span class="text-green-600 font-semibold">{{ number_format($statistiques_membres['total_paye'], 0, ',', ' ') }} FCFA</span>
                             <span class="text-slate-500"> payés sur </span>
-                            <span class="text-blue-600 font-semibold">{{ number_format($statistiques_utilisateur['total_souscrit'], 0, ',', ' ') }} FCFA</span>
+                            <span class="text-blue-600 font-semibold">{{ number_format($statistiques_membres['total_souscrit'], 0, ',', ' ') }} FCFA</span>
                         </div>
                     </div>
                 </div>

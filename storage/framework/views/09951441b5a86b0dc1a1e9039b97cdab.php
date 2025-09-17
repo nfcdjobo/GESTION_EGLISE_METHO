@@ -7,7 +7,7 @@
         <h1 class="text-3xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent">Statistiques des Participations</h1>
         <p class="text-slate-500 mt-1">Analyse détaillée des participations aux cultes et tendances de fréquentation</p>
     </div>
- 
+
     <!-- Filtres de période -->
     <div class="bg-white/80 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
         <div class="p-6 border-b border-slate-200">
@@ -422,9 +422,11 @@
                 <button type="button" onclick="exportStatistiques()" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white text-sm font-medium rounded-xl hover:from-green-700 hover:to-emerald-700 transition-all duration-200">
                     <i class="fas fa-download mr-2"></i> Exporter les données
                 </button>
+                <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('participants-cultes.nouveaux-visiteurs')): ?>
                 <a href="<?php echo e(route('private.participantscultes.nouveaux-visiteurs')); ?>" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white text-sm font-medium rounded-xl hover:from-purple-700 hover:to-pink-700 transition-all duration-200">
                     <i class="fas fa-user-plus mr-2"></i> Nouveaux visiteurs
                 </a>
+                <?php endif; ?>
                 <a href="<?php echo e(route('private.participantscultes.index')); ?>" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-600 to-cyan-600 text-white text-sm font-medium rounded-xl hover:from-blue-700 hover:to-cyan-700 transition-all duration-200">
                     <i class="fas fa-list mr-2"></i> Toutes les participations
                 </a>

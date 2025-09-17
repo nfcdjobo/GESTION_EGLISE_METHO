@@ -22,11 +22,10 @@ class EventController extends Controller
     public function __construct()
     {
         $this->middleware('auth');
-        $this->middleware('permission:events.read')->only(['index', 'show', 'statistics', 'search']);
-        $this->middleware('permission:events.create')->only(['create', 'store']);
-        $this->middleware('permission:events.update')->only(['edit', 'update', 'changerStatut', 'updateVisibility']);
+        $this->middleware('permission:events.read')->only(['index', 'show', 'statistiques', 'planning', 'dashboard']);
+        $this->middleware('permission:events.create')->only(['create', 'store', 'dupliquer']);
+        $this->middleware('permission:events.update')->only(['edit', 'update', 'changerStatut', 'restore']);
         $this->middleware('permission:events.delete')->only(['destroy']);
-        $this->middleware('permission:events.export')->only(['export']);
     }
 
     /**

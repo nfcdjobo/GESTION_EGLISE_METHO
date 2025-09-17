@@ -109,7 +109,7 @@ class SubscriptionController extends Controller
         }
 
         return view('components.private.subscriptions.index', [
-            'subscriptions' => $subscriptions, 
+            'subscriptions' => $subscriptions,
             'meta' => $meta,
             'fimecosDisponibles' => $fimecosDisponibles
         ]);
@@ -138,7 +138,7 @@ class SubscriptionController extends Controller
             return redirect()->back()->with('info', 'Aucune FIMECO disponible pour souscription');
         }
 
-        $utilisateursDisponibles = User::whereDoesntHave('subscriptions', function ($query) use ($fimecoActive) {
+        $membresDisponibles = User::whereDoesntHave('subscriptions', function ($query) use ($fimecoActive) {
             $query->where('fimeco_id', $fimecoActive->id);
         })
         ->orderBy('nom')
@@ -148,17 +148,17 @@ class SubscriptionController extends Controller
             return response()->json([
                 'fimecos_disponibles' => $fimecoActive,
                 'fimeco_selectionnee' => $fimecoActive,
-                'utilisateurs_disponibles' => $utilisateursDisponibles
+                'membres_disponibles' => $membresDisponibles
             ]);
         }
 
-        return view('components.private.subscriptions.create', compact('fimecoActive', 'utilisateursDisponibles'));
+        return view('components.private.subscriptions.create', compact('fimecoActive', 'membresDisponibles'));
     }
 
     public function usersDisponibles(string $fimeco)
     {
         try {
-            $utilisateursDisponibles = User::whereDoesntHave('subscriptions', function ($query) use ($fimeco) {
+            $membresDisponibles = User::whereDoesntHave('subscriptions', function ($query) use ($fimeco) {
                 $query->where('fimeco_id', $fimeco);
             })
             ->orderBy('nom')
@@ -166,7 +166,7 @@ class SubscriptionController extends Controller
 
             return response()->json([
                 'success' => true,
-                'data' => $utilisateursDisponibles
+                'data' => $membresDisponibles
             ]);
         } catch (Exception $e) {
             return response()->json([
@@ -207,7 +207,7 @@ class SubscriptionController extends Controller
     }
 
     /**
-     * Vérifier si un utilisateur peut souscrire à une FIMECO
+     * Vérifier si un membres peut souscrire à une FIMECO
      */
     public function peutSouscrire(Request $request, string $fimeco)
     {
@@ -232,8 +232,8 @@ class SubscriptionController extends Controller
             return response()->json([
                 'success' => true,
                 'peut_souscrire' => $peutSouscrire,
-                'message' => $peutSouscrire 
-                    ? 'Vous pouvez souscrire à cette FIMECO' 
+                'message' => $peutSouscrire
+                    ? 'Vous pouvez souscrire à cette FIMECO'
                     : 'Vous avez déjà souscrit à cette FIMECO'
             ]);
         } catch (Exception $e) {
@@ -323,7 +323,7 @@ class SubscriptionController extends Controller
                     'error' => $e->getMessage()
                 ], 400);
             }
-            
+
             return redirect()->back()
                 ->withErrors($e->getMessage())
                 ->withInput();
@@ -369,7 +369,7 @@ class SubscriptionController extends Controller
 
     public function mesStatistiques(Request $request)
     {
-        $statistiques = $this->subscriptionService->calculerStatistiquesUtilisateur(auth()->id());
+        $statistiques = $this->subscriptionService->calculerStatistiquesMembres(auth()->id());
 
         if ($request->expectsJson()) {
             return response()->json([

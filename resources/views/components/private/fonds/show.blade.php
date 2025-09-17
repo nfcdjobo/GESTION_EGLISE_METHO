@@ -292,7 +292,7 @@
                 <div class="bg-white/80 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
                     <div class="p-6 border-b border-slate-200">
                         <h2 class="text-xl font-bold text-slate-800 flex items-center">
-                            <i class="fas fa-target text-amber-600 mr-2"></i>
+                            <i class="fas fa-bullseye text-amber-600 mr-2"></i>
                             Affectation et Instructions
                         </h2>
                     </div>

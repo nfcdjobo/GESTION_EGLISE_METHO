@@ -30,7 +30,7 @@
                 </div>
 
                 <!-- Actions rapides -->
-                <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check(['participants-cultes.confirm-presence', 'participants-cultes.update'])): ?>
+                <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->any(['participants-cultes.confirm-presence', 'participants-cultes.update'])): ?>
                 <div class="flex items-center space-x-2">
                     <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('participants-cultes.update')): ?>
                     <button type="button" onclick="editParticipation()"

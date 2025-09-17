@@ -58,7 +58,7 @@
                 {{ strtoupper($initials) }}
             </div>
         @else
-            {{-- Avatar par défaut (utilisateur non défini) --}}
+            {{-- Avatar par défaut (membres non défini) --}}
             <div class="{{ $avatarSize }} rounded-full flex items-center justify-center bg-gray-300 text-gray-600 font-medium shadow-sm ring-2 ring-white">
                 <i class="fas fa-user"></i>
             </div>

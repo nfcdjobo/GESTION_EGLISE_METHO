@@ -127,7 +127,7 @@ class PasswordHelper
     }
 
     /**
-     * Corriger automatiquement les mots de passe non-bcrypt d'un utilisateur
+     * Corriger automatiquement les mots de passe non-bcrypt d'un membres
      */
     public static function fixUserPassword(User $user, $newPassword = null)
     {
@@ -164,7 +164,7 @@ class PasswordHelper
     }
 
     /**
-     * Diagnostic de tous les utilisateurs
+     * Diagnostic de tous les membres
      */
     public static function diagnoseAllUsers()
     {

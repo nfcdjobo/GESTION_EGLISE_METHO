@@ -22,8 +22,8 @@ class InscriptionEventController extends Controller
     public function __construct()
     {
         $this->middleware('auth');
-        $this->middleware('permission:events.read')->only(['inscriptionsEvent', 'listeAttente']);
-        $this->middleware('permission:events.manage_inscriptions')->only(['ajouterInscription', 'modifierInscription', 'supprimerInscription', 'promouvoirInscription']);
+        $this->middleware('permission:events.read')->only(['inscriptionsEvent', 'listeAttente', 'statistiquesInscriptions']);
+        $this->middleware('permission:events.manage_inscriptions')->only(['ajouterInscription', 'modifierInscription', 'supprimerInscription', 'promouvoirInscription', 'annulerInscription', 'reactiverOrAnnulerInscription']);
     }
 
     /**
@@ -31,219 +31,290 @@ class InscriptionEventController extends Controller
      */
     public function inscriptionsEvent(Event $event, Request $request)
     {
-
         try {
+            // Construction de la requête de base avec les relations nécessaires
             $query = InscriptionEvent::query()
-                ->with(['inscrit', 'createur', 'modificateur', 'annulateur'])
-                ->where('event_id', $event->id);
+                ->with(['inscrit', 'createur', 'modificateur', 'annulateur']) // Chargement eager des relations pour éviter le problème N+1
+                ->where('event_id', $event->id); // Filtrer par l'ID de l'événement
 
-            // Filtres
+            // SECTION FILTRES
+            // Filtre de recherche textuelle
             if ($request->filled('search')) {
-                $search = $request->get('search');
-                $query->whereHas('inscrit', function($q) use ($search) {
-                    $q->where('prenom', 'ILIKE', "%{$search}%")
-                      ->orWhere('nom', 'ILIKE', "%{$search}%")
-                      ->orWhere('email', 'ILIKE', "%{$search}%")
-                      ->orWhere('telephone_1', 'ILIKE', "%{$search}%");
+                $search = $request->get('search'); // Récupération du terme de recherche
+                $query->whereHas('inscrit', function ($q) use ($search) {
+                    // Recherche dans la relation 'inscrit' (membres inscrit)
+                    $q->where('prenom', 'ILIKE', "%{$search}%")        // Recherche dans le prénom (insensible à la casse)
+                        ->orWhere('nom', 'ILIKE', "%{$search}%")        // OU dans le nom
+                        ->orWhere('email', 'ILIKE', "%{$search}%")      // OU dans l'email
+                        ->orWhere('telephone_1', 'ILIKE', "%{$search}%"); // OU dans le téléphone
                 });
             }
 
-
-
+            // Filtre par statut de l'inscription
             if ($request->filled('statut')) {
-                $statut = $request->get('statut');
+                $statut = $request->get('statut'); // Récupération du statut demandé
                 switch ($statut) {
                     case 'active':
-                        $query->whereNull('annule_le');
+                        $query->whereNull('annule_le'); // Inscriptions non annulées
                         break;
                     case 'annulee':
-                        $query->whereNotNull('annule_le');
+                        $query->whereNotNull('annule_le'); // Inscriptions annulées
                         break;
                 }
             }
 
+            // Filtre par date d'inscription
             if ($request->filled('date_inscription')) {
-                $query->whereDate('created_at', $request->get('date_inscription'));
+                $query->whereDate('created_at', $request->get('date_inscription')); // Filtre sur la date de création
             }
 
-            // Tri
-            $sortBy = $request->get('sort_by', 'created_at');
-            $sortOrder = $request->get('sort_order', 'desc');
+            // SECTION TRI
+            $sortBy = $request->get('sort_by', 'created_at'); // Colonne de tri (défaut: date de création)
+            $sortOrder = $request->get('sort_order', 'desc'); // Ordre de tri (défaut: descendant)
 
-            $allowedSorts = ['created_at', 'annule_le'];
+            $allowedSorts = ['created_at', 'annule_le']; // Colonnes autorisées pour le tri (sécurité)
             if (in_array($sortBy, $allowedSorts)) {
-                $query->orderBy($sortBy, $sortOrder);
+                $query->orderBy($sortBy, $sortOrder); // Application du tri si autorisé
             }
 
-            // Pagination
-            $perPage = min($request->get('per_page', 15), 100);
-            $inscriptions = $query->paginate($perPage);
+            // SECTION PAGINATION
+            $perPage = min($request->get('per_page', 15), 100); // Limite à 100 éléments par page maximum
+            $inscriptions = $query->paginate($perPage); // Exécution de la requête avec pagination
 
-            // Statistiques rapides
+            // SECTION STATISTIQUES
+            // Calcul des statistiques rapides pour l'événement
             $statistiques = [
-                'total_inscriptions' => InscriptionEvent::where('event_id', $event->id)->count(),
+                'total_inscriptions' => InscriptionEvent::where('event_id', $event->id)->count(), // Nombre total d'inscriptions
                 'inscriptions_actives' => InscriptionEvent::where('event_id', $event->id)
-                    ->whereNull('annule_le')->count(),
+                    ->whereNull('annule_le')->count(), // Nombre d'inscriptions actives
                 'inscriptions_annulees' => InscriptionEvent::where('event_id', $event->id)
-                    ->whereNotNull('annule_le')->count(),
+                    ->whereNotNull('annule_le')->count(), // Nombre d'inscriptions annulées
                 'places_restantes' => $event->capacite_totale
-                    ? max(0, $event->capacite_totale - $event->nombre_inscrits)
-                    : null,
-                'taux_remplissage' => $event->pourcentage_remplissage
+                    ? max(0, $event->capacite_totale - $event->nombre_inscrits) // Calcul des places restantes
+                    : null, // Null si pas de capacité définie
+                'taux_remplissage' => $event->pourcentage_remplissage // Pourcentage de remplissage
             ];
-//  dd(44);
+
+            // Récupération des cultes (triés par date décroissante)
             $cultes = Culte::orderByDesc('date_culte')->get();
 
-            $users = User::orderByRaw('LOWER(nom) ASC')->get();
-//  dd(44);
+            // SECTION UTILISATEURS ÉLIGIBLES
+            // Récupération des membres qui peuvent encore s'inscrire
+            $users = User::query()
+                ->where('actif', true) // Membress actifs uniquement
+                ->whereNotExists(function ($query) use ($event) {
+                    // Sous-requête pour exclure les membres déjà inscrits
+                    $query->select(DB::raw(1))
+                        ->from('inscription_events') // Table des inscriptions
+                        ->whereColumn('inscription_events.inscrit_id', 'users.id') // Jointure par ID membres
+                        ->where('inscription_events.event_id', $event->id) // Pour cet événement
+                        ->whereNull('inscription_events.deleted_at'); // Non supprimées (soft delete)
+                })
+                ->where(function ($query) use ($event) {
+                    // Exclure les responsables/organisateurs de l'événement
+                    $query->where('id', '!=', $event->organisateur_principal_id) // Organisateur principal
+                        ->where('id', '!=', $event->coordinateur_id) // Coordinateur
+                        ->where('id', '!=', $event->responsable_logistique_id) // Responsable logistique
+                        ->where('id', '!=', $event->responsable_communication_id) // Responsable communication
+                        ->where('id', '!=', $event->cree_par); // Créateur de l'événement
+                })
+                ->orderByRaw('LOWER(nom) ASC') // Tri alphabétique insensible à la casse
+                ->get(); // Récupération de tous les résultats
+
+            // SECTION RÉPONSE
+            // Si la requête attend du JSON (API)
             if ($request->expectsJson()) {
                 return response()->json([
                     'success' => true,
-                    'data' => $inscriptions,
-                    'statistiques' => $statistiques,
-                    'event' => $event,
-                    'meta' => [
-                        'total' => $inscriptions->total(),
-                        'per_page' => $inscriptions->perPage(),
-                        'current_page' => $inscriptions->currentPage(),
-                        'last_page' => $inscriptions->lastPage()
+                    'data' => $inscriptions, // Données paginées
+                    'statistiques' => $statistiques, // Statistiques calculées
+                    'event' => $event, // Informations de l'événement
+                    'meta' => [ // Métadonnées de pagination
+                        'total' => $inscriptions->total(), // Nombre total d'éléments
+                        'per_page' => $inscriptions->perPage(), // Éléments par page
+                        'current_page' => $inscriptions->currentPage(), // Page actuelle
+                        'last_page' => $inscriptions->lastPage() // Dernière page
                     ]
                 ]);
             }
 
+            // Si requête web classique, retourner la vue
             return view('components.private.events.inscriptions.index', compact('event', 'inscriptions', 'statistiques', 'cultes', 'users'));
 
         } catch (\Exception $e) {
+            // GESTION DES ERREURS
+            // Si requête JSON, retourner erreur JSON
             if ($request->expectsJson()) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Erreur lors de la récupération des inscriptions',
-                    'error' => $e->getMessage()
-                ], Response::HTTP_INTERNAL_SERVER_ERROR);
+                    'error' => $e->getMessage() // Message d'erreur détaillé
+                ], Response::HTTP_INTERNAL_SERVER_ERROR); // Code 500
             }
 
+            // Si requête web, rediriger avec message d'erreur
             return redirect()->back()
                 ->with('error', 'Erreur lors du chargement des inscriptions: ' . $e->getMessage());
         }
     }
+
+
 
     /**
      * Ajouter une inscription à un événement
      */
     public function ajouterInscription(Event $event, Request $request)
     {
+        // SECTION VALIDATION
+        // Validation des données d'entrée
         $validator = Validator::make($request->all(), [
-            'inscrit_id' => ['required', 'uuid', 'exists:users,id'],
+            'inscrit_id' => ['required', 'uuid', 'exists:users,id'] // L'ID doit être présent, être un UUID valide et exister dans la table users
         ]);
 
+        // Si la validation échoue
         if ($validator->fails()) {
+            // Réponse JSON pour les requêtes API
             if ($request->expectsJson()) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Données invalides',
-                    'errors' => $validator->errors()
-                ], Response::HTTP_UNPROCESSABLE_ENTITY);
+                    'errors' => $validator->errors() // Détails des erreurs de validation
+                ], Response::HTTP_UNPROCESSABLE_ENTITY); // Code 422
             }
-
-            return redirect()->back()
-                ->withErrors($validator)
-                ->withInput();
+            // Redirection pour les requêtes web avec erreurs et données saisies
+            return redirect()->back()->withErrors($validator)->withInput();
         }
 
         try {
-            DB::beginTransaction();
+            // SECTION TRANSACTION
+            DB::beginTransaction(); // Démarrage d'une transaction pour assurer la cohérence
 
-            $inscritId = $request->get('inscrit_id');
+            $inscritId = $request->get('inscrit_id'); // Récupération de l'ID de l'membres à inscrire
 
-            // Vérifier si l'inscription existe déjà
-            $inscriptionExistante = InscriptionEvent::where('event_id', $event->id)
-                ->where('inscrit_id', $inscritId)
-                ->first();
+            // SECTION VÉRIFICATION INSCRIPTION EXISTANTE
+            // Recherche d'une inscription existante (y compris supprimées avec soft delete)
+            $inscriptionExistante = InscriptionEvent::withTrashed() // Inclut les enregistrements supprimés
+                ->where('event_id', $event->id) // Pour cet événement
+                ->where('inscrit_id', $inscritId) // Pour cet membres
+                ->first(); // Récupère le premier résultat
 
+            // Si une inscription existe déjà (même supprimée)
             if ($inscriptionExistante) {
-                $message = 'Cette personne est déjà inscrite à cet événement';
+                // Réactivation de l'inscription existante
+                $inscriptionExistante->cree_par = auth()->id(); // Nouvel membres créateur
+                $inscriptionExistante->cree_le = now(); // Nouvelle date de création
+                $inscriptionExistante->modifie_par = null; // Remise à zéro du modificateur
+                $inscriptionExistante->supprimer_par = null; // Remise à zéro du suppresseur
+                $inscriptionExistante->annule_par = null; // Remise à zéro de l'annulateur
+                $inscriptionExistante->annule_le = null; // Remise à zéro de la date d'annulation
+                $inscriptionExistante->deleted_at = null; // Restauration de l'enregistrement (soft delete)
+                $inscriptionExistante->save(); // Sauvegarde des modifications
 
+                // ERREUR DANS LE MESSAGE : le message dit "complet" mais c'est pour une réactivation
+                $message = 'L\'événement est complet et n\'accepte pas de liste d\'attente'; // ⚠️ Message incorrect ici
+
+                // Incrémentation du compteur d'inscrits de l'événement
+                $event->increment('nombre_inscrits');
+
+                DB::commit(); // Validation de la transaction
+
+                // Réponse selon le type de requête
                 if ($request->expectsJson()) {
                     return response()->json([
-                        'success' => false,
+                        'success' => true,
+                        'data' => $inscriptionExistante,
                         'message' => $message
-                    ], Response::HTTP_UNPROCESSABLE_ENTITY);
+                    ], Response::HTTP_CREATED); // Code 201
                 }
 
-                return redirect()->back()->with('error', $message);
+                return redirect()->back()->with('success', $message);
             }
 
-            // Vérifier la capacité
+            // SECTION VÉRIFICATION CAPACITÉ
+            // Vérifier si l'événement a une capacité limitée et si elle est atteinte
             if ($event->capacite_totale && $event->nombre_inscrits >= $event->capacite_totale) {
+                // Si l'événement n'accepte pas de liste d'attente
                 if (!$event->liste_attente) {
                     $message = 'L\'événement est complet et n\'accepte pas de liste d\'attente';
 
+                    // Réponse selon le type de requête
                     if ($request->expectsJson()) {
                         return response()->json([
                             'success' => false,
                             'message' => $message
-                        ], Response::HTTP_UNPROCESSABLE_ENTITY);
+                        ], Response::HTTP_UNPROCESSABLE_ENTITY); // Code 422
                     }
 
                     return redirect()->back()->with('error', $message);
                 }
+                // Note: Si liste d'attente acceptée, le code continue sans vérification supplémentaire
             }
 
-            // Vérifier si les inscriptions sont ouvertes
+            // SECTION VÉRIFICATION PÉRIODE D'INSCRIPTION
+            // Vérifier si les inscriptions sont encore ouvertes (méthode du modèle Event)
             if (!$event->accepteInscriptions()) {
                 $message = 'Les inscriptions ne sont plus ouvertes pour cet événement';
 
+                // Réponse selon le type de requête
                 if ($request->expectsJson()) {
                     return response()->json([
                         'success' => false,
                         'message' => $message
-                    ], Response::HTTP_UNPROCESSABLE_ENTITY);
+                    ], Response::HTTP_UNPROCESSABLE_ENTITY); // Code 422
                 }
 
                 return redirect()->back()->with('error', $message);
             }
 
-            // Créer l'inscription
+            // SECTION CRÉATION INSCRIPTION
+            // Création de la nouvelle inscription
             $inscription = InscriptionEvent::create([
-                'inscrit_id' => $inscritId,
-                'event_id' => $event->id,
-                'cree_par' => auth()->id(),
-                'cree_le' => now(),
+                'inscrit_id' => $inscritId, // ID de l'membres inscrit
+                'event_id' => $event->id, // ID de l'événement
+                'cree_par' => auth()->id(), // ID de l'membres qui effectue l'inscription
+                'cree_le' => now(), // Date/heure de création
             ]);
 
-            // Mettre à jour le compteur d'inscrits
+            // Incrémentation du compteur d'inscrits de l'événement
             $event->increment('nombre_inscrits');
 
-            DB::commit();
+            DB::commit(); // Validation de la transaction
 
-            $inscription->load(['inscrit', 'createur']);
+            // Chargement des relations pour la réponse
+            $inscription->load(['inscrit', 'createur']); // Eager loading des relations
 
             $message = 'Inscription ajoutée avec succès';
 
+            // SECTION RÉPONSE SUCCÈS
+            // Réponse selon le type de requête
             if ($request->expectsJson()) {
                 return response()->json([
                     'success' => true,
                     'message' => $message,
-                    'data' => $inscription
-                ], Response::HTTP_CREATED);
+                    'data' => $inscription // Inscription créée avec relations
+                ], Response::HTTP_CREATED); // Code 201
             }
 
+            // Redirection vers la liste des inscriptions avec message de succès
             return redirect()->route('private.events.inscriptions', $event)
                 ->with('success', $message);
 
         } catch (\Exception $e) {
-            DB::rollBack();
+            // SECTION GESTION D'ERREUR
+            DB::rollBack(); // Annulation de la transaction en cas d'erreur
 
+            // Réponse d'erreur selon le type de requête
             if ($request->expectsJson()) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Erreur lors de l\'ajout de l\'inscription',
-                    'error' => $e->getMessage()
-                ], Response::HTTP_INTERNAL_SERVER_ERROR);
+                    'error' => $e->getMessage() // Message d'erreur détaillé
+                ], Response::HTTP_INTERNAL_SERVER_ERROR); // Code 500
             }
 
+            // Redirection avec erreur et conservation des données saisies
             return redirect()->back()
-                ->withInput()
+                ->withInput() // Conservation des données du formulaire
                 ->with('error', 'Erreur lors de l\'ajout de l\'inscription: ' . $e->getMessage());
         }
     }
@@ -549,7 +620,7 @@ class InscriptionEventController extends Controller
 
             DB::commit();
 
-            $inscription->load(['inscrit', 'annulepar']);
+            $inscription->load(['inscrit', 'annulateur']);
 
             $message = 'Inscription annulée avec succès';
 
@@ -563,6 +634,105 @@ class InscriptionEventController extends Controller
 
             return redirect()->route('private.events.inscriptions', $event)
                 ->with('success', $message);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Erreur lors de l\'annulation de l\'inscription',
+                    'error' => $e->getMessage()
+                ], Response::HTTP_INTERNAL_SERVER_ERROR);
+            }
+
+            return redirect()->back()
+                ->with('error', 'Erreur lors de l\'annulation: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Annuler une inscription
+     */
+    public function reactivateInscription(Event $event, InscriptionEvent $inscription, Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'raison' => ['nullable', 'string', 'max:500']
+        ]);
+
+        if ($validator->fails()) {
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Données invalides',
+                    'errors' => $validator->errors()
+                ], Response::HTTP_UNPROCESSABLE_ENTITY);
+            }
+
+            return redirect()->back()
+                ->withErrors($validator)
+                ->withInput();
+        }
+
+        try {
+            // Vérifier que l'inscription appartient bien à cet événement
+            if ($inscription->event_id !== $event->id) {
+                $message = 'Cette inscription ne correspond pas à cet événement';
+
+                if ($request->expectsJson()) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => $message
+                    ], Response::HTTP_UNPROCESSABLE_ENTITY);
+                }
+
+                return redirect()->back()->with('error', $message);
+            }
+
+
+            DB::beginTransaction();
+
+            // Vérifier que l'inscription n'est pas déjà annulée
+            if ($inscription->annule_le) {
+                $inscription->update([
+                    'annule_par' => null,
+                    'annule_le' => null,
+                    'modifie_par' => null,
+                ]);
+
+                // Mettre à jour le compteur d'inscrits
+                $event->increment('nombre_inscrits');
+                $message = 'Inscription réactivée avec succès.';
+            } else {
+                $message = 'Cette inscription est déjà activé.';
+
+                if ($request->expectsJson()) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => $message
+                    ], Response::HTTP_UNPROCESSABLE_ENTITY);
+                }
+
+                return redirect()->back()->with('error', $message);
+
+            }
+
+
+            DB::commit();
+
+            $inscription->load(['inscrit', 'annulateur']);
+
+
+
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => $message,
+                    'data' => $inscription
+                ]);
+            }
+
+            return redirect()->route('private.events.inscriptions', $event)->with('success', $message);
 
         } catch (\Exception $e) {
             DB::rollBack();

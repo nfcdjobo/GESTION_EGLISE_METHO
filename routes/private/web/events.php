@@ -78,6 +78,12 @@ Route::prefix('dashboard/events')->name('private.events.')->middleware(['auth', 
         Route::put('/inscriptions/{inscription}', [InscriptionEventController::class, 'modifierInscription'])
             ->name('inscriptions.modifier');
 
+        Route::put('/inscriptions/{inscription}', [InscriptionEventController::class, 'annulerInscription'])
+            ->name('inscriptions.annuler');
+
+        Route::put('/inscriptions/{inscription}/reactiver', [InscriptionEventController::class, 'reactivateInscription'])
+            ->name('inscriptions.reactivate');
+
         Route::delete('/inscriptions/{inscription}', [InscriptionEventController::class, 'supprimerInscription'])
             ->name('inscriptions.supprimer');
 

@@ -111,7 +111,7 @@
                     <div class="flex items-center justify-between">
                         <div>
                             <p class="text-3xl font-bold">{{ $totalUsers }}</p>
-                            <p class="text-green-100">Utilisateurs assignés</p>
+                            <p class="text-green-100">Membress assignés</p>
                         </div>
                         <div class="w-16 h-16 bg-white/20 rounded-xl flex items-center justify-center">
                             <i class="fas fa-user-check text-2xl"></i>
@@ -225,7 +225,7 @@
                                         <div class="grid grid-cols-3 gap-4 mb-4">
                                             <div class="text-center">
                                                 <div class="text-xl font-bold text-blue-600">{{ $role->users()->count() }}</div>
-                                                <div class="text-xs text-slate-500">Utilisateurs</div>
+                                                <div class="text-xs text-slate-500">Membress</div>
                                             </div>
                                             <div class="text-center">
                                                 <div class="text-xl font-bold text-purple-600">{{ $role->permissions()->count() }}</div>
@@ -281,11 +281,11 @@
                                             @endcan
                                         </div>
 
-                                        <!-- Utilisateurs récents -->
+                                        <!-- Membress récents -->
                                         @if($role->users()->count() > 0)
                                             <div class="border-t border-slate-200 pt-4">
                                                 <div class="flex items-center justify-between mb-3">
-                                                    <span class="text-sm font-medium text-slate-700">Utilisateurs récents:</span>
+                                                    <span class="text-sm font-medium text-slate-700">Membress récents:</span>
                                                 </div>
                                                 <div class="flex items-center space-x-2">
                                                     @foreach($role->users()->take(3)->get() as $user)
@@ -373,7 +373,7 @@
                         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-sm font-medium bg-yellow-100 text-yellow-800 mr-3">80-99</span>
                         <h3 class="font-bold text-slate-900">Administration</h3>
                     </div>
-                    <p class="text-sm text-slate-600">Gestion administrative du système, configuration, utilisateurs et rôles.</p>
+                    <p class="text-sm text-slate-600">Gestion administrative du système, configuration, membres et rôles.</p>
                 </div>
 
                 <div class="bg-gradient-to-br from-blue-50 to-cyan-50 border border-blue-200 rounded-xl p-4 hover:shadow-md transition-all duration-300">
@@ -395,17 +395,17 @@
                 <div class="bg-gradient-to-br from-green-50 to-emerald-50 border border-green-200 rounded-xl p-4 hover:shadow-md transition-all duration-300">
                     <div class="flex items-center mb-3">
                         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-sm font-medium bg-green-100 text-green-800 mr-3">20-39</span>
-                        <h3 class="font-bold text-slate-900">Membres Actifs</h3>
+                        <h3 class="font-bold text-slate-900" Actifs</h3>
                     </div>
-                    <p class="text-sm text-slate-600">Membres engagés avec responsabilités spécifiques et permissions étendues.</p>
+                    <p class="text-sm text-slate-600" engagés avec responsabilités spécifiques et permissions étendues.</p>
                 </div>
 
                 <div class="bg-gradient-to-br from-gray-50 to-slate-50 border border-gray-200 rounded-xl p-4 hover:shadow-md transition-all duration-300">
                     <div class="flex items-center mb-3">
                         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-sm font-medium bg-gray-100 text-gray-800 mr-3">10-19</span>
-                        <h3 class="font-bold text-slate-900">Membres</h3>
+                        <h3 class="font-bold text-slate-900"</h3>
                     </div>
-                    <p class="text-sm text-slate-600">Membres standard avec accès aux fonctionnalités de base.</p>
+                    <p class="text-sm text-slate-600" standard avec accès aux fonctionnalités de base.</p>
                 </div>
             </div>
             <div class="mt-6 flex justify-center">
@@ -414,7 +414,7 @@
                         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-sm font-medium bg-slate-100 text-slate-800 mr-3">0-9</span>
                         <h3 class="font-bold text-slate-900">Visiteurs</h3>
                     </div>
-                    <p class="text-sm text-slate-600 text-center">Accès limité, généralement en lecture seule ou pour les nouveaux utilisateurs.</p>
+                    <p class="text-sm text-slate-600 text-center">Accès limité, généralement en lecture seule ou pour les nouveaux membres.</p>
                 </div>
             </div>
         </div>
@@ -640,14 +640,14 @@ function generateHierarchyGraph() {
 
             svg.appendChild(text);
 
-            // Nombre d'utilisateurs
+            // Nombre d'membres
             const userCount = document.createElementNS('http://www.w3.org/2000/svg', 'text');
             userCount.setAttribute('x', x + (roleWidth - 10) / 2);
             userCount.setAttribute('y', y + 15);
             userCount.setAttribute('font-size', '8');
             userCount.setAttribute('text-anchor', 'middle');
             userCount.setAttribute('fill', '#64748b');
-            userCount.textContent = `${role.users_count || 0} utilisateurs`;
+            userCount.textContent = `${role.users_count || 0} membres`;
             svg.appendChild(userCount);
         });
     });
@@ -668,7 +668,7 @@ function getLevelColor(levelName) {
 function exportHierarchy() {
     const hierarchyData = @json($hierarchy);
 
-    let csv = 'Niveau,Nom,Slug,Type,Utilisateurs,Permissions,Description\n';
+    let csv = 'Niveau,Nom,Slug,Type,Membress,Permissions,Description\n';
     Object.keys(hierarchyData).forEach(levelName => {
 
         hierarchyData[levelName].forEach(role => {

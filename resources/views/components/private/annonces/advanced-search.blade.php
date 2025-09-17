@@ -1,4 +1,4 @@
-{{-- components/private/annonces/advanced-search.blade.php --}}
+
 @props([
     'action' => '',
     'method' => 'GET',

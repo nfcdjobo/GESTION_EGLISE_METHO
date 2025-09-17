@@ -27,7 +27,7 @@ class CheckRole
         /** @var User|null $user */
         $user = auth()->user();
 
-        // Vérifier si l'utilisateur a au moins un des rôles
+        // Vérifier si l'membres a au moins un des rôles
         if (count($roles) > 0) {
             if (!$user->hasAnyRole($roles)) {
                 if ($request->expectsJson()) {

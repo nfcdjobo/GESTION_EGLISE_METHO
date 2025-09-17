@@ -55,7 +55,7 @@ class PermissionObserver
             'user_agent' => request()->userAgent(),
         ]);
 
-        // Si la permission est désactivée, notifier les utilisateurs affectés
+        // Si la permission est désactivée, notifier les membres affectés
         if (isset($changes['is_active']) && !$changes['is_active']) {
             $this->notifyAffectedUsers($permission);
         }
@@ -123,11 +123,11 @@ class PermissionObserver
     }
 
     /**
-     * Notifier les utilisateurs affectés par un changement
+     * Notifier les membres affectés par un changement
      */
     protected function notifyAffectedUsers(Permission $permission): void
     {
-        // Obtenir tous les utilisateurs ayant cette permission
+        // Obtenir tous les membres ayant cette permission
         $affectedUsers = $permission->users()->get()
             ->merge(
                 $permission->roles()->with('users')->get()->pluck('users')->flatten()
@@ -135,7 +135,7 @@ class PermissionObserver
 
         // Envoyer des notifications ou effectuer d'autres actions
         foreach ($affectedUsers as $user) {
-            // Rafraîchir le cache de l'utilisateur
+            // Rafraîchir le cache de l'membres
             dispatch(new RefreshPermissionCache($user->id));
         }
     }

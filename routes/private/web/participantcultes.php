@@ -22,7 +22,7 @@ Route::prefix('dashboard/participants-cultes')->name('private.participantscultes
 
     // Routes pour statistiques et rapports
     Route::get('/statistiques', [ParticipantCulteController::class, 'statistiques'])->name('statistiques');
-    
+
      Route::get('/{culte}/search', [ParticipantCulteController::class, 'searchParticipants'])->name('search')->where('culte', '[0-9a-f-]{36}');
 
     Route::post('/{culte}/participants/ajouter', [ParticipantCulteController::class, 'ajouterParticipant'])
@@ -30,13 +30,13 @@ Route::prefix('dashboard/participants-cultes')->name('private.participantscultes
         ->where('culte', '[0-9a-f-]{36}');
 
     Route::post('/', [ParticipantCulteController::class, 'store'])->name('store');
-    Route::get('/{participantId}/{culteId}', [ParticipantCulteController::class, 'show'])->name('show')->where(['participantId' => '[0-9a-f-]{36}', 'culteId' => '[0-9a-f-]{36}']);
+    Route::get('/{participantId}/detail/{culteId}', [ParticipantCulteController::class, 'show'])->name('show')->where(['participantId' => '[0-9a-f-]{36}', 'culteId' => '[0-9a-f-]{36}']);
 
     Route::put('/{participantId}/{culteId}', [ParticipantCulteController::class, 'update'])->name('update')->where(['participantId' => '[0-9a-f-]{36}', 'culteId' => '[0-9a-f-]{36}']);
 
     Route::delete('/{participantId}/{culteId}', [ParticipantCulteController::class, 'destroy'])->name('destroy')->where(['participantId' => '[0-9a-f-]{36}', 'culteId' => '[0-9a-f-]{36}']);
 
-    // Routes spécialisées pour création avec utilisateurs
+    // Routes spécialisées pour création avec membres
     Route::post('/with-user-creation', [ParticipantCulteController::class, 'storeWithUserCreation'])->name('store-with-user-creation')->where('culteId', '[0-9a-f-]{36}');
 
     Route::post('/bulk-with-user-creation', [ParticipantCulteController::class, 'storeBulkWithUserCreation'])->where('culteId', '[0-9a-f-]{36}');
