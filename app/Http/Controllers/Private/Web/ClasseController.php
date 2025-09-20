@@ -101,12 +101,16 @@ class ClasseController extends Controller
     /**
      * Affiche le formulaire de création d'une nouvelle classe
      */
+    /**
+     * Affiche le formulaire de création d'une nouvelle classe
+     */
     public function create(Request $request)
     {
         try {
-            // Récupérer les utilisateurs pouvant être responsables
+            // Récupérer seulement les utilisateurs qui ne sont dans aucune classe
             $utilisateurs = User::actifs()
-                ->select('id', 'prenom', 'nom', 'email')
+                ->whereNull('classe_id') // Filtrer les utilisateurs sans classe
+                ->select('id', 'prenom', 'nom', 'email', 'telephone_1')
                 ->orderBy('prenom')
                 ->orderBy('nom')
                 ->get();
@@ -147,13 +151,29 @@ class ClasseController extends Controller
     public function store(Request $request)
     {
 
-        // Filtrer les responsables vides
+
+
+        // Filtrer les responsables vides et valider
         if ($request->has('responsables')) {
-            $responsables = array_filter($request->responsables, function($responsable) {
+            $responsables = array_filter($request->responsables, function ($responsable) {
                 return !empty($responsable['id']) && !empty($responsable['responsabilite']);
             });
+
+            // Vérifier qu'il n'y a pas de responsables incomplets
+            foreach ($request->responsables as $index => $responsable) {
+                if (
+                    (!empty($responsable['id']) && empty($responsable['responsabilite'])) ||
+                    (empty($responsable['id']) && !empty($responsable['responsabilite']))
+                ) {
+                    return back()->withErrors([
+                        'responsables' => "Le responsable à la position " . ($index + 1) . " est incomplet. Veuillez remplir tous les champs ou le supprimer."
+                    ])->withInput();
+                }
+            }
+
             $request->merge(['responsables' => empty($responsables) ? null : array_values($responsables)]);
         }
+
 
         $validator = Validator::make($request->all(), [
             'nom' => 'required|string|max:255|unique:classes,nom',
@@ -170,7 +190,6 @@ class ClasseController extends Controller
         ]);
 
         if ($validator->fails()) {
-            dd($validator->errors());
             if ($this->isApiRequest($request)) {
                 return response()->json([
                     'success' => false,
@@ -195,6 +214,15 @@ class ClasseController extends Controller
             }
 
             $classe = Classe::create($data);
+
+            if ($classe->responsables) {
+                foreach ($classe->responsables as $responsable) {
+                    $user = User::find($responsable['id']);
+                    $user->classe_id = $classe->id;
+                    $user->save();
+                }
+            }
+
 
             DB::commit();
 
@@ -279,66 +307,78 @@ class ClasseController extends Controller
     /**
      * Affiche le formulaire d'édition d'une classe
      */
-    public function edit(Request $request, $id)
-    {
-        try {
-            $classe = Classe::findOrFail($id);
+public function edit(Request $request, $id)
+{
+    try {
+        $classe = Classe::findOrFail($id);
 
-            $utilisateurs = User::actifs()
-                ->select('id', 'prenom', 'nom', 'email')
-                ->orderBy('prenom')
-                ->orderBy('nom')
-                ->get();
+        // Récupérer les utilisateurs sans classe ET les responsables actuels de cette classe
+        $responsablesIds = collect($classe->responsables ?? [])->pluck('id')->toArray();
 
-            $tranches_age = $this->getTrancheAgeOptions();
-            $types_responsabilite = $this->getTypesResponsabilite();
+        $utilisateurs = User::actifs()
+            ->where(function($query) use ($responsablesIds) {
+                $query->whereNull('classe_id')
+                      ->orWhereIn('id', $responsablesIds);
+            })
+            ->select('id', 'prenom', 'nom', 'email', 'telephone_1')
+            ->orderBy('prenom')
+            ->orderBy('nom')
+            ->get();
 
-            // Charger les responsables actuels
-            $classe->responsables_collection = $classe->responsables();
+        $tranches_age = $this->getTrancheAgeOptions();
+        $types_responsabilite = $this->getTypesResponsabilite();
 
-            if ($this->isApiRequest($request)) {
-                return response()->json([
-                    'success' => true,
-                    'data' => [
-                        'classe' => $classe,
-                        'utilisateurs' => $utilisateurs,
-                        'tranches_age_disponibles' => $tranches_age,
-                        'types_responsabilite' => $types_responsabilite
-                    ],
-                    'message' => 'Données pour édition récupérées avec succès'
-                ]);
-            }
+        // Charger les responsables actuels
+        $classe->responsables_collection = $classe->responsables();
 
-            return view('components.private.classes.edit', compact('classe', 'utilisateurs', 'tranches_age', 'types_responsabilite'));
-
-        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
-            if ($this->isApiRequest($request)) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Classe non trouvée'
-                ], 404);
-            }
-
-            return redirect()->route('private.classes.index')
-                ->withErrors(['error' => 'Classe non trouvée']);
-        } catch (\Exception $e) {
-            if ($this->isApiRequest($request)) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Erreur lors de la récupération des données',
-                    'error' => $e->getMessage()
-                ], 500);
-            }
-
-            return back()->withErrors(['error' => 'Erreur lors de la récupération des données']);
+        if ($this->isApiRequest($request)) {
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'classe' => $classe,
+                    'utilisateurs' => $utilisateurs,
+                    'tranches_age_disponibles' => $tranches_age,
+                    'types_responsabilite' => $types_responsabilite
+                ],
+                'message' => 'Données pour édition récupérées avec succès'
+            ]);
         }
+
+        return view('components.private.classes.edit', compact('classe', 'utilisateurs', 'tranches_age', 'types_responsabilite'));
+
+    } catch (\Exception $e) {
+        // ... gestion des erreurs
     }
+}
 
     /**
      * Met à jour une classe spécifique
      */
     public function update(Request $request, $id)
     {
+
+        // Filtrer les responsables vides et valider
+        if ($request->has('responsables')) {
+            $responsables = array_filter($request->responsables, function ($responsable) {
+                return !empty($responsable['id']) && !empty($responsable['responsabilite']);
+            });
+
+            // Vérifier qu'il n'y a pas de responsables incomplets
+            foreach ($request->responsables as $index => $responsable) {
+                if (
+                    (!empty($responsable['id']) && empty($responsable['responsabilite'])) ||
+                    (empty($responsable['id']) && !empty($responsable['responsabilite']))
+                ) {
+                    return back()->withErrors([
+                        'responsables' => "Le responsable à la position " . ($index + 1) . " est incomplet. Veuillez remplir tous les champs ou le supprimer."
+                    ])->withInput();
+                }
+            }
+
+            $request->merge(['responsables' => empty($responsables) ? null : array_values($responsables)]);
+        }
+
+
         $validator = Validator::make($request->all(), [
             'nom' => [
                 'required',
@@ -351,8 +391,8 @@ class ClasseController extends Controller
             'age_minimum' => 'nullable|integer|min:0|max:120',
             'age_maximum' => 'nullable|integer|min:0|max:120|gte:age_minimum',
             'responsables' => 'nullable|array',
-            'responsables.*.id' => 'required|uuid|exists:users,id',
-            'responsables.*.responsabilite' => 'required|string',
+            'responsables.*.id' => 'required_with:responsables.*|nullable|uuid|exists:users,id',
+            'responsables.*.responsabilite' => 'required_with:responsables.*.id|nullable|string',
             'responsables.*.superieur' => 'boolean',
             'programme' => 'nullable|array',
             'image_classe' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048'
@@ -390,6 +430,14 @@ class ClasseController extends Controller
             }
 
             $classe->update($data);
+
+            if ($classe->responsables && $request->has('responsables')) {
+                foreach ($classe->responsables as $responsable) {
+                    $user = User::find($responsable['id']);
+                    $user->classe_id = $classe->id;
+                    $user->save();
+                }
+            }
 
             DB::commit();
 
@@ -933,107 +981,107 @@ class ClasseController extends Controller
         }
     }
 
- /**
- * Récupérer les utilisateurs disponibles (sans classe) pour inscription
- */
-public function getUtilisateursDisponibles(Request $request, $classeId)
-{
-    try {
-        $classe = Classe::findOrFail($classeId);
+    /**
+     * Récupérer les utilisateurs disponibles (sans classe) pour inscription
+     */
+    public function getUtilisateursDisponibles(Request $request, $classeId)
+    {
+        try {
+            $classe = Classe::findOrFail($classeId);
 
-        // Query de base pour les utilisateurs sans classe
-        $query = User::actifs()
-            ->whereNull('classe_id')
-            ->select('id', 'prenom', 'nom', 'email', 'telephone_1', 'date_naissance');
+            // Query de base pour les utilisateurs sans classe
+            $query = User::actifs()
+                ->whereNull('classe_id')
+                ->select('id', 'prenom', 'nom', 'email', 'telephone_1', 'date_naissance');
 
-        // Filtres optionnels
-        if ($request->has('search')) {
-            $search = $request->search;
-            $query->where(function ($q) use ($search) {
-                $q->where('prenom', 'like', "%{$search}%")
-                    ->orWhere('nom', 'like', "%{$search}%")
-                    ->orWhere('email', 'like', "%{$search}%");
+            // Filtres optionnels
+            if ($request->has('search')) {
+                $search = $request->search;
+                $query->where(function ($q) use ($search) {
+                    $q->where('prenom', 'like', "%{$search}%")
+                        ->orWhere('nom', 'like', "%{$search}%")
+                        ->orWhere('email', 'like', "%{$search}%");
+                });
+            }
+
+            // Filtrer par compatibilité d'âge si demandé
+            if ($request->has('age_compatible') && $request->age_compatible) {
+                if ($classe->age_minimum || $classe->age_maximum) {
+                    $query->whereNotNull('date_naissance');
+
+                    if ($classe->age_minimum) {
+                        $dateMax = now()->subYears($classe->age_minimum);
+                        $query->where('date_naissance', '<=', $dateMax);
+                    }
+
+                    if ($classe->age_maximum) {
+                        $dateMin = now()->subYears($classe->age_maximum + 1);
+                        $query->where('date_naissance', '>', $dateMin);
+                    }
+                }
+            }
+
+            // Tri
+            $query->orderBy('prenom')->orderBy('nom');
+
+            // Utiliser la pagination pour tous les cas (API et Web)
+            $perPage = $request->get('per_page', 20);
+            $utilisateurs = $query->paginate($perPage);
+
+            // Ajouter l'âge et la compatibilité
+            $utilisateurs->through(function ($user) use ($classe) {
+                if ($user->date_naissance) {
+                    $age = $user->date_naissance->diffInYears(now());
+                    $user->age = $age;
+                    $user->age_compatible = $classe->ageCompatible($age);
+                } else {
+                    $user->age = null;
+                    $user->age_compatible = true;
+                }
+                return $user;
             });
-        }
 
-        // Filtrer par compatibilité d'âge si demandé
-        if ($request->has('age_compatible') && $request->age_compatible) {
-            if ($classe->age_minimum || $classe->age_maximum) {
-                $query->whereNotNull('date_naissance');
-
-                if ($classe->age_minimum) {
-                    $dateMax = now()->subYears($classe->age_minimum);
-                    $query->where('date_naissance', '<=', $dateMax);
-                }
-
-                if ($classe->age_maximum) {
-                    $dateMin = now()->subYears($classe->age_maximum + 1);
-                    $query->where('date_naissance', '>', $dateMin);
-                }
-            }
-        }
-
-        // Tri
-        $query->orderBy('prenom')->orderBy('nom');
-
-        // Utiliser la pagination pour tous les cas (API et Web)
-        $perPage = $request->get('per_page', 20);
-        $utilisateurs = $query->paginate($perPage);
-
-        // Ajouter l'âge et la compatibilité
-        $utilisateurs->through(function ($user) use ($classe) {
-            if ($user->date_naissance) {
-                $age = $user->date_naissance->diffInYears(now());
-                $user->age = $age;
-                $user->age_compatible = $classe->ageCompatible($age);
-            } else {
-                $user->age = null;
-                $user->age_compatible = true;
-            }
-            return $user;
-        });
-
-        if ($this->isApiRequest($request)) {
-            return response()->json([
-                'success' => true,
-                'data' => [
-                    'classe' => [
-                        'id' => $classe->id,
-                        'nom' => $classe->nom,
-                        'tranche_age' => $classe->tranche_age,
-                        'age_minimum' => $classe->age_minimum,
-                        'age_maximum' => $classe->age_maximum
+            if ($this->isApiRequest($request)) {
+                return response()->json([
+                    'success' => true,
+                    'data' => [
+                        'classe' => [
+                            'id' => $classe->id,
+                            'nom' => $classe->nom,
+                            'tranche_age' => $classe->tranche_age,
+                            'age_minimum' => $classe->age_minimum,
+                            'age_maximum' => $classe->age_maximum
+                        ],
+                        'utilisateurs' => $utilisateurs
                     ],
-                    'utilisateurs' => $utilisateurs
-                ],
-                'message' => 'Utilisateurs disponibles récupérés avec succès'
-            ]);
+                    'message' => 'Utilisateurs disponibles récupérés avec succès'
+                ]);
+            }
+
+            return view('components.private.classes.utilisateurs-disponibles', compact('classe', 'utilisateurs'));
+
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            if ($this->isApiRequest($request)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Classe non trouvée'
+                ], 404);
+            }
+
+            return redirect()->route('private.classes.index')
+                ->withErrors(['error' => 'Classe non trouvée']);
+        } catch (\Exception $e) {
+            if ($this->isApiRequest($request)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Erreur lors de la récupération des utilisateurs disponibles',
+                    'error' => $e->getMessage()
+                ], 500);
+            }
+
+            return back()->withErrors(['error' => 'Erreur lors de la récupération des utilisateurs disponibles']);
         }
-
-        return view('components.private.classes.utilisateurs-disponibles', compact('classe', 'utilisateurs'));
-
-    } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
-        if ($this->isApiRequest($request)) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Classe non trouvée'
-            ], 404);
-        }
-
-        return redirect()->route('private.classes.index')
-            ->withErrors(['error' => 'Classe non trouvée']);
-    } catch (\Exception $e) {
-        if ($this->isApiRequest($request)) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Erreur lors de la récupération des utilisateurs disponibles',
-                'error' => $e->getMessage()
-            ], 500);
-        }
-
-        return back()->withErrors(['error' => 'Erreur lors de la récupération des utilisateurs disponibles']);
     }
-}
 
     /**
      * Récupérer tous les membres d'une classe avec pagination et filtres
@@ -1238,7 +1286,7 @@ public function getUtilisateursDisponibles(Request $request, $classeId)
                     'error' => $e->getMessage()
                 ], 500);
             }
-dd($e->getMessage());
+            dd($e->getMessage());
             return back()->withErrors(['error' => 'Erreur lors de la récupération des statistiques']);
         }
     }
@@ -1542,245 +1590,245 @@ dd($e->getMessage());
 
 
 
-    
+
 
     /**
- * Récupérer tous les membres d'une classe pour la gestion des responsables
- */
-public function getMembresForResponsables(Request $request, $classeId)
-{
-    try {
-        $classe = Classe::findOrFail($classeId);
+     * Récupérer tous les membres d'une classe pour la gestion des responsables
+     */
+    public function getMembresForResponsables(Request $request, $classeId)
+    {
+        try {
+            $classe = Classe::findOrFail($classeId);
 
-        // Query de base pour tous les membres de la classe
-        $query = $classe->membres()
-            ->select('id', 'prenom', 'nom', 'email', 'telephone_1', 'date_naissance', 'statut_membre');
+            // Query de base pour tous les membres de la classe
+            $query = $classe->membres()
+                ->select('id', 'prenom', 'nom', 'email', 'telephone_1', 'date_naissance', 'statut_membre');
 
-        // Filtres optionnels
-        if ($request->has('search')) {
-            $search = $request->search;
-            $query->where(function ($q) use ($search) {
-                $q->where('prenom', 'like', "%{$search}%")
-                    ->orWhere('nom', 'like', "%{$search}%")
-                    ->orWhere('email', 'like', "%{$search}%");
+            // Filtres optionnels
+            if ($request->has('search')) {
+                $search = $request->search;
+                $query->where(function ($q) use ($search) {
+                    $q->where('prenom', 'like', "%{$search}%")
+                        ->orWhere('nom', 'like', "%{$search}%")
+                        ->orWhere('email', 'like', "%{$search}%");
+                });
+            }
+
+            // Tri
+            $query->orderBy('prenom')->orderBy('nom');
+
+            // Pagination pour éviter la surcharge
+            $perPage = $request->get('per_page', 15);
+            $membres = $query->paginate($perPage);
+
+            // Ajouter les informations de responsabilité existantes
+            $responsables = $classe->responsables ?? [];
+            $responsablesIds = collect($responsables)->pluck('id')->toArray();
+
+            $membres->through(function ($membre) use ($responsables, $responsablesIds) {
+                $membre->is_responsable = in_array($membre->id, $responsablesIds);
+
+                if ($membre->is_responsable) {
+                    $responsableData = collect($responsables)->firstWhere('id', $membre->id);
+                    $membre->responsabilite = $responsableData['responsabilite'] ?? null;
+                    $membre->superieur = $responsableData['superieur'] ?? false;
+                } else {
+                    $membre->responsabilite = null;
+                    $membre->superieur = false;
+                }
+
+                return $membre;
             });
-        }
 
-        // Tri
-        $query->orderBy('prenom')->orderBy('nom');
-
-        // Pagination pour éviter la surcharge
-        $perPage = $request->get('per_page', 15);
-        $membres = $query->paginate($perPage);
-
-        // Ajouter les informations de responsabilité existantes
-        $responsables = $classe->responsables ?? [];
-        $responsablesIds = collect($responsables)->pluck('id')->toArray();
-
-        $membres->through(function ($membre) use ($responsables, $responsablesIds) {
-            $membre->is_responsable = in_array($membre->id, $responsablesIds);
-
-            if ($membre->is_responsable) {
-                $responsableData = collect($responsables)->firstWhere('id', $membre->id);
-                $membre->responsabilite = $responsableData['responsabilite'] ?? null;
-                $membre->superieur = $responsableData['superieur'] ?? false;
-            } else {
-                $membre->responsabilite = null;
-                $membre->superieur = false;
-            }
-
-            return $membre;
-        });
-
-        if ($this->isApiRequest($request)) {
-            return response()->json([
-                'success' => true,
-                'data' => [
-                    'classe' => [
-                        'id' => $classe->id,
-                        'nom' => $classe->nom,
-                        'nombre_inscrits' => $classe->nombre_inscrits
+            if ($this->isApiRequest($request)) {
+                return response()->json([
+                    'success' => true,
+                    'data' => [
+                        'classe' => [
+                            'id' => $classe->id,
+                            'nom' => $classe->nom,
+                            'nombre_inscrits' => $classe->nombre_inscrits
+                        ],
+                        'membres' => $membres,
+                        'types_responsabilite' => $this->getTypesResponsabilite()
                     ],
-                    'membres' => $membres,
-                    'types_responsabilite' => $this->getTypesResponsabilite()
-                ],
-                'message' => 'Membres récupérés avec succès'
-            ]);
+                    'message' => 'Membres récupérés avec succès'
+                ]);
+            }
+
+            return view('components.private.classes.membres-responsables', compact('classe', 'membres'));
+
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            if ($this->isApiRequest($request)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Classe non trouvée'
+                ], 404);
+            }
+
+            return back()->withErrors(['error' => 'Classe non trouvée']);
+        } catch (\Exception $e) {
+            if ($this->isApiRequest($request)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Erreur lors de la récupération des membres',
+                    'error' => $e->getMessage()
+                ], 500);
+            }
+
+            return back()->withErrors(['error' => 'Erreur lors de la récupération des membres']);
         }
-
-        return view('components.private.classes.membres-responsables', compact('classe', 'membres'));
-
-    } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
-        if ($this->isApiRequest($request)) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Classe non trouvée'
-            ], 404);
-        }
-
-        return back()->withErrors(['error' => 'Classe non trouvée']);
-    } catch (\Exception $e) {
-        if ($this->isApiRequest($request)) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Erreur lors de la récupération des membres',
-                'error' => $e->getMessage()
-            ], 500);
-        }
-
-        return back()->withErrors(['error' => 'Erreur lors de la récupération des membres']);
-    }
-}
-
-/**
- * Mettre à jour les responsabilités d'un membre
- */
-public function updateResponsabilite(Request $request, $classeId)
-{
-    $validator = Validator::make($request->all(), [
-        'user_id' => 'required|uuid|exists:users,id',
-        'action' => 'required|in:add,remove,update',
-        'responsabilite' => 'required_if:action,add,update|nullable|string',
-        'superieur' => 'nullable|boolean'
-    ]);
-
-    if ($validator->fails()) {
-        if ($this->isApiRequest($request)) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Erreurs de validation',
-                'errors' => $validator->errors()
-            ], 422);
-        }
-
-        return back()->withErrors($validator);
     }
 
-    try {
-        $classe = Classe::findOrFail($classeId);
-        $user = User::findOrFail($request->user_id);
-        $currentUser = Auth::user();
+    /**
+     * Mettre à jour les responsabilités d'un membre
+     */
+    public function updateResponsabilite(Request $request, $classeId)
+    {
+        $validator = Validator::make($request->all(), [
+            'user_id' => 'required|uuid|exists:users,id',
+            'action' => 'required|in:add,remove,update',
+            'responsabilite' => 'required_if:action,add,update|nullable|string',
+            'superieur' => 'nullable|boolean'
+        ]);
 
-        // Vérifier si l'utilisateur est membre de la classe
-        if ($user->classe_id !== $classe->id) {
-            $message = 'L\'utilisateur n\'est pas membre de cette classe';
+        if ($validator->fails()) {
+            if ($this->isApiRequest($request)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Erreurs de validation',
+                    'errors' => $validator->errors()
+                ], 422);
+            }
+
+            return back()->withErrors($validator);
+        }
+
+        try {
+            $classe = Classe::findOrFail($classeId);
+            $user = User::findOrFail($request->user_id);
+            $currentUser = Auth::user();
+
+            // Vérifier si l'utilisateur est membre de la classe
+            if ($user->classe_id !== $classe->id) {
+                $message = 'L\'utilisateur n\'est pas membre de cette classe';
+
+                if ($this->isApiRequest($request)) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => $message
+                    ], 400);
+                }
+
+                return back()->withErrors(['error' => $message]);
+            }
+
+            // Vérifier les permissions
+            if (!$classe->peutGererResponsables($currentUser->id) && !$currentUser->can('classes.update')) {
+                $message = 'Vous n\'avez pas les permissions pour gérer les responsables de cette classe';
+
+                if ($this->isApiRequest($request)) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => $message
+                    ], 403);
+                }
+
+                return back()->withErrors(['error' => $message]);
+            }
+
+            DB::beginTransaction();
+
+            $responsables = $classe->responsables ?? [];
+            $userIndex = null;
+
+            // Trouver l'utilisateur dans la liste des responsables
+            foreach ($responsables as $index => $responsable) {
+                if ($responsable['id'] === $request->user_id) {
+                    $userIndex = $index;
+                    break;
+                }
+            }
+
+            switch ($request->action) {
+                case 'add':
+                    if ($userIndex === null) {
+                        // Vérifier s'il y a déjà un supérieur si on veut en ajouter un
+                        if ($request->get('superieur', false)) {
+                            foreach ($responsables as &$responsable) {
+                                $responsable['superieur'] = false;
+                            }
+                        }
+
+                        $responsables[] = [
+                            'id' => $request->user_id,
+                            'responsabilite' => $request->responsabilite,
+                            'superieur' => $request->get('superieur', false)
+                        ];
+                        $message = 'Responsabilité ajoutée avec succès';
+                    } else {
+                        $message = 'L\'utilisateur est déjà responsable';
+                    }
+                    break;
+
+                case 'update':
+                    if ($userIndex !== null) {
+                        // Vérifier s'il y a déjà un supérieur si on veut en ajouter un
+                        if ($request->get('superieur', false)) {
+                            foreach ($responsables as &$responsable) {
+                                $responsable['superieur'] = false;
+                            }
+                        }
+
+                        $responsables[$userIndex] = [
+                            'id' => $request->user_id,
+                            'responsabilite' => $request->responsabilite,
+                            'superieur' => $request->get('superieur', false)
+                        ];
+                        $message = 'Responsabilité mise à jour avec succès';
+                    } else {
+                        $message = 'L\'utilisateur n\'est pas responsable';
+                    }
+                    break;
+
+                case 'remove':
+                    if ($userIndex !== null) {
+                        unset($responsables[$userIndex]);
+                        $responsables = array_values($responsables); // Réindexer
+                        $message = 'Responsabilité retirée avec succès';
+                    } else {
+                        $message = 'L\'utilisateur n\'est pas responsable';
+                    }
+                    break;
+            }
+
+            $classe->update(['responsables' => $responsables]);
+
+            DB::commit();
+
+            if ($this->isApiRequest($request)) {
+                return response()->json([
+                    'success' => true,
+                    'message' => $message
+                ]);
+            }
+
+            return back()->with('success', $message);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
 
             if ($this->isApiRequest($request)) {
                 return response()->json([
                     'success' => false,
-                    'message' => $message
-                ], 400);
+                    'message' => 'Erreur lors de la mise à jour',
+                    'error' => $e->getMessage()
+                ], 500);
             }
 
-            return back()->withErrors(['error' => $message]);
+            return back()->withErrors(['error' => 'Erreur lors de la mise à jour']);
         }
-
-        // Vérifier les permissions
-        if (!$classe->peutGererResponsables($currentUser->id) && !$currentUser->can('classes.update')) {
-            $message = 'Vous n\'avez pas les permissions pour gérer les responsables de cette classe';
-
-            if ($this->isApiRequest($request)) {
-                return response()->json([
-                    'success' => false,
-                    'message' => $message
-                ], 403);
-            }
-
-            return back()->withErrors(['error' => $message]);
-        }
-
-        DB::beginTransaction();
-
-        $responsables = $classe->responsables ?? [];
-        $userIndex = null;
-
-        // Trouver l'utilisateur dans la liste des responsables
-        foreach ($responsables as $index => $responsable) {
-            if ($responsable['id'] === $request->user_id) {
-                $userIndex = $index;
-                break;
-            }
-        }
-
-        switch ($request->action) {
-            case 'add':
-                if ($userIndex === null) {
-                    // Vérifier s'il y a déjà un supérieur si on veut en ajouter un
-                    if ($request->get('superieur', false)) {
-                        foreach ($responsables as &$responsable) {
-                            $responsable['superieur'] = false;
-                        }
-                    }
-
-                    $responsables[] = [
-                        'id' => $request->user_id,
-                        'responsabilite' => $request->responsabilite,
-                        'superieur' => $request->get('superieur', false)
-                    ];
-                    $message = 'Responsabilité ajoutée avec succès';
-                } else {
-                    $message = 'L\'utilisateur est déjà responsable';
-                }
-                break;
-
-            case 'update':
-                if ($userIndex !== null) {
-                    // Vérifier s'il y a déjà un supérieur si on veut en ajouter un
-                    if ($request->get('superieur', false)) {
-                        foreach ($responsables as &$responsable) {
-                            $responsable['superieur'] = false;
-                        }
-                    }
-
-                    $responsables[$userIndex] = [
-                        'id' => $request->user_id,
-                        'responsabilite' => $request->responsabilite,
-                        'superieur' => $request->get('superieur', false)
-                    ];
-                    $message = 'Responsabilité mise à jour avec succès';
-                } else {
-                    $message = 'L\'utilisateur n\'est pas responsable';
-                }
-                break;
-
-            case 'remove':
-                if ($userIndex !== null) {
-                    unset($responsables[$userIndex]);
-                    $responsables = array_values($responsables); // Réindexer
-                    $message = 'Responsabilité retirée avec succès';
-                } else {
-                    $message = 'L\'utilisateur n\'est pas responsable';
-                }
-                break;
-        }
-
-        $classe->update(['responsables' => $responsables]);
-
-        DB::commit();
-
-        if ($this->isApiRequest($request)) {
-            return response()->json([
-                'success' => true,
-                'message' => $message
-            ]);
-        }
-
-        return back()->with('success', $message);
-
-    } catch (\Exception $e) {
-        DB::rollBack();
-
-        if ($this->isApiRequest($request)) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Erreur lors de la mise à jour',
-                'error' => $e->getMessage()
-            ], 500);
-        }
-
-        return back()->withErrors(['error' => 'Erreur lors de la mise à jour']);
     }
-}
 
 
 

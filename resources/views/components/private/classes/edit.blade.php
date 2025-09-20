@@ -156,100 +156,31 @@
                     <!-- Colonne droite - Responsables et programme -->
                     <div class="space-y-6">
                         <!-- Responsables -->
+                        <!-- Responsables -->
                         <div>
                             <label class="block text-sm font-medium text-slate-700 mb-4">
                                 Responsables de la classe
                             </label>
                             <div id="responsables-container" class="space-y-4">
-                                @if($classe->responsables && count($classe->responsables) > 0)
-                                    @foreach($classe->responsables as $index => $responsable)
-                                        <div class="responsable-item bg-slate-50 p-4 rounded-xl border border-slate-200">
-                                            <div class="grid grid-cols-12 gap-3 items-end">
-                                                <div class="col-span-5">
-                                                    <label class="block text-xs font-medium text-slate-600 mb-1">Utilisateur</label>
-                                                    <select name="responsables[{{ $index }}][id]" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                                                        <option value="">Sélectionner un utilisateur</option>
-                                                        @foreach($utilisateurs as $utilisateur)
-                                                            <option value="{{ $utilisateur->id }}"
-                                                                {{ old("responsables.{$index}.id", $responsable['id']) == $utilisateur->id ? 'selected' : '' }}>
-                                                                {{ $utilisateur->prenom }} {{ $utilisateur->nom }}
-                                                            </option>
-                                                        @endforeach
-                                                    </select>
-                                                </div>
-                                                <div class="col-span-4">
-                                                    <label class="block text-xs font-medium text-slate-600 mb-1">Responsabilité</label>
-                                                    <select name="responsables[{{ $index }}][responsabilite]" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                                                        <option value="">Type de responsabilité</option>
-                                                        @foreach($types_responsabilite as $type)
-                                                            <option value="{{ $type }}"
-                                                                {{ old("responsables.{$index}.responsabilite", $responsable['responsabilite']) == $type ? 'selected' : '' }}>
-                                                                {{ ucfirst($type) }}
-                                                            </option>
-                                                        @endforeach
-                                                    </select>
-                                                </div>
-                                                <div class="col-span-2">
-                                                    <label class="block text-xs font-medium text-slate-600 mb-1">Supérieur</label>
-                                                    <div class="flex items-center justify-center">
-                                                        <input type="checkbox" name="responsables[{{ $index }}][superieur]" value="1"
-                                                            {{ old("responsables.{$index}.superieur", $responsable['superieur']) ? 'checked' : '' }}
-                                                            class="w-4 h-4 text-blue-600 bg-white border-gray-300 rounded focus:ring-blue-500">
-                                                    </div>
-                                                </div>
-                                                <div class="col-span-1">
-                                                    <button type="button" onclick="removeResponsable(this)"
-                                                        class="w-8 h-8 text-red-600 bg-red-100 rounded-lg hover:bg-red-200 transition-colors flex items-center justify-center">
-                                                        <i class="fas fa-trash text-xs"></i>
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    @endforeach
-                                @else
-                                    <!-- Template par défaut si aucun responsable -->
-                                    <div class="responsable-item bg-slate-50 p-4 rounded-xl border border-slate-200">
-                                        <div class="grid grid-cols-12 gap-3 items-end">
-                                            <div class="col-span-5">
-                                                <label class="block text-xs font-medium text-slate-600 mb-1">Utilisateur</label>
-                                                <select name="responsables[0][id]" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                                                    <option value="">Sélectionner un utilisateur</option>
-                                                    @foreach($utilisateurs as $utilisateur)
-                                                        <option value="{{ $utilisateur->id }}">{{ $utilisateur->prenom }} {{ $utilisateur->nom }}</option>
-                                                    @endforeach
-                                                </select>
-                                            </div>
-                                            <div class="col-span-4">
-                                                <label class="block text-xs font-medium text-slate-600 mb-1">Responsabilité</label>
-                                                <select name="responsables[0][responsabilite]" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                                                    <option value="">Type de responsabilité</option>
-                                                    @foreach($types_responsabilite as $type)
-                                                        <option value="{{ $type }}">{{ ucfirst($type) }}</option>
-                                                    @endforeach
-                                                </select>
-                                            </div>
-                                            <div class="col-span-2">
-                                                <label class="block text-xs font-medium text-slate-600 mb-1">Supérieur</label>
-                                                <div class="flex items-center justify-center">
-                                                    <input type="checkbox" name="responsables[0][superieur]" value="1"
-                                                        class="w-4 h-4 text-blue-600 bg-white border-gray-300 rounded focus:ring-blue-500">
-                                                </div>
-                                            </div>
-                                            <div class="col-span-1">
-                                                <button type="button" onclick="removeResponsable(this)"
-                                                    class="w-8 h-8 text-red-600 bg-red-100 rounded-lg hover:bg-red-200 transition-colors flex items-center justify-center">
-                                                    <i class="fas fa-trash text-xs"></i>
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                @endif
+                                <!-- Les responsables existants seront ajoutés dynamiquement -->
                             </div>
 
                             <button type="button" onclick="addResponsable()"
                                 class="mt-3 inline-flex items-center px-4 py-2 bg-green-100 text-green-700 rounded-lg hover:bg-green-200 transition-colors">
                                 <i class="fas fa-plus mr-2"></i> Ajouter un responsable
                             </button>
+
+                            @if($utilisateurs->isEmpty())
+                                <div class="mt-3 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+                                    <div class="flex items-center">
+                                        <i class="fas fa-exclamation-triangle text-amber-600 mr-2"></i>
+                                        <span class="text-sm text-amber-700">
+                                            Aucun utilisateur disponible pour être responsable. Tous les utilisateurs sont déjà
+                                            inscrits dans des classes.
+                                        </span>
+                                    </div>
+                                </div>
+                            @endif
                         </div>
 
                         <!-- Programme -->
@@ -348,7 +279,7 @@
     </div>
 
     <!-- Scripts JavaScript -->
-    <script>
+    {{-- <script>
         let responsableIndex = {{ count($classe->responsables ?? []) }};
         let programmeIndex = {{ count($classe->programme ?? []) }};
 
@@ -486,6 +417,453 @@
                 }
             });
         });
-    </script>
+    </script> --}}
+
+    <script>
+let responsableIndex = {{ count($classe->responsables ?? []) + 1 }};
+let programmeIndex = {{ count($classe->programme ?? []) }};
+let selectedUsers = new Set(); // Pour suivre les utilisateurs sélectionnés
+let allUsers = @json($utilisateurs); // Tous les utilisateurs disponibles
+let existingResponsables = @json($classe->responsables ?? []); // Responsables existants
+
+// Initialiser les utilisateurs déjà sélectionnés
+existingResponsables.forEach(responsable => {
+    selectedUsers.add(responsable.id);
+});
+
+// Gestion de l'aperçu d'image
+function previewImage(input) {
+    const file = input.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            document.getElementById('preview-img').src = e.target.result;
+            document.getElementById('image-preview').classList.remove('hidden');
+            document.getElementById('upload-placeholder').classList.add('hidden');
+            document.getElementById('current-image')?.classList.add('hidden');
+        };
+        reader.readAsDataURL(file);
+    }
+}
+
+function showUploadNew() {
+    document.getElementById('current-image').classList.add('hidden');
+    document.getElementById('upload-placeholder').classList.remove('hidden');
+}
+
+function removeImage() {
+    document.getElementById('image_classe').value = '';
+    document.getElementById('image-preview').classList.add('hidden');
+    document.getElementById('upload-placeholder').classList.remove('hidden');
+    document.getElementById('current-image')?.classList.remove('hidden');
+}
+
+// Vérifier et mettre à jour l'état du bouton "Ajouter un responsable"
+function updateAddResponsableButton() {
+    setTimeout(() => {
+        const addButton = document.querySelector('button[onclick="addResponsable()"]');
+        if (!addButton) {
+            console.error('Bouton "Ajouter un responsable" non trouvé');
+            return;
+        }
+
+        const availableUsers = allUsers.filter(user => !selectedUsers.has(user.id));
+
+        if (availableUsers.length === 0) {
+            addButton.disabled = true;
+            addButton.style.opacity = '0.5';
+            addButton.style.cursor = 'not-allowed';
+            addButton.title = 'Tous les utilisateurs sont déjà sélectionnés';
+            addButton.onmouseenter = null;
+            addButton.onmouseleave = null;
+        } else {
+            addButton.disabled = false;
+            addButton.style.opacity = '1';
+            addButton.style.cursor = 'pointer';
+            addButton.title = '';
+            addButton.onmouseenter = function() {
+                this.style.backgroundColor = 'rgb(187 247 208)';
+            };
+            addButton.onmouseleave = function() {
+                this.style.backgroundColor = 'rgb(220 252 231)';
+            };
+        }
+    }, 10);
+}
+
+// Créer un responsable existant
+function createExistingResponsable(responsable, index) {
+    const container = document.getElementById('responsables-container');
+
+    const responsableDiv = document.createElement('div');
+    responsableDiv.className = 'responsable-item bg-slate-50 p-4 rounded-xl border border-slate-200';
+
+    // Trouver l'utilisateur correspondant
+    const user = allUsers.find(u => u.id === responsable.id);
+    const userName = user ? `${user.prenom} ${user.nom}` : 'Utilisateur non trouvé';
+
+    responsableDiv.innerHTML = `
+        <div class="grid grid-cols-12 gap-3 items-end">
+            <div class="col-span-5">
+                <label class="block text-xs font-medium text-slate-600 mb-1">Utilisateur</label>
+                <div class="relative">
+                    <input type="text"
+                        class="user-search w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        placeholder="Rechercher un utilisateur..."
+                        value="${userName}"
+                        autocomplete="off"
+                        onkeyup="searchUsers(this)"
+                        onfocus="showUserDropdown(this)"
+                        onblur="hideUserDropdown(this)">
+                    <select name="responsables[${index}][id]" class="hidden user-select">
+                        <option value="">Sélectionner un utilisateur</option>
+                        <option value="${responsable.id}" selected>${userName}</option>
+                    </select>
+                    <button type="button" class="clear-user-btn absolute right-2 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-red-500" onclick="clearSelectedUser(this)" title="Désélectionner">
+                        <i class="fas fa-times text-sm"></i>
+                    </button>
+                    <div class="user-dropdown absolute z-10 w-full bg-white border border-slate-300 rounded-lg shadow-lg mt-1 max-h-40 overflow-y-auto hidden">
+                    </div>
+                </div>
+            </div>
+            <div class="col-span-4">
+                <label class="block text-xs font-medium text-slate-600 mb-1">Responsabilité</label>
+                <select name="responsables[${index}][responsabilite]" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    <option value="">Type de responsabilité</option>
+                    @foreach($types_responsabilite as $type)
+                        <option value="{{ $type }}" ${responsable.responsabilite === '{{ $type }}' ? 'selected' : ''}>{{ ucfirst($type) }}</option>
+                    @endforeach
+                </select>
+            </div>
+            <div class="col-span-2">
+                <label class="block text-xs font-medium text-slate-600 mb-1">Supérieur</label>
+                <div class="flex items-center justify-center">
+                    <input type="checkbox" name="responsables[${index}][superieur]" value="1"
+                        ${responsable.superieur ? 'checked' : ''}
+                        class="w-4 h-4 text-blue-600 bg-white border-gray-300 rounded focus:ring-blue-500"
+                        onchange="handleSuperieurChange(this)">
+                </div>
+            </div>
+            <div class="col-span-1">
+                <button type="button" onclick="removeResponsable(this)"
+                    class="w-8 h-8 text-red-600 bg-red-100 rounded-lg hover:bg-red-200 transition-colors flex items-center justify-center">
+                    <i class="fas fa-trash text-xs"></i>
+                </button>
+            </div>
+        </div>
+    `;
+
+    container.appendChild(responsableDiv);
+    initializeUserSearch(responsableDiv);
+}
+
+// Gestion des responsables avec recherche
+function addResponsable() {
+    const availableUsers = allUsers.filter(user => !selectedUsers.has(user.id));
+    if (availableUsers.length === 0) {
+        alert('Tous les utilisateurs disponibles sont déjà sélectionnés');
+        return;
+    }
+
+    const container = document.getElementById('responsables-container');
+    const responsableDiv = document.createElement('div');
+    responsableDiv.className = 'responsable-item bg-slate-50 p-4 rounded-xl border border-slate-200';
+
+    responsableDiv.innerHTML = `
+        <div class="grid grid-cols-12 gap-3 items-end">
+            <div class="col-span-5">
+                <label class="block text-xs font-medium text-slate-600 mb-1">Utilisateur</label>
+                <div class="relative">
+                    <input type="text"
+                        class="user-search w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        placeholder="Rechercher un utilisateur..."
+                        autocomplete="off"
+                        onkeyup="searchUsers(this)"
+                        onfocus="showUserDropdown(this)"
+                        onblur="hideUserDropdown(this)">
+                    <select name="responsables[${responsableIndex}][id]" class="hidden user-select">
+                        <option value="">Sélectionner un utilisateur</option>
+                    </select>
+                    <button type="button" class="clear-user-btn absolute right-2 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-red-500 hidden" onclick="clearSelectedUser(this)" title="Désélectionner">
+                        <i class="fas fa-times text-sm"></i>
+                    </button>
+                    <div class="user-dropdown absolute z-10 w-full bg-white border border-slate-300 rounded-lg shadow-lg mt-1 max-h-40 overflow-y-auto hidden">
+                    </div>
+                </div>
+            </div>
+            <div class="col-span-4">
+                <label class="block text-xs font-medium text-slate-600 mb-1">Responsabilité</label>
+                <select name="responsables[${responsableIndex}][responsabilite]" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    <option value="">Type de responsabilité</option>
+                    @foreach($types_responsabilite as $type)
+                        <option value="{{ $type }}">{{ ucfirst($type) }}</option>
+                    @endforeach
+                </select>
+            </div>
+            <div class="col-span-2">
+                <label class="block text-xs font-medium text-slate-600 mb-1">Supérieur</label>
+                <div class="flex items-center justify-center">
+                    <input type="checkbox" name="responsables[${responsableIndex}][superieur]" value="1"
+                        class="w-4 h-4 text-blue-600 bg-white border-gray-300 rounded focus:ring-blue-500"
+                        onchange="handleSuperieurChange(this)">
+                </div>
+            </div>
+            <div class="col-span-1">
+                <button type="button" onclick="removeResponsable(this)"
+                    class="w-8 h-8 text-red-600 bg-red-100 rounded-lg hover:bg-red-200 transition-colors flex items-center justify-center">
+                    <i class="fas fa-trash text-xs"></i>
+                </button>
+            </div>
+        </div>
+    `;
+
+    container.appendChild(responsableDiv);
+    initializeUserSearch(responsableDiv);
+    responsableIndex++;
+    updateAddResponsableButton();
+}
+
+function removeResponsable(button) {
+    const responsableItem = button.closest('.responsable-item');
+    const userSelect = responsableItem.querySelector('.user-select');
+
+    if (userSelect.value) {
+        selectedUsers.delete(userSelect.value);
+    }
+
+    responsableItem.remove();
+    updateAllUserDropdowns();
+    updateAddResponsableButton();
+}
+
+function clearSelectedUser(button) {
+    const responsableItem = button.closest('.responsable-item');
+    const searchInput = responsableItem.querySelector('.user-search');
+    const userSelect = responsableItem.querySelector('.user-select');
+    const clearButton = button;
+
+    if (userSelect.value) {
+        selectedUsers.delete(userSelect.value);
+    }
+
+    searchInput.value = '';
+    userSelect.value = '';
+
+    const options = userSelect.querySelectorAll('option');
+    options.forEach((option, index) => {
+        if (index > 0) {
+            option.remove();
+        }
+    });
+
+    clearButton.classList.add('hidden');
+    updateAllUserDropdowns();
+    updateAddResponsableButton();
+    showUserDropdown(searchInput);
+}
+
+function initializeUserSearch(responsableElement) {
+    const searchInput = responsableElement.querySelector('.user-search');
+    const dropdown = responsableElement.querySelector('.user-dropdown');
+    const select = responsableElement.querySelector('.user-select');
+    updateUserDropdown(dropdown, select);
+}
+
+function searchUsers(input) {
+    const dropdown = input.nextElementSibling.nextElementSibling.nextElementSibling;
+    const select = input.nextElementSibling;
+    const searchTerm = input.value.toLowerCase();
+
+    if (!searchTerm && select.value) {
+        dropdown.classList.add('hidden');
+        return;
+    }
+
+    const availableUsers = allUsers.filter(user =>
+        !selectedUsers.has(user.id) &&
+        (user.prenom.toLowerCase().includes(searchTerm) ||
+         user.nom.toLowerCase().includes(searchTerm) ||
+         user.email?.toLowerCase()?.includes(searchTerm))
+    );
+
+    dropdown.innerHTML = '';
+    if (availableUsers.length > 0) {
+        availableUsers.forEach(user => {
+            const option = document.createElement('div');
+            option.className = 'px-3 py-2 hover:bg-slate-100 cursor-pointer text-sm';
+            option.innerHTML = `
+                <div class="font-medium">${user.prenom} ${user.nom}</div>
+                <div class="text-xs text-slate-500">${user.email ?? 'Aucun email disponible'}</div>
+            `;
+            option.onclick = () => selectUser(input, user, select, dropdown);
+            dropdown.appendChild(option);
+        });
+        dropdown.classList.remove('hidden');
+    } else {
+        dropdown.innerHTML = '<div class="px-3 py-2 text-sm text-slate-500">Aucun utilisateur trouvé</div>';
+        dropdown.classList.remove('hidden');
+    }
+}
+
+function selectUser(input, user, select, dropdown) {
+    const clearButton = input.parentElement.querySelector('.clear-user-btn');
+
+    if (select.value) {
+        selectedUsers.delete(select.value);
+    }
+
+    selectedUsers.add(user.id);
+    input.value = `${user.prenom} ${user.nom}`;
+    select.value = user.id;
+    dropdown.classList.add('hidden');
+    clearButton.classList.remove('hidden');
+
+    let existingOption = select.querySelector(`option[value="${user.id}"]`);
+    if (!existingOption) {
+        const option = document.createElement('option');
+        option.value = user.id;
+        option.textContent = `${user.prenom} ${user.nom}`;
+        option.selected = true;
+        select.appendChild(option);
+    } else {
+        existingOption.selected = true;
+    }
+
+    updateAllUserDropdowns();
+    updateAddResponsableButton();
+}
+
+function showUserDropdown(input) {
+    const dropdown = input.nextElementSibling.nextElementSibling.nextElementSibling;
+    const select = input.nextElementSibling;
+
+    if (select.value && !input.value) {
+        return;
+    }
+
+    if (!input.value) {
+        updateUserDropdown(dropdown, select);
+    }
+    dropdown.classList.remove('hidden');
+}
+
+function hideUserDropdown(input) {
+    setTimeout(() => {
+        const dropdown = input.nextElementSibling.nextElementSibling.nextElementSibling;
+        dropdown.classList.add('hidden');
+    }, 200);
+}
+
+function updateUserDropdown(dropdown, select) {
+    const availableUsers = allUsers.filter(user => !selectedUsers.has(user.id));
+
+    dropdown.innerHTML = '';
+    if (availableUsers.length > 0) {
+        availableUsers.forEach(user => {
+            const option = document.createElement('div');
+            option.className = 'px-3 py-2 hover:bg-slate-100 cursor-pointer text-sm';
+            option.innerHTML = `
+                <div class="font-medium">${user.prenom} ${user.nom}</div>
+                <div class="text-xs text-slate-500">${user.email ?? 'Aucun email disponible'}</div>
+            `;
+            option.onclick = () => {
+                const input = dropdown.previousElementSibling.previousElementSibling.previousElementSibling;
+                selectUser(input, user, select, dropdown);
+            };
+            dropdown.appendChild(option);
+        });
+    } else {
+        dropdown.innerHTML = '<div class="px-3 py-2 text-sm text-slate-500">Tous les utilisateurs sont sélectionnés</div>';
+    }
+}
+
+function updateAllUserDropdowns() {
+    document.querySelectorAll('.user-dropdown').forEach(dropdown => {
+        const select = dropdown.previousElementSibling.previousElementSibling;
+        updateUserDropdown(dropdown, select);
+    });
+}
+
+function handleSuperieurChange(checkbox) {
+    if (checkbox.checked) {
+        document.querySelectorAll('input[name*="[superieur]"]').forEach(cb => {
+            if (cb !== checkbox) {
+                cb.checked = false;
+            }
+        });
+    }
+}
+
+// Gestion du programme
+function addProgrammeItem() {
+    const container = document.getElementById('programme-container');
+    const template = `
+        <div class="programme-item flex gap-3">
+            <input type="text" name="programme[]"
+                class="flex-1 px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                placeholder="Ex: Mathématiques de base">
+            <button type="button" onclick="removeProgrammeItem(this)"
+                class="w-10 h-10 text-red-600 bg-red-100 rounded-lg hover:bg-red-200 transition-colors flex items-center justify-center">
+                <i class="fas fa-trash text-sm"></i>
+            </button>
+        </div>
+    `;
+    container.insertAdjacentHTML('beforeend', template);
+}
+
+function removeProgrammeItem(button) {
+    const container = document.getElementById('programme-container');
+    if (container.children.length > 1) {
+        button.closest('.programme-item').remove();
+    }
+}
+
+// Validation côté client
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.querySelector('form');
+    const ageMin = document.getElementById('age_minimum');
+    const ageMax = document.getElementById('age_maximum');
+
+    // Créer les responsables existants
+    existingResponsables.forEach((responsable, index) => {
+        createExistingResponsable(responsable, index);
+    });
+
+    // Initialiser l'état du bouton
+    updateAddResponsableButton();
+
+    function validateAges() {
+        const min = parseInt(ageMin.value);
+        const max = parseInt(ageMax.value);
+
+        if (min && max && min > max) {
+            ageMax.setCustomValidity('L\'âge maximum doit être supérieur à l\'âge minimum');
+        } else {
+            ageMax.setCustomValidity('');
+        }
+    }
+
+    ageMin.addEventListener('input', validateAges);
+    ageMax.addEventListener('input', validateAges);
+
+    form.addEventListener('submit', function(e) {
+        const superieurs = document.querySelectorAll('input[name*="[superieur]"]:checked');
+        if (superieurs.length > 1) {
+            e.preventDefault();
+            alert('Une seule personne peut être désignée comme responsable supérieur');
+        }
+    });
+
+    document.addEventListener('click', function(e) {
+        if (!e.target.closest('.user-search') &&
+            !e.target.closest('.user-dropdown') &&
+            !e.target.closest('.clear-user-btn')) {
+            document.querySelectorAll('.user-dropdown').forEach(dropdown => {
+                dropdown.classList.add('hidden');
+            });
+        }
+    });
+});
+</script>
 
 @endsection

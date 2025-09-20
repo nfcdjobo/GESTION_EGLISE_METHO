@@ -276,7 +276,7 @@
                     <div class="p-6">
                         <?php if($classe->membres->count() > 0): ?>
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                <?php $__currentLoopData = $classe->membres->take(8); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $membre): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                <?php $__currentLoopData = $classe->membres->take(6); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $membre): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                     <div class="flex items-center space-x-3 p-3 bg-slate-50 rounded-lg hover:bg-slate-100 transition-colors">
                                         <div class="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white font-semibold text-sm">
                                             <?php echo e(substr($membre->prenom, 0, 1)); ?><?php echo e(substr($membre->nom, 0, 1)); ?>
@@ -296,11 +296,11 @@
                                 <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                             </div>
 
-                            <?php if($classe->membres->count() > 8): ?>
+                            <?php if($classe->membres->count() > 6): ?>
                                 <div class="mt-4 text-center">
                                     <button onclick="showMembersListModal()"
                                         class="text-blue-600 hover:text-blue-800 text-sm font-medium">
-                                        Voir les <?php echo e($classe->membres->count() - 8); ?> autres membres
+                                        Voir les <?php echo e($classe->membres->count() - 6); ?> autres membres
                                     </button>
                                 </div>
                             <?php endif; ?>
