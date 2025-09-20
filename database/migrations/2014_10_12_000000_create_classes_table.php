@@ -25,16 +25,9 @@ return new class extends Migration
             $table->integer('age_maximum')->nullable();
             $table->integer('nombre_inscrits')->default(0);
 
-            // Enseignants et responsables
-            $table->uuid('responsable_id')->nullable();
+            // Responsables: délégué, enseignant principal, enseignant secondaire, sous-délégué, etc...
+            $table->json('responsables')->nullable(); /**Ici c'est du json avec les champs suivants: id, superieur et responsabilite. L'id vient de la table user, superieur est un booleen (un seul responsable peut être le superieur parmi les responsables et seul lui peut attribuer ou rétirer la responsabitité aux autres membres de la classe) et responsabitité peut être principal, enseignant, ...*/
 
-            // $table->uuid('responsable2_id')->nullable();
-            // $table->uuid('responsable3_id')->nullable();
-            // $table->uuid('responsable4_id')->nullable();
-            // $table->uuid('responsable5_id')->nullable();
-            // $table->uuid('responsable6_id')->nullable();
-
-            $table->uuid('enseignant_principal_id')->nullable(); // ← AJOUTÉ
 
             $table->json('programme')->nullable(); // Programme détaillé
 

@@ -94,6 +94,26 @@ class Subscription extends Model
                     ->where('statut', 'en_attente');
     }
 
+    /**
+     * Relation avec les paiements supplémentaires
+     */
+    public function paymentsSupplementaires(): HasMany
+    {
+        return $this->hasMany(SubscriptionPayment::class, 'subscription_id')
+                    ->where('statut', 'valide')
+                    ->whereRaw('(
+                        SELECT COALESCE(SUM(sp2.montant), 0)
+                        FROM subscription_payments sp2
+                        WHERE sp2.subscription_id = subscription_payments.subscription_id
+                        AND sp2.statut = \'valide\'
+                        AND sp2.date_paiement <= subscription_payments.date_paiement
+                    ) > (
+                        SELECT montant_souscrit
+                        FROM subscriptions s
+                        WHERE s.id = subscription_payments.subscription_id
+                    )');
+    }
+
     // Scopes
 
     /**
@@ -168,6 +188,14 @@ class Subscription extends Model
                     ->where('statut', '!=', 'completement_payee');
     }
 
+    /**
+     * Scope pour les souscriptions avec paiements supplémentaires
+     */
+    public function scopeAvecPaiementsSupplementaires($query)
+    {
+        return $query->where('montant_supplementaire', '>', 0);
+    }
+
     // Accesseurs
 
     /**
@@ -179,11 +207,19 @@ class Subscription extends Model
     }
 
     /**
-     * Vérifie si la souscription est complètement payée
+     * Vérifie si la souscription est complètement payée - VERSION MODIFIÉE
      */
     public function getEstCompleteAttribute(): bool
     {
-        return $this->statut === 'completement_payee';
+        return $this->montant_paye >= $this->montant_souscrit;
+    }
+
+    /**
+     * Vérifie si la souscription a des paiements supplémentaires
+     */
+    public function getAPaiementsSupplementairesAttribute(): bool
+    {
+        return $this->montant_supplementaire > 0;
     }
 
     /**
@@ -193,7 +229,7 @@ class Subscription extends Model
     {
         return $this->date_echeance &&
                $this->date_echeance < now() &&
-               $this->statut !== 'completement_payee';
+               !$this->est_complete;
     }
 
     /**
@@ -227,6 +263,14 @@ class Subscription extends Model
     }
 
     /**
+     * Retourne le montant de base encore à payer (sans dépasser la souscription)
+     */
+    public function getMontantBaseRestantAttribute(): float
+    {
+        return max(0, $this->montant_souscrit - $this->montant_paye);
+    }
+
+    /**
      * Retourne le nombre de paiements
      */
     public function getNombrePaiementsAttribute(): int
@@ -242,33 +286,43 @@ class Subscription extends Model
         return $this->payments()->latest('date_paiement')->first();
     }
 
-    // Méthodes métier
+    // Méthodes métier - VERSIONS MODIFIÉES
 
     /**
-     * Vérifie si un nouveau paiement peut être ajouté
+     * Vérifie si un nouveau paiement peut être ajouté - VERSION MODIFIÉE
      */
     public function peutAccepterPaiement(float $montant): bool
     {
-        return $this->statut !== 'completement_payee' &&
-               $montant > 0 &&
-               $montant <= $this->reste_a_payer;
+        // On accepte maintenant tous les paiements, même au-delà de la souscription
+        return $montant > 0 && $this->fimeco && $this->fimeco->statut === 'active';
     }
 
     /**
-     * Calcule le montant maximum qu'on peut encore payer
+     * Calcule le montant maximum qu'on peut encore payer pour la souscription de base
      */
-    public function getMontantMaximumPayable(): float
+    public function getMontantMaximumPayableBase(): float
     {
-        return max(0, $this->reste_a_payer);
+        return max(0, $this->montant_souscrit - $this->montant_paye);
     }
 
     /**
-     * Retourne les statistiques de paiement
+     * Indique s'il n'y a plus de limite de paiement (pour les supplémentaires)
+     */
+    public function peutRecevoirPaiementsSupplementaires(): bool
+    {
+        return $this->fimeco && $this->fimeco->statut === 'active';
+    }
+
+    /**
+     * Retourne les statistiques de paiement - VERSION ENRICHIE
      */
     public function getStatistiquesPaiements(): array
     {
         $payments = $this->payments()->get();
         $paymentsValides = $payments->where('statut', 'valide');
+        $paymentsSupplementaires = $paymentsValides->filter(function ($payment) {
+            return $payment->est_paiement_supplementaire;
+        });
 
         return [
             'nb_paiements_total' => $payments->count(),
@@ -279,6 +333,13 @@ class Subscription extends Model
             'montant_moyen_paiement' => $paymentsValides->avg('montant') ?? 0,
             'premier_paiement' => $paymentsValides->min('date_paiement'),
             'dernier_paiement' => $paymentsValides->max('date_paiement'),
+            // Statistiques supplémentaires
+            'nb_paiements_supplementaires' => $paymentsSupplementaires->count(),
+            'montant_total_supplementaire' => $this->montant_supplementaire,
+            'montant_base_paye' => min($this->montant_paye, $this->montant_souscrit),
+            'est_au_dela_souscription' => $this->montant_paye > $this->montant_souscrit,
+            'taux_depassement' => $this->montant_souscrit > 0 ?
+                max(0, (($this->montant_paye - $this->montant_souscrit) / $this->montant_souscrit) * 100) : 0,
         ];
     }
 
@@ -294,13 +355,14 @@ class Subscription extends Model
     }
 
     /**
-     * Vérifie si la souscription nécessite une attention particulière
+     * Vérifie si la souscription nécessite une attention particulière - VERSION MODIFIÉE
      */
     public function necessiteAttention(): bool
     {
         return $this->en_retard ||
                $this->paymentsEnAttente()->exists() ||
-               ($this->date_echeance && $this->jours_restants <= 7 && $this->statut !== 'completement_payee');
+               ($this->date_echeance && $this->jours_restants <= 7 && !$this->est_complete) ||
+               ($this->montant_paye > $this->montant_souscrit * 2); // Alerte si dépassement important
     }
 
     /**
@@ -328,6 +390,63 @@ class Subscription extends Model
             'objectif_atteint' => 'Objectif atteint',
             default => 'Statut inconnu'
         };
+
+    }
+
+    /**
+     * Calcule le montant suggéré pour le prochain paiement
+     */
+    public function getMontantSuggereProchainPaiement(): array
+    {
+        $suggestions = [];
+
+        // Montant pour compléter la souscription de base
+        $resteBase = $this->getMontantBaseRestantAttribute();
+        if ($resteBase > 0) {
+            $suggestions['completion_base'] = [
+                'montant' => $resteBase,
+                'description' => 'Pour compléter la souscription de base',
+                'type' => 'completion'
+            ];
+        }
+
+        // Suggestions de montants supplémentaires si la base est complète
+        if ($resteBase == 0) {
+            $montantsSuggeres = [5000, 10000, 25000, 50000, 100000];
+            foreach ($montantsSuggeres as $montant) {
+                $suggestions["supplementaire_{$montant}"] = [
+                    'montant' => $montant,
+                    'description' => "Paiement supplémentaire de " . number_format($montant, 0, ',', ' ') . " FCFA",
+                    'type' => 'supplementaire'
+                ];
+            }
+        }
+
+        return $suggestions;
+    }
+
+    /**
+     * Retourne l'impact d'un potentiel paiement
+     */
+    public function getImpactPaiement(float $montant): array
+    {
+        $resteBase = $this->getMontantBaseRestantAttribute();
+        $montantBase = min($montant, $resteBase);
+        $montantSupplementaire = max(0, $montant - $resteBase);
+
+        return [
+            'montant_total' => $montant,
+            'montant_pour_base' => $montantBase,
+            'montant_supplementaire' => $montantSupplementaire,
+            'nouveau_montant_paye' => $this->montant_paye + $montant,
+            'nouveau_reste_base' => max(0, $resteBase - $montant),
+            'nouveau_montant_supplementaire_total' => $this->montant_supplementaire + $montantSupplementaire,
+            'sera_complete' => ($this->montant_paye + $montant) >= $this->montant_souscrit,
+            'nouvelle_progression' => $this->montant_souscrit > 0 ?
+                min(100, (($this->montant_paye + $montantBase) / $this->montant_souscrit) * 100) : 0,
+            'taux_depassement' => $montantSupplementaire > 0 && $this->montant_souscrit > 0 ?
+                (($this->montant_supplementaire + $montantSupplementaire) / $this->montant_souscrit) * 100 : 0,
+        ];
     }
 
     // Événements du modèle

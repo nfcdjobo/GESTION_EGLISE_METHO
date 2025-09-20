@@ -1,490 +1,337 @@
 @extends('layouts.private.main')
-@section('title', 'Créer une Classe')
+@section('title', 'Créer une nouvelle classe')
 
 @section('content')
-<div class="space-y-8">
-    <!-- Page Title & Breadcrumb -->
-    <div class="mb-8">
-        <h1 class="text-3xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent">Créer une Nouvelle Classe</h1>
-        <nav class="flex mt-2" aria-label="Breadcrumb">
-            <ol class="inline-flex items-center space-x-1 md:space-x-3">
-                <li class="inline-flex items-center">
-                    <a href="{{ route('private.classes.index') }}" class="inline-flex items-center text-sm font-medium text-slate-700 hover:text-blue-600 transition-colors">
-                        <i class="fas fa-chalkboard-teacher mr-2"></i>
-                        Classes
-                    </a>
-                </li>
-                <li>
-                    <div class="flex items-center">
-                        <i class="fas fa-chevron-right text-slate-400 mx-2"></i>
-                        <span class="text-sm font-medium text-slate-500">Créer</span>
-                    </div>
-                </li>
-            </ol>
-        </nav>
-    </div>
-    @can('classes.read')
-    <form action="{{ route('private.classes.store') }}" method="POST" enctype="multipart/form-data" id="classeForm" class="space-y-8">
-        @csrf
+    <div class="space-y-8">
+        <!-- En-tête de page -->
+        <div class="mb-8">
+            <div class="flex items-center space-x-4 mb-4">
+                <a href="{{ route('private.classes.index') }}"
+                   class="inline-flex items-center text-slate-600 hover:text-slate-900 transition-colors">
+                    <i class="fas fa-arrow-left mr-2"></i>
+                    Retour à la liste
+                </a>
+            </div>
+            <h1 class="text-3xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent">
+                Créer une nouvelle classe
+            </h1>
+            <p class="text-slate-500 mt-1">
+                Ajoutez une nouvelle classe avec ses responsables et paramètres
+            </p>
+        </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <!-- Informations générales -->
-            <div class="lg:col-span-2">
-                <div class="bg-white/80 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
-                    <div class="p-6 border-b border-slate-200">
-                        <h2 class="text-xl font-bold text-slate-800 flex items-center">
-                            <i class="fas fa-info-circle text-blue-600 mr-2"></i>
-                            Informations Générales
-                        </h2>
-                    </div>
-                    <div class="p-6 space-y-6">
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div>
-                                <label for="nom" class="block text-sm font-medium text-slate-700 mb-2">
-                                    Nom de la classe <span class="text-red-500">*</span>
-                                </label>
-                                <input type="text" id="nom" name="nom" value="{{ old('nom') }}" required maxlength="255" placeholder="Ex: École du Dimanche - Enfants"
-                                    class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors @error('nom') border-red-500 focus:ring-red-500 focus:border-red-500 @enderror">
-                                @error('nom')
-                                    <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
-                                @enderror
-                                <p class="mt-1 text-sm text-slate-500">Nom d'affichage de la classe (255 caractères max)</p>
-                            </div>
+        <!-- Formulaire de création -->
+        <div class="bg-white/80 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
+            <div class="p-6 border-b border-slate-200">
+                <h2 class="text-xl font-bold text-slate-800 flex items-center">
+                    <i class="fas fa-plus-circle text-blue-600 mr-2"></i>
+                    Informations de la classe
+                </h2>
+            </div>
 
-                            <div>
-                                <label for="tranche_age" class="block text-sm font-medium text-slate-700 mb-2">
-                                    Tranche d'âge
-                                </label>
-                                <select id="tranche_age" name="tranche_age" class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors @error('tranche_age') border-red-500 focus:ring-red-500 focus:border-red-500 @enderror">
-                                    <option value="">Sélectionner une tranche</option>
-                                    @foreach($tranches_age as $tranche)
-                                        <option value="{{ $tranche }}" {{ old('tranche_age') == $tranche ? 'selected' : '' }}>{{ $tranche }}</option>
-                                    @endforeach
-                                </select>
-                                @error('tranche_age')
-                                    <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
-                                @enderror
-                            </div>
-                        </div>
+            <form action="{{ route('private.classes.store') }}" method="POST" enctype="multipart/form-data" class="p-6">
+                @csrf
 
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <!-- Colonne gauche - Informations de base -->
+                    <div class="space-y-6">
+                        <!-- Nom de la classe -->
                         <div>
-                            <label for="description" class="block text-sm font-medium text-slate-700 mb-2">Description</label>
-                            <textarea id="description" name="description" rows="3" placeholder="Description de la classe, objectifs et activités"
-                                class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors resize-none @error('description') border-red-500 focus:ring-red-500 focus:border-red-500 @enderror">{{ old('description') }}</textarea>
-                            @error('description')
-                                <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                            <label for="nom" class="block text-sm font-medium text-slate-700 mb-2">
+                                Nom de la classe <span class="text-red-500">*</span>
+                            </label>
+                            <input type="text" id="nom" name="nom" value="{{ old('nom') }}" required
+                                class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors @error('nom') border-red-500 @enderror"
+                                placeholder="Ex: Classe préparatoire A">
+                            @error('nom')
+                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                             @enderror
                         </div>
 
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Description -->
+                        <div>
+                            <label for="description" class="block text-sm font-medium text-slate-700 mb-2">
+                                Description
+                            </label>
+                            <textarea id="description" name="description" rows="4"
+                                class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors @error('description') border-red-500 @enderror"
+                                placeholder="Description détaillée de la classe...">{{ old('description') }}</textarea>
+                            @error('description')
+                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <!-- Tranche d'âge -->
+                        <div>
+                            <label for="tranche_age" class="block text-sm font-medium text-slate-700 mb-2">
+                                Tranche d'âge
+                            </label>
+                            <select id="tranche_age" name="tranche_age"
+                                class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors @error('tranche_age') border-red-500 @enderror">
+                                <option value="">Sélectionner une tranche d'âge</option>
+                                @foreach($tranches_age as $tranche)
+                                    <option value="{{ $tranche }}" {{ old('tranche_age') == $tranche ? 'selected' : '' }}>
+                                        {{ $tranche }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            @error('tranche_age')
+                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <!-- Âges spécifiques -->
+                        <div class="grid grid-cols-2 gap-4">
                             <div>
                                 <label for="age_minimum" class="block text-sm font-medium text-slate-700 mb-2">
                                     Âge minimum
                                 </label>
-                                <input type="number" id="age_minimum" name="age_minimum" value="{{ old('age_minimum') }}" min="0" max="120"
-                                    class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors @error('age_minimum') border-red-500 focus:ring-red-500 focus:border-red-500 @enderror">
+                                <input type="number" id="age_minimum" name="age_minimum" value="{{ old('age_minimum') }}"
+                                    min="0" max="120"
+                                    class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors @error('age_minimum') border-red-500 @enderror"
+                                    placeholder="Ex: 6">
                                 @error('age_minimum')
-                                    <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                                 @enderror
-                                <p class="mt-1 text-sm text-slate-500">Âge minimum requis (optionnel)</p>
                             </div>
-
                             <div>
                                 <label for="age_maximum" class="block text-sm font-medium text-slate-700 mb-2">
                                     Âge maximum
                                 </label>
-                                <input type="number" id="age_maximum" name="age_maximum" value="{{ old('age_maximum') }}" min="0" max="120"
-                                    class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors @error('age_maximum') border-red-500 focus:ring-red-500 focus:border-red-500 @enderror">
+                                <input type="number" id="age_maximum" name="age_maximum" value="{{ old('age_maximum') }}"
+                                    min="0" max="120"
+                                    class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors @error('age_maximum') border-red-500 @enderror"
+                                    placeholder="Ex: 12">
                                 @error('age_maximum')
-                                    <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
-                                @enderror
-                                <p class="mt-1 text-sm text-slate-500">Âge maximum autorisé (optionnel)</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Responsables -->
-                <div class="bg-white/80 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300 mt-8">
-                    <div class="p-6 border-b border-slate-200">
-                        <h2 class="text-xl font-bold text-slate-800 flex items-center">
-                            <i class="fas fa-users text-green-600 mr-2"></i>
-                            Responsables
-                        </h2>
-                    </div>
-                    <div class="p-6 space-y-6">
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div>
-                                <label for="responsable_id" class="block text-sm font-medium text-slate-700 mb-2">
-                                    Responsable de classe
-                                </label>
-                                <select id="responsable_id" name="responsable_id" class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors @error('responsable_id') border-red-500 focus:ring-red-500 focus:border-red-500 @enderror">
-                                    <option value="">Aucun responsable</option>
-                                    @foreach($utilisateurs as $utilisateur)
-                                        <option value="{{ $utilisateur->id }}" {{ old('responsable_id') == $utilisateur->id ? 'selected' : '' }}>
-                                            {{ $utilisateur->nom_complet }} ({{ $utilisateur->email }})
-                                        </option>
-                                    @endforeach
-                                </select>
-                                @error('responsable_id')
-                                    <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
-                                @enderror
-                            </div>
-
-                            <div>
-                                <label for="enseignant_principal_id" class="block text-sm font-medium text-slate-700 mb-2">
-                                    Enseignant principal
-                                </label>
-                                <select id="enseignant_principal_id" name="enseignant_principal_id" class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors @error('enseignant_principal_id') border-red-500 focus:ring-red-500 focus:border-red-500 @enderror">
-                                    <option value="">Aucun enseignant</option>
-                                    @foreach($utilisateurs as $utilisateur)
-                                        <option value="{{ $utilisateur->id }}" {{ old('enseignant_principal_id') == $utilisateur->id ? 'selected' : '' }}>
-                                            {{ $utilisateur->nom_complet }} ({{ $utilisateur->email }})
-                                        </option>
-                                    @endforeach
-                                </select>
-                                @error('enseignant_principal_id')
-                                    <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                                 @enderror
                             </div>
                         </div>
-                    </div>
-                </div>
 
-                <!-- Image et médias -->
-                <div class="bg-white/80 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300 mt-8">
-                    <div class="p-6 border-b border-slate-200">
-                        <h2 class="text-xl font-bold text-slate-800 flex items-center">
-                            <i class="fas fa-image text-purple-600 mr-2"></i>
-                            Image et Médias
-                        </h2>
-                    </div>
-                    <div class="p-6">
+                        <!-- Image de la classe -->
                         <div>
                             <label for="image_classe" class="block text-sm font-medium text-slate-700 mb-2">
                                 Image de la classe
                             </label>
-                            <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-slate-300 border-dashed rounded-xl hover:border-blue-400 transition-colors">
-                                <div class="space-y-1 text-center">
-                                    <svg class="mx-auto h-12 w-12 text-slate-400" stroke="currentColor" fill="none" viewBox="0 0 48 48" aria-hidden="true">
-                                        <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                                    </svg>
-                                    <div class="flex text-sm text-slate-600">
-                                        <label for="image_classe" class="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-blue-500">
-                                            <span>Télécharger un fichier</span>
-                                            <input id="image_classe" name="image_classe" type="file" accept="image/*" class="sr-only" onchange="previewImage(this)">
-                                        </label>
-                                        <p class="pl-1">ou glisser-déposer</p>
-                                    </div>
-                                    <p class="text-xs text-slate-500">PNG, JPG, GIF jusqu'à 2MB</p>
+                            <div class="border-2 border-dashed border-slate-300 rounded-xl p-6 text-center hover:border-slate-400 transition-colors">
+                                <input type="file" id="image_classe" name="image_classe" accept="image/*"
+                                    class="hidden" onchange="previewImage(this)">
+                                <div id="image-preview" class="hidden">
+                                    <img id="preview-img" src="" alt="Aperçu" class="mx-auto max-h-32 rounded-lg mb-3">
+                                    <button type="button" onclick="removeImage()"
+                                        class="text-red-600 hover:text-red-800 text-sm">
+                                        <i class="fas fa-trash mr-1"></i> Supprimer
+                                    </button>
+                                </div>
+                                <div id="upload-placeholder">
+                                    <i class="fas fa-cloud-upload-alt text-3xl text-slate-400 mb-3"></i>
+                                    <p class="text-slate-600 mb-2">Cliquez pour ajouter une image</p>
+                                    <button type="button" onclick="document.getElementById('image_classe').click()"
+                                        class="px-4 py-2 bg-blue-100 text-blue-600 rounded-lg hover:bg-blue-200 transition-colors">
+                                        Choisir un fichier
+                                    </button>
                                 </div>
                             </div>
-                            <div id="imagePreview" class="mt-4 hidden">
-                                <img id="previewImg" src="" alt="Aperçu" class="max-w-full h-32 object-cover rounded-lg mx-auto">
-                            </div>
                             @error('image_classe')
-                                <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                             @enderror
                         </div>
                     </div>
-                </div>
-            </div>
 
-            <!-- Aperçu et aide -->
-            <div class="space-y-6">
-                <!-- Aperçu -->
-                <div class="bg-white/80 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
-                    <div class="p-6 border-b border-slate-200">
-                        <h2 class="text-xl font-bold text-slate-800 flex items-center">
-                            <i class="fas fa-eye text-purple-600 mr-2"></i>
-                            Aperçu
-                        </h2>
-                    </div>
-                    <div class="p-6 space-y-4">
-                        <div class="flex items-center justify-between">
-                            <span class="text-sm font-medium text-slate-700">Nom:</span>
-                            <span id="preview-nom" class="text-sm text-slate-900 font-semibold">-</span>
-                        </div>
-                        <div class="flex items-center justify-between">
-                            <span class="text-sm font-medium text-slate-700">Tranche d'âge:</span>
-                            <span id="preview-tranche" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">-</span>
-                        </div>
-                        <div class="flex items-center justify-between">
-                            <span class="text-sm font-medium text-slate-700">Âges:</span>
-                            <span id="preview-ages" class="text-sm text-slate-600">-</span>
-                        </div>
-                        <div class="flex items-center justify-between">
-                            <span class="text-sm font-medium text-slate-700">Responsable:</span>
-                            <span id="preview-responsable" class="text-sm text-slate-600">-</span>
-                        </div>
-                        <div class="flex items-center justify-between">
-                            <span class="text-sm font-medium text-slate-700">Enseignant:</span>
-                            <span id="preview-enseignant" class="text-sm text-slate-600">-</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Guide des tranches d'âge -->
-                <div class="bg-white/80 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
-                    <div class="p-6 border-b border-slate-200">
-                        <h2 class="text-xl font-bold text-slate-800 flex items-center">
-                            <i class="fas fa-child text-green-600 mr-2"></i>
-                            Guide des Tranches d'Âge
-                        </h2>
-                    </div>
-                    <div class="p-6 space-y-3">
-                        <div class="flex items-center justify-between">
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-pink-100 text-pink-800">0-3 ans</span>
-                            <span class="text-sm text-slate-700">Petite enfance</span>
-                        </div>
-                        <div class="flex items-center justify-between">
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">4-6 ans</span>
-                            <span class="text-sm text-slate-700">Maternelle</span>
-                        </div>
-                        <div class="flex items-center justify-between">
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">7-9 ans</span>
-                            <span class="text-sm text-slate-700">Primaire</span>
-                        </div>
-                        <div class="flex items-center justify-between">
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">10-12 ans</span>
-                            <span class="text-sm text-slate-700">Pré-adolescent</span>
-                        </div>
-                        <div class="flex items-center justify-between">
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">13-18 ans</span>
-                            <span class="text-sm text-slate-700">Adolescent</span>
-                        </div>
-                        <div class="flex items-center justify-between">
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-800">Adultes</span>
-                            <span class="text-sm text-slate-700">18+ ans</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Conseils -->
-                <div class="bg-white/80 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
-                    <div class="p-6 border-b border-slate-200">
-                        <h2 class="text-xl font-bold text-slate-800 flex items-center">
-                            <i class="fas fa-lightbulb text-amber-600 mr-2"></i>
-                            Conseils
-                        </h2>
-                    </div>
-                    <div class="p-6 space-y-3 text-sm text-slate-600">
-                        <div class="flex items-start space-x-2">
-                            <i class="fas fa-check-circle text-green-500 mt-0.5"></i>
-                            <span>Choisissez un nom descriptif et facile à retenir</span>
-                        </div>
-                        <div class="flex items-start space-x-2">
-                            <i class="fas fa-check-circle text-green-500 mt-0.5"></i>
-                            <span>Définissez clairement la tranche d'âge ciblée</span>
-                        </div>
-                        <div class="flex items-start space-x-2">
-                            <i class="fas fa-check-circle text-green-500 mt-0.5"></i>
-                            <span>Assignez un responsable dès la création</span>
-                        </div>
-                        <div class="flex items-start space-x-2">
-                            <i class="fas fa-check-circle text-green-500 mt-0.5"></i>
-                            <span>Ajoutez une image attrayante pour la classe</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Programme de la classe -->
-        <div class="bg-white/80 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
-            <div class="p-6 border-b border-slate-200">
-                <h2 class="text-xl font-bold text-slate-800 flex items-center">
-                    <i class="fas fa-book text-amber-600 mr-2"></i>
-                    Programme de la Classe
-                </h2>
-                <p class="text-slate-500 mt-1">Définissez le programme et les objectifs de la classe (optionnel)</p>
-            </div>
-            <div class="p-6">
-                <div id="programme-container">
-                    <div class="programme-item border border-slate-200 rounded-xl p-4 mb-4">
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            <div>
-                                <label class="block text-sm font-medium text-slate-700 mb-2">Titre de la leçon</label>
-                                <input type="text" name="programme[0][titre]" placeholder="Ex: L'amour de Dieu" class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    <!-- Colonne droite - Responsables et programme -->
+                    <div class="space-y-6">
+                        <!-- Responsables -->
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 mb-4">
+                                Responsables de la classe
+                            </label>
+                            <div id="responsables-container" class="space-y-4">
+                                <!-- Template pour les responsables -->
+                                <div class="responsable-item bg-slate-50 p-4 rounded-xl border border-slate-200">
+                                    <div class="grid grid-cols-12 gap-3 items-end">
+                                        <div class="col-span-5">
+                                            <label class="block text-xs font-medium text-slate-600 mb-1">Utilisateur</label>
+                                            <select name="responsables[0][id]" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                                <option value="">Sélectionner un utilisateur</option>
+                                                @foreach($utilisateurs as $utilisateur)
+                                                    <option value="{{ $utilisateur->id }}">{{ $utilisateur->prenom }} {{ $utilisateur->nom }}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                        <div class="col-span-4">
+                                            <label class="block text-xs font-medium text-slate-600 mb-1">Responsabilité</label>
+                                            <select name="responsables[0][responsabilite]" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                                <option value="">Type de responsabilité</option>
+                                                @foreach($types_responsabilite as $type)
+                                                    <option value="{{ $type }}">{{ ucfirst($type) }}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                        <div class="col-span-2">
+                                            <label class="block text-xs font-medium text-slate-600 mb-1">Supérieur</label>
+                                            <div class="flex items-center justify-center">
+                                                <input type="checkbox" name="responsables[0][superieur]" value="1"
+                                                    class="w-4 h-4 text-blue-600 bg-white border-gray-300 rounded focus:ring-blue-500">
+                                            </div>
+                                        </div>
+                                        <div class="col-span-1">
+                                            <button type="button" onclick="removeResponsable(this)"
+                                                class="w-8 h-8 text-red-600 bg-red-100 rounded-lg hover:bg-red-200 transition-colors flex items-center justify-center">
+                                                <i class="fas fa-trash text-xs"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
-                            <div>
-                                <label class="block text-sm font-medium text-slate-700 mb-2">Durée (minutes)</label>
-                                <input type="number" name="programme[0][duree]" placeholder="45" min="1" class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                            </div>
-                            <div class="flex items-end">
-                                <button type="button" onclick="removeProgrammeItem(this)" class="w-full px-3 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors">
-                                    <i class="fas fa-trash mr-2"></i> Supprimer
-                                </button>
-                            </div>
+
+                            <button type="button" onclick="addResponsable()"
+                                class="mt-3 inline-flex items-center px-4 py-2 bg-green-100 text-green-700 rounded-lg hover:bg-green-200 transition-colors">
+                                <i class="fas fa-plus mr-2"></i> Ajouter un responsable
+                            </button>
                         </div>
-                        <div class="mt-4">
-                            <label class="block text-sm font-medium text-slate-700 mb-2">Description</label>
-                            <textarea name="programme[0][description]" rows="2" placeholder="Description détaillée de la leçon..." class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none"></textarea>
+
+                        <!-- Programme -->
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 mb-4">
+                                Programme de la classe
+                            </label>
+                            <div id="programme-container" class="space-y-3">
+                                <!-- Template pour les éléments du programme -->
+                                <div class="programme-item flex gap-3">
+                                    <input type="text" name="programme[]"
+                                        class="flex-1 px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                        placeholder="Ex: Mathématiques de base">
+                                    <button type="button" onclick="removeProgrammeItem(this)"
+                                        class="w-10 h-10 text-red-600 bg-red-100 rounded-lg hover:bg-red-200 transition-colors flex items-center justify-center">
+                                        <i class="fas fa-trash text-sm"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <button type="button" onclick="addProgrammeItem()"
+                                class="mt-3 inline-flex items-center px-4 py-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition-colors">
+                                <i class="fas fa-plus mr-2"></i> Ajouter un élément
+                            </button>
                         </div>
                     </div>
                 </div>
 
-                <button type="button" onclick="addProgrammeItem()" class="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors">
-                    <i class="fas fa-plus mr-2"></i> Ajouter une leçon
-                </button>
-            </div>
-        </div>
-
-        <!-- Actions -->
-        <div class="bg-white/80 rounded-2xl shadow-lg border border-white/20">
-            <div class="p-6">
-                <div class="flex flex-col sm:flex-row gap-4 justify-center">
-                    <button type="submit" class="inline-flex items-center justify-center px-8 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-medium rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-200 shadow-md hover:shadow-lg">
-                        <i class="fas fa-save mr-2"></i> Créer la Classe
-                    </button>
-                    <a href="{{ route('private.classes.index') }}" class="inline-flex items-center justify-center px-8 py-3 bg-slate-600 text-white font-medium rounded-xl hover:bg-slate-700 transition-colors">
-                        <i class="fas fa-times mr-2"></i> Annuler
+                <!-- Boutons d'action -->
+                <div class="flex items-center justify-end space-x-4 mt-8 pt-6 border-t border-slate-200">
+                    <a href="{{ route('private.classes.index') }}"
+                        class="px-6 py-3 text-slate-700 bg-slate-100 rounded-xl hover:bg-slate-200 transition-colors">
+                        Annuler
                     </a>
-                </div>
-            </div>
-        </div>
-    </form>
-    @endcan
-
-</div>
-
-@push('scripts')
-<script>
-let programmeItemCount = 1;
-
-// Mise à jour de l'aperçu
-function updatePreview() {
-    const nom = document.getElementById('nom').value || '-';
-    const tranche = document.getElementById('tranche_age').value || '-';
-    const ageMin = document.getElementById('age_minimum').value;
-    const ageMax = document.getElementById('age_maximum').value;
-    const responsableSelect = document.getElementById('responsable_id');
-    const enseignantSelect = document.getElementById('enseignant_principal_id');
-
-    document.getElementById('preview-nom').textContent = nom;
-
-    if (tranche !== '-') {
-        document.getElementById('preview-tranche').textContent = tranche;
-        document.getElementById('preview-tranche').className = 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800';
-    } else {
-        document.getElementById('preview-tranche').textContent = '-';
-        document.getElementById('preview-tranche').className = 'text-sm text-slate-600';
-    }
-
-    // Gestion des âges
-    let agesText = '-';
-    if (ageMin && ageMax) {
-        agesText = `${ageMin}-${ageMax} ans`;
-    } else if (ageMin) {
-        agesText = `${ageMin}+ ans`;
-    } else if (ageMax) {
-        agesText = `Jusqu'à ${ageMax} ans`;
-    }
-    document.getElementById('preview-ages').textContent = agesText;
-
-    // Responsable
-    const responsableText = responsableSelect.selectedIndex > 0 ?
-        responsableSelect.options[responsableSelect.selectedIndex].text.split(' (')[0] : '-';
-    document.getElementById('preview-responsable').textContent = responsableText;
-
-    // Enseignant
-    const enseignantText = enseignantSelect.selectedIndex > 0 ?
-        enseignantSelect.options[enseignantSelect.selectedIndex].text.split(' (')[0] : '-';
-    document.getElementById('preview-enseignant').textContent = enseignantText;
-}
-
-// Événements pour la mise à jour de l'aperçu
-document.getElementById('nom').addEventListener('input', updatePreview);
-document.getElementById('tranche_age').addEventListener('change', updatePreview);
-document.getElementById('age_minimum').addEventListener('input', updatePreview);
-document.getElementById('age_maximum').addEventListener('input', updatePreview);
-document.getElementById('responsable_id').addEventListener('change', updatePreview);
-document.getElementById('enseignant_principal_id').addEventListener('change', updatePreview);
-
-// Aperçu de l'image
-function previewImage(input) {
-    const preview = document.getElementById('imagePreview');
-    const previewImg = document.getElementById('previewImg');
-
-    if (input.files && input.files[0]) {
-        const reader = new FileReader();
-
-        reader.onload = function(e) {
-            previewImg.src = e.target.result;
-            preview.classList.remove('hidden');
-        };
-
-        reader.readAsDataURL(input.files[0]);
-    } else {
-        preview.classList.add('hidden');
-    }
-}
-
-// Gestion du programme
-function addProgrammeItem() {
-    const container = document.getElementById('programme-container');
-    const itemHtml = `
-        <div class="programme-item border border-slate-200 rounded-xl p-4 mb-4">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div>
-                    <label class="block text-sm font-medium text-slate-700 mb-2">Titre de la leçon</label>
-                    <input type="text" name="programme[${programmeItemCount}][titre]" placeholder="Ex: L'amour de Dieu" class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-slate-700 mb-2">Durée (minutes)</label>
-                    <input type="number" name="programme[${programmeItemCount}][duree]" placeholder="45" min="1" class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                </div>
-                <div class="flex items-end">
-                    <button type="button" onclick="removeProgrammeItem(this)" class="w-full px-3 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors">
-                        <i class="fas fa-trash mr-2"></i> Supprimer
+                    <button type="submit"
+                        class="px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-200 shadow-md hover:shadow-lg">
+                        <i class="fas fa-save mr-2"></i> Créer la classe
                     </button>
                 </div>
-            </div>
-            <div class="mt-4">
-                <label class="block text-sm font-medium text-slate-700 mb-2">Description</label>
-                <textarea name="programme[${programmeItemCount}][description]" rows="2" placeholder="Description détaillée de la leçon..." class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none"></textarea>
-            </div>
+            </form>
         </div>
-    `;
+    </div>
 
-    container.insertAdjacentHTML('beforeend', itemHtml);
-    programmeItemCount++;
+    <!-- Scripts JavaScript -->
+    <script>
+        let responsableIndex = 1;
+        let programmeIndex = 1;
+
+        // Gestion de l'aperçu d'image
+        function previewImage(input) {
+            const file = input.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('preview-img').src = e.target.result;
+                    document.getElementById('image-preview').classList.remove('hidden');
+                    document.getElementById('upload-placeholder').classList.add('hidden');
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function removeImage() {
+            document.getElementById('image_classe').value = '';
+            document.getElementById('image-preview').classList.add('hidden');
+            document.getElementById('upload-placeholder').classList.remove('hidden');
+        }
+
+        // Gestion des responsables
+function addResponsable() {
+    const template = document.querySelector('.responsable-template .responsable-item').cloneNode(true);
+    const container = document.getElementById('responsables-list');
+
+    // Mettre à jour les noms des champs
+    const selects = template.querySelectorAll('select');
+    const checkbox = template.querySelector('input[type="checkbox"]');
+
+    selects[0].name = `responsables[${responsableIndex}][id]`;
+    selects[1].name = `responsables[${responsableIndex}][responsabilite]`;
+    checkbox.name = `responsables[${responsableIndex}][superieur]`;
+
+    // Réinitialiser les valeurs
+    selects.forEach(select => select.value = '');
+    checkbox.checked = false;
+
+    container.appendChild(template);
+    responsableIndex++;
 }
 
-function removeProgrammeItem(button) {
-    const item = button.closest('.programme-item');
-    const container = document.getElementById('programme-container');
-
-    if (container.children.length > 1) {
-        item.remove();
-    } else {
-        alert('Au moins une leçon doit être définie dans le programme');
+function removeResponsable(button) {
+    const container = document.getElementById('responsables-list');
+    if (container.children.length > 0) { // Permet de supprimer même le dernier
+        button.closest('.responsable-item').remove();
     }
 }
 
-// Validation du formulaire
-document.getElementById('classeForm').addEventListener('submit', function(e) {
-    const nom = document.getElementById('nom').value.trim();
-    const ageMin = document.getElementById('age_minimum').value;
-    const ageMax = document.getElementById('age_maximum').value;
+        // Gestion du programme
+        function addProgrammeItem() {
+            const container = document.getElementById('programme-container');
+            const template = container.children[0].cloneNode(true);
 
-    if (!nom) {
-        e.preventDefault();
-        alert('Veuillez saisir le nom de la classe.');
-        return false;
-    }
+            // Réinitialiser la valeur
+            template.querySelector('input').value = '';
 
-    if (ageMin && ageMax && parseInt(ageMin) > parseInt(ageMax)) {
-        e.preventDefault();
-        alert('L\'âge minimum ne peut pas être supérieur à l\'âge maximum.');
-        return false;
-    }
-});
+            container.appendChild(template);
+        }
 
-// Initialisation
-document.addEventListener('DOMContentLoaded', function() {
-    updatePreview();
-});
-</script>
-@endpush
+        function removeProgrammeItem(button) {
+            const container = document.getElementById('programme-container');
+            if (container.children.length > 1) {
+                button.closest('.programme-item').remove();
+            }
+        }
+
+        // Validation côté client
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.querySelector('form');
+            const ageMin = document.getElementById('age_minimum');
+            const ageMax = document.getElementById('age_maximum');
+
+            // Validation des âges
+            function validateAges() {
+                const min = parseInt(ageMin.value);
+                const max = parseInt(ageMax.value);
+
+                if (min && max && min > max) {
+                    ageMax.setCustomValidity('L\'âge maximum doit être supérieur à l\'âge minimum');
+                } else {
+                    ageMax.setCustomValidity('');
+                }
+            }
+
+            ageMin.addEventListener('input', validateAges);
+            ageMax.addEventListener('input', validateAges);
+
+            // Validation des responsables supérieurs
+            form.addEventListener('submit', function(e) {
+                const superieurs = document.querySelectorAll('input[name*="[superieur]"]:checked');
+                if (superieurs.length > 1) {
+                    e.preventDefault();
+                    alert('Une seule personne peut être désignée comme responsable supérieur');
+                }
+            });
+        });
+    </script>
+
 @endsection

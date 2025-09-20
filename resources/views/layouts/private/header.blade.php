@@ -2,8 +2,7 @@
 <aside id="sidebar"
     class="fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-2xl transform -translate-x-full transition-all duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0 border-r border-slate-200">
     <!-- Sidebar Header -->
-    <div
-        class="flex items-center justify-center h-16 bg-gradient-to-r from-blue-600 to-purple-600 border-b border-blue-700">
+    <div class="flex items-center justify-center h-16 bg-gradient-to-r from-blue-600 to-purple-600 border-b border-blue-700">
         <div class="flex items-center">
             <div class="w-10 h-10 bg-white rounded-full flex items-center justify-center">
                 <img class="h-10 w-10 rounded-full object-cover ring-2 ring-blue-500"
@@ -198,7 +197,7 @@
                             class="nav-item flex items-center px-3 py-2.5 text-sm font-medium {{ request()->routeIs('private.fimecos.*') ? 'text-white bg-gradient-to-r from-green-500 to-teal-500 shadow-lg ring-2 ring-green-200' : 'text-slate-700 hover:bg-gradient-to-r hover:from-emerald-50 hover:to-green-50 hover:text-emerald-600' }} rounded-xl transition-all duration-200 group"
                             data-route="private.fimecos.index">
                             <i class="fas fa-piggy-bank {{ request()->routeIs('private.fimecos.*') ? 'text-yellow-300' : 'text-emerald-500 group-hover:text-emerald-600' }} mr-3"></i>
-                            <span>FIMECO</span>
+                            <span>FIMECO<sub>s</sub></span>
                         </a>
                     @endcan
 

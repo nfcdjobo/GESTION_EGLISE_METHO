@@ -100,6 +100,7 @@ class TypeReunionController extends Controller
     {
         if ($this->expectsJson($request)) {
             return response()->json([
+
                 'categories' => $this->getCategoriesArray(),
                 'niveaux_acces' => $this->getNiveauxAccesArray(),
                 'frequences' => $this->getFrequencesArray(),
@@ -124,6 +125,7 @@ class TypeReunionController extends Controller
         if ($validator->fails()) {
             if ($this->expectsJson($request)) {
                 return response()->json([
+                    'success' => false,
                     'message' => 'Données invalides',
                     'errors' => $validator->errors()
                 ], 422);
@@ -160,6 +162,7 @@ class TypeReunionController extends Controller
 
             if ($this->expectsJson($request)) {
                 return response()->json([
+                    'success' => false,
                     'message' => 'Erreur lors de la création du type de réunion',
                     'error' => $e->getMessage()
                 ], 500);
@@ -198,6 +201,7 @@ class TypeReunionController extends Controller
 
             if ($this->expectsJson($request)) {
                 return response()->json([
+                    'success' => true,
                     'data' => $typeReunion,
                     'statistiques' => $stats
                 ]);
@@ -208,6 +212,7 @@ class TypeReunionController extends Controller
         } catch (\Exception $e) {
             if ($this->expectsJson($request)) {
                 return response()->json([
+                    'success' => false,
                     'message' => 'Type de réunion introuvable',
                     'error' => $e->getMessage()
                 ], 404);
@@ -224,6 +229,7 @@ class TypeReunionController extends Controller
     {
         if ($this->expectsJson($request)) {
             return response()->json([
+                'success' => true,
                 'data' => $typeReunion->load('responsableType'),
                 'categories' => $this->getCategoriesArray(),
                 'niveaux_acces' => $this->getNiveauxAccesArray(),
@@ -248,6 +254,7 @@ class TypeReunionController extends Controller
         if ($validator->fails()) {
             if ($this->expectsJson($request)) {
                 return response()->json([
+                    'success' => false,
                     'message' => 'Données invalides',
                     'errors' => $validator->errors()
                 ], 422);
@@ -284,6 +291,7 @@ class TypeReunionController extends Controller
 
             if ($this->expectsJson($request)) {
                 return response()->json([
+                    'success' => false,
                     'message' => 'Erreur lors de la mise à jour du type de réunion',
                     'error' => $e->getMessage()
                 ], 500);
@@ -328,6 +336,7 @@ class TypeReunionController extends Controller
         } catch (\Exception $e) {
             if ($this->expectsJson($request)) {
                 return response()->json([
+                    'success' => false,
                     'message' => 'Erreur lors de la suppression du type de réunion',
                     'error' => $e->getMessage()
                 ], 500);
@@ -350,6 +359,7 @@ class TypeReunionController extends Controller
 
             if ($this->expectsJson($request)) {
                 return response()->json([
+                    'success' => true,
                     'message' => 'Type de réunion archivé avec succès',
                     'data' => $typeReunion->fresh()
                 ]);
@@ -360,6 +370,7 @@ class TypeReunionController extends Controller
         } catch (\Exception $e) {
             if ($this->expectsJson($request)) {
                 return response()->json([
+                    'success' => false,
                     'message' => 'Erreur lors de l\'archivage',
                     'error' => $e->getMessage()
                 ], 500);
@@ -382,6 +393,7 @@ class TypeReunionController extends Controller
 
             if ($this->expectsJson($request)) {
                 return response()->json([
+                    'success' => true,
                     'message' => 'Type de réunion restauré avec succès',
                     'data' => $typeReunion->fresh()
                 ]);
@@ -392,6 +404,7 @@ class TypeReunionController extends Controller
         } catch (\Exception $e) {
             if ($this->expectsJson($request)) {
                 return response()->json([
+                    'success' => false,
                     'message' => 'Erreur lors de la restauration',
                     'error' => $e->getMessage()
                 ], 500);
@@ -414,6 +427,7 @@ class TypeReunionController extends Controller
 
             if ($this->expectsJson($request)) {
                 return response()->json([
+                    'success' => true,
                     'message' => 'Type de réunion activé avec succès',
                     'data' => $typeReunion->fresh()
                 ]);
@@ -424,6 +438,7 @@ class TypeReunionController extends Controller
         } catch (\Exception $e) {
             if ($this->expectsJson($request)) {
                 return response()->json([
+                    'success' => false,
                     'message' => 'Erreur lors de l\'activation',
                     'error' => $e->getMessage()
                 ], 500);
@@ -446,6 +461,7 @@ class TypeReunionController extends Controller
 
             if ($this->expectsJson($request)) {
                 return response()->json([
+                    'success' => true,
                     'message' => 'Type de réunion désactivé avec succès',
                     'data' => $typeReunion->fresh()
                 ]);
@@ -456,6 +472,7 @@ class TypeReunionController extends Controller
         } catch (\Exception $e) {
             if ($this->expectsJson($request)) {
                 return response()->json([
+                    'success' => false,
                     'message' => 'Erreur lors de la désactivation',
                     'error' => $e->getMessage()
                 ], 500);
@@ -486,6 +503,7 @@ class TypeReunionController extends Controller
 
             if ($this->expectsJson($request)) {
                 return response()->json([
+                    'success' => true,
                     'message' => 'Type de réunion dupliqué avec succès',
                     'data' => $nouveauType
                 ], 201);
@@ -500,6 +518,7 @@ class TypeReunionController extends Controller
 
             if ($this->expectsJson($request)) {
                 return response()->json([
+                    'success' => false,
                     'message' => 'Erreur lors de la duplication',
                     'error' => $e->getMessage()
                 ], 500);
@@ -518,12 +537,14 @@ class TypeReunionController extends Controller
             $types = TypeReunion::public()->get();
 
                 return response()->json([
+                    'success' => true,
                     'data' => $types
                 ]);
 
         } catch (\Exception $e) {
             if ($this->expectsJson($request)) {
                 return response()->json([
+                    'success' => false,
                     'message' => 'Erreur lors de la récupération des types publics',
                     'error' => $e->getMessage()
                 ], 500);
@@ -586,6 +607,7 @@ class TypeReunionController extends Controller
         } catch (\Exception $e) {
             if ($this->expectsJson($request)) {
                 return response()->json([
+                    'success' => false,
                     'message' => 'Erreur lors de la récupération des statistiques',
                     'error' => $e->getMessage()
                 ], 500);
@@ -624,6 +646,7 @@ class TypeReunionController extends Controller
         if ($validator->fails()) {
             if ($this->expectsJson($request)) {
                 return response()->json([
+                    'success' => false,
                     'message' => 'Fichier invalide',
                     'errors' => $validator->errors()
                 ], 422);
@@ -657,6 +680,7 @@ class TypeReunionController extends Controller
 
                 $url = $disk->url($path);
                 return response()->json([
+                    'success' => true,
                     'message' => 'Icône uploadée avec succès',
                     'data' => [
                         'icone' => $path,
@@ -670,6 +694,7 @@ class TypeReunionController extends Controller
         } catch (\Exception $e) {
             if ($this->expectsJson($request)) {
                 return response()->json([
+                    'success' => false,
                     'message' => 'Erreur lors de l\'upload',
                     'error' => $e->getMessage()
                 ], 500);
@@ -690,6 +715,7 @@ class TypeReunionController extends Controller
 
             if ($this->expectsJson($request)) {
                 return response()->json([
+                    'success' => true,
                     'message' => 'Type de réunion restauré avec succès',
                     'data' => $typeReunion->fresh()
                 ]);
@@ -702,6 +728,7 @@ class TypeReunionController extends Controller
         } catch (\Exception $e) {
             if ($this->expectsJson($request)) {
                 return response()->json([
+                    'success' => false,
                     'message' => 'Erreur lors de la restauration',
                     'error' => $e->getMessage()
                 ], 500);

@@ -3,220 +3,80 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Private\Web\ClasseController;
 use Illuminate\Support\Facades\Request;
 
-/*
-|--------------------------------------------------------------------------
-| Routes de gestion des classes
-|--------------------------------------------------------------------------
-|
-| Routes protégées pour la gestion des classes avec système de permissions
-| Inclut les routes Web et API
-|
-*/
+
 
 // ========== ROUTES WEB PROTÉGÉES ==========
-Route::middleware(['auth', 'user.status'])->prefix('dashboard')->name('private.')->group(function () {
-
-    // ========== ROUTES CRUD PRINCIPALES ==========
+Route::middleware(['auth', 'user.status'])->prefix('dashboard/classes')->name('private.classes.')->group(function () {
 
     // Liste des classes
-    Route::get('/classes', [ClasseController::class, 'index'])
-        ->middleware('permission:classes.read')
-        ->name('classes.index');
+    Route::get('', [ClasseController::class, 'index'])->middleware('permission:classes.read')->name('index');
 
     // Afficher le formulaire de création
-    Route::get('/classes/create', [ClasseController::class, 'create'])
-        ->middleware('permission:classes.create')
-        ->name('classes.create');
+    Route::get('/create', [ClasseController::class, 'create'])->middleware('permission:classes.create')->name('create');
 
     // Enregistrer une nouvelle classe
-    Route::post('/classes', [ClasseController::class, 'store'])
-        ->middleware('permission:classes.create')
-        ->name('classes.store');
+    Route::post('', [ClasseController::class, 'store'])->middleware('permission:classes.create')->name('store');
 
         // Statistiques globales des classes
-    Route::get('/classes/statistiques', [ClasseController::class, 'statistiques'])
-        // ->middleware('permission:classes.statistics')
-        ->name('classes.statistiques');
+    Route::get('/statistiques', [ClasseController::class, 'statistiques'])->middleware('permission:classes.statistics')->name('statistiques');
 
     // Afficher une classe spécifique
-    Route::get('/classes/{classe}', [ClasseController::class, 'show'])
-        ->middleware('permission:classes.read')
-        ->name('classes.show');
+    Route::get('/{classe}', [ClasseController::class, 'show'])->middleware('permission:classes.read')->name('show');
+    Route::get('/{classe}/get-membres-disponibles', [ClasseController::class, 'getUtilisateursDisponibles'])->middleware('permission:classes.read')->name('getUtilisateursDisponibles');
+    Route::get('/{classe}/get-membres-desinscrir', [ClasseController::class, 'desinscrireUtilisateur'])->middleware('permission:classes.read')->name('desinscrireUtilisateur');
+    Route::post('/{classe}/retirer-responsable', [ClasseController::class, 'retirerResponsable'])->middleware('permission:classes.update')->name('retirerResponsable');
 
     // Afficher le formulaire d'édition
-    Route::get('/classes/{classe}/edit', [ClasseController::class, 'edit'])
-        ->middleware('permission:classes.update')
-        ->name('classes.edit');
+    Route::get('/{classe}/edit', [ClasseController::class, 'edit'])->middleware('permission:classes.update')->name('edit');
 
     // Mettre à jour une classe (PUT et PATCH pour compatibilité)
-    Route::put('/classes/{classe}', [ClasseController::class, 'update'])
-        ->middleware('permission:classes.update')
-        ->name('classes.update');
+    Route::put('/{classe}', [ClasseController::class, 'update'])->middleware('permission:classes.update')->name('update');
 
-    Route::patch('/classes/{classe}', [ClasseController::class, 'update'])
-        ->middleware('permission:classes.update')
-        ->name('classes.patch');
+    Route::patch('/{classe}', [ClasseController::class, 'update'])->middleware('permission:classes.update')->name('patch');
 
     // Supprimer une classe
-    Route::delete('/classes/{classe}', [ClasseController::class, 'destroy'])
-        ->middleware('permission:classes.delete')
-        ->name('classes.destroy');
-
-    // ========== ROUTES D'ACTIONS SPÉCIALES ==========
-
-    // Inscrire un membres à une classe
-    Route::post('/classes/{classe}/inscrire', [ClasseController::class, 'inscrireMembres'])
-        ->middleware('permission:classes.manage-members')
-        ->name('classes.inscrire');
-
-    // Désinscrire un membres d'une classe
-    Route::post('/classes/{classe}/desinscrire', [ClasseController::class, 'desinscrireMembres'])
-        ->middleware('permission:classes.manage-members')
-        ->name('classes.desinscrire');
-
-    // Supprimer un membres d'une classe (alias pour compatibilité)
-    Route::delete('/classes/{classe}/membres/{user}', [ClasseController::class, 'desinscrireMembres'])
-        ->middleware('permission:classes.manage-members')
-        ->name('classes.remove-member');
+    Route::delete('/{classe}', [ClasseController::class, 'destroy'])->middleware('permission:classes.delete')->name('destroy');
 
 
+    // Dupliquer une classe
+    Route::post('/{classe}/duplicate', [ClasseController::class, 'duplicate'])->middleware('permission:classes.create')->name('duplicate');
 
-        // Activer/Désactiver une classe
-Route::patch('/classes/{classe}/toggle-status', [ClasseController::class, 'toggleStatus'])
-    ->middleware('permission:classes.update')
-    ->name('classes.toggle-status');
+    // Exporter les données d'une classe
+    Route::get('/{classe}/export', [ClasseController::class, 'export'])->middleware('permission:classes.export')->name('export');
 
-// Dupliquer une classe
-Route::post('/classes/{classe}/duplicate', [ClasseController::class, 'duplicate'])
-    ->middleware('permission:classes.create')
-    ->name('classes.duplicate');
+    // Actions en lot
+    Route::post('/bulk-actions', [ClasseController::class, 'bulkActions'])->middleware('permission:classes.bulk-actions')->name('bulk-actions');
 
-// Exporter les données d'une classe
-Route::get('/classes/{classe}/export', [ClasseController::class, 'export'])
-    ->middleware('permission:classes.export')
-    ->name('classes.export');
+    // Archiver une classe
+    Route::patch('/{classe}/archive', [ClasseController::class, 'archive'])->middleware('permission:classes.archive')->name('archive');
 
-// Actions en lot
-Route::post('/classes/bulk-actions', [ClasseController::class, 'bulkActions'])
-    ->middleware('permission:classes.bulk-actions')
-    ->name('classes.bulk-actions');
-
-// Archiver une classe
-Route::patch('/classes/{classe}/archive', [ClasseController::class, 'archive'])
-    ->middleware('permission:classes.archive')
-    ->name('classes.archive');
-
-// Restaurer une classe archivée
-Route::patch('/classes/{classe}/restore', [ClasseController::class, 'restore'])
-    ->middleware('permission:classes.restore')
-    ->name('classes.restore');
+    // Restaurer une classe archivée
+    Route::patch('/{classe}/restore', [ClasseController::class, 'restore'])->middleware('permission:classes.restore')->name('restore');
 
     // ========== ROUTES DES STATISTIQUES ==========
 
+    // Récupérer tous les membres d'une classe
+    Route::get('/{classe}/membres', [ClasseController::class, 'getMembers'])->middleware('permission:classes.read')->name('membres');
+
+    // Ajouter plusieurs nouveaux membres à une classe
+    Route::post('/{classe}/ajouter-membres', [ClasseController::class, 'ajouterNouveauxMembres'])->middleware('permission:classes.manage-members')->name('ajouter-membres');
 
 
-    // Statistiques d'une classe spécifique
-    Route::get('/classes/{classe}/statistiques', [ClasseController::class, 'show'])
-        ->middleware('permission:classes.read')
-        ->name('classes.show-stats');
+    Route::get('/{classe}/membres-responsables', [ClasseController::class, 'getMembresForResponsables'])->name('getMembresForResponsables');
+
+    Route::post('/{classe}/update-responsabilite', [ClasseController::class, 'updateResponsabilite'])->name('updateResponsabilite');
 
 
+    // ========== ROUTES API POUR LA GESTION DES MEMBRES ==========
 
 
-        // ========== ROUTES POUR LA GESTION DES MEMBRES ==========
+    // API: Récupérer tous les membres d'une classe
+    Route::get('/{classe}/members', [ClasseController::class, 'getMembers'])->middleware('permission:classes.read')->name('members');
 
-// Dans le groupe Route::middleware(['auth', 'user.status'])->prefix('dashboard')->name('private.')
+    // API: Ajouter plusieurs nouveaux membres à une classe
+    Route::post('/{classe}/members/bulk-add', [ClasseController::class, 'ajouterNouveauxMembres'])->middleware('permission:classes.manage-members')->name('bulk-add-members');
 
-// Récupérer tous les membres d'une classe
-Route::get('/classes/{classe}/membres', [ClasseController::class, 'getMembers'])
-    ->middleware('permission:classes.read')
-    ->name('classes.membres');
-
-// Ajouter plusieurs nouveaux membres à une classe
-Route::post('/classes/{classe}/ajouter-membres', [ClasseController::class, 'ajouterNouveauxMembres'])
-    ->middleware('permission:classes.manage-members')
-    ->name('classes.ajouter-membres');
-
-// Récupérer les membres disponibles (sans classe) pour une classe
-Route::get('/classes/{classe}/membres-disponibles', [ClasseController::class, 'getMembressDisponibles'])
-    ->middleware('permission:classes.read')
-    ->name('classes.membres-disponibles');
-
-// ========== ROUTES API POUR LA GESTION DES MEMBRES ==========
-
-// Dans le groupe Route::middleware(['auth:sanctum'])->prefix('api/v1')->name('api.v1.')
-
-// API: Récupérer tous les membres d'une classe
-Route::get('/classes/{classe}/members', [ClasseController::class, 'getMembers'])
-    ->middleware('permission:classes.read')
-    ->name('classes.members');
-
-// API: Ajouter plusieurs nouveaux membres à une classe
-Route::post('/classes/{classe}/members/bulk-add', [ClasseController::class, 'ajouterNouveauxMembres'])
-    ->middleware('permission:classes.manage-members')
-    ->name('classes.bulk-add-members');
-
-// API: Récupérer les membres disponibles pour une classe
-Route::get('/classes/{classe}/available-users', [ClasseController::class, 'getMembressDisponibles'])
-    ->middleware('permission:classes.read')
-    ->name('classes.available-users');
 });
-
-// ========== ROUTES API ==========
-Route::middleware(['auth:sanctum'])->prefix('api/v1')->name('api.v1.')->group(function () {
-
-    // Routes API pour les classes (même contrôleur, détection automatique via isApiRequest)
-    Route::apiResource('classes', ClasseController::class)->parameters([
-        'classes' => 'classe'
-    ])->middleware('permission:classes.read');
-
-    // Actions spéciales API
-    Route::post('/classes/{classe}/members', [ClasseController::class, 'inscrireMembres'])
-        ->middleware('permission:classes.manage-members')
-        ->name('classes.add-member');
-
-    Route::delete('/classes/{classe}/members/{user}', [ClasseController::class, 'desinscrireMembres'])
-        ->middleware('permission:classes.manage-members')
-        ->name('classes.remove-member');
-
-    // Statistiques API
-    Route::get('/classes/statistics/global', [ClasseController::class, 'statistiques'])
-        ->middleware('permission:classes.statistics')
-        ->name('classes.global-stats');
-
-    Route::get('/classes/{classe}/statistics', [ClasseController::class, 'show'])
-        ->middleware('permission:classes.read')
-        ->name('classes.stats');
-});
-
-// ========== ROUTES PUBLIQUES (si nécessaire) ==========
-Route::prefix('public')->name('public.')->group(function () {
-
-    // Liste publique des classes (sans informations sensibles)
-    Route::get('/classes', [ClasseController::class, 'index'])
-        ->name('classes.public');
-
-    // Détails publics d'une classe
-    Route::get('/classes/{classe}', [ClasseController::class, 'show'])
-        ->name('classes.show-public');
-});
-
-// ========== ROUTES AJAX/JAVASCRIPT ==========
-Route::middleware(['auth', 'user.status'])->prefix('ajax')->name('ajax.')->group(function () {
-
-    // Recherche en temps réel
-    Route::get('/classes/search', [ClasseController::class, 'index'])
-        ->middleware('permission:classes.read')
-        ->name('classes.search');
-
-    // Validation en temps réel
-    Route::post('/classes/validate', function(Request $request) {
-        // Validation côté serveur pour les formulaires
-        return response()->json(['valid' => true]);
-    })->name('classes.validate');
-});
-
-// ========== FALLBACK ET REDIRECTIONS ==========
 
 // Redirection pour l'ancien système (si migration depuis un autre système)
 Route::redirect('/groups', '/private/classes')->name('groups.redirect');
@@ -230,18 +90,3 @@ Route::pattern('classe', '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-
 Route::pattern('user', '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}'); // UUID
 Route::pattern('session', '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}'); // UUID
 Route::pattern('template', '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}'); // UUID
-
-/*
-|--------------------------------------------------------------------------
-| Routes supplémentaires potentielles
-|--------------------------------------------------------------------------
-|
-| Méthodes additionnelles que vous pourriez vouloir ajouter au contrôleur
-|
-*/
-
-
-// Si vous ajoutez ces méthodes au contrôleur, décommentez les routes correspondantes :
-
-
-

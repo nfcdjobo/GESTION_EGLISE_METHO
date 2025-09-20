@@ -2,352 +2,383 @@
 @section('title', 'Modifier la Souscription')
 
 @section('content')
-<div class="space-y-8">
-    <!-- Page Title & Breadcrumb -->
-    <div class="mb-8">
-        <h1 class="text-3xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent">Modifier la Souscription</h1>
-        <nav class="flex mt-2" aria-label="Breadcrumb">
-            <ol class="inline-flex items-center space-x-1 md:space-x-3">
-                <li class="inline-flex items-center">
-                    <a href="{{ route('private.subscriptions.index') }}" class="inline-flex items-center text-sm font-medium text-slate-700 hover:text-blue-600 transition-colors">
-                        <i class="fas fa-hand-holding-usd mr-2"></i>
-                        Souscriptions
-                    </a>
-                </li>
-                <li>
-                    <div class="flex items-center">
-                        <i class="fas fa-chevron-right text-slate-400 mx-2"></i>
-                        <a href="{{ route('private.subscriptions.show', $subscription['id']) }}" class="text-sm font-medium text-slate-700 hover:text-blue-600 transition-colors">
-                            Souscription #{{ substr($subscription['id'], 0, 8) }}
-                        </a>
-                    </div>
-                </li>
-                <li>
-                    <div class="flex items-center">
-                        <i class="fas fa-chevron-right text-slate-400 mx-2"></i>
-                        <span class="text-sm font-medium text-slate-500">Modifier</span>
-                    </div>
-                </li>
-            </ol>
-        </nav>
-    </div>
+    <div class="space-y-8">
+        <!-- Page Header -->
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div>
+                <h1 class="text-3xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent">
+                    Modifier la Souscription
+                </h1>
+                <p class="text-slate-500 mt-1">
+                    {{ $subscription['souscripteur']['nom'] ?? 'Souscripteur' }} - {{ $subscription['fimeco']['nom'] ?? 'FIMECO' }}
+                </p>
+            </div>
+            <div class="flex gap-3">
+                <a href="{{ route('private.subscriptions.show', $subscription['id']) }}"
+                    class="inline-flex items-center px-4 py-2 bg-slate-600 text-white text-sm font-medium rounded-xl hover:bg-slate-700 transition-colors">
+                    <i class="fas fa-arrow-left mr-2"></i> Retour aux détails
+                </a>
+            </div>
+        </div>
 
-    <!-- Alertes de statut -->
-    @if(in_array($subscription['statut'], ['annulee', 'completement_payee']))
-        <div class="bg-red-50 border border-red-200 rounded-2xl p-6">
+        <!-- Alert d'information sur les modifications -->
+        <div class="bg-yellow-50 border border-yellow-200 rounded-xl p-4">
             <div class="flex">
-                <i class="fas fa-exclamation-triangle text-red-400 mt-0.5 mr-3"></i>
-                <div>
-                    <h3 class="text-sm font-medium text-red-800">
-                        Souscription {{ $subscription['statut'] === 'annulee' ? 'annulée' : 'complètement payée' }}
-                    </h3>
-                    <p class="text-sm text-red-700 mt-1">
-                        Cette souscription ne peut plus être modifiée car elle est
-                        {{ $subscription['statut'] === 'annulee' ? 'annulée' : 'complètement payée' }}.
-                    </p>
+                <div class="flex-shrink-0">
+                    <i class="fas fa-exclamation-triangle text-yellow-400 text-lg"></i>
+                </div>
+                <div class="ml-3">
+                    <h3 class="text-sm font-medium text-yellow-800">Attention</h3>
+                    <div class="mt-2 text-sm text-yellow-700">
+                        <ul class="list-disc pl-5 space-y-1">
+                            @if(!$peut_modifier_montant)
+                                <li>Le montant souscrit ne peut plus être modifié car des paiements ont été effectués.</li>
+                            @endif
+                            <li>La modification de l'échéance peut affecter les alertes et rappels.</li>
+                            <li>Toutes les modifications sont tracées et journalisées.</li>
+                        </ul>
+                    </div>
                 </div>
             </div>
         </div>
-    @endif
 
-    @if($subscription['fimeco']['statut'] !== 'active')
-        <div class="bg-yellow-50 border border-yellow-200 rounded-2xl p-6">
-            <div class="flex">
-                <i class="fas fa-info-circle text-yellow-400 mt-0.5 mr-3"></i>
-                <div>
-                    <h3 class="text-sm font-medium text-yellow-800">FIMECO inactive</h3>
-                    <p class="text-sm text-yellow-700 mt-1">
-                        La FIMECO associée n'est plus active, les modifications sont limitées.
+        <form method="POST" action="{{ route('private.subscriptions.update', $subscription['id']) }}"
+              class="space-y-8"
+              id="subscriptionEditForm">
+            @csrf
+            @method('PUT')
+
+            <!-- Informations non modifiables -->
+            <div class="bg-white/80 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
+                <div class="p-6 border-b border-slate-200">
+                    <h2 class="text-xl font-bold text-slate-800 flex items-center">
+                        <i class="fas fa-lock text-slate-500 mr-2"></i>
+                        Informations non modifiables
+                    </h2>
+                    <p class="text-slate-500 text-sm mt-1">
+                        Ces informations ne peuvent pas être changées après création
                     </p>
                 </div>
-            </div>
-        </div>
-    @endif
 
-    <form action="{{ route('private.subscriptions.update', $subscription['id']) }}" method="POST" id="subscriptionEditForm" class="space-y-8">
-        @csrf
-        @method('PUT')
+                <div class="p-6">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <!-- Souscripteur -->
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 mb-2">Souscripteur</label>
+                            <div class="flex items-center space-x-3 p-3 bg-slate-50 rounded-xl">
+                                @if($subscription['souscripteur']['photo_profil'] ?? false)
+                                    <img class="h-10 w-10 rounded-full object-cover"
+                                         src="{{ asset('storage/' . $subscription['souscripteur']['photo_profil']) }}"
+                                         alt="{{ $subscription['souscripteur']['nom'] }}">
+                                @else
+                                    <div class="h-10 w-10 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center">
+                                        <span class="text-sm font-medium text-white">
+                                            {{ strtoupper(substr($subscription['souscripteur']['nom'] ?? 'U', 0, 1)) }}
+                                        </span>
+                                    </div>
+                                @endif
+                                <div>
+                                    <div class="font-medium text-slate-900">{{ $subscription['souscripteur']['nom'] ?? 'N/A' }}</div>
+                                    <div class="text-sm text-slate-500">{{ $subscription['souscripteur']['email'] ?? 'N/A' }}</div>
+                                </div>
+                            </div>
+                        </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <!-- Formulaire principal -->
-            <div class="lg:col-span-2">
-                <div class="bg-white/80 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
-                    <div class="p-6 border-b border-slate-200">
-                        <h2 class="text-xl font-bold text-slate-800 flex items-center">
-                            <i class="fas fa-edit text-blue-600 mr-2"></i>
-                            Modifier la Souscription
-                        </h2>
-                    </div>
-                    <div class="p-6 space-y-6">
-                        <!-- Information FIMECO (lecture seule) -->
+                        <!-- FIMECO -->
                         <div>
                             <label class="block text-sm font-medium text-slate-700 mb-2">FIMECO</label>
-                            <div class="p-4 bg-slate-50 border border-slate-200 rounded-xl">
-                                <h3 class="font-semibold text-slate-900">{{ $subscription['fimeco']['nom'] }}</h3>
-                                @if($subscription['fimeco']['description'])
-                                    <p class="text-sm text-slate-700 mt-1">{{ $subscription['fimeco']['description'] }}</p>
-                                @endif
-                                <div class="flex items-center gap-4 mt-3 text-sm text-slate-600">
-                                    <span><i class="fas fa-calendar mr-1"></i>{{ $subscription['fimeco']['debut'] }} - {{ $subscription['fimeco']['fin'] }}</span>
-                                    <span><i class="fas fa-bullseye mr-1"></i>{{ number_format($subscription['fimeco']['cible'], 0, ',', ' ') }} FCFA</span>
-                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium
-                                        @if($subscription['fimeco']['statut'] === 'active') bg-green-100 text-green-800
-                                        @elseif($subscription['fimeco']['statut'] === 'cloturee') bg-red-100 text-red-800
-                                        @else bg-yellow-100 text-yellow-800
-                                        @endif">
-                                        {{ ucfirst($subscription['fimeco']['statut']) }}
-                                    </span>
+                            <div class="p-3 bg-slate-50 rounded-xl">
+                                <div class="font-medium text-slate-900">{{ $subscription['fimeco']['nom'] ?? 'N/A' }}</div>
+                                <div class="text-sm text-slate-500 mt-1">
+                                    Progression: {{ number_format($subscription['fimeco']['progression'] ?? 0, 1) }}%
+                                </div>
+                                <div class="w-full bg-slate-200 rounded-full h-1.5 mt-2">
+                                    <div class="h-1.5 rounded-full bg-gradient-to-r from-blue-500 to-purple-500"
+                                         style="width: {{ min($subscription['fimeco']['progression'] ?? 0, 100) }}%"></div>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Montant de souscription -->
+                        <!-- Date de souscription -->
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 mb-2">Date de souscription</label>
+                            <div class="p-3 bg-slate-50 rounded-xl">
+                                <div class="text-slate-900">
+                                    <i class="fas fa-calendar-plus text-green-600 mr-2"></i>
+                                    {{ \Carbon\Carbon::parse($subscription['date_souscription'])->format('d/m/Y') }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Statut actuel -->
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 mb-2">Statut actuel</label>
+                            <div class="p-3 bg-slate-50 rounded-xl">
+                                <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium {{ ($subscription['statut'] ?? '') === 'completement_payee' ? 'bg-green-100 text-green-800' : (($subscription['statut'] ?? '') === 'partiellement_payee' ? 'bg-yellow-100 text-yellow-800' : 'bg-gray-100 text-gray-800') }}">
+                                    {{ $subscription['statut_libelle'] ?? 'N/A' }}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Champs modifiables -->
+            <div class="bg-white/80 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
+                <div class="p-6 border-b border-slate-200">
+                    <h2 class="text-xl font-bold text-slate-800 flex items-center">
+                        <i class="fas fa-edit text-yellow-600 mr-2"></i>
+                        Informations modifiables
+                    </h2>
+                    <p class="text-slate-500 text-sm mt-1">
+                        Modifiez uniquement les champs autorisés selon l'état de la souscription
+                    </p>
+                </div>
+
+                <div class="p-6 space-y-6">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <!-- Montant souscrit -->
                         <div>
                             <label for="montant_souscrit" class="block text-sm font-medium text-slate-700 mb-2">
-                                Montant de souscription (FCFA) <span class="text-red-500">*</span>
+                                Montant souscrit (FCFA)
+                                @if(!$peut_modifier_montant)
+                                    <span class="text-red-500">*</span>
+                                @endif
                             </label>
-                            @if($subscription['montant_paye'] > 0)
-                                <div class="mb-3 p-3 bg-orange-50 border border-orange-200 rounded-lg">
-                                    <div class="text-sm text-orange-800">
-                                        <i class="fas fa-info-circle mr-1"></i>
-                                        <strong>Attention:</strong> Cette souscription a déjà {{ number_format($subscription['montant_paye'], 0, ',', ' ') }} FCFA payés.
-                                        Le nouveau montant doit être au moins égal à ce montant.
+                            @if($peut_modifier_montant)
+                                <div class="relative">
+                                    <input type="number" name="montant_souscrit" id="montant_souscrit"
+                                           min="1000" step="500" required
+                                           value="{{ old('montant_souscrit', $subscription['montant_souscrit'] ?? '') }}"
+                                           class="w-full pl-4 pr-16 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors @error('montant_souscrit') border-red-500 @enderror">
+                                    <div class="absolute inset-y-0 right-0 flex items-center pr-3">
+                                        <span class="text-slate-500 text-sm">FCFA</span>
                                     </div>
                                 </div>
+                                <div class="mt-1 text-xs text-slate-500">
+                                    Montant minimum: 1,000 FCFA
+                                </div>
+                                @error('montant_souscrit')
+                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                @enderror
+                            @else
+                                <div class="p-3 bg-red-50 border border-red-200 rounded-xl">
+                                    <div class="flex items-center">
+                                        <i class="fas fa-lock text-red-500 mr-2"></i>
+                                        <div>
+                                            <div class="font-medium text-red-800">{{ number_format($subscription['montant_souscrit'] ?? 0, 0, ',', ' ') }} FCFA</div>
+                                            <div class="text-sm text-red-600">Non modifiable (paiements effectués)</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <input type="hidden" name="montant_souscrit" value="{{ $subscription['montant_souscrit'] ?? 0 }}">
                             @endif
-                            <input type="number" id="montant_souscrit" name="montant_souscrit"
-                                   value="{{ old('montant_souscrit', $subscription['montant_souscrit']) }}"
-                                   required min="{{ $subscription['montant_paye'] }}" step="0.01" onchange="updateCalculations()"
-                                   {{ in_array($subscription['statut'], ['annulee', 'completement_payee']) || $subscription['fimeco']['statut'] !== 'active' ? 'readonly' : '' }}
-                                   class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors @error('montant_souscrit') border-red-500 focus:ring-red-500 focus:border-red-500 @enderror {{ in_array($subscription['statut'], ['annulee', 'completement_payee']) || $subscription['fimeco']['statut'] !== 'active' ? 'bg-slate-100' : '' }}">
-                            @error('montant_souscrit')
-                                <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
-                            @enderror
-                            <p class="mt-1 text-sm text-slate-500">
-                                Montant minimum : {{ number_format($subscription['montant_paye'], 0, ',', ' ') }} FCFA
-                                (montant déjà payé)
-                            </p>
                         </div>
 
-                        <!-- Version pour contrôle de concurrence -->
-                        <input type="hidden" name="expected_version" value="{{ $subscription['version'] ?? 0 }}">
+                        <!-- Date d'échéance -->
+                        <div>
+                            <label for="date_echeance" class="block text-sm font-medium text-slate-700 mb-2">
+                                Date d'échéance
+                                @if(!$peut_modifier_echeance)
+                                    <span class="text-red-500">*</span>
+                                @endif
+                            </label>
+                            @if($peut_modifier_echeance)
+                                <input type="date" name="date_echeance" id="date_echeance"
+                                       value="{{ old('date_echeance', $subscription['date_echeance'] ? \Carbon\Carbon::parse($subscription['date_echeance'])->format('Y-m-d') : '') }}"
+                                       min="{{ \Carbon\Carbon::parse($subscription['date_souscription'])->format('Y-m-d') }}"
+                                       max="{{ $subscription['fimeco']['fin'] ? \Carbon\Carbon::parse($subscription['fimeco']['fin'])->format('Y-m-d') : '' }}"
+                                       class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors @error('date_echeance') border-red-500 @enderror">
+                                <div class="mt-1 text-xs text-slate-500">
+                                    Doit être après la date de souscription et avant la fin du FIMECO
+                                </div>
+                                @error('date_echeance')
+                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                @enderror
 
-                        <!-- Affichage des calculs -->
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            <div class="p-4 bg-blue-50 rounded-xl">
-                                <div class="text-sm text-blue-700 mb-1">Montant souscrit</div>
-                                <div id="display-montant-souscrit" class="text-lg font-bold text-blue-900">
-                                    {{ number_format($subscription['montant_souscrit'], 0, ',', ' ') }} FCFA
+                                <!-- Boutons de suggestion -->
+                                <div class="mt-3 flex flex-wrap gap-2">
+                                    <button type="button" onclick="setNewDeadline(30)"
+                                            class="px-3 py-1 text-xs bg-purple-100 text-purple-700 rounded hover:bg-purple-200 transition-colors">
+                                        +30 jours
+                                    </button>
+                                    <button type="button" onclick="setNewDeadline(60)"
+                                            class="px-3 py-1 text-xs bg-purple-100 text-purple-700 rounded hover:bg-purple-200 transition-colors">
+                                        +60 jours
+                                    </button>
+                                    <button type="button" onclick="clearDeadline()"
+                                            class="px-3 py-1 text-xs bg-gray-100 text-gray-700 rounded hover:bg-gray-200 transition-colors">
+                                        Supprimer échéance
+                                    </button>
                                 </div>
-                            </div>
-                            <div class="p-4 bg-green-50 rounded-xl">
-                                <div class="text-sm text-green-700 mb-1">Montant payé</div>
-                                <div class="text-lg font-bold text-green-900">
-                                    {{ number_format($subscription['montant_paye'], 0, ',', ' ') }} FCFA
+                            @else
+                                <div class="p-3 bg-red-50 border border-red-200 rounded-xl">
+                                    <div class="flex items-center">
+                                        <i class="fas fa-lock text-red-500 mr-2"></i>
+                                        <div>
+                                            @if($subscription['date_echeance'] ?? false)
+                                                <div class="font-medium text-red-800">{{ \Carbon\Carbon::parse($subscription['date_echeance'])->format('d/m/Y') }}</div>
+                                                <div class="text-sm text-red-600">Non modifiable (souscription complète)</div>
+                                            @else
+                                                <div class="font-medium text-red-800">Aucune échéance</div>
+                                                <div class="text-sm text-red-600">Non modifiable (souscription complète)</div>
+                                            @endif
+                                        </div>
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="p-4 bg-orange-50 rounded-xl">
-                                <div class="text-sm text-orange-700 mb-1">Reste à payer</div>
-                                <div id="display-reste-payer" class="text-lg font-bold text-orange-900">
-                                    {{ number_format($subscription['reste_a_payer'], 0, ',', ' ') }} FCFA
-                                </div>
+                                <input type="hidden" name="date_echeance" value="{{ $subscription['date_echeance'] ? \Carbon\Carbon::parse($subscription['date_echeance'])->format('Y-m-d') : '' }}">
+                            @endif
+                        </div>
+                    </div>
+
+                    <!-- Informations sur les changements -->
+                    @if($peut_modifier_montant || $peut_modifier_echeance)
+                        <div class="mt-6 p-4 bg-blue-50 rounded-xl">
+                            <div class="text-sm text-blue-800">
+                                <div class="font-medium mb-2">Impact des modifications :</div>
+                                <ul class="list-disc pl-5 space-y-1">
+                                    @if($peut_modifier_montant)
+                                        <li>La modification du montant recalculera automatiquement le reste à payer.</li>
+                                        <li>Si le nouveau montant est inférieur aux paiements déjà effectués, un remboursement sera nécessaire.</li>
+                                    @endif
+                                    @if($peut_modifier_echeance)
+                                        <li>La modification de l'échéance mettra à jour les alertes de retard.</li>
+                                        <li>Les notifications automatiques seront recalculées.</li>
+                                    @endif
+                                </ul>
                             </div>
                         </div>
+                    @endif
+                </div>
+            </div>
 
-                        <!-- Barre de progression -->
-                        @php
-                            $pourcentagePaye = ($subscription['montant_souscrit'] > 0) ?
-                                              round(($subscription['montant_paye'] / $subscription['montant_souscrit']) * 100, 1) : 0;
-                        @endphp
-                        <div class="space-y-2">
-                            <div class="flex justify-between text-sm">
-                                <span>Progression des paiements</span>
-                                <span id="display-pourcentage" class="font-semibold">{{ $pourcentagePaye }}%</span>
-                            </div>
-                            <div class="w-full bg-gray-200 rounded-full h-3">
-                                <div id="progress-bar" class="bg-gradient-to-r from-blue-500 to-green-500 h-3 rounded-full transition-all duration-300"
-                                     style="width: {{ $pourcentagePaye }}%"></div>
-                            </div>
+            <!-- Résumé des paiements (information) -->
+            <div class="bg-white/80 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
+                <div class="p-6 border-b border-slate-200">
+                    <h2 class="text-xl font-bold text-slate-800 flex items-center">
+                        <i class="fas fa-chart-pie text-purple-600 mr-2"></i>
+                        Résumé actuel
+                    </h2>
+                    <p class="text-slate-500 text-sm mt-1">
+                        État actuel de la souscription (mis à jour automatiquement)
+                    </p>
+                </div>
+
+                <div class="p-6">
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                        <div class="text-center p-4 bg-slate-50 rounded-xl">
+                            <div class="text-lg font-bold text-slate-900">{{ number_format($subscription['montant_souscrit'] ?? 0, 0, ',', ' ') }}</div>
+                            <div class="text-sm text-slate-600">Montant souscrit (FCFA)</div>
+                        </div>
+                        <div class="text-center p-4 bg-green-50 rounded-xl">
+                            <div class="text-lg font-bold text-green-600">{{ number_format($subscription['montant_paye'] ?? 0, 0, ',', ' ') }}</div>
+                            <div class="text-sm text-slate-600">Montant payé (FCFA)</div>
+                        </div>
+                        <div class="text-center p-4 bg-orange-50 rounded-xl">
+                            <div class="text-lg font-bold text-orange-600">{{ number_format($subscription['reste_a_payer'] ?? 0, 0, ',', ' ') }}</div>
+                            <div class="text-sm text-slate-600">Reste à payer (FCFA)</div>
+                        </div>
+                        <div class="text-center p-4 bg-blue-50 rounded-xl">
+                            <div class="text-lg font-bold text-blue-600">{{ number_format($subscription['progression'] ?? 0, 1) }}%</div>
+                            <div class="text-sm text-slate-600">Progression</div>
+                        </div>
+                    </div>
+
+                    <div class="mt-4">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-sm font-medium text-slate-700">Progression globale</span>
+                            <span class="text-sm font-bold text-slate-900">{{ number_format($subscription['progression'] ?? 0, 1) }}%</span>
+                        </div>
+                        <div class="w-full bg-slate-200 rounded-full h-3">
+                            <div class="h-3 rounded-full {{ ($subscription['progression'] ?? 0) >= 100 ? 'bg-gradient-to-r from-green-500 to-emerald-500' : (($subscription['progression'] ?? 0) >= 75 ? 'bg-gradient-to-r from-blue-500 to-purple-500' : (($subscription['progression'] ?? 0) >= 50 ? 'bg-gradient-to-r from-yellow-500 to-orange-500' : 'bg-gradient-to-r from-red-500 to-pink-500')) }}"
+                                 style="width: {{ min($subscription['progression'] ?? 0, 100) }}%"></div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Sidebar avec informations -->
-            <div class="space-y-6">
-                <!-- Informations actuelles -->
-                <div class="bg-white/80 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
-                    <div class="p-6 border-b border-slate-200">
-                        <h2 class="text-xl font-bold text-slate-800 flex items-center">
-                            <i class="fas fa-info-circle text-purple-600 mr-2"></i>
-                            Informations Actuelles
-                        </h2>
-                    </div>
-                    <div class="p-6 space-y-4">
-                        <div class="flex items-center justify-between">
-                            <span class="text-sm font-medium text-slate-700">Date de souscription:</span>
-                            <span class="text-sm text-slate-900">{{ \Carbon\Carbon::parse($subscription['date_souscription'])->format('d/m/Y') }}</span>
-                        </div>
-                        <div class="flex items-center justify-between">
-                            <span class="text-sm font-medium text-slate-700">Statut:</span>
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
-                                @if($subscription['statut'] === 'completement_payee') bg-green-100 text-green-800
-                                @elseif($subscription['statut'] === 'partiellement_payee') bg-yellow-100 text-yellow-800
-                                @elseif($subscription['statut'] === 'active') bg-blue-100 text-blue-800
-                                @else bg-red-100 text-red-800
-                                @endif">
-                                {{ ucfirst(str_replace('_', ' ', $subscription['statut'])) }}
-                            </span>
-                        </div>
-                        @if($subscription['date_echeance'])
-                            <div class="flex items-center justify-between">
-                                <span class="text-sm font-medium text-slate-700">Échéance:</span>
-                                <span class="text-sm text-slate-900">{{ \Carbon\Carbon::parse($subscription['date_echeance'])->format('d/m/Y') }}</span>
-                            </div>
-                        @endif
-                        <div class="flex items-center justify-between">
-                            <span class="text-sm font-medium text-slate-700">Version:</span>
-                            <span class="text-sm text-slate-600">#{{ $subscription['version'] ?? 0 }}</span>
-                        </div>
-                    </div>
-                </div>
+            <!-- Actions -->
+            <div class="flex flex-col sm:flex-row gap-4 pt-6">
+                <a href="{{ route('private.subscriptions.show', $subscription['id']) }}"
+                    class="inline-flex items-center justify-center px-6 py-3 bg-slate-600 text-white font-medium rounded-xl hover:bg-slate-700 transition-colors">
+                    <i class="fas fa-times mr-2"></i> Annuler
+                </a>
 
-                <!-- Historique des paiements -->
-                @if(isset($subscription['payments']) && count($subscription['payments']) > 0)
-                    <div class="bg-white/80 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
-                        <div class="p-6 border-b border-slate-200">
-                            <h2 class="text-xl font-bold text-slate-800 flex items-center">
-                                <i class="fas fa-history text-green-600 mr-2"></i>
-                                Historique des Paiements
-                            </h2>
-                        </div>
-                        <div class="p-6 space-y-3">
-                            @foreach(collect($subscription['payments'])->where('statut', 'valide')->take(5) as $payment)
-                                <div class="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
-                                    <div>
-                                        <div class="text-sm font-medium text-slate-900">
-                                            {{ number_format($payment['montant'], 0, ',', ' ') }} FCFA
-                                        </div>
-                                        <div class="text-xs text-slate-600">
-                                            {{ \Carbon\Carbon::parse($payment['date_paiement'])->format('d/m/Y') }}
-                                        </div>
-                                    </div>
-                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                        Validé
-                                    </span>
-                                </div>
-                            @endforeach
-                        </div>
+                @if($peut_modifier_montant || $peut_modifier_echeance)
+                    <button type="submit"
+                            class="flex-1 inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-yellow-600 to-orange-600 text-white font-medium rounded-xl hover:from-yellow-700 hover:to-orange-700 transition-all duration-200 shadow-md hover:shadow-lg">
+                        <i class="fas fa-save mr-2"></i> Enregistrer les modifications
+                    </button>
+                @else
+                    <div class="flex-1 p-3 bg-gray-100 text-gray-500 rounded-xl text-center">
+                        <i class="fas fa-lock mr-2"></i> Aucune modification possible
                     </div>
                 @endif
-
-                <!-- Actions rapides -->
-                <div class="bg-white/80 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
-                    <div class="p-6 border-b border-slate-200">
-                        <h2 class="text-xl font-bold text-slate-800 flex items-center">
-                            <i class="fas fa-bolt text-yellow-600 mr-2"></i>
-                            Actions Rapides
-                        </h2>
-                    </div>
-                    <div class="p-6 space-y-3">
-                        <a href="{{ route('private.subscriptions.show', $subscription['id']) }}" class="w-full inline-flex items-center justify-center px-4 py-2 bg-cyan-600 text-white text-sm font-medium rounded-xl hover:bg-cyan-700 transition-colors">
-                            <i class="fas fa-eye mr-2"></i> Voir Détails
-                        </a>
-                        @if($subscription['reste_a_payer'] > 0 && $subscription['statut'] !== 'annulee')
-                            <a href="{{ route('private.paiements.store') }}?subscription_id={{ $subscription['id'] }}" class="w-full inline-flex items-center justify-center px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-xl hover:bg-green-700 transition-colors">
-                                <i class="fas fa-credit-card mr-2"></i> Effectuer un Paiement
-                            </a>
-                        @endif
-                        <a href="{{ route('private.paiements.index', ['subscription_id' => $subscription['id']]) }}" class="w-full inline-flex items-center justify-center px-4 py-2 bg-purple-600 text-white text-sm font-medium rounded-xl hover:bg-purple-700 transition-colors">
-                            <i class="fas fa-list mr-2"></i> Voir Paiements
-                        </a>
-                    </div>
-                </div>
             </div>
-        </div>
+        </form>
+    </div>
 
-        <!-- Actions -->
-        <div class="bg-white/80 rounded-2xl shadow-lg border border-white/20">
-            <div class="p-6">
-                <div class="flex flex-col sm:flex-row gap-4 justify-center">
-                    @if(!in_array($subscription['statut'], ['annulee', 'completement_payee']) && $subscription['fimeco']['statut'] === 'active')
-                        <button type="submit" class="inline-flex items-center justify-center px-8 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-medium rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-200 shadow-md hover:shadow-lg">
-                            <i class="fas fa-save mr-2"></i> Mettre à jour
-                        </button>
-                    @endif
-                    <a href="{{ route('private.subscriptions.show', $subscription['id']) }}" class="inline-flex items-center justify-center px-8 py-3 bg-slate-600 text-white font-medium rounded-xl hover:bg-slate-700 transition-colors">
-                        <i class="fas fa-eye mr-2"></i> Voir Souscription
-                    </a>
-                    <a href="{{ route('private.subscriptions.index') }}" class="inline-flex items-center justify-center px-8 py-3 bg-slate-600 text-white font-medium rounded-xl hover:bg-slate-700 transition-colors">
-                        <i class="fas fa-list mr-2"></i> Retour à la liste
-                    </a>
-                </div>
-            </div>
-        </div>
-    </form>
-</div>
+    @push('scripts')
+        <script>
+            // Set new deadline relative to today
+            function setNewDeadline(days) {
+                const date = new Date();
+                date.setDate(date.getDate() + days);
 
-@push('scripts')
-<script>
-// Mise à jour des calculs en temps réel
-function updateCalculations() {
-    const montantSouscrit = parseFloat(document.getElementById('montant_souscrit').value) || 0;
-    const montantPaye = {{ $subscription['montant_paye'] }};
-    const resteAPayer = Math.max(0, montantSouscrit - montantPaye);
-    const pourcentage = montantSouscrit > 0 ? Math.round((montantPaye / montantSouscrit) * 100 * 10) / 10 : 0;
+                // Check FIMECO end date
+                const fimecoEnd = new Date("{{ $subscription['fimeco']['fin'] ? \Carbon\Carbon::parse($subscription['fimeco']['fin'])->format('Y-m-d') : '2030-12-31' }}");
+                if (date > fimecoEnd) {
+                    date = fimecoEnd;
+                }
 
-    // Mise à jour de l'affichage
-    document.getElementById('display-montant-souscrit').textContent =
-        new Intl.NumberFormat('fr-FR').format(montantSouscrit) + ' FCFA';
-    document.getElementById('display-reste-payer').textContent =
-        new Intl.NumberFormat('fr-FR').format(resteAPayer) + ' FCFA';
-    document.getElementById('display-pourcentage').textContent = pourcentage + '%';
+                document.getElementById('date_echeance').value = date.toISOString().split('T')[0];
+            }
 
-    // Mise à jour de la barre de progression
-    document.getElementById('progress-bar').style.width = Math.min(pourcentage, 100) + '%';
-}
+            // Clear deadline
+            function clearDeadline() {
+                document.getElementById('date_echeance').value = '';
+            }
 
-// Validation du formulaire
-document.getElementById('subscriptionEditForm')?.addEventListener('submit', function(e) {
-    const montantSouscrit = parseFloat(document.getElementById('montant_souscrit').value);
-    const montantPaye = {{ $subscription['montant_paye'] }};
+            // Form validation
+            document.getElementById('subscriptionEditForm').addEventListener('submit', function(e) {
+                @if($peut_modifier_montant)
+                    const montant = parseFloat(document.getElementById('montant_souscrit').value);
+                    const montantPaye = {{ $subscription['montant_paye'] ?? 0 }};
 
-    if (montantSouscrit < montantPaye) {
-        e.preventDefault();
-        alert(`Le montant de souscription ne peut pas être inférieur au montant déjà payé (${new Intl.NumberFormat('fr-FR').format(montantPaye)} FCFA).`);
-        return false;
-    }
+                    if (montant < montantPaye) {
+                        e.preventDefault();
+                        if (!confirm(`Le nouveau montant (${new Intl.NumberFormat('fr-FR').format(montant)} FCFA) est inférieur au montant déjà payé (${new Intl.NumberFormat('fr-FR').format(montantPaye)} FCFA). Cela nécessitera un remboursement. Voulez-vous continuer ?`)) {
+                            return;
+                        }
+                    }
+                @endif
 
-    if (montantSouscrit < 10) {
-        e.preventDefault();
-        alert('Le montant de souscription doit être d\'au moins 10 FCFA.');
-        return false;
-    }
+                @if($peut_modifier_echeance)
+                    const dateEcheance = document.getElementById('date_echeance').value;
+                    const aujourd_hui = new Date().toISOString().split('T')[0];
 
-    // Confirmation si changement significatif
-    const montantOriginal = {{ $subscription['montant_souscrit'] }};
-    if (Math.abs(montantSouscrit - montantOriginal) > 1000) {
-        const confirmation = confirm(
-            `Vous modifiez significativement le montant de souscription :\n` +
-            `Ancien: ${new Intl.NumberFormat('fr-FR').format(montantOriginal)} FCFA\n` +
-            `Nouveau: ${new Intl.NumberFormat('fr-FR').format(montantSouscrit)} FCFA\n\n` +
-            `Confirmez-vous cette modification ?`
-        );
+                    if (dateEcheance && dateEcheance < aujourd_hui) {
+                        if (!confirm('La date d\'échéance est dans le passé. Cela marquera automatiquement la souscription comme en retard. Voulez-vous continuer ?')) {
+                            e.preventDefault();
+                            return;
+                        }
+                    }
+                @endif
+            });
 
-        if (!confirmation) {
-            e.preventDefault();
-            return false;
-        }
-    }
-});
-
-// Événements
-document.getElementById('montant_souscrit')?.addEventListener('input', updateCalculations);
-
-// Initialisation
-document.addEventListener('DOMContentLoaded', function() {
-    updateCalculations();
-});
-</script>
-@endpush
+            // Animation au chargement
+            document.addEventListener('DOMContentLoaded', function() {
+                const cards = document.querySelectorAll('.bg-white\\/80');
+                cards.forEach((card, index) => {
+                    card.style.opacity = '0';
+                    card.style.transform = 'translateY(20px)';
+                    setTimeout(() => {
+                        card.style.transition = 'all 0.5s ease';
+                        card.style.opacity = '1';
+                        card.style.transform = 'translateY(0)';
+                    }, index * 100);
+                });
+            });
+        </script>
+    @endpush
 @endsection

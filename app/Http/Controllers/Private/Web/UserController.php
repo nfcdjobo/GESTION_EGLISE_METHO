@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\private\Web;
 
+use Exception;
+use Carbon\Carbon;
 use App\Models\Role;
 use App\Models\User;
 use App\Models\Classe;
@@ -9,14 +11,15 @@ use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Services\PermissionService;
+use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
-use Exception;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Log;
+use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rules\Password;
+use Illuminate\Validation\ValidationException;
 
 class UserController extends Controller
 {
@@ -244,7 +247,7 @@ class UserController extends Controller
                 $validated['photo_profil'] = $path;
             }
 
-            if(!isset($validated['password']) || !$validated['password']){
+            if (!isset($validated['password']) || !$validated['password']) {
                 $validated['password'] = env('DEFAULT_PASSWORD', 'Metho@' . date('Y') . '!');
             }
 
@@ -312,7 +315,7 @@ class UserController extends Controller
             // Valider la transaction
             DB::commit();
 
-             if ($request->expectsJson()) {
+            if ($request->expectsJson()) {
                 return response()->json([
                     'success' => true,
                     'data' => $user,
@@ -323,7 +326,7 @@ class UserController extends Controller
                 ->route('private.users.index')
                 ->with('success', 'Membres créé avec succès!');
 
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             // Annuler la transaction en cas d'erreur
             DB::rollback();
 
@@ -356,47 +359,47 @@ class UserController extends Controller
     public function ajoutmembre(Request $request)
     {
         $data = $request->all();
-            $validator = Validator::make($data, [
-                'nom' => 'string|max:50',
-                'prenom' => 'string|max:50',
-                'sexe' => 'required|in:masculin,feminin',
-                'telephone_1' => [
-                    'required',
-                    'string',
-                    'max:20',
-                    function ($attribute, $value, $fail) {
-                        $exists = DB::table('users')
-                            ->where('telephone_1', $value)
-                            ->orWhere('telephone_2', $value)
-                            ->exists();
+        $validator = Validator::make($data, [
+            'nom' => 'string|max:50',
+            'prenom' => 'string|max:50',
+            'sexe' => 'required|in:masculin,feminin',
+            'telephone_1' => [
+                'required',
+                'string',
+                'max:20',
+                function ($attribute, $value, $fail) {
+                    $exists = DB::table('users')
+                        ->where('telephone_1', $value)
+                        ->orWhere('telephone_2', $value)
+                        ->exists();
 
-                        if ($exists) {
-                            $fail('Le numéro de téléphone est déjà utilisé.');
-                        }
-                    },
-                ],
-                'email' => 'nullable|email|unique:users,email',
-            ], [
-                // Messages personnalisés
-                'prenom.required' => 'Le prénom est obligatoire.',
-                'nom.required' => 'Le nom est obligatoire.',
-                'email.unique' => 'Cette adresse email est déjà utilisée.',
-                'telephone_1.required' => 'Le numéro de téléphone principal est obligatoire.',
+                    if ($exists) {
+                        $fail('Le numéro de téléphone est déjà utilisé.');
+                    }
+                },
+            ],
+            'email' => 'nullable|email|unique:users,email',
+        ], [
+            // Messages personnalisés
+            'prenom.required' => 'Le prénom est obligatoire.',
+            'nom.required' => 'Le nom est obligatoire.',
+            'email.unique' => 'Cette adresse email est déjà utilisée.',
+            'telephone_1.required' => 'Le numéro de téléphone principal est obligatoire.',
+        ]);
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Veuillez corriger les erreurs ci-dessous.',
+                'errors' => $validator->errors()
             ]);
-            if ($validator->fails()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Veuillez corriger les erreurs ci-dessous.',
-                    'errors' => $validator->errors()
-                ]);
-            }
+        }
 
-            $validated = $validator->validated();
+        $validated = $validator->validated();
 
-            $validated['password'] = env('DEFAULT_PASSWORD', 'Metho@' . date('Y') . '!');
+        $validated['password'] = env('DEFAULT_PASSWORD', 'Metho@' . date('Y') . '!');
 
-            // Démarrer la transaction manuellement
-            DB::beginTransaction();
+        // Démarrer la transaction manuellement
+        DB::beginTransaction();
         try {
             // Créer l'membres
             $user = User::create($validated);
@@ -406,7 +409,7 @@ class UserController extends Controller
                 'message' => 'Membres créé avec succès!',
                 'data' => [
                     'id' => $user->id,
-                    'text' => $user->nom . ' ' . $user->prenom . ($user->email ? ' ('. $user->email . ')' : ''),
+                    'text' => $user->nom . ' ' . $user->prenom . ($user->email ? ' (' . $user->email . ')' : ''),
                     'email' => $user->email
                 ]
             ]);
@@ -648,7 +651,7 @@ class UserController extends Controller
             return redirect()
                 ->route('private.users.show', $user)
                 ->with('success', 'Membres mis à jour avec succès!');
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return back()
                 ->withInput()
                 ->with('error', 'Erreur lors de la mise à jour : ' . $e->getMessage());
@@ -699,7 +702,7 @@ class UserController extends Controller
             return redirect()
                 ->route('private.users.index')
                 ->with('success', 'Membres supprimé avec succès!');
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             if (request()->ajax()) {
                 return response()->json([
                     'success' => false,
@@ -739,7 +742,7 @@ class UserController extends Controller
                 'success' => true,
                 'message' => 'Membre validé avec succès!'
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Erreur : ' . $e->getMessage()
@@ -764,7 +767,7 @@ class UserController extends Controller
                 'success' => true,
                 'message' => 'Membres archivé avec succès!'
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Erreur : ' . $e->getMessage()
@@ -791,7 +794,7 @@ class UserController extends Controller
                 'success' => true,
                 'message' => 'Membres restauré avec succès!'
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Erreur : ' . $e->getMessage()
@@ -927,7 +930,7 @@ class UserController extends Controller
                                 // $user->sendWelcomeNotification();
                             }
                         }
-                    } catch (\Exception $e) {
+                    } catch (Exception $e) {
                         $errors[] = "Ligne " . ($lineNumber + 2) . ": " . $e->getMessage();
                     }
                 }
@@ -942,7 +945,7 @@ class UserController extends Controller
             }
 
             return back()->with('success', $message)->with('import_errors', $errors);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return back()->with('error', 'Erreur lors de l\'import : ' . $e->getMessage());
         }
     }
@@ -993,7 +996,7 @@ class UserController extends Controller
                 'actif' => $user->actif,
                 'message' => $user->actif ? 'Membres activé' : 'Membres désactivé'
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Erreur : ' . $e->getMessage()
@@ -1029,11 +1032,387 @@ class UserController extends Controller
                 'success' => true,
                 'message' => 'Mot de passe réinitialisé avec succès!'
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Erreur : ' . $e->getMessage()
             ], 500);
         }
     }
+
+
+    // public function usersNotSubscribedToFimeco(string $fimecoId)
+    // {
+    //     try {
+    //         $users = User::whereNotExists(function ($query) use ($fimecoId) {
+    //             $query->selectRaw('1')
+    //                 ->from('subscriptions')
+    //                 ->whereColumn('subscriptions.souscripteur_id', 'users.id')
+    //                 ->where('subscriptions.fimeco_id', '=', $fimecoId);
+    //         })->get();
+
+    //         return response()->json([
+    //             'success' => true,
+    //             'message' => 'Liste des utilisateurs non abonnés à la fimeco spécifiée',
+    //             'count'   => $users->count(),
+    //             'users'    => $users,
+    //         ]);
+    //     } catch (Exception $e) {
+    //         return response()->json([
+    //             'error'       => true,
+    //             'status_code' => 500,
+    //             'message'     => $e->getMessage(),
+    //             'trace'       => $e->getTraceAsString()
+    //         ], 500);
+    //     }
+    // }
+
+    public function usersNotSubscribedToFimeco(Request $request, string $fimecoId)
+    {
+        try {
+            // Validation du FIMECO
+            $fimeco = DB::table('fimecos')
+                ->where('id', $fimecoId)
+                ->whereNull('deleted_at')
+                ->first();
+
+            if (!$fimeco) {
+                return response()->json([
+                    'error' => true,
+                    'status_code' => 404,
+                    'message' => 'FIMECO introuvable'
+                ], 404);
+            }
+
+            // Paramètres de recherche et pagination
+            $search = $request->get('search', '');
+            $perPage = min((int) $request->get('per_page', 20), 100); // Limite max 100
+            $page = max((int) $request->get('page', 1), 1);
+            $sortBy = $request->get('sort_by', 'nom');
+            $sortDirection = $request->get('sort_direction', 'asc');
+
+            // Filtres additionnels
+            $filters = [
+                'statut_membre' => $request->get('statut_membre'),
+                'sexe' => $request->get('sexe'),
+                'ville' => $request->get('ville'),
+                'classe_id' => $request->get('classe_id'),
+                'age_min' => $request->get('age_min'),
+                'age_max' => $request->get('age_max'),
+                'date_adhesion_debut' => $request->get('date_adhesion_debut'),
+                'date_adhesion_fin' => $request->get('date_adhesion_fin'),
+            ];
+
+            // Colonnes autorisées pour le tri
+            $allowedSortColumns = [
+                'nom',
+                'prenom',
+                'email',
+                'telephone_1',
+                'date_naissance',
+                'date_adhesion',
+                'statut_membre',
+                'ville',
+                'profession',
+                'created_at'
+            ];
+
+            if (!in_array($sortBy, $allowedSortColumns)) {
+                $sortBy = 'nom';
+            }
+
+            if (!in_array(strtolower($sortDirection), ['asc', 'desc'])) {
+                $sortDirection = 'asc';
+            }
+
+            // Construction de la requête optimisée
+            $query = DB::table('users as u')
+                ->selectRaw("
+                u.id,
+                u.prenom,
+                u.nom,
+                CONCAT(u.prenom, ' ', u.nom) as nom_complet,
+                u.email,
+                u.telephone_1,
+                u.telephone_2,
+                u.sexe,
+                u.date_naissance,
+                EXTRACT(YEAR FROM AGE(COALESCE(u.date_naissance, CURRENT_DATE)))::INTEGER as age,
+                u.statut_membre,
+                u.statut_bapteme,
+                u.date_adhesion,
+                u.classe_id,
+                u.profession,
+                u.ville,
+                u.region,
+                u.pays,
+                u.photo_profil,
+                u.created_at,
+                u.updated_at
+            ")
+                // Anti-jointure optimisée : utilisateurs NON souscrits au FIMECO
+                ->whereNotExists(function ($subQuery) use ($fimecoId) {
+                    $subQuery->selectRaw('1')
+                        ->from('subscriptions as s')
+                        ->whereColumn('s.souscripteur_id', 'u.id')
+                        ->where('s.fimeco_id', '=', $fimecoId)
+                        ->whereNull('s.deleted_at');
+                })
+                // Filtres de base
+                ->whereNull('u.deleted_at')
+                ->where('u.actif', true);
+
+            // Application des filtres de recherche (VERSION SIMPLIFIÉE SANS EXTENSIONS)
+            if (!empty($search)) {
+                $searchTerms = trim($search);
+
+                $query->where(function ($searchQuery) use ($searchTerms) {
+                    // Recherche dans nom/prénom (insensible à la casse)
+                    $searchQuery->whereRaw(
+                        "CONCAT(LOWER(u.prenom), ' ', LOWER(u.nom)) LIKE ?",
+                        ['%' . strtolower($searchTerms) . '%']
+                    )
+                        // Recherche inverse (nom puis prénom)
+                        ->orWhereRaw(
+                            "CONCAT(LOWER(u.nom), ' ', LOWER(u.prenom)) LIKE ?",
+                            ['%' . strtolower($searchTerms) . '%']
+                        )
+                        // Recherche dans email
+                        ->orWhere('u.email', 'ILIKE', "%{$searchTerms}%")
+                        // Recherche dans téléphones
+                        ->orWhere('u.telephone_1', 'LIKE', "%{$searchTerms}%")
+                        ->orWhere('u.telephone_2', 'LIKE', "%{$searchTerms}%")
+                        // Recherche dans profession et ville
+                        ->orWhere('u.profession', 'ILIKE', "%{$searchTerms}%")
+                        ->orWhere('u.ville', 'ILIKE', "%{$searchTerms}%")
+                        // Recherche par prénom seul
+                        ->orWhere('u.prenom', 'ILIKE', "%{$searchTerms}%")
+                        // Recherche par nom seul
+                        ->orWhere('u.nom', 'ILIKE', "%{$searchTerms}%");
+                });
+            }
+
+            // Application des filtres métier
+            foreach ($filters as $key => $value) {
+                if (!empty($value)) {
+                    switch ($key) {
+                        case 'statut_membre':
+                            if (in_array($value, ['actif', 'inactif', 'visiteur', 'nouveau_converti'])) {
+                                $query->where('u.statut_membre', $value);
+                            }
+                            break;
+
+                        case 'sexe':
+                            if (in_array($value, ['masculin', 'feminin'])) {
+                                $query->where('u.sexe', $value);
+                            }
+                            break;
+
+                        case 'ville':
+                            $query->where('u.ville', 'ILIKE', "%{$value}%");
+                            break;
+
+                        case 'classe_id':
+                            $query->where('u.classe_id', $value);
+                            break;
+
+                        case 'age_min':
+                            $ageMin = (int) $value;
+                            if ($ageMin > 0 && $ageMin < 120) {
+                                $query->whereRaw("EXTRACT(YEAR FROM AGE(COALESCE(u.date_naissance, CURRENT_DATE))) >= ?", [$ageMin]);
+                            }
+                            break;
+
+                        case 'age_max':
+                            $ageMax = (int) $value;
+                            if ($ageMax > 0 && $ageMax < 120) {
+                                $query->whereRaw("EXTRACT(YEAR FROM AGE(COALESCE(u.date_naissance, CURRENT_DATE))) <= ?", [$ageMax]);
+                            }
+                            break;
+
+                        case 'date_adhesion_debut':
+                            if (Carbon::hasFormat($value, 'Y-m-d')) {
+                                $query->where('u.date_adhesion', '>=', $value);
+                            }
+                            break;
+
+                        case 'date_adhesion_fin':
+                            if (Carbon::hasFormat($value, 'Y-m-d')) {
+                                $query->where('u.date_adhesion', '<=', $value);
+                            }
+                            break;
+                    }
+                }
+            }
+
+            // Application du tri avec gestion des valeurs nulles
+            switch ($sortBy) {
+                case 'age':
+                    $query->orderByRaw("EXTRACT(YEAR FROM AGE(COALESCE(u.date_naissance, CURRENT_DATE))) {$sortDirection} NULLS LAST");
+                    break;
+
+                case 'nom_complet':
+                    $query->orderBy('u.nom', $sortDirection)
+                        ->orderBy('u.prenom', $sortDirection);
+                    break;
+
+                default:
+                    $query->orderBy("u.{$sortBy}", $sortDirection);
+                    break;
+            }
+
+            // Tri secondaire pour la cohérence
+            if ($sortBy !== 'nom') {
+                $query->orderBy('u.nom', 'asc')
+                    ->orderBy('u.prenom', 'asc');
+            }
+
+            // Exécution avec pagination Laravel optimisée
+            $offset = ($page - 1) * $perPage;
+
+            // Requête de comptage optimisée (même logique de recherche)
+            $totalCountQuery = DB::table('users as u')
+                ->whereNotExists(function ($subQuery) use ($fimecoId) {
+                    $subQuery->selectRaw('1')
+                        ->from('subscriptions as s')
+                        ->whereColumn('s.souscripteur_id', 'u.id')
+                        ->where('s.fimeco_id', '=', $fimecoId)
+                        ->whereNull('s.deleted_at');
+                })
+                ->whereNull('u.deleted_at')
+                ->where('u.actif', true);
+
+            // Application des mêmes filtres de recherche pour le comptage
+            if (!empty($search)) {
+                $totalCountQuery->where(function ($searchQuery) use ($search) {
+                    $searchQuery->whereRaw(
+                        "CONCAT(LOWER(u.prenom), ' ', LOWER(u.nom)) LIKE ?",
+                        ['%' . strtolower($search) . '%']
+                    )
+                        ->orWhereRaw(
+                            "CONCAT(LOWER(u.nom), ' ', LOWER(u.prenom)) LIKE ?",
+                            ['%' . strtolower($search) . '%']
+                        )
+                        ->orWhere('u.email', 'ILIKE', "%{$search}%")
+                        ->orWhere('u.telephone_1', 'LIKE', "%{$search}%")
+                        ->orWhere('u.telephone_2', 'LIKE', "%{$search}%")
+                        ->orWhere('u.profession', 'ILIKE', "%{$search}%")
+                        ->orWhere('u.ville', 'ILIKE', "%{$search}%")
+                        ->orWhere('u.prenom', 'ILIKE', "%{$search}%")
+                        ->orWhere('u.nom', 'ILIKE', "%{$search}%");
+                });
+            }
+
+            // Appliquer les filtres métier au comptage
+            foreach ($filters as $key => $value) {
+                if (!empty($value)) {
+                    switch ($key) {
+                        case 'statut_membre':
+                            if (in_array($value, ['actif', 'inactif', 'visiteur', 'nouveau_converti'])) {
+                                $totalCountQuery->where('u.statut_membre', $value);
+                            }
+                            break;
+                        case 'sexe':
+                            if (in_array($value, ['masculin', 'feminin'])) {
+                                $totalCountQuery->where('u.sexe', $value);
+                            }
+                            break;
+                        case 'ville':
+                            $totalCountQuery->where('u.ville', 'ILIKE', "%{$value}%");
+                            break;
+                        case 'classe_id':
+                            $totalCountQuery->where('u.classe_id', $value);
+                            break;
+                        case 'age_min':
+                            $ageMin = (int) $value;
+                            if ($ageMin > 0) {
+                                $totalCountQuery->whereRaw("EXTRACT(YEAR FROM AGE(COALESCE(u.date_naissance, CURRENT_DATE))) >= ?", [$ageMin]);
+                            }
+                            break;
+                        case 'age_max':
+                            $ageMax = (int) $value;
+                            if ($ageMax > 0) {
+                                $totalCountQuery->whereRaw("EXTRACT(YEAR FROM AGE(COALESCE(u.date_naissance, CURRENT_DATE))) <= ?", [$ageMax]);
+                            }
+                            break;
+                    }
+                }
+            }
+
+            // Exécution des requêtes
+            $totalCount = $totalCountQuery->count();
+            $users = $query->offset($offset)->limit($perPage)->get();
+
+            // Calculs de pagination
+            $totalPages = ceil($totalCount / $perPage);
+            $hasNextPage = $page < $totalPages;
+            $hasPrevPage = $page > 1;
+
+            // Statistiques rapides
+            $stats = [
+                'total_non_souscris' => $totalCount,
+                'page_actuelle' => $page,
+                'par_page' => $perPage,
+                'total_pages' => $totalPages,
+                'has_next_page' => $hasNextPage,
+                'has_prev_page' => $hasPrevPage,
+            ];
+
+            // Ajout d'informations sur le FIMECO pour contexte
+            $fimecoInfo = [
+                'id' => $fimeco->id,
+                'nom' => $fimeco->nom,
+                'statut' => $fimeco->statut,
+                'progression' => $fimeco->progression ?? 0,
+            ];
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Utilisateurs non souscrits au FIMECO récupérés avec succès',
+                'fimeco' => $fimecoInfo,
+                'users' => $users,
+                'pagination' => $stats,
+                'filters_applied' => array_filter($filters),
+                'search_term' => $search,
+            ], 200);
+
+        } catch (ValidationException $e) {
+            return response()->json([
+                'error' => true,
+                'status_code' => 422,
+                'message' => 'Erreur de validation',
+                'errors' => $e->errors()
+            ], 422);
+
+        } catch (QueryException $e) {
+            Log::error('Erreur PostgreSQL dans usersNotSubscribedToFimeco', [
+                'fimeco_id' => $fimecoId,
+                'error' => $e->getMessage(),
+                'sql' => $e->getSql(),
+            ]);
+
+            return response()->json([
+                'error' => true,
+                'status_code' => 500,
+                'message' => 'Erreur de base de données',
+                'details' => app()->environment('local') ? $e->getMessage() : 'Erreur interne'
+            ], 500);
+
+        } catch (Exception $e) {
+            Log::error('Erreur générale dans usersNotSubscribedToFimeco', [
+                'fimeco_id' => $fimecoId,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return response()->json([
+                'error' => true,
+                'status_code' => 500,
+                'message' => 'Une erreur inattendue s\'est produite',
+                'details' => app()->environment('local') ? $e->getMessage() : null
+            ], 500);
+        }
+    }
+
+
 }

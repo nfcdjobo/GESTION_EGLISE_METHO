@@ -84,26 +84,24 @@ namespace App\Models{
  * @property int|null $age_minimum
  * @property int|null $age_maximum
  * @property int $nombre_inscrits
- * @property string|null $responsable_id
- * @property string|null $enseignant_principal_id
+ * @property array|null $responsables
  * @property array|null $programme
  * @property string|null $image_classe
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
- * @property-read \App\Models\User|null $enseignantPrincipal
  * @property-read mixed $est_complete
  * @property-read mixed $nom_complet
+ * @property-read mixed $places_disponibles
  * @property-read mixed $pourcentage_remplissage
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\User> $membres
  * @property-read int|null $membres_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\User> $membresActifs
  * @property-read int|null $membres_actifs_count
- * @property-read \App\Models\User|null $responsable
  * @method static \Illuminate\Database\Eloquent\Builder|Classe actives()
  * @method static \Illuminate\Database\Eloquent\Builder|Classe ageMaximum($age)
  * @method static \Illuminate\Database\Eloquent\Builder|Classe ageMinimum($age)
- * @method static \Illuminate\Database\Eloquent\Builder|Classe avecPlacesDisponibles($capaciteMax = 50)
+ * @method static \Illuminate\Database\Eloquent\Builder|Classe avecPlacesDisponibles($capaciteMax = null)
  * @method static \Illuminate\Database\Eloquent\Builder|Classe newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Classe newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Classe onlyTrashed()
@@ -114,13 +112,12 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|Classe whereCreatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Classe whereDeletedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Classe whereDescription($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Classe whereEnseignantPrincipalId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Classe whereId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Classe whereImageClasse($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Classe whereNom($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Classe whereNombreInscrits($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Classe whereProgramme($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Classe whereResponsableId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Classe whereResponsables($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Classe whereTrancheAge($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Classe whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Classe withTrashed()
@@ -870,31 +867,36 @@ namespace App\Models{
 
 namespace App\Models{
 /**
- * @property string $id
+ * @property string $id Ici on a l'identifiant de la fimeco. Aussi dans une même période on ne peut créer une seule fimeco. Deux ou plisueur ne doivent pas être enregistrées lorsqu'il y'a une fimeco qui n'est pas encore cloturée
  * @property string|null $responsable_id
- * @property string $nom
+ * @property string $nom C'est le nom de la fimeco qui doit respecter cette nommenclature FIMECO-ANNEEFIN-CANAAN-BELLEVILLE  Ici ANNEEFIN est l'année de la date de fin (la colonne fin)
  * @property string|null $description
- * @property \Illuminate\Support\Carbon $debut
- * @property \Illuminate\Support\Carbon $fin
- * @property string $cible Le montant cible: c'est un montant prévu. En un mot c'est l'objectif à atteindre et cet objectif doit forcement être atteint avant que d'autre fimeco soit créé
+ * @property \Illuminate\Support\Carbon $debut Date à laquelle la fimeco commence
+ * @property \Illuminate\Support\Carbon $fin La date à laquelle la fimeco prend fin.
+ * @property string $cible Le montant cible: c'est un montant prévu. En un mot c'est l'objectif à atteindre et cet objectif doit forcement être atteint avant la cloture de la fimeco. Tnat que le montant_solde n'est as égale ou superieur à la cible dont ne doit pas pouvoir cloturer la fimeco
  * @property string $montant_solde Le montant soldé: c'est l'ensemble de tous les paiements déjà effectué par les souscripteurs et ce montant vient de la table subscriptions. Mise à jour automatique
  * @property string $reste C'est l'ensemble des montants non soldés. Mise à jour automatique
- * @property string $montant_supplementaire Le montant supplémentaire existe si montant_solde supérieur à la cible. Mise à jour automatique
- * @property string $progression Progression ou évolution de montant soldé en %
- * @property string $statut_global Mise à jour automatique: tres_faible <=25%, 25%<en_cours<=75%, 75%<presque_atteint<=99,99% et objectif_atteint >=100%
+ * @property string $montant_supplementaire Le montant supplémentaire rentre en jeu lorsque montant_solde est supérieur à la cible. Mise à jour automatique
+ * @property string $progression Progression ou évolution de montant soldé en %. Et ça peut aller au dela des 100% puisque le montant_solde peut etre superieur à la cible
+ * @property string $statut_global Mise à jour automatique: tres_faible <=25%, 25% < en_cours <= 75%, 75% < presque_atteint <= 99,99% et objectif_atteint >= 100%
  * @property string $statut
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property-read bool $a_paiements_supplementaires
  * @property-read bool $en_retard
  * @property-read int $jours_restants
  * @property-read bool $objectif_atteint
+ * @property-read bool $objectif_largement_depasse
  * @property-read string $progression_formattee
+ * @property-read float $taux_depassement
  * @property-read \App\Models\User|null $responsable
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Subscription> $subscriptions
  * @property-read int|null $subscriptions_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Subscription> $subscriptionsActives
  * @property-read int|null $subscriptions_actives_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Subscription> $subscriptionsAvecSupplements
+ * @property-read int|null $subscriptions_avec_supplements_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Subscription> $subscriptionsCompletes
  * @property-read int|null $subscriptions_completes_count
  * @method static \Illuminate\Database\Eloquent\Builder|Fimeco actifs()
@@ -2455,11 +2457,11 @@ namespace App\Models{
  * @property string $montant_paye
  * @property string $reste_a_payer
  * @property string $cible Copie de la cible du FIMECO pour éviter les jointures coûteuses
- * @property string $montant_solde Le montant soldé: c'est l'ensemble de tous les paiements déjà effectué par les souscripteurs et ce montant vient de la table paiement_souscriptions. Mise à jour automatique
- * @property string $reste C'est l'ensemble des montants non soldés. Mise à jour automatique
- * @property string $montant_supplementaire Le montant supplémentaire existe si cible inférieur au cible. Mise à jour automatique
- * @property string $progression Progression ou évolution de montant soldé en %
- * @property string $statut_global Mise à jour automatique: tres_faible <=25%, 25%<en_cours<=75%, 75%<presque_atteint<=99,99% et objectif_atteint >=100%
+ * @property string $montant_solde Le montant soldé: c'est l'ensemble de tous les paiements déjà effectué par le souscription et ce montant vient de la table paiement_souscriptions. Mise à jour automatique
+ * @property string $reste C'est l'ensemble le montant non soldé. Mise à jour automatique
+ * @property string $montant_supplementaire Le montant supplémentaire existe si cible inférieur au cible. Ce montant est une valeur positive, c'est la différence entre montant_solde et cible lorsque le montant_solde est superieur cible c'est-à-dire le souscripteur va au dela de sa cible prévue. Mise à jour automatique
+ * @property string $progression Progression ou évolution de montant soldé en % et peut aller au dela de 100% puis que le souscripteur peut aller au dela de sa cible
+ * @property string $statut_global Mise à jour automatique: tres_faible <=25%, 25% < en_cours <= 75%, 75% < presque_atteint <= 99,99% et objectif_atteint >= 100%
  * @property string $statut Mise à jour automatique en fonction du reste à payer
  * @property \Illuminate\Support\Carbon $date_souscription
  * @property \Illuminate\Support\Carbon|null $date_echeance
@@ -2467,11 +2469,13 @@ namespace App\Models{
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property-read \App\Models\Fimeco|null $fimeco
+ * @property-read bool $a_paiements_supplementaires
  * @property-read \App\Models\SubscriptionPayment|null $dernier_paiement
  * @property-read bool $en_retard
  * @property-read bool $est_complete
  * @property-read int $jours_restants
  * @property-read int $jours_retard
+ * @property-read float $montant_base_restant
  * @property-read float $montant_total_paye
  * @property-read int $nombre_paiements
  * @property-read string $progression_formattee
@@ -2479,10 +2483,13 @@ namespace App\Models{
  * @property-read int|null $payments_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\SubscriptionPayment> $paymentsEnAttente
  * @property-read int|null $payments_en_attente_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\SubscriptionPayment> $paymentsSupplementaires
+ * @property-read int|null $payments_supplementaires_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\SubscriptionPayment> $paymentsValides
  * @property-read int|null $payments_valides_count
  * @property-read \App\Models\User|null $souscripteur
  * @method static \Illuminate\Database\Eloquent\Builder|Subscription actives()
+ * @method static \Illuminate\Database\Eloquent\Builder|Subscription avecPaiementsSupplementaires()
  * @method static \Illuminate\Database\Eloquent\Builder|Subscription completes()
  * @method static \Illuminate\Database\Eloquent\Builder|Subscription echeanceProche($jours = 30)
  * @method static \Illuminate\Database\Eloquent\Builder|Subscription enRetard()

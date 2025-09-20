@@ -2,11 +2,12 @@
 
 namespace App\Notifications;
 
-use App\Models\SubscriptionPayment;
 use Illuminate\Bus\Queueable;
+use App\Models\SubscriptionPayment;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Notifications\Notification;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
-use Illuminate\Notifications\Notification;
 
 class PaiementValide extends Notification implements ShouldQueue
 {
@@ -23,37 +24,43 @@ class PaiementValide extends Notification implements ShouldQueue
     }
 
 
-    public function toMail(object $notifiable): MailMessage
-    {
-        $subscription = $this->payment->subscription;
-        $montantPaiement = number_format($this->payment->montant, 2);
-        $resteAPayer = number_format($subscription->reste_a_payer, 2);
 
-        $message = (new MailMessage)
-            ->subject("Confirmation de paiement FIMECO - {$subscription->fimeco->nom}")
-            ->greeting("Bonjour {$notifiable->nom} {$notifiable->prenom},")
-            ->line("Nous confirmons la réception de votre paiement pour la FIMECO \"{$subscription->fimeco->nom}\".")
-            ->line("**Détails du paiement :**")
-            ->line("- Montant reçu : **{$montantPaiement} FCFA**")
-            ->line("- Type de paiement : " . config('fimeco.types_paiement_autorises')[$this->payment->type_paiement])
-            ->line("- Date de paiement : " . $this->payment->date_paiement->format('d/m/Y à H:i'));
+public function toMail(object $notifiable): MailMessage
+{
+    $subscription = $this->payment->subscription;
+    $montantPaiement = number_format($this->payment->montant, 2, ',', ' ');
+    $resteAPayer = number_format($subscription->reste_a_payer, 2, ',', ' ');
 
-        if ($this->payment->reference_paiement) {
-            $message->line("- Référence : {$this->payment->reference_paiement}");
+    // Convertir le logo en base64
+    $logoPath = public_path('images/logo/image.png');
+    $logoBase64 = null;
+
+    if (file_exists($logoPath)) {
+        try {
+            $imageSize = getimagesize($logoPath);
+            $mimeType = $imageSize['mime'] ?? 'image/png';
+            $logoData = file_get_contents($logoPath);
+            $logoBase64 = 'data:' . $mimeType . ';base64,' . base64_encode($logoData);
+        } catch (\Exception $e) {
+            Log::warning('Impossible de convertir le logo en base64', [
+                'error' => $e->getMessage(),
+                'logo_path' => $logoPath
+            ]);
         }
-
-        if ($subscription->reste_a_payer > 0) {
-            $message->line("- **Reste à payer : {$resteAPayer} FCFA**")
-                   ->action('Effectuer un autre paiement', route('private.subscriptions.show', $subscription->id));
-        } else {
-            $message->line("🎉 **Félicitations ! Votre souscription est maintenant entièrement payée.**")
-                   ->action('Voir votre souscription', route('private.subscriptions.show', $subscription->id));
-        }
-
-        return $message
-            ->line('Merci pour votre générosité et votre engagement.')
-            ->salutation('Que Dieu vous bénisse,');
     }
+
+    return (new MailMessage)
+        ->subject("Confirmation de paiement FIMECO - {$subscription->fimeco->nom}")
+        ->view('emails.payment-confirmation', [
+            'subscription' => $subscription,
+            'payment' => $this->payment,
+            'notifiable' => $notifiable,
+            'montantPaiement' => $montantPaiement,
+            'resteAPayer' => $resteAPayer,
+            'logoBase64' => $logoBase64,
+            'logoUrl' => asset('images/logo/image.png'), // Fallback
+        ]);
+}
 
     public function toArray(object $notifiable): array
     {

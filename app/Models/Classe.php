@@ -26,8 +26,7 @@ class Classe extends Model
         'age_minimum',
         'age_maximum',
         'nombre_inscrits',
-        'responsable_id',
-        'enseignant_principal_id',
+        'responsables', // Structure JSON mise à jour
         'programme',
         'image_classe',
     ];
@@ -44,6 +43,7 @@ class Classe extends Model
         'age_minimum' => 'integer',
         'age_maximum' => 'integer',
         'nombre_inscrits' => 'integer',
+        'responsables' => 'array', // Cast en array pour JSON
         'programme' => 'array',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
@@ -60,19 +60,49 @@ class Classe extends Model
     ];
 
     /**
-     * Relation avec le responsable de la classe
+     * Relation avec tous les responsables de la classe
      */
-    public function responsable()
+    public function responsables()
     {
-        return $this->belongsTo(User::class, 'responsable_id');
+        if (!$this->responsables) {
+            return collect();
+        }
+
+        $responsableIds = collect($this->responsables)->pluck('id');
+        return User::whereIn('id', $responsableIds)->get()->map(function ($user) {
+            $responsableData = collect($this->responsables)->firstWhere('id', $user->id);
+            $user->responsabilite = $responsableData['responsabilite'] ?? null;
+            $user->superieur = $responsableData['superieur'] ?? false;
+            return $user;
+        });
     }
 
     /**
-     * Relation avec l'enseignant principal
+     * Obtenir le responsable supérieur
      */
-    public function enseignantPrincipal()
+    public function responsableSuperieur()
     {
-        return $this->belongsTo(User::class, 'enseignant_principal_id');
+        if (!$this->responsables) {
+            return null;
+        }
+
+        $superieur = collect($this->responsables)->firstWhere('superieur', true);
+        return $superieur ? User::find($superieur['id']) : null;
+    }
+
+    /**
+     * Obtenir les responsables par type de responsabilité
+     */
+    public function responsablesParType($type)
+    {
+        if (!$this->responsables) {
+            return collect();
+        }
+
+        $responsables = collect($this->responsables)->where('responsabilite', $type);
+        $ids = $responsables->pluck('id');
+
+        return User::whereIn('id', $ids)->get();
     }
 
     /**
@@ -92,12 +122,15 @@ class Classe extends Model
     }
 
     /**
-     * Scope pour les classes actives (ayant un responsable)
+     * Scope pour les classes actives (ayant un responsable supérieur)
      */
-    public function scopeActives($query)
-    {
-        return $query->whereNotNull('responsable_id');
-    }
+
+
+public function scopeActives($query)
+{
+    return $query->whereNotNull('responsables')
+                 ->whereRaw('jsonb_array_length(responsables::jsonb) > 0');
+}
 
     /**
      * Scope pour filtrer par tranche d'âge
@@ -108,11 +141,12 @@ class Classe extends Model
     }
 
     /**
-     * Scope pour les classes ayant des places disponibles
+     * Scope pour les classes ayant des places disponibles (supprimé car capacité illimitée)
+     * Conservé pour compatibilité mais ne fait aucun filtrage
      */
-    public function scopeAvecPlacesDisponibles($query, $capaciteMax = 50)
+    public function scopeAvecPlacesDisponibles($query, $capaciteMax = null)
     {
-        return $query->where('nombre_inscrits', '<', $capaciteMax);
+        return $query; // Pas de limitation
     }
 
     /**
@@ -132,16 +166,6 @@ class Classe extends Model
     }
 
     /**
-     * Accesseur pour obtenir le nombre de places disponibles
-     */
-    // public function getPlacesDisponiblesAttribute()
-    // {
-    //     // Capacité maximale par défaut de 50
-    //     $capaciteMax = 50;
-    //     return max(0, $capaciteMax - $this->nombre_inscrits);
-    // }
-
-    /**
      * Accesseur pour obtenir le nom complet avec tranche d'âge
      */
     public function getNomCompletAttribute()
@@ -150,29 +174,27 @@ class Classe extends Model
     }
 
     /**
-     * Accesseur pour vérifier si la classe est complète
+     * Accesseur pour vérifier si la classe est complète (supprimé car capacité illimitée)
      */
     public function getEstCompleteAttribute()
     {
-        $capaciteMax = 50;
-        return $this->nombre_inscrits >= $capaciteMax;
+        return false; // Jamais complète car capacité illimitée
     }
 
     /**
-     * Accesseur pour obtenir le pourcentage de remplissage
+     * Accesseur pour obtenir le pourcentage de remplissage (supprimé car capacité illimitée)
      */
     public function getPourcentageRemplissageAttribute()
     {
-        $capaciteMax = 50;
-        return $this->nombre_inscrits > 0 ? round(($this->nombre_inscrits / $capaciteMax) * 100, 2) : 0;
+        return 0; // Pas pertinent avec capacité illimitée
     }
 
     /**
-     * Mutateur pour le programme (s'assurer que c'est un array)
+     * Accesseur pour les places disponibles (supprimé car capacité illimitée)
      */
-    public function setProgrammeAttribute($value)
+    public function getPlacesDisponiblesAttribute()
     {
-        $this->attributes['programme'] = is_array($value) ? json_encode($value) : $value;
+        return PHP_INT_MAX; // Capacité illimitée
     }
 
     /**
@@ -189,6 +211,45 @@ class Classe extends Model
     public function setNombreInscritsAttribute($value)
     {
         $this->attributes['nombre_inscrits'] = max(0, (int) $value);
+    }
+
+    /**
+     * Mutateur pour les responsables (validation de la structure)
+     */
+    public function setResponsablesAttribute($value)
+    {
+        if (is_string($value)) {
+            $value = json_decode($value, true);
+        }
+
+        // Validation de la structure
+        if (is_array($value)) {
+            $validated = [];
+            $hasSuperieur = false;
+
+            foreach ($value as $responsable) {
+                if (isset($responsable['id']) && isset($responsable['responsabilite'])) {
+                    $isSuperieur = $responsable['superieur'] ?? false;
+
+                    // Un seul supérieur autorisé
+                    if ($isSuperieur && $hasSuperieur) {
+                        $isSuperieur = false;
+                    } elseif ($isSuperieur) {
+                        $hasSuperieur = true;
+                    }
+
+                    $validated[] = [
+                        'id' => $responsable['id'],
+                        'superieur' => $isSuperieur,
+                        'responsabilite' => $responsable['responsabilite']
+                    ];
+                }
+            }
+
+            $this->attributes['responsables'] = json_encode($validated);
+        } else {
+            $this->attributes['responsables'] = json_encode([]);
+        }
     }
 
     /**
@@ -226,18 +287,73 @@ class Classe extends Model
     }
 
     /**
+     * Ajouter un responsable
+     */
+    public function ajouterResponsable($userId, $responsabilite, $superieur = false)
+    {
+        $responsables = $this->responsables ?? [];
+
+        // Vérifier si l'utilisateur n'est pas déjà responsable
+        $existe = collect($responsables)->firstWhere('id', $userId);
+        if ($existe) {
+            return false;
+        }
+
+        // Si c'est un supérieur, retirer le statut des autres
+        if ($superieur) {
+            $responsables = collect($responsables)->map(function ($resp) {
+                $resp['superieur'] = false;
+                return $resp;
+            })->toArray();
+        }
+
+        $responsables[] = [
+            'id' => $userId,
+            'superieur' => $superieur,
+            'responsabilite' => $responsabilite
+        ];
+
+        $this->responsables = $responsables;
+        return $this->save();
+    }
+
+    /**
+     * Retirer un responsable
+     */
+    public function retirerResponsable($userId)
+    {
+        $responsables = collect($this->responsables ?? [])
+            ->filter(function ($resp) use ($userId) {
+                return $resp['id'] !== $userId;
+            })
+            ->values()
+            ->toArray();
+
+        $this->responsables = $responsables;
+        return $this->save();
+    }
+
+    /**
+     * Vérifier si un utilisateur peut gérer les responsables
+     */
+    public function peutGererResponsables($userId)
+    {
+        $responsables = $this->responsables ?? [];
+        $responsable = collect($responsables)->firstWhere('id', $userId);
+
+        return $responsable && $responsable['superieur'] === true;
+    }
+
+    /**
      * Méthode pour obtenir les statistiques de la classe
      */
     public function getStatistiques()
     {
-
         return [
             'nombre_inscrits' => $this->nombre_inscrits,
-            'places_disponibles' => $this->places_disponibles,
-            'pourcentage_remplissage' => $this->pourcentage_remplissage,
-            'est_complete' => $this->est_complete,
-            'a_responsable' => !is_null($this->responsable_id),
-            'a_enseignant' => !is_null($this->enseignant_principal_id),
+            'a_responsables' => !empty($this->responsables),
+            'nombre_responsables' => count($this->responsables ?? []),
+            'a_superieur' => $this->responsableSuperieur() !== null,
         ];
     }
 }

@@ -1,1206 +1,1678 @@
 <?php $__env->startSection('title', 'Nouvelle Souscription'); ?>
 
 <?php $__env->startSection('content'); ?>
-    <style>
-        .autocomplete-dropdown {
-            display: none;
-        }
-
-        .autocomplete-dropdown.show {
-            display: block;
-        }
-    </style>
     <div class="space-y-8">
-        <!-- Page Title & Breadcrumb -->
-        <div class="mb-8">
-            <h1 class="text-3xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent">
-                Nouvelle Souscription</h1>
-            <nav class="flex mt-2" aria-label="Breadcrumb">
-                <ol class="inline-flex items-center space-x-1 md:space-x-3">
-                    <li class="inline-flex items-center">
-                        <a href="<?php echo e(route('private.subscriptions.index')); ?>"
-                            class="inline-flex items-center text-sm font-medium text-slate-700 hover:text-blue-600 transition-colors">
-                            <i class="fas fa-hand-holding-usd mr-2"></i>
-                            Souscriptions
-                        </a>
-                    </li>
-                    <li>
-                        <div class="flex items-center">
-                            <i class="fas fa-chevron-right text-slate-400 mx-2"></i>
-                            <span class="text-sm font-medium text-slate-500">Créer</span>
-                        </div>
-                    </li>
-                </ol>
-            </nav>
+        <!-- Page Header -->
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div>
+                <h1 class="text-3xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent">
+                    Nouvelle Souscription
+                </h1>
+                <p class="text-slate-500 mt-1">
+                    Créer une nouvelle souscription à un FIMECO
+                </p>
+            </div>
+            <div class="flex gap-3">
+                <a href="<?php echo e(route('private.subscriptions.index')); ?>"
+                    class="inline-flex items-center px-4 py-2 bg-slate-600 text-white text-sm font-medium rounded-xl hover:bg-slate-700 transition-colors">
+                    <i class="fas fa-arrow-left mr-2"></i> Retour à la liste
+                </a>
+            </div>
         </div>
 
-        <form action="<?php echo e(route('private.subscriptions.store')); ?>" method="POST" id="souscriptionForm" class="space-y-8">
+        <!-- Alert d'information -->
+        <div class="bg-blue-50 border border-blue-200 rounded-xl p-4">
+            <div class="flex">
+                <div class="flex-shrink-0">
+                    <i class="fas fa-info-circle text-blue-400 text-lg"></i>
+                </div>
+                <div class="ml-3">
+                    <h3 class="text-sm font-medium text-blue-800">Information importante</h3>
+                    <div class="mt-2 text-sm text-blue-700">
+                        <p>Une souscription lie un utilisateur à un FIMECO avec un montant défini. Une fois créée, le souscripteur pourra effectuer des paiements pour atteindre le montant souscrit.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <form method="POST" action="<?php echo e(route('private.subscriptions.store')); ?>"
+              class="space-y-8"
+              id="subscriptionForm">
             <?php echo csrf_field(); ?>
 
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                <!-- Formulaire principal -->
-                <div class="lg:col-span-2">
-                    <div
-                        class="bg-white/80 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
-                        <div class="p-6 border-b border-slate-200">
-                            <h2 class="text-xl font-bold text-slate-800 flex items-center">
-                                <i class="fas fa-info-circle text-blue-600 mr-2"></i>
-                                Informations de Souscription
-                            </h2>
-                        </div>
-                        <div class="p-6 space-y-6">
-                            <!-- Sélection FIMECO -->
-                            <div>
-                                <label for="fimeco_id" class="block text-sm font-medium text-slate-700 mb-2">
-                                    FIMECO <span class="text-red-500">*</span>
-                                </label>
-                                
-                                <input type="hidden" name="fimeco_id" value="<?php echo e($fimecoActive->id); ?>">
-                                <div class="p-4 bg-blue-50 border border-blue-200 rounded-xl">
-                                    <h3 class="font-semibold text-blue-900"><?php echo e($fimecoActive->nom); ?></h3>
-                                    <p class="text-sm text-blue-700 mt-1"><?php echo e($fimecoActive->description); ?></p>
-                                    <div class="flex items-center gap-4 mt-3 text-sm text-blue-600">
-                                        <span><i
-                                                class="fas fa-calendar mr-1"></i><?php echo e(\Carbon\Carbon::parse($fimecoActive->debut)->format('d/m/Y')); ?>
+            <!-- Informations principales -->
+            <div class="bg-white/80 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
+                <div class="p-6 border-b border-slate-200">
+                    <h2 class="text-xl font-bold text-slate-800 flex items-center">
+                        <i class="fas fa-user-circle text-blue-600 mr-2"></i>
+                        Informations de la souscription
+                    </h2>
+                    <p class="text-slate-500 text-sm mt-1">
+                        Sélectionnez le souscripteur concerné
+                    </p>
+                </div>
 
-                                            - <?php echo e(\Carbon\Carbon::parse($fimecoActive->fin)->format('d/m/Y')); ?></span>
-                                        <span><i
-                                                class="fas fa-bullseye mr-1"></i><?php echo e(number_format($fimecoActive->cible, 0, ',', ' ')); ?>
+                <div class="p-6 space-y-6">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <!-- Sélection du FIMECO -->
+                        <div>
+                            <label for="fimeco_id" class="block text-sm font-medium text-slate-700 mb-2">
+                                FIMECO *
+                            </label>
 
-                                            FCFA</span>
-                                    </div>
-                                </div>
-                                
-                            </div>
-
-                            
-
-                            <!-- Souscripteur avec recherche -->
-                            <div>
-                                <label for="souscripteur_search" class="block text-sm font-medium text-slate-700 mb-2">
-                                    Souscripteur <span class="text-red-500">*</span>
-                                </label>
-                                <div class="relative" data-type="souscripteur">
-                                    <input type="text" id="souscripteur_search" name="souscripteur_search"
-                                        placeholder="Rechercher un souscripteur..."
-                                        class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors <?php $__errorArgs = ['souscripteur_id'];
+                            <select id="fimeco_id" required disabled class="appearance-none w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors <?php $__errorArgs = ['fimeco_id'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
-$message = $__bag->first($__errorArgs[0]); ?> border-red-500 focus:ring-red-500 focus:border-red-500 <?php unset($message);
-if (isset($__messageOriginal)) { $message = $__messageOriginal; }
-endif;
-unset($__errorArgs, $__bag); ?>"
-                                        autocomplete="off" value="<?php echo e(old('souscripteur_search')); ?>">
-
-                                    <input type="hidden" id="souscripteur_id" name="souscripteur_id"
-                                        value="<?php echo e(old('souscripteur_id')); ?>">
-
-                                    <div class="autocomplete-dropdown absolute top-full left-0 right-0 bg-white border border-slate-200 rounded-lg shadow-xl max-h-72 overflow-y-auto z-50"
-                                        id="souscripteur_dropdown">
-                                        <div class="loading-item p-3 text-center text-slate-500 hidden">
-                                            <i class="fas fa-spinner fa-spin mr-2"></i>Recherche en cours...
-                                        </div>
-                                        <div class="no-results p-3 text-center text-slate-500 hidden">
-                                            Aucun souscripteur trouvé
-                                        </div>
-                                        <div
-                                            class="add-new-item p-3 border-t border-slate-200 cursor-pointer hover:bg-slate-50 transition-colors hidden">
-                                            <i class="fas fa-plus text-blue-600 mr-2"></i>
-                                            <span class="text-blue-600">Ajouter ce souscripteur</span>
-                                        </div>
-                                    </div>
-                                </div>
-                                <?php $__errorArgs = ['souscripteur_id'];
-$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
-if ($__bag->has($__errorArgs[0])) :
-if (isset($message)) { $__messageOriginal = $message; }
-$message = $__bag->first($__errorArgs[0]); ?>
-                                    <p class="mt-2 text-sm text-red-600"><?php echo e($message); ?></p>
-                                <?php unset($message);
-if (isset($__messageOriginal)) { $message = $__messageOriginal; }
-endif;
-unset($__errorArgs, $__bag); ?>
-                            </div>
-
-                            <!-- Montant de souscription -->
-                            <div>
-                                <label for="montant_souscrit" class="block text-sm font-medium text-slate-700 mb-2">
-                                    Montant de souscription (FCFA) <span class="text-red-500">*</span>
-                                </label>
-                                <input type="number" id="montant_souscrit" name="montant_souscrit"
-                                    value="<?php echo e(old('montant_souscrit')); ?>" required min="10" step="0.01" placeholder="50000"
-                                    onchange="updatePreview()"
-                                    class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors <?php $__errorArgs = ['montant_souscrit'];
-$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
-if ($__bag->has($__errorArgs[0])) :
-if (isset($message)) { $__messageOriginal = $message; }
-$message = $__bag->first($__errorArgs[0]); ?> border-red-500 focus:ring-red-500 focus:border-red-500 <?php unset($message);
+$message = $__bag->first($__errorArgs[0]); ?> border-red-500 <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
 unset($__errorArgs, $__bag); ?>">
-                                <?php $__errorArgs = ['montant_souscrit'];
+
+                                    <option value="<?php echo e($fimeco->id); ?>"
+                                            data-cible="<?php echo e($fimeco->cible); ?>"
+                                            data-collecte="<?php echo e($fimeco->montant_solde); ?>"
+                                            data-progression="<?php echo e($fimeco->progression); ?>"
+                                            data-fin="<?php echo e($fimeco->fin->format('Y-m-d')); ?>"
+                                            selected>
+                                        <?php echo e($fimeco->nom); ?> - <?php echo e(number_format($fimeco->cible, 0, ',', ' ')); ?> FCFA (<?php echo e(number_format($fimeco->progression, 1)); ?>%)
+                                    </option>
+                            </select>
+                            <?php $__errorArgs = ['fimeco_id'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
 $message = $__bag->first($__errorArgs[0]); ?>
-                                    <p class="mt-2 text-sm text-red-600"><?php echo e($message); ?></p>
-                                <?php unset($message);
+                                <p class="mt-1 text-sm text-red-600"><?php echo e($message); ?></p>
+                            <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
 unset($__errorArgs, $__bag); ?>
-                                <p class="mt-1 text-sm text-slate-500">Montant minimum : 10 FCFA</p>
+
+                            <input type="hidden" name="fimeco_id" value="<?php echo e($fimeco->id); ?>"  required>
+
+                            <!-- Informations FIMECO sélectionné -->
+                            <div id="fimecoInfo" class="hidden mt-3 p-4 bg-slate-50 rounded-xl">
+                                <div class="grid grid-cols-2 gap-4 text-sm">
+                                    <div>
+                                        <span class="text-slate-600">Objectif:</span>
+                                        <span class="font-medium text-slate-900" id="fimecoCible">-</span>
+                                    </div>
+                                    <div>
+                                        <span class="text-slate-600">Collecté:</span>
+                                        <span class="font-medium text-slate-900" id="fimecoCollecte">-</span>
+                                    </div>
+                                    <div>
+                                        <span class="text-slate-600">Progression:</span>
+                                        <span class="font-medium text-slate-900" id="fimecoProgression">-</span>
+                                    </div>
+                                    <div>
+                                        <span class="text-slate-600">Fin:</span>
+                                        <span class="font-medium text-slate-900" id="fimecoFin">-</span>
+                                    </div>
+                                </div>
+
+                                <!-- Barre de progression -->
+                                <div class="mt-3">
+                                    <div class="flex items-center justify-between text-sm mb-1">
+                                        <span class="text-slate-600">Progression</span>
+                                        <span class="font-medium" id="fimecoProgressionText">0%</span>
+                                    </div>
+                                    <div class="w-full bg-slate-200 rounded-full h-2">
+                                        <div id="fimecoProgressionBar" class="h-2 rounded-full bg-gradient-to-r from-blue-500 to-purple-500" style="width: 0%"></div>
+                                    </div>
+                                </div>
                             </div>
+                        </div>
 
 
+                        
 
-                            <!-- Commentaire -->
-                            <div>
-                                <label for="commentaire" class="block text-sm font-medium text-slate-700 mb-2">Commentaire
-                                    (optionnel)</label>
-                                <textarea id="commentaire" name="commentaire" rows="3"
-                                    placeholder="Motivation, objectifs personnels, etc."
-                                    class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors resize-none <?php $__errorArgs = ['commentaire'];
+
+<!-- Remplacer la section "Sélection du souscripteur" par ce code -->
+<div class="relative">
+    <label for="souscripteur_search" class="block text-sm font-medium text-slate-700 mb-2">
+        Souscripteur *
+    </label>
+
+    <!-- Champ de recherche visible -->
+    <div class="relative">
+        <input type="text"
+               id="souscripteur_search"
+               placeholder="Tapez pour rechercher un souscripteur..."
+               autocomplete="off"
+               class="w-full px-4 py-3 pr-10 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 <?php $__errorArgs = ['souscripteur_id'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
-$message = $__bag->first($__errorArgs[0]); ?> border-red-500 focus:ring-red-500 focus:border-red-500 <?php unset($message);
+$message = $__bag->first($__errorArgs[0]); ?> border-red-500 <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
-unset($__errorArgs, $__bag); ?>"><?php echo e(old('commentaire')); ?></textarea>
-                                <?php $__errorArgs = ['commentaire'];
+unset($__errorArgs, $__bag); ?> disabled:bg-slate-50 disabled:text-slate-400 disabled:cursor-not-allowed">
+
+        <!-- Icône de recherche -->
+        <div class="absolute inset-y-0 right-0 flex items-center pr-3">
+            <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+            </svg>
+        </div>
+    </div>
+
+    <!-- Champ hidden pour la valeur réelle -->
+    <input type="hidden" name="souscripteur_id" id="souscripteur_id" required>
+
+    <!-- Dropdown des résultats -->
+    <div id="souscripteur_dropdown"
+         class="hidden absolute z-50 w-full mt-1 bg-white border border-slate-300 rounded-xl shadow-xl max-h-60 overflow-y-auto transform transition-all duration-200 origin-top scale-95 opacity-0">
+
+        <!-- Indicateur de chargement -->
+        <div id="loading_indicator" class="hidden p-4 text-center text-slate-500">
+            <div class="flex items-center justify-center space-x-2">
+                <div class="animate-spin rounded-full h-4 w-4 border-2 border-slate-200 border-t-blue-500"></div>
+                <span class="text-sm">Recherche en cours...</span>
+            </div>
+        </div>
+
+        <!-- Message aucun résultat -->
+        <div id="no_results" class="hidden p-4 text-center text-slate-500">
+            <div class="flex items-center justify-center space-x-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 12h6m-6-4h6m2 5.291A7.962 7.962 0 0112 15c-2.34 0-4.47-.881-6.09-2.33"></path>
+                </svg>
+                <span class="text-sm">Aucun souscripteur trouvé</span>
+            </div>
+        </div>
+
+        <!-- Liste des résultats -->
+        <ul id="souscripteur_results" class="divide-y divide-slate-100">
+            <!-- Les résultats seront insérés ici dynamiquement -->
+        </ul>
+    </div>
+
+    <!-- Souscripteur sélectionné -->
+    <div id="selected_souscripteur" class="hidden mt-3 p-3 bg-green-50 border border-green-200 rounded-lg transform transition-all duration-200">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
+                    <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                    </svg>
+                </div>
+                <div>
+                    <div class="font-medium text-green-800" id="selected_name">-</div>
+                    <div class="text-sm text-green-600" id="selected_details">-</div>
+                </div>
+            </div>
+            <button type="button" onclick="clearSelection()"
+                    class="text-green-600 hover:text-green-800 transition-colors transform hover:rotate-90 duration-200">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+            </button>
+        </div>
+    </div>
+
+    <?php $__errorArgs = ['souscripteur_id'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
 $message = $__bag->first($__errorArgs[0]); ?>
-                                    <p class="mt-2 text-sm text-red-600"><?php echo e($message); ?></p>
-                                <?php unset($message);
+        <p class="mt-1 text-sm text-red-600 animate-pulse"><?php echo e($message); ?></p>
+    <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
 unset($__errorArgs, $__bag); ?>
+</div>
+
+
+
+                    </div>
+
+                    <!-- Vérification d'unicité -->
+                    <div id="subscriptionExistsAlert" class="hidden p-4 bg-red-50 border border-red-200 rounded-xl">
+                        <div class="flex">
+                            <div class="flex-shrink-0">
+                                <i class="fas fa-exclamation-triangle text-red-400"></i>
+                            </div>
+                            <div class="ml-3">
+                                <h3 class="text-sm font-medium text-red-800">Attention</h3>
+                                <div class="mt-1 text-sm text-red-700">
+                                    Ce souscripteur a déjà une souscription pour ce FIMECO.
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
+            </div>
 
-                <!-- Sidebar avec aperçu et aide -->
-                <div class="space-y-6">
-                    <!-- Aperçu de la souscription -->
-                    <div
-                        class="bg-white/80 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
-                        <div class="p-6 border-b border-slate-200">
-                            <h2 class="text-xl font-bold text-slate-800 flex items-center">
-                                <i class="fas fa-eye text-purple-600 mr-2"></i>
-                                Aperçu
-                            </h2>
+            <!-- Détails financiers -->
+            <div class="bg-white/80 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
+                <div class="p-6 border-b border-slate-200">
+                    <h2 class="text-xl font-bold text-slate-800 flex items-center">
+                        <i class="fas fa-coins text-green-600 mr-2"></i>
+                        Détails financiers
+                    </h2>
+                    <p class="text-slate-500 text-sm mt-1">
+                        Définissez le montant de la souscription
+                    </p>
+                </div>
+
+                <div class="p-6 space-y-6">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <!-- Montant souscrit -->
+                        <div>
+                            <label for="montant_souscrit" class="block text-sm font-medium text-slate-700 mb-2">
+                                Montant souscrit (FCFA) *
+                            </label>
+                            <div class="relative">
+                                <input type="number" name="montant_souscrit" id="montant_souscrit"
+                                       min="1000" step="500" required
+                                       value="<?php echo e(old('montant_souscrit')); ?>"
+                                       class="w-full pl-4 pr-16 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors <?php $__errorArgs = ['montant_souscrit'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?> border-red-500 <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>"
+                                       placeholder="100000">
+                                <div class="absolute inset-y-0 right-0 flex items-center pr-3">
+                                    <span class="text-slate-500 text-sm">FCFA</span>
+                                </div>
+                            </div>
+                            <div class="mt-1 text-xs text-slate-500">
+                                Montant minimum: 1,000 FCFA
+                            </div>
+                            <?php $__errorArgs = ['montant_souscrit'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                                <p class="mt-1 text-sm text-red-600"><?php echo e($message); ?></p>
+                            <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
+
+                            <!-- Preview du montant -->
+                            <div id="montantPreview" class="hidden mt-3 p-3 bg-green-50 rounded-lg">
+                                <div class="text-sm text-green-800">
+                                    <div class="font-medium">Aperçu de la souscription:</div>
+                                    <div class="mt-1">
+                                        <span id="montantFormatted">0</span> FCFA
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                        <div class="p-6 space-y-4">
-                            <div class="flex items-center justify-between">
-                                <span class="text-sm font-medium text-slate-700">FIMECO:</span>
-                                <span id="preview-fimeco" class="text-sm text-slate-900 font-semibold">-</span>
-                            </div>
-                            <div class="flex items-center justify-between">
-                                <span class="text-sm font-medium text-slate-700">Montant:</span>
-                                <span id="preview-montant" class="text-sm text-green-600 font-semibold">-</span>
+
+                        <!-- Suggestions de montant -->
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 mb-2">
+                                Suggestions de montant
+                            </label>
+                            <div class="grid grid-cols-2 gap-2">
+                                <button type="button" onclick="setSuggestedAmount(10000)"
+                                        class="px-3 py-2 text-sm bg-slate-100 text-slate-700 rounded-lg hover:bg-slate-200 transition-colors">
+                                    10,000 FCFA
+                                </button>
+                                <button type="button" onclick="setSuggestedAmount(25000)"
+                                        class="px-3 py-2 text-sm bg-slate-100 text-slate-700 rounded-lg hover:bg-slate-200 transition-colors">
+                                    25,000 FCFA
+                                </button>
+                                <button type="button" onclick="setSuggestedAmount(50000)"
+                                        class="px-3 py-2 text-sm bg-slate-100 text-slate-700 rounded-lg hover:bg-slate-200 transition-colors">
+                                    50,000 FCFA
+                                </button>
+                                <button type="button" onclick="setSuggestedAmount(100000)"
+                                        class="px-3 py-2 text-sm bg-slate-100 text-slate-700 rounded-lg hover:bg-slate-200 transition-colors">
+                                    100,000 FCFA
+                                </button>
                             </div>
 
-                            <div class="flex items-center justify-between">
-                                <span class="text-sm font-medium text-slate-700">Statut initial:</span>
-                                <span
-                                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                                    Active
-                                </span>
+                            <!-- Calcul automatique basé sur pourcentage -->
+                            <div class="mt-4 p-3 bg-blue-50 rounded-lg">
+                                <div class="text-sm text-blue-800">
+                                    <div class="font-medium mb-2">Calcul automatique:</div>
+                                    <div class="grid grid-cols-2 gap-2">
+                                        <button type="button" onclick="calculatePercentage(1)"
+                                                class="px-2 py-1 text-xs bg-blue-100 text-blue-700 rounded hover:bg-blue-200 transition-colors">
+                                            1% de l'objectif
+                                        </button>
+                                        <button type="button" onclick="calculatePercentage(5)"
+                                                class="px-2 py-1 text-xs bg-blue-100 text-blue-700 rounded hover:bg-blue-200 transition-colors">
+                                            5% de l'objectif
+                                        </button>
+                                        <button type="button" onclick="calculatePercentage(10)"
+                                                class="px-2 py-1 text-xs bg-blue-100 text-blue-700 rounded hover:bg-blue-200 transition-colors">
+                                            10% de l'objectif
+                                        </button>
+                                        <button type="button" onclick="calculatePercentage(20)"
+                                                class="px-2 py-1 text-xs bg-blue-100 text-blue-700 rounded hover:bg-blue-200 transition-colors">
+                                            20% de l'objectif
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Planification -->
+            <div class="bg-white/80 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
+                <div class="p-6 border-b border-slate-200">
+                    <h2 class="text-xl font-bold text-slate-800 flex items-center">
+                        <i class="fas fa-calendar text-purple-600 mr-2"></i>
+                        Planification
+                    </h2>
+                    <p class="text-slate-500 text-sm mt-1">
+                        Définissez les dates importantes
+                    </p>
+                </div>
+
+                <div class="p-6 space-y-6">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <!-- Date de souscription -->
+                        <div>
+                            <label for="date_souscription" class="block text-sm font-medium text-slate-700 mb-2">
+                                Date de souscription *
+                            </label>
+                            <input type="date" name="date_souscription" id="date_souscription" required
+                                   value="<?php echo e(old('date_souscription', now()->format('Y-m-d'))); ?>"
+                                   max="<?php echo e(now()->format('Y-m-d')); ?>"
+                                   class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors <?php $__errorArgs = ['date_souscription'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?> border-red-500 <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>">
+                            <?php $__errorArgs = ['date_souscription'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                                <p class="mt-1 text-sm text-red-600"><?php echo e($message); ?></p>
+                            <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
+                        </div>
+
+                        <!-- Date d'échéance -->
+                        <div>
+                            <label for="date_echeance" class="block text-sm font-medium text-slate-700 mb-2">
+                                Date d'échéance (optionnelle)
+                            </label>
+                            <input type="date" name="date_echeance" id="date_echeance"
+                                   value="<?php echo e(old('date_echeance')); ?>"
+                                   class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors <?php $__errorArgs = ['date_echeance'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?> border-red-500 <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>">
+                            <div class="mt-1 text-xs text-slate-500">
+                                Laissez vide si aucune échéance spécifique
+                            </div>
+                            <?php $__errorArgs = ['date_echeance'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                                <p class="mt-1 text-sm text-red-600"><?php echo e($message); ?></p>
+                            <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
+                        </div>
+                    </div>
+
+                    <!-- Suggestions d'échéance -->
+                    <div class="p-4 bg-purple-50 rounded-xl">
+                        <div class="text-sm text-purple-800">
+                            <div class="font-medium mb-2">Suggestions d'échéance:</div>
+                            <div class="grid grid-cols-2 lg:grid-cols-4 gap-2">
+                                <button type="button" onclick="setDeadlineSuggestion(30)"
+                                        class="px-3 py-2 text-xs bg-purple-100 text-purple-700 rounded hover:bg-purple-200 transition-colors">
+                                    Dans 30 jours
+                                </button>
+                                <button type="button" onclick="setDeadlineSuggestion(60)"
+                                        class="px-3 py-2 text-xs bg-purple-100 text-purple-700 rounded hover:bg-purple-200 transition-colors">
+                                    Dans 60 jours
+                                </button>
+                                <button type="button" onclick="setDeadlineSuggestion(90)"
+                                        class="px-3 py-2 text-xs bg-purple-100 text-purple-700 rounded hover:bg-purple-200 transition-colors">
+                                    Dans 90 jours
+                                </button>
+                                <button type="button" onclick="setFimecoEndDate()"
+                                        class="px-3 py-2 text-xs bg-purple-100 text-purple-700 rounded hover:bg-purple-200 transition-colors">
+                                    Fin du FIMECO
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Résumé et validation -->
+            <div class="bg-white/80 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
+                <div class="p-6 border-b border-slate-200">
+                    <h2 class="text-xl font-bold text-slate-800 flex items-center">
+                        <i class="fas fa-check-circle text-green-600 mr-2"></i>
+                        Résumé de la souscription
+                    </h2>
+                    <p class="text-slate-500 text-sm mt-1">
+                        Vérifiez les informations avant validation
+                    </p>
+                </div>
+
+                <div class="p-6">
+                    <div id="resumeSection" class="hidden">
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                            <div class="space-y-4">
+                                <div>
+                                    <div class="text-sm font-medium text-slate-700">Souscripteur:</div>
+                                    <div class="text-slate-900" id="resumeSouscripteur">-</div>
+                                </div>
+                                <div>
+                                    <div class="text-sm font-medium text-slate-700">FIMECO:</div>
+                                    <div class="text-slate-900" id="resumeFimeco">-</div>
+                                </div>
+                                <div>
+                                    <div class="text-sm font-medium text-slate-700">Date de souscription:</div>
+                                    <div class="text-slate-900" id="resumeDateSouscription">-</div>
+                                </div>
+                            </div>
+
+                            <div class="space-y-4">
+                                <div>
+                                    <div class="text-sm font-medium text-slate-700">Montant souscrit:</div>
+                                    <div class="text-lg font-bold text-green-600" id="resumeMontant">-</div>
+                                </div>
+                                <div>
+                                    <div class="text-sm font-medium text-slate-700">Date d'échéance:</div>
+                                    <div class="text-slate-900" id="resumeEcheance">Aucune</div>
+                                </div>
+                                <div>
+                                    <div class="text-sm font-medium text-slate-700">Impact sur le FIMECO:</div>
+                                    <div class="text-sm text-blue-600" id="resumeImpact">-</div>
+                                </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Information importante -->
-                    <div
-                        class="bg-white/80 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
-                        <div class="p-6 border-b border-slate-200">
-                            <h2 class="text-xl font-bold text-slate-800 flex items-center">
-                                <i class="fas fa-info text-amber-600 mr-2"></i>
-                                Informations Importantes
-                            </h2>
-                        </div>
-                        <div class="p-6 space-y-4">
-                            <div class="p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                                <div class="flex">
-                                    <i class="fas fa-info-circle text-blue-400 mt-0.5 mr-3"></i>
-                                    <div class="text-sm text-blue-800">
-                                        <p class="font-medium">Engagement</p>
-                                        <p class="mt-1">En souscrivant, vous vous engagez à verser le montant indiqué selon
-                                            les modalités de la FIMECO.</p>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="p-4 bg-green-50 border border-green-200 rounded-lg">
-                                <div class="flex">
-                                    <i class="fas fa-check-circle text-green-400 mt-0.5 mr-3"></i>
-                                    <div class="text-sm text-green-800">
-                                        <p class="font-medium">Flexibilité</p>
-                                        <p class="mt-1">Vous pouvez effectuer des paiements partiels et suivre votre
-                                            progression.</p>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="p-4 bg-orange-50 border border-orange-200 rounded-lg">
-                                <div class="flex">
-                                    <i class="fas fa-clock text-orange-400 mt-0.5 mr-3"></i>
-                                    <div class="text-sm text-orange-800">
-                                        <p class="font-medium">Suivi</p>
-                                        <p class="mt-1">Vos paiements doivent être validés par les responsables de la
-                                            FIMECO.</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Guide de souscription -->
-                    <div
-                        class="bg-white/80 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
-                        <div class="p-6 border-b border-slate-200">
-                            <h2 class="text-xl font-bold text-slate-800 flex items-center">
-                                <i class="fas fa-map text-green-600 mr-2"></i>
-                                Guide de Souscription
-                            </h2>
-                        </div>
-                        <div class="p-6 space-y-4">
-                            <div class="flex items-start space-x-3">
-                                <div
-                                    class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                                    <span class="text-blue-600 font-bold text-sm">1</span>
-                                </div>
-                                <div>
-                                    <h3 class="font-medium text-slate-900">Choisir la FIMECO</h3>
-                                    <p class="text-sm text-slate-600">Sélectionnez une FIMECO active correspondant à vos
-                                        objectifs</p>
-                                </div>
-                            </div>
-
-                            <div class="flex items-start space-x-3">
-                                <div
-                                    class="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                                    <span class="text-purple-600 font-bold text-sm">2</span>
-                                </div>
-                                <div>
-                                    <h3 class="font-medium text-slate-900">Fixer le montant</h3>
-                                    <p class="text-sm text-slate-600">Déterminez un montant réaliste selon vos capacités</p>
-                                </div>
-                            </div>
-
-                            <div class="flex items-start space-x-3">
-                                <div
-                                    class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                                    <span class="text-green-600 font-bold text-sm">3</span>
-                                </div>
-                                <div>
-                                    <h3 class="font-medium text-slate-900">Valider</h3>
-                                    <p class="text-sm text-slate-600">Confirmez votre souscription et commencez les
-                                        paiements</p>
-                                </div>
-                            </div>
-                        </div>
+                    <div id="resumePlaceholder" class="text-center py-8 text-slate-500">
+                        <i class="fas fa-info-circle text-2xl mb-2"></i>
+                        <div>Remplissez les champs ci-dessus pour voir le résumé</div>
                     </div>
                 </div>
             </div>
 
             <!-- Actions -->
-            <div class="bg-white/80 rounded-2xl shadow-lg border border-white/20">
-                <div class="p-6">
-                    <div class="flex flex-col sm:flex-row gap-4 justify-center">
-                        <button type="submit"
-                            class="inline-flex items-center justify-center px-8 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-medium rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-200 shadow-md hover:shadow-lg">
-                            <i class="fas fa-save mr-2"></i> Créer la Souscription
-                        </button>
-                        <a href="<?php echo e(route('private.subscriptions.index')); ?>"
-                            class="inline-flex items-center justify-center px-8 py-3 bg-slate-600 text-white font-medium rounded-xl hover:bg-slate-700 transition-colors">
-                            <i class="fas fa-times mr-2"></i> Annuler
-                        </a>
-                    </div>
-                </div>
+            <div class="flex flex-col sm:flex-row gap-4 pt-6">
+                <a href="<?php echo e(route('private.subscriptions.index')); ?>"
+                    class="inline-flex items-center justify-center px-6 py-3 bg-slate-600 text-white font-medium rounded-xl hover:bg-slate-700 transition-colors">
+                    <i class="fas fa-times mr-2"></i> Annuler
+                </a>
+
+                <button type="button" onclick="validateForm()"
+                        class="inline-flex items-center justify-center px-6 py-3 bg-blue-600 text-white font-medium rounded-xl hover:bg-blue-700 transition-colors">
+                    <i class="fas fa-check mr-2"></i> Valider les données
+                </button>
+
+                <button type="submit" id="submitButton" disabled
+                        class="flex-1 inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white font-medium rounded-xl hover:from-green-700 hover:to-emerald-700 transition-all duration-200 shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed">
+                    <i class="fas fa-save mr-2"></i> Créer la souscription
+                </button>
             </div>
         </form>
     </div>
 
     <?php $__env->startPush('scripts'); ?>
+        
+
         <script>
-            // Mise à jour des informations FIMECO
-            function updateFimecoInfo() {
-                const select = document.getElementById('fimeco_id');
-                const infoDiv = document.getElementById('fimeco-info');
-
-                if (select?.value) {
-                    const option = select.options[select.selectedIndex];
-                    const nom = option.getAttribute('data-nom');
-                    const description = option.getAttribute('data-description');
-                    const debut = option.getAttribute('data-debut');
-                    const fin = option.getAttribute('data-fin');
-                    const cible = option.getAttribute('data-cible');
-
-                    document.getElementById('fimeco-nom').textContent = nom;
-                    document.getElementById('fimeco-description').textContent = description || 'Aucune description';
-                    document.getElementById('fimeco-periode').innerHTML = `<i class="fas fa-calendar mr-1"></i>${debut} - ${fin}`;
-                    document.getElementById('fimeco-cible').innerHTML = `<i class="fas fa-bullseye mr-1"></i>${new Intl.NumberFormat('fr-FR').format(cible)} FCFA`;
-
-                    infoDiv.classList.remove('hidden');
-                } else {
-                    infoDiv?.classList.add('hidden');
-                }
-
-                updatePreview();
-            }
-
-            // Mise à jour de l'aperçu
-            function updatePreview() {
-                const fimecoSelect = document.getElementById('fimeco_id');
-                const montant = document.getElementById('montant_souscrit').value;
-
-                // FIMECO
-                if (fimecoSelect?.value) {
-                    const fimecoNom = fimecoSelect.options[fimecoSelect.selectedIndex].text;
-                    document.getElementById('preview-fimeco').textContent = fimecoNom;
-                } else {
-                    document.getElementById('preview-fimeco').textContent = '-';
-                }
-
-                // Montant
-                if (montant) {
-                    const formatted = new Intl.NumberFormat('fr-FR').format(montant) + ' FCFA';
-                    document.getElementById('preview-montant').textContent = formatted;
-                } else {
-                    document.getElementById('preview-montant').textContent = '-';
-                }
-
-
-            }
-
-            // Validation du formulaire
-            document.getElementById('souscriptionForm').addEventListener('submit', function (e) {
-                const fimecoId = document.getElementById('fimeco_id').value;
-                const montant = parseFloat(document.getElementById('montant_souscrit').value);
-
-                if (!fimecoId) {
-                    e.preventDefault();
-                    alert('Veuillez sélectionner une FIMECO.');
-                    return false;
-                }
-
-                if (!montant || montant < 10) {
-                    e.preventDefault();
-                    alert('Le montant de souscription doit être d\'au moins 10 FCFA.');
-                    return false;
-                }
-
-
-
-                // Confirmation
-                const confirmation = confirm(
-                    `Confirmez-vous votre souscription de ${new Intl.NumberFormat('fr-FR').format(montant)} FCFA ?`
-                );
-
-                if (!confirmation) {
-                    e.preventDefault();
-                    return false;
-                }
-            });
-
-            const fetchUsers = () => {
-                alert()
-                const target = this.target
-                alert();
-                fetch("<?php echo e(route('private.subscriptions.user-disponibles', ':fimeco')); ?>".replace(':fimeco', target.value), {
-                    method: 'GET',
-                    headers: {
-                        'X-CSRF-TOKEN': '<?php echo e(csrf_token()); ?>',
-                        'Accept': 'application/json'
-                    }
-                })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            target.content = '';
-                            target.value = '';
-                            data.data.forEach((user, key) => {
-                                if ($key == 0) {
-                                    target.innerHTML = `<option value="">Sélectionner le souscripteur</option>`;
-                                } else {
-                                    target.innerHTML += `<option value="${user.id}" data-nom="${user.nom}" data-telephone="${user.telephone_1}" data-prenom="${user.prenom}" data-email="${user.email}">
-                                                     ${user.nom}  ${user.prenom} ( ${user.telephone_1} )
-                                                </option>`
-                                }
-                            })
-
-                        } else {
-                            alert(data.message || 'Une erreur est survenue');
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Erreur:', error);
-                        alert('Une erreur est survenue');
-                    });
-            }
-
-            // Événements
-            document.getElementById('montant_souscrit').addEventListener('input', updatePreview);
-
-            // Initialisation
-            document.addEventListener('DOMContentLoaded', function () {
-                updateFimecoInfo();
-                updatePreview();
-            });
-
-
-
-
-
-
-
-
-
-
-
-
-
-            class AutoComplete {
-                constructor(containerElement, type) {
-                    this.container = containerElement;
-                    this.type = type;
-                    this.input = containerElement.querySelector(`input[name="${type}_search"]`);
-                    this.hiddenInput = containerElement.querySelector(`input[name="${type}_id"]`);
-                    this.dropdown = containerElement.querySelector(`.autocomplete-dropdown`);
-                    this.loadingItem = this.dropdown.querySelector('.loading-item');
-                    this.noResultsItem = this.dropdown.querySelector('.no-results');
-                    this.addNewItem = this.dropdown.querySelector('.add-new-item');
-
-                    this.debounceTimer = null;
-                    this.selectedIndex = -1;
-                    this.currentItems = [];
-                    this.currentRequest = null; // Initialiser ici
-                    this.isSelecting = false; // Pour éviter la fermeture prématurée
-
-                    this.init();
-                }
-
-
-                init() {
-                    this.input.addEventListener('input', this.handleInput.bind(this));
-                    this.input.addEventListener('focus', this.handleFocus.bind(this));
-                    this.input.addEventListener('blur', this.handleBlur.bind(this));
-                    this.input.addEventListener('keydown', this.handleKeydown.bind(this));
-
-                    // Retirer le required du champ de recherche
-                    this.input.removeAttribute('required');
-
-                    if (this.addNewItem) {
-                        this.addNewItem.addEventListener('click', () => {
-                            this.isSelecting = true;
-                            this.handleAddNew();
-                        });
-                    }
-
-                    // Fermer le dropdown si on clique ailleurs
-                    this.documentClickHandler = (e) => {
-                        if (!this.container.contains(e.target) && !this.isSelecting) {
-                            this.hideDropdown();
-                        }
-                        this.isSelecting = false;
-                    };
-                    document.addEventListener('click', this.documentClickHandler);
-                }
-
-                handleInput() {
-                    const query = this.input.value.trim();
-
-                    if (query.length === 0) {
-                        this.hideDropdown();
-                        this.hiddenInput.value = '';
-                        this.clearStoredSelection();
-                        updatePreview();
-                        return;
-                    }
-
-                    // Vérifier si la sélection actuelle correspond
-                    const stored = this.getStoredSelection();
-                    if (stored && stored.display !== query) {
-                        this.hiddenInput.value = '';
-                        this.clearStoredSelection();
-                        updatePreview();
-                    }
-
-                    if (query.length < 2) {
-                        this.hideDropdown();
-                        return;
-                    }
-
-                    clearTimeout(this.debounceTimer);
-                    this.debounceTimer = setTimeout(() => {
-                        this.search(query);
-                    }, 300);
-                }
-
-                handleFocus() {
-                    const query = this.input.value.trim();
-                    if (query.length >= 2) {
-                        this.search(query);
-                    }
-                }
-
-
-                getStoredSelection() {
-                    const key = `autocomplete_${this.type}_selection`;
-                    const stored = sessionStorage.getItem(key);
-                    return stored ? JSON.parse(stored) : null;
-                }
-
-                handleBlur() {
-                    // Augmenter le délai et vérifier si on est en train de sélectionner
-                    setTimeout(() => {
-                        if (!this.isSelecting) {
-                            this.hideDropdown();
-                        }
-                    }, 300);
-                }
-
-                handleBlur() {
-                    // Délai pour permettre le clic sur un élément du dropdown
-                    setTimeout(() => {
-                        this.hideDropdown();
-                    }, 200);
-                }
-
-                handleKeydown(e) {
-                    if (!this.dropdown.classList.contains('show')) return;
-
-                    switch (e.key) {
-                        case 'ArrowDown':
-                            e.preventDefault();
-                            this.selectedIndex = Math.min(this.selectedIndex + 1, this.currentItems.length - 1);
-                            this.updateSelection();
-                            break;
-                        case 'ArrowUp':
-                            e.preventDefault();
-                            this.selectedIndex = Math.max(this.selectedIndex - 1, -1);
-                            this.updateSelection();
-                            break;
-                        case 'Enter':
-                            e.preventDefault();
-                            if (this.selectedIndex >= 0 && this.currentItems[this.selectedIndex]) {
-                                const user = this.currentItems[this.selectedIndex];
-                                const emailMatch = user.text.match(/^(.+)\s+\([^)]+\)$/);
-                                const displayName = emailMatch ? emailMatch[1].trim() : user.text;
-                                this.selectItem(user, displayName);
-                            } else if (this.addNewItem && !this.addNewItem.classList.contains('hidden')) {
-                                this.handleAddNew();
-                            }
-                            break;
-                        case 'Escape':
-                            this.hideDropdown();
-                            this.input.blur();
-                            break;
-                    }
-                }
-
-
-
-                async search(query) {
-                    if (this.currentRequest) {
-                        this.currentRequest.abort();
-                    }
-
-                    this.showLoading();
-
-                    try {
-                        this.currentRequest = new AbortController();
-
-                        // CORRECTION : Utiliser la route index avec le paramètre search
-                        const response = await fetch(`<?php echo e(route('private.users.index')); ?>?search=${encodeURIComponent(query)}`, {
-                            headers: {
-                                'Accept': 'application/json',
-                                'X-Requested-With': 'XMLHttpRequest',
-                                'X-CSRF-TOKEN': '<?php echo e(csrf_token()); ?>',
-                            },
-                            signal: this.currentRequest.signal
-                        });
-
-                        if (!response.ok) {
-                            throw new Error('Erreur lors de la recherche');
-                        }
-
-                        const data = await response.json();
-
-                        // if (!this.currentRequest.signal.aborted) {
-                            // Adapter la structure de réponse
-                            const users = data.success && data.data ? data.data.data : []; // data.data.data car c'est paginé
-                            // Transformer les utilisateurs au format attendu
-                            const formattedUsers = users.map(user => ({
-                                id: user.id,
-                                text: user.email ? `${user.nom} ${user.prenom} (${user.email})` : `${user.nom} ${user.prenom}`,
-                                email: user.email || null
-                            }));
-                            this.displayResults(formattedUsers);
-                        // }
-                    } catch (error) {
-                        if (error.name !== 'AbortError') {
-                            console.error('Erreur lors de la recherche:', error);
-                            this.hideDropdown();
-                        }
-                    } finally {
-                        this.currentRequest = null;
-                    }
-                }
-
-
-
-                displayResults(users) {
-                    this.hideLoading();
-                    this.clearResults();
-                    this.currentItems = users;
-                    this.selectedIndex = -1;
-
-                    if (users.length === 0) {
-                        this.showNoResults();
-                        this.showAddNew();
-                    } else {
-                        users.forEach((user, index) => {
-                            const item = this.createUserItem(user, index);
-                            this.dropdown.appendChild(item);
-                        });
-                        this.showAddNew();
-                    }
-
-                    this.showDropdown();
-                }
-
-                createUserItem(user, index) {
-                    const div = document.createElement('div');
-                    div.className = 'p-3 cursor-pointer border-b border-slate-100 hover:bg-slate-50 transition-colors';
-                    div.dataset.index = index;
-
-                    const emailMatch = user.text.match(/^(.+)\s+\([^)]+\)$/);
-                    let nameOnly = emailMatch ? emailMatch[1].trim() : user.text;
-
-                    div.innerHTML = `
-                                    <div class="font-medium text-slate-700">${this.escapeHtml(nameOnly)}</div>
-                                    <div class="text-sm text-slate-500">${this.escapeHtml(user.email)}</div>
-                                `;
-
-                    div.addEventListener('mousedown', (e) => {
-                        e.preventDefault(); // Empêcher le blur
-                        this.isSelecting = true;
-                    });
-
-                    div.addEventListener('click', () => {
-                        this.selectItem(user, nameOnly);
-                    });
-
-                    return div;
-                }
-
-                escapeHtml(text) {
-                    const div = document.createElement('div');
-                    div.textContent = text;
-                    return div.innerHTML;
-                }
-
-                selectItem(user, displayName = null) {
-                    let nameToDisplay = displayName;
-                    if (!nameToDisplay) {
-                        const emailMatch = user.text.match(/^(.+)\s+\([^)]+\)$/);
-                        nameToDisplay = emailMatch ? emailMatch[1].trim() : user.text;
-                    }
-
-                    this.input.value = nameToDisplay;
-                    this.hiddenInput.value = user.id;
-                    this.hideDropdown();
-
-                    this.storeSelection(user.id, nameToDisplay);
-                    this.isSelecting = false;
-
-                    updatePreview();
-                }
-
-                handleAddNew() {
-                    const name = this.input.value.trim();
-                    if (!name) return;
-
-                    // Ouvrir un modal pour créer un nouvel utilisateur
-                    this.showAddUserModal(name);
-                }
-
-
-showAddUserModal(name) {
-    const modal = document.createElement('div');
-    modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
-    modal.innerHTML = `
-        <div class="bg-white rounded-xl p-6 w-full max-w-lg mx-4 shadow-2xl max-h-[90vh] overflow-y-auto">
-            <h3 class="text-lg font-semibold text-slate-800 mb-4">Ajouter un nouveau membre</h3>
-            <form id="addUserForm">
-                <div class="space-y-4">
-                    <div class="grid grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-sm font-medium text-slate-700 mb-1">Nom <sup class="text-red-500">*</sup></label>
-                            <input type="text" name="nom" required class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-slate-700 mb-1">Prénom <sup class="text-red-500">*</sup></label>
-                            <input type="text" name="prenom" required class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
-                        </div>
-                    </div>
-
-                    <div>
-                        <label class="block text-sm font-medium text-slate-700 mb-1">Email <sup class="text-red-500">*</sup></label>
-                        <input type="email" name="email" required class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
-                    </div>
-
-                    <div>
-                        <label class="block text-sm font-medium text-slate-700 mb-1">Téléphone <sup class="text-red-500">*</sup></label>
-                        <input type="text" name="telephone_1" required class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
-                    </div>
-
-                    <div>
-                        <label class="block text-sm font-medium text-slate-700 mb-1">Genre <sup class="text-red-500">*</sup></label>
-                        <select name="sexe" required class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
-                            <option value="">Choisir</option>
-                            <option value="masculin">Masculin</option>
-                            <option value="feminin">Féminin</option>
-                        </select>
-                    </div>
-
-                    <div>
-                        <label class="block text-sm font-medium text-slate-700 mb-1">Adresse <sup class="text-red-500">*</sup></label>
-                        <input type="text" name="adresse_ligne_1" required placeholder="Adresse principale" class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
-                    </div>
-
-                    <div>
-                        <label class="block text-sm font-medium text-slate-700 mb-1">Ville <sup class="text-red-500">*</sup></label>
-                        <input type="text" name="ville" required class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
-                    </div>
-
-                    <div class="grid grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-sm font-medium text-slate-700 mb-1">Statut membre <sup class="text-red-500">*</sup></label>
-                            <select name="statut_membre" required class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
-                                <option value="actif">Actif</option>
-                                <option value="visiteur">Visiteur</option>
-                                <option value="nouveau_converti">Nouveau converti</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-slate-700 mb-1">Statut baptême <sup class="text-red-500">*</sup></label>
-                            <select name="statut_bapteme" id="statut_bapteme" required class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
-                                <option value="non_baptise">Non baptisé</option>
-                                <option value="baptise">Baptisé</option>
-                                <option value="confirme">Confirmé</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <!-- Champ date de baptême conditionnel -->
-                    <div id="date_bapteme_container" class="hidden">
-                        <label class="block text-sm font-medium text-slate-700 mb-1">Date de baptême <sup class="text-red-500">*</sup></label>
-                        <input type="date" name="date_bapteme" id="date_bapteme" class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
-                    </div>
-
-                </div>
-                <div class="flex justify-end space-x-3 mt-6">
-                    <button type="button" class="cancel-btn px-4 py-2 text-slate-600 hover:text-slate-800 transition-colors rounded-lg">Annuler</button>
-                    <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors shadow-md">Ajouter</button>
-                </div>
-            </form>
+            // =============================================================================
+// SCRIPT JAVASCRIPT POUR LA CRÉATION DE SOUSCRIPTIONS
+// =============================================================================
+
+// Variables globales
+let currentFimecoData = null;
+let formValidated = false;
+let currentFimecoId = null;
+let searchTimeout;
+let searchCache = new Map();
+let selectedSouscripteur = null;
+
+// Éléments DOM pour le composant de recherche
+let searchInput, hiddenInput, dropdown, loadingIndicator, noResults, resultsList, selectedDiv;
+
+// =============================================================================
+// FONCTIONS UTILITAIRES
+// =============================================================================
+
+// Formatage des nombres avec séparateurs de milliers
+function formatNumber(num) {
+    return new Intl.NumberFormat('fr-FR').format(num);
+}
+
+// Notification système avec animations Tailwind
+function showNotification(message, type = 'info') {
+    // Supprimer les anciennes notifications
+    const existingNotifications = document.querySelectorAll('.notification-toast');
+    existingNotifications.forEach(n => n.remove());
+
+    const notification = document.createElement('div');
+    notification.className = `notification-toast fixed top-4 right-4 z-50 p-4 rounded-xl shadow-lg transform transition-all duration-300 translate-x-full opacity-0 max-w-md`;
+
+    // Classes selon le type
+    const typeClasses = {
+        success: 'bg-green-50 border border-green-200 text-green-800',
+        error: 'bg-red-50 border border-red-200 text-red-800',
+        warning: 'bg-yellow-50 border border-yellow-200 text-yellow-800',
+        info: 'bg-blue-50 border border-blue-200 text-blue-800'
+    };
+
+    notification.classList.add(...typeClasses[type].split(' '));
+
+    const icons = {
+        success: '<svg class="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>',
+        error: '<svg class="w-5 h-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>',
+        warning: '<svg class="w-5 h-5 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.866 16.5c-.77.833.192 2.5 1.732 2.5z"></path></svg>',
+        info: '<svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>'
+    };
+
+    notification.innerHTML = `
+        <div class="flex items-center space-x-3">
+            <div class="flex-shrink-0">
+                ${icons[type]}
+            </div>
+            <div class="flex-1">
+                <p class="text-sm font-medium">${message}</p>
+            </div>
+            <button onclick="this.parentElement.parentElement.remove()" class="flex-shrink-0 ml-3 text-slate-400 hover:text-slate-600 transition-colors">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+            </button>
         </div>
     `;
 
-    document.body.appendChild(modal);
+    document.body.appendChild(notification);
 
-    // Pré-remplir le nom si possible
-    const [nom, ...prenomParts] = name.split(' ');
-    const prenom = prenomParts.join(' ');
-    modal.querySelector('input[name="nom"]').value = nom || '';
-    modal.querySelector('input[name="prenom"]').value = prenom || '';
+    // Animation d'entrée
+    setTimeout(() => {
+        notification.classList.remove('translate-x-full', 'opacity-0');
+        notification.classList.add('translate-x-0', 'opacity-100');
+    }, 100);
 
-    // Gestion conditionnelle de la date de baptême
-    const statutBapteme = modal.querySelector('#statut_bapteme');
-    const dateBaptemeContainer = modal.querySelector('#date_bapteme_container');
-    const dateBaptemeInput = modal.querySelector('#date_bapteme');
+    // Auto-suppression après 5 secondes
+    setTimeout(() => {
+        notification.classList.add('translate-x-full', 'opacity-0');
+        setTimeout(() => notification.remove(), 300);
+    }, 5000);
+}
 
-    function toggleDateBapteme() {
-        const value = statutBapteme.value;
-        if (value === 'baptise' || value === 'confirme') {
-            dateBaptemeContainer.classList.remove('hidden');
-            dateBaptemeInput.required = true;
-        } else {
-            dateBaptemeContainer.classList.add('hidden');
-            dateBaptemeInput.required = false;
-            dateBaptemeInput.value = '';
+// =============================================================================
+// COMPOSANT DE RECHERCHE DE SOUSCRIPTEUR
+// =============================================================================
+
+// Initialisation du composant de recherche
+function initializeSearchComponent() {
+    // Initialiser les éléments du DOM
+    searchInput = document.getElementById('souscripteur_search');
+    hiddenInput = document.getElementById('souscripteur_id');
+    dropdown = document.getElementById('souscripteur_dropdown');
+    loadingIndicator = document.getElementById('loading_indicator');
+    noResults = document.getElementById('no_results');
+    resultsList = document.getElementById('souscripteur_results');
+    selectedDiv = document.getElementById('selected_souscripteur');
+
+    if (!searchInput) return; // Si les éléments n'existent pas, sortir
+    initializeSearch();
+}
+
+// Configuration des event listeners pour la recherche
+function initializeSearch() {
+    // Recherche en temps réel avec debouncing
+    searchInput.addEventListener('input', function() {
+        const query = this.value.trim();
+
+        if (query.length < 2) {
+            hideDropdown();
+            return;
         }
-    }
 
-    statutBapteme.addEventListener('change', toggleDateBapteme);
-
-    // Appeler une fois pour initialiser l'état
-    toggleDateBapteme();
-
-    // Gestionnaires d'événements
-    modal.querySelector('.cancel-btn').addEventListener('click', () => {
-        document.body.removeChild(modal);
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(() => {
+            performSearch(query);
+        }, 300);
     });
 
-    modal.addEventListener('click', (e) => {
-        if (e.target === modal) {
-            document.body.removeChild(modal);
+    // Navigation clavier (flèches, Enter, Escape)
+    searchInput.addEventListener('keydown', function(e) {
+        const options = resultsList.querySelectorAll('.souscripteur-option');
+        const selectedOption = resultsList.querySelector('.souscripteur-option.bg-blue-50');
+        let newIndex = -1;
+
+        switch(e.key) {
+            case 'ArrowDown':
+                e.preventDefault();
+                if (selectedOption) {
+                    const currentIndex = Array.from(options).indexOf(selectedOption);
+                    newIndex = Math.min(currentIndex + 1, options.length - 1);
+                } else {
+                    newIndex = 0;
+                }
+                break;
+
+            case 'ArrowUp':
+                e.preventDefault();
+                if (selectedOption) {
+                    const currentIndex = Array.from(options).indexOf(selectedOption);
+                    newIndex = Math.max(currentIndex - 1, 0);
+                } else {
+                    newIndex = options.length - 1;
+                }
+                break;
+
+            case 'Enter':
+                e.preventDefault();
+                if (selectedOption) {
+                    selectSouscripteur(selectedOption.dataset);
+                }
+                break;
+
+            case 'Escape':
+                hideDropdown();
+                break;
+        }
+
+        // Mettre à jour la sélection visuelle
+        if (newIndex >= 0 && options[newIndex]) {
+            options.forEach(opt => opt.classList.remove('bg-blue-50', 'border-l-4', 'border-blue-500'));
+            options[newIndex].classList.add('bg-blue-50', 'border-l-4', 'border-blue-500');
         }
     });
 
-    modal.querySelector('#addUserForm').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        await this.createUser(new FormData(e.target), modal);
+    // Cacher le dropdown quand on clique ailleurs
+    document.addEventListener('click', function(e) {
+        if (searchInput && dropdown &&
+            !e.target.closest('#souscripteur_search') &&
+            !e.target.closest('#souscripteur_dropdown')) {
+            hideDropdown();
+        }
     });
 }
 
+// Recherche AJAX avec cache
+async function performSearch(query) {
+    if (!currentFimecoId) {
+        showMessage('Veuillez d\'abord sélectionner un FIMECO');
+        return;
+    }
 
+    const cacheKey = `${currentFimecoId}-${query.toLowerCase()}`;
+    if (searchCache.has(cacheKey)) {
+        displayResults(searchCache.get(cacheKey));
+        return;
+    }
 
+    showLoading();
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-                // async createUser(formData, modal) {
-                //     try {
-                //         const response = await fetch("<?php echo e(route('private.users.ajoutmembre')); ?>", {
-                //             method: 'POST',
-                //             headers: {
-                //                 'X-CSRF-TOKEN': '<?php echo e(csrf_token()); ?>',
-                //                 'Accept': 'application/json',
-                //             },
-                //             body: formData
-                //         });
-
-                //         const data = await response.json();
-
-                //         // Correction : vérifier response.ok (statut HTTP) ou data.success
-                //         if (response.ok && data.success) {
-                //             // Sélectionner l'utilisateur créé
-                //             this.selectItem(data.data);
-                //             document.body.removeChild(modal);
-
-                //             // Afficher un message de succès
-                //             this.showSuccessMessage(data.message);
-                //         } else {
-                //             throw new Error(data.message || 'Erreur lors de la création');
-                //         }
-                //     } catch (error) {
-                //         console.error('Erreur:', error);
-                //         alert('Erreur lors de la création du membre: ' + error.message);
-                //     }
-                // }
-
-
-                async createUser(formData, modal) {
     try {
-        const response = await fetch("<?php echo e(route('private.users.store')); ?>", {
-            method: 'POST',
+        const url = new URL("<?php echo e(route('private.users.not-subscribed-to-fimeco', ':fimeco')); ?>".replace(':fimeco', currentFimecoId));
+        url.searchParams.append('search', query);
+        url.searchParams.append('per_page', '10');
+
+        const response = await fetch(url, {
             headers: {
-                'X-CSRF-TOKEN': '<?php echo e(csrf_token()); ?>',
+                'X-CSRF-TOKEN': "<?php echo e(csrf_token()); ?>",
                 'Accept': 'application/json',
-            },
-            body: formData
+                'Content-Type': 'application/json',
+            }
         });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
 
         const data = await response.json();
 
-        if (response.ok && data.success) {
-            // Fermer le modal
-            document.body.removeChild(modal);
-
-            // Transformer l'utilisateur au format attendu par selectItem
-            const userForSelection = {
-                id: data.data.id,
-                text: data.data.email ? `${data.data.nom} ${data.data.prenom} (${data.data.email})` : `${data.data.nom} ${data.data.prenom}`,
-                email: data.data.email || null
-            };
-
-            // Sélectionner l'utilisateur créé
-            this.selectItem(userForSelection, `${data.data.nom} ${data.data.prenom}`.trim());
-
-            // Afficher un message de succès
-            this.showSuccessMessage(data.message || 'Membre ajouté avec succès');
+        if (data.success && data.users) {
+            searchCache.set(cacheKey, data.users);
+            displayResults(data.users);
         } else {
-            // Afficher les erreurs de validation
-            if (data.error && typeof data.error === 'object') {
-                const errorMessages = Object.values(data.error).flat();
-                alert('Erreurs de validation:\n' + errorMessages.join('\n'));
-            } else {
-                throw new Error(data.message || 'Erreur lors de la création');
+            displayResults([]);
+        }
+
+    } catch (error) {
+        console.error('Erreur lors de la recherche:', error);
+        showMessage('Erreur lors de la recherche');
+    }
+}
+
+// Affichage des résultats de recherche
+function displayResults(users) {
+    if (!resultsList) return;
+
+    hideLoading();
+
+    if (users.length === 0) {
+        showNoResults();
+        return;
+    }
+
+    resultsList.innerHTML = users.map((user, index) => {
+        const statusBadgeClass = getStatusBadgeClass(user.statut_membre);
+        const statusLabel = getStatusLabel(user.statut_membre);
+
+        return `
+        <li class="souscripteur-option cursor-pointer p-3 hover:bg-slate-50 transition-all duration-150 ${index === 0 ? 'bg-blue-50 border-l-4 border-blue-500' : 'border-l-4 border-transparent'} ${index === 0 ? 'first:rounded-t-xl' : ''} ${index === users.length - 1 ? 'last:rounded-b-xl' : ''}"
+            data-id="${user.id}"
+            data-nom="${user.nom}"
+            data-prenom="${user.prenom}"
+            data-email="${user.email || ''}"
+            data-telephone="${user.telephone_1 || ''}"
+            data-ville="${user.ville || ''}"
+            onclick="selectSouscripteur(this.dataset)">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-medium text-sm shadow-sm">
+                    ${user.prenom.charAt(0)}${user.nom.charAt(0)}
+                </div>
+                <div class="flex-1 min-w-0">
+                    <div class="font-medium text-slate-900 truncate">
+                        ${user.prenom} ${user.nom}
+                    </div>
+                    <div class="text-sm text-slate-500 space-y-1">
+                        ${user.email ? `<div class="flex items-center space-x-1"><span>📧</span><span class="truncate">${user.email}</span></div>` : ''}
+                        ${user.telephone_1 ? `<div class="flex items-center space-x-1"><span>📞</span><span>${user.telephone_1}</span></div>` : ''}
+                        <div class="flex items-center justify-between">
+                            ${user.ville ? `<span class="text-xs">📍 ${user.ville}</span>` : ''}
+                            ${user.statut_membre ? `<span class="inline-flex px-2 py-1 text-xs font-medium rounded-full ${statusBadgeClass}">${statusLabel}</span>` : ''}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </li>`;
+    }).join('');
+
+    showDropdown();
+}
+
+// Sélection d'un souscripteur
+function selectSouscripteur(data) {
+    selectedSouscripteur = {
+        id: data.id,
+        nom: data.nom,
+        prenom: data.prenom,
+        email: data.email,
+        telephone: data.telephone,
+        ville: data.ville
+    };
+
+    if (searchInput && hiddenInput) {
+        searchInput.value = `${data.prenom} ${data.nom}`;
+        hiddenInput.value = data.id;
+    }
+
+    if (selectedDiv) {
+        document.getElementById('selected_name').textContent = `${data.prenom} ${data.nom}`;
+        const details = [];
+        if (data.email) details.push(data.email);
+        if (data.telephone) details.push(data.telephone);
+        if (data.ville) details.push(data.ville);
+        document.getElementById('selected_details').textContent = details.join(' • ');
+
+        selectedDiv.classList.remove('hidden');
+        selectedDiv.classList.add('animate-pulse');
+        setTimeout(() => selectedDiv.classList.remove('animate-pulse'), 1000);
+    }
+
+    hideDropdown();
+    checkForExistingSubscription();
+    updateResume();
+}
+
+// Effacement de la sélection
+function clearSelection() {
+    selectedSouscripteur = null;
+    if (searchInput) searchInput.value = '';
+    if (hiddenInput) hiddenInput.value = '';
+    if (selectedDiv) selectedDiv.classList.add('hidden');
+    clearSearch();
+
+    checkForExistingSubscription();
+    updateResume();
+}
+
+// Nettoyage de la recherche
+function clearSearch() {
+    if (resultsList) resultsList.innerHTML = '';
+    hideDropdown();
+}
+
+// Gestion des états du dropdown
+function showDropdown() {
+    if (!dropdown) return;
+    dropdown.classList.remove('hidden', 'scale-95', 'opacity-0');
+    dropdown.classList.add('scale-100', 'opacity-100');
+    if (noResults) noResults.classList.add('hidden');
+}
+
+function hideDropdown() {
+    if (!dropdown) return;
+    dropdown.classList.add('hidden', 'scale-95', 'opacity-0');
+    dropdown.classList.remove('scale-100', 'opacity-100');
+}
+
+function showLoading() {
+    showDropdown();
+    if (loadingIndicator) loadingIndicator.classList.remove('hidden');
+    if (noResults) noResults.classList.add('hidden');
+    if (resultsList) resultsList.innerHTML = '';
+}
+
+function hideLoading() {
+    if (loadingIndicator) loadingIndicator.classList.add('hidden');
+}
+
+function showNoResults() {
+    showDropdown();
+    if (noResults) noResults.classList.remove('hidden');
+    if (resultsList) resultsList.innerHTML = '';
+}
+
+function showMessage(message) {
+    if (!resultsList) return;
+    resultsList.innerHTML = `
+        <li class="p-4 text-center text-slate-500 rounded-xl">
+            <div class="flex flex-col items-center space-y-2">
+                <svg class="w-8 h-8 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.866 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                </svg>
+                <span class="text-sm">${message}</span>
+            </div>
+        </li>
+    `;
+    showDropdown();
+}
+
+// Gestion de la disponibilité de la recherche
+function updateSearchability() {
+    if (!searchInput) return;
+
+    if (!currentFimecoId) {
+        searchInput.disabled = true;
+        searchInput.placeholder = 'Sélectionnez d\'abord un FIMECO';
+        searchInput.classList.add('bg-slate-50', 'cursor-not-allowed');
+        if (hiddenInput) hiddenInput.value = '';
+        clearSelection();
+    } else {
+        searchInput.disabled = false;
+        searchInput.placeholder = 'Tapez pour rechercher un souscripteur...';
+        searchInput.classList.remove('bg-slate-50', 'cursor-not-allowed');
+    }
+}
+
+// Fonctions utilitaires pour les badges de statut
+function getStatusBadgeClass(status) {
+    const classes = {
+        'actif': 'bg-green-100 text-green-800',
+        'inactif': 'bg-gray-100 text-gray-800',
+        'visiteur': 'bg-blue-100 text-blue-800',
+        'nouveau_converti': 'bg-purple-100 text-purple-800'
+    };
+    return classes[status] || 'bg-gray-100 text-gray-800';
+}
+
+function getStatusLabel(status) {
+    const labels = {
+        'actif': 'Actif',
+        'inactif': 'Inactif',
+        'visiteur': 'Visiteur',
+        'nouveau_converti': 'Nouveau'
+    };
+    return labels[status] || status;
+}
+
+// =============================================================================
+// GESTION DU FIMECO ET INITIALISATION
+// =============================================================================
+
+// Initialisation des données du FIMECO
+function initializeFimecoData() {
+    const fimeco = document.getElementById('fimeco_id');
+    if (!fimeco || !fimeco.value) return;
+
+    const selectedOption = fimeco.options[fimeco.selectedIndex];
+    const fimecoInfo = document.getElementById('fimecoInfo');
+
+    currentFimecoData = {
+        cible: parseFloat(selectedOption.dataset.cible),
+        collecte: parseFloat(selectedOption.dataset.collecte),
+        progression: parseFloat(selectedOption.dataset.progression),
+        fin: selectedOption.dataset.fin
+    };
+
+    // Mise à jour de l'affichage des informations
+    const elements = {
+        fimecoCible: formatNumber(currentFimecoData.cible) + ' FCFA',
+        fimecoCollecte: formatNumber(currentFimecoData.collecte) + ' FCFA',
+        fimecoProgression: currentFimecoData.progression.toFixed(1) + '%',
+        fimecoProgressionText: currentFimecoData.progression.toFixed(1) + '%',
+        fimecoFin: new Date(currentFimecoData.fin).toLocaleDateString('fr-FR')
+    };
+
+    Object.keys(elements).forEach(id => {
+        const element = document.getElementById(id);
+        if (element) element.textContent = elements[id];
+    });
+
+    // Mise à jour de la barre de progression
+    const progressBar = document.getElementById('fimecoProgressionBar');
+    if (progressBar) {
+        const clampedProgress = Math.min(currentFimecoData.progression, 100);
+        progressBar.style.width = clampedProgress + '%';
+
+        progressBar.className = 'h-2 rounded-full transition-all duration-500';
+        if (currentFimecoData.progression >= 100) {
+            progressBar.classList.add('bg-gradient-to-r', 'from-green-500', 'to-emerald-500');
+        } else if (currentFimecoData.progression >= 75) {
+            progressBar.classList.add('bg-gradient-to-r', 'from-blue-500', 'to-purple-500');
+        } else if (currentFimecoData.progression >= 50) {
+            progressBar.classList.add('bg-gradient-to-r', 'from-yellow-500', 'to-orange-500');
+        } else {
+            progressBar.classList.add('bg-gradient-to-r', 'from-red-500', 'to-pink-500');
+        }
+    }
+
+    if (fimecoInfo) fimecoInfo.classList.remove('hidden');
+
+    // Configuration de la date d'échéance maximale
+    const dateEcheance = document.getElementById('date_echeance');
+    if (dateEcheance) dateEcheance.max = currentFimecoData.fin;
+
+    currentFimecoId = fimeco.value;
+}
+
+// =============================================================================
+// GESTION DES MONTANTS ET SUGGESTIONS
+// =============================================================================
+
+// Gestion du formatage des montants en temps réel
+function initializeMontantHandling() {
+    const montantInput = document.getElementById('montant_souscrit');
+    if (!montantInput) return;
+
+    montantInput.addEventListener('input', function(e) {
+        let value = e.target.value.replace(/\D/g, '');
+
+        if (value) {
+            if (parseInt(value) > 100000000) {
+                value = '100000000';
             }
+
+            e.target.value = value;
+
+            const amount = parseFloat(value);
+            const preview = document.getElementById('montantPreview');
+
+            if (amount >= 1000 && preview) {
+                const montantFormatted = document.getElementById('montantFormatted');
+                if (montantFormatted) montantFormatted.textContent = formatNumber(amount);
+                preview.classList.remove('hidden');
+                preview.classList.add('animate-pulse');
+                setTimeout(() => preview.classList.remove('animate-pulse'), 1000);
+
+                e.target.classList.remove('border-red-500', 'bg-red-50');
+            } else if (preview) {
+                preview.classList.add('hidden');
+                if (value) {
+                    e.target.classList.add('border-red-500', 'bg-red-50');
+                }
+            }
+        }
+
+        updateResume();
+    });
+
+    // Validation du montant au focus perdu
+    montantInput.addEventListener('blur', function(e) {
+        const amount = parseFloat(e.target.value);
+        const container = e.target.parentNode;
+
+        // Supprimer les anciens messages d'erreur
+        const existingError = container.querySelector('.error-message');
+        if (existingError) existingError.remove();
+
+        if (e.target.value && amount < 1000) {
+            const errorDiv = document.createElement('p');
+            errorDiv.className = 'error-message mt-1 text-sm text-red-600 animate-pulse';
+            errorDiv.textContent = 'Le montant minimum est de 1,000 FCFA';
+            container.appendChild(errorDiv);
+
+            e.target.classList.add('border-red-500', 'bg-red-50');
+
+            setTimeout(() => {
+                errorDiv.classList.add('opacity-0', 'transition-opacity', 'duration-300');
+                setTimeout(() => errorDiv.remove(), 300);
+            }, 5000);
+        } else {
+            e.target.classList.remove('border-red-500', 'bg-red-50');
+        }
+    });
+}
+
+// Définition d'un montant suggéré
+function setSuggestedAmount(amount) {
+    const montantInput = document.getElementById('montant_souscrit');
+    if (montantInput) {
+        montantInput.value = amount;
+        montantInput.dispatchEvent(new Event('input'));
+    }
+}
+
+// Calcul d'un pourcentage de l'objectif FIMECO
+function calculatePercentage(percentage) {
+    if (currentFimecoData) {
+        const amount = Math.round(currentFimecoData.cible * percentage / 100);
+        setSuggestedAmount(amount);
+    } else {
+        alert('Veuillez d\'abord sélectionner un FIMECO');
+    }
+}
+
+// =============================================================================
+// GESTION DES DATES ET ÉCHÉANCES
+// =============================================================================
+
+// Suggestion d'échéance basée sur un nombre de jours
+function setDeadlineSuggestion(days) {
+    const date = new Date();
+    date.setDate(date.getDate() + days);
+
+    if (currentFimecoData) {
+        const fimecoEnd = new Date(currentFimecoData.fin);
+        if (date > fimecoEnd) {
+            date = fimecoEnd;
+        }
+    }
+
+    const dateEcheance = document.getElementById('date_echeance');
+    if (dateEcheance) {
+        dateEcheance.value = date.toISOString().split('T')[0];
+        updateResume();
+    }
+}
+
+// Définition de l'échéance à la fin du FIMECO
+function setFimecoEndDate() {
+    if (currentFimecoData) {
+        const dateEcheance = document.getElementById('date_echeance');
+        if (dateEcheance) {
+            dateEcheance.value = currentFimecoData.fin;
+            updateResume();
+        }
+    } else {
+        alert('Veuillez d\'abord sélectionner un FIMECO');
+    }
+}
+
+// Initialisation des event listeners pour les dates
+function initializeDateHandlers() {
+    const dateSouscription = document.getElementById('date_souscription');
+    const dateEcheance = document.getElementById('date_echeance');
+
+    if (dateSouscription) {
+        dateSouscription.addEventListener('change', function() {
+            this.classList.add('animate-pulse');
+            setTimeout(() => this.classList.remove('animate-pulse'), 1000);
+            updateResume();
+        });
+    }
+
+    if (dateEcheance) {
+        dateEcheance.addEventListener('change', function() {
+            this.classList.add('animate-pulse');
+            setTimeout(() => this.classList.remove('animate-pulse'), 1000);
+            updateResume();
+        });
+    }
+}
+
+// =============================================================================
+// VALIDATION ET VÉRIFICATIONS
+// =============================================================================
+
+// Vérification des souscriptions existantes (doublons)
+function checkForExistingSubscription() {
+    const souscripteurId = document.getElementById('souscripteur_id')?.value;
+    const fimecoId = document.getElementById('fimeco_id')?.value;
+    const alert = document.getElementById('subscriptionExistsAlert');
+
+    if (souscripteurId && fimecoId && searchInput) {
+        // Indicateur de vérification en cours
+        const searchContainer = searchInput.parentNode;
+        const checkingIndicator = document.createElement('div');
+        checkingIndicator.id = 'checking_indicator';
+        checkingIndicator.className = 'absolute right-12 top-1/2 transform -translate-y-1/2';
+        checkingIndicator.innerHTML = '<div class="animate-spin h-4 w-4 border-2 border-slate-200 border-t-blue-500 rounded-full"></div>';
+        searchContainer.appendChild(checkingIndicator);
+
+        fetch("<?php echo e(route('private.subscriptions.check-exists')); ?>", {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': "<?php echo e(csrf_token()); ?>",
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                souscripteur_id: souscripteurId,
+                fimeco_id: fimecoId
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('checking_indicator')?.remove();
+
+            if (data.exists && alert) {
+                alert.classList.remove('hidden');
+                alert.classList.add('animate-pulse');
+                const submitButton = document.getElementById('submitButton');
+                if (submitButton) {
+                    submitButton.disabled = true;
+                    submitButton.classList.add('opacity-50', 'cursor-not-allowed');
+                }
+                searchInput.classList.add('border-red-500', 'bg-red-50');
+            } else if (alert) {
+                alert.classList.add('hidden');
+                alert.classList.remove('animate-pulse');
+                searchInput.classList.remove('border-red-500', 'bg-red-50');
+            }
+        })
+        .catch(error => {
+            console.error('Erreur lors de la vérification:', error);
+            document.getElementById('checking_indicator')?.remove();
+            if (alert) alert.classList.add('hidden');
+        });
+    } else if (alert) {
+        alert.classList.add('hidden');
+        if (searchInput) searchInput.classList.remove('border-red-500', 'bg-red-50');
+    }
+}
+
+// Validation complète du formulaire
+function validateForm() {
+    const souscripteurId = document.getElementById('souscripteur_id')?.value;
+    const fimecoId = document.getElementById('fimeco_id')?.value;
+    const montant = document.getElementById('montant_souscrit')?.value;
+    const dateSouscription = document.getElementById('date_souscription')?.value;
+
+    // Animation du bouton de validation
+    const validateButton = document.querySelector('button[onclick="validateForm()"]');
+    if (!validateButton) return;
+
+    const originalText = validateButton.innerHTML;
+    validateButton.innerHTML = '<div class="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full mr-2 inline-block"></div> Validation...';
+    validateButton.disabled = true;
+    validateButton.classList.add('opacity-75');
+
+    // Validation côté client
+    const validationErrors = [];
+
+    if (!souscripteurId) {
+        validationErrors.push({ field: 'souscripteur_search', message: 'Veuillez sélectionner un souscripteur' });
+    }
+    if (!fimecoId) {
+        validationErrors.push({ field: 'fimeco_id', message: 'Veuillez sélectionner un FIMECO' });
+    }
+    if (!montant || parseFloat(montant) < 1000) {
+        validationErrors.push({ field: 'montant_souscrit', message: 'Montant minimum: 1,000 FCFA' });
+    }
+    if (!dateSouscription) {
+        validationErrors.push({ field: 'date_souscription', message: 'Date de souscription requise' });
+    }
+
+    // Afficher les erreurs de validation côté client
+    if (validationErrors.length > 0) {
+        validationErrors.forEach(error => {
+            const field = document.getElementById(error.field);
+            if (field) {
+                field.classList.add('border-red-500', 'animate-pulse');
+                field.focus();
+                setTimeout(() => field.classList.remove('animate-pulse'), 2000);
+            }
+        });
+
+        // Restaurer le bouton
+        validateButton.innerHTML = originalText;
+        validateButton.disabled = false;
+        validateButton.classList.remove('opacity-75');
+
+        showNotification(validationErrors[0].message, 'error');
+        return;
+    }
+
+    // Validation serveur
+    const formData = {
+        souscripteur_id: souscripteurId,
+        fimeco_id: fimecoId,
+        montant_souscrit: montant,
+        date_souscription: dateSouscription,
+        souscripteur_info: selectedSouscripteur
+    };
+
+    fetch("<?php echo e(route('private.subscriptions.validate-data')); ?>", {
+        method: 'POST',
+        headers: {
+            'X-CSRF-TOKEN': "<?php echo e(csrf_token()); ?>",
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        // Restaurer le bouton
+        validateButton.innerHTML = originalText;
+        validateButton.disabled = false;
+        validateButton.classList.remove('opacity-75');
+
+        if (data.success) {
+            formValidated = true;
+            const submitButton = document.getElementById('submitButton');
+            if (submitButton) {
+                submitButton.disabled = false;
+                submitButton.classList.remove('opacity-50', 'cursor-not-allowed');
+                submitButton.classList.add('animate-pulse', 'shadow-lg', 'scale-105');
+
+                setTimeout(() => {
+                    submitButton.classList.remove('animate-pulse', 'scale-105');
+                }, 2000);
+            }
+
+            // Afficher les avertissements s'il y en a
+            if (data.warnings && data.warnings.length > 0) {
+                const warningMessage = 'Attention: ' + data.warnings.join('\n');
+                if (confirm(warningMessage + '\n\nVoulez-vous continuer ?')) {
+                    showNotification('Validation réussie ! Vous pouvez créer la souscription.', 'success');
+                } else {
+                    formValidated = false;
+                    if (submitButton) {
+                        submitButton.disabled = true;
+                        submitButton.classList.add('opacity-50', 'cursor-not-allowed');
+                    }
+                }
+            } else {
+                showNotification('Validation réussie ! Vous pouvez créer la souscription.', 'success');
+            }
+        } else {
+            const errorMessages = Object.values(data.errors).flat();
+            showNotification('Erreurs de validation: ' + errorMessages.join(', '), 'error');
+
+            // Highlight des champs en erreur
+            Object.keys(data.errors).forEach(fieldName => {
+                const fieldMapping = {
+                    'souscripteur_id': 'souscripteur_search',
+                    'fimeco_id': 'fimeco_id',
+                    'montant_souscrit': 'montant_souscrit',
+                    'date_souscription': 'date_souscription'
+                };
+
+                const fieldToHighlight = fieldMapping[fieldName];
+                if (fieldToHighlight) {
+                    const field = document.getElementById(fieldToHighlight);
+                    if (field) {
+                        field.classList.add('border-red-500', 'bg-red-50', 'animate-pulse');
+                        setTimeout(() => {
+                            field.classList.remove('animate-pulse', 'bg-red-50');
+                        }, 3000);
+                    }
+                }
+            });
+        }
+    })
+    .catch(error => {
+        console.error('Erreur:', error);
+        validateButton.innerHTML = originalText;
+        validateButton.disabled = false;
+        validateButton.classList.remove('opacity-75');
+        showNotification('Erreur lors de la validation. Veuillez réessayer.', 'error');
+    });
+}
+
+// =============================================================================
+// MISE À JOUR DU RÉSUMÉ
+// =============================================================================
+
+// Mise à jour du résumé de la souscription
+function updateResume() {
+    const souscripteurInput = document.getElementById('souscripteur_id');
+    const fimeco = document.getElementById('fimeco_id');
+    const montant = document.getElementById('montant_souscrit')?.value;
+    const dateSouscription = document.getElementById('date_souscription')?.value;
+    const dateEcheance = document.getElementById('date_echeance')?.value;
+
+    const resumeSection = document.getElementById('resumeSection');
+    const resumePlaceholder = document.getElementById('resumePlaceholder');
+
+    if (souscripteurInput?.value && fimeco?.value && montant && dateSouscription) {
+        let souscripteurName = '';
+        if (selectedSouscripteur) {
+            souscripteurName = `${selectedSouscripteur.prenom} ${selectedSouscripteur.nom}`;
+            if (selectedSouscripteur.email) {
+                souscripteurName += ` (${selectedSouscripteur.email})`;
+            }
+        } else {
+            souscripteurName = 'Souscripteur sélectionné';
+        }
+
+        // Mise à jour du contenu
+        const resumeElements = {
+            resumeSouscripteur: souscripteurName,
+            resumeFimeco: fimeco.options[fimeco.selectedIndex].text.split(' - ')[0],
+            resumeMontant: formatNumber(montant) + ' FCFA',
+            resumeDateSouscription: new Date(dateSouscription).toLocaleDateString('fr-FR'),
+            resumeEcheance: dateEcheance ? new Date(dateEcheance).toLocaleDateString('fr-FR') : 'Aucune'
+        };
+
+        Object.keys(resumeElements).forEach(id => {
+            const element = document.getElementById(id);
+            if (element) element.textContent = resumeElements[id];
+        });
+
+        // Calcul de l'impact sur le FIMECO
+        if (currentFimecoData) {
+            const currentAmount = parseFloat(montant);
+            const newTotal = currentFimecoData.collecte + currentAmount;
+            const newProgression = (newTotal / currentFimecoData.cible) * 100;
+            const impactText = `+${(currentAmount / currentFimecoData.cible * 100).toFixed(2)}% (nouvelle progression: ${newProgression.toFixed(1)}%)`;
+
+            const resumeImpact = document.getElementById('resumeImpact');
+            if (resumeImpact) {
+                resumeImpact.textContent = impactText;
+                resumeImpact.classList.add('animate-pulse');
+                setTimeout(() => resumeImpact.classList.remove('animate-pulse'), 2000);
+            }
+        }
+
+        // Affichage du résumé
+        if (resumeSection && resumePlaceholder) {
+            resumeSection.classList.remove('hidden');
+            resumePlaceholder.classList.add('hidden');
+        }
+    } else if (resumeSection && resumePlaceholder) {
+        resumeSection.classList.add('hidden');
+        resumePlaceholder.classList.remove('hidden');
+    }
+}
+
+// =============================================================================
+// SAUVEGARDE AUTOMATIQUE ET UTILITAIRES
+// =============================================================================
+
+// Sauvegarde automatique des données du formulaire
+function autoSave() {
+    if (!window.localStorage) return;
+
+    const formData = {
+        fimeco_id: document.getElementById('fimeco_id')?.value,
+        souscripteur: selectedSouscripteur,
+        montant_souscrit: document.getElementById('montant_souscrit')?.value,
+        date_souscription: document.getElementById('date_souscription')?.value,
+        date_echeance: document.getElementById('date_echeance')?.value,
+        timestamp: Date.now()
+    };
+
+    localStorage.setItem('subscription_form_draft', JSON.stringify(formData));
+
+    // Indicateur visuel de sauvegarde
+    const saveIndicator = document.createElement('div');
+    saveIndicator.className = 'fixed bottom-4 right-4 bg-green-100 text-green-800 px-3 py-2 rounded-lg text-sm font-medium shadow-lg transform transition-all duration-300 translate-y-full opacity-0';
+    saveIndicator.textContent = 'Brouillon sauvegardé';
+
+    document.body.appendChild(saveIndicator);
+
+    setTimeout(() => {
+        saveIndicator.classList.remove('translate-y-full', 'opacity-0');
+        saveIndicator.classList.add('translate-y-0', 'opacity-100');
+    }, 100);
+
+    setTimeout(() => {
+        saveIndicator.classList.add('translate-y-full', 'opacity-0');
+        setTimeout(() => saveIndicator.remove(), 300);
+    }, 2000);
+}
+
+// Restauration des données sauvegardées
+function restoreAutoSave() {
+    if (!window.localStorage) return;
+
+    const savedData = localStorage.getItem('subscription_form_draft');
+    if (!savedData) return;
+
+    try {
+        const formData = JSON.parse(savedData);
+
+        // Vérifier que les données ne sont pas trop anciennes (24h)
+        if (Date.now() - formData.timestamp > 24 * 60 * 60 * 1000) {
+            localStorage.removeItem('subscription_form_draft');
+            return;
+        }
+
+        // Proposer de restaurer les données
+        if (confirm('Des données de formulaire ont été sauvegardées. Voulez-vous les restaurer ?')) {
+            const montantInput = document.getElementById('montant_souscrit');
+            const dateSouscriptionInput = document.getElementById('date_souscription');
+            const dateEcheanceInput = document.getElementById('date_echeance');
+
+            if (formData.montant_souscrit && montantInput) {
+                montantInput.value = formData.montant_souscrit;
+            }
+            if (formData.date_souscription && dateSouscriptionInput) {
+                dateSouscriptionInput.value = formData.date_souscription;
+            }
+            if (formData.date_echeance && dateEcheanceInput) {
+                dateEcheanceInput.value = formData.date_echeance;
+            }
+            if (formData.souscripteur) {
+                selectSouscripteur(formData.souscripteur);
+            }
+
+            updateResume();
         }
     } catch (error) {
-        console.error('Erreur:', error);
-        alert('Erreur lors de la création du membre: ' + error.message);
+        console.error('Erreur lors de la restauration:', error);
+        localStorage.removeItem('subscription_form_draft');
     }
 }
 
+// Réinitialisation complète du formulaire
+function resetForm() {
+    const form = document.getElementById('subscriptionForm');
+    if (form) form.classList.add('animate-pulse');
 
+    setTimeout(() => {
+        clearSelection();
 
-                showSuccessMessage(message) {
-                    const toast = document.createElement('div');
-                    toast.className = 'fixed top-4 right-4 bg-green-600 text-white px-6 py-3 rounded-lg shadow-lg z-50';
-                    toast.textContent = message;
-                    document.body.appendChild(toast);
+        const montantInput = document.getElementById('montant_souscrit');
+        const dateSouscriptionInput = document.getElementById('date_souscription');
+        const dateEcheanceInput = document.getElementById('date_echeance');
 
-                    setTimeout(() => {
+        if (montantInput) montantInput.value = '';
+        if (dateSouscriptionInput) dateSouscriptionInput.value = new Date().toISOString().split('T')[0];
+        if (dateEcheanceInput) dateEcheanceInput.value = '';
 
-                        document.body.removeChild(toast);
-                    }, 3000);
-                }
-
-                storeSelection(userId, displayName) {
-                    const key = `autocomplete_${this.type}_selection`;
-                    sessionStorage.setItem(key, JSON.stringify({
-                        id: userId,
-                        display: displayName
-                    }));
-                }
-
-                clearStoredSelection() {
-                    const key = `autocomplete_${this.type}_selection`;
-                    sessionStorage.removeItem(key);
-                }
-
-                // async restoreSelection() {
-                //     const stored = this.getStoredSelection();
-
-                //     if (this.hiddenInput.value) {
-                //         if (this.input.value && this.input.value.trim() !== '') {
-                //             return;
-                //         }
-
-                //         if (stored && stored.id === parseInt(this.hiddenInput.value)) {
-                //             this.input.value = stored.display;
-                //             return;
-                //         }
-
-                //         try {
-                //             const response = await fetch(`<?php echo e(route('private.users.search')); ?>?q=${this.hiddenInput.value}`);
-                //             const data = await response.json();
-                //             const users = Array.isArray(data) ? data : (data.users || []);
-
-                //             const user = users.find(u => u.id === parseInt(this.hiddenInput.value));
-                //             if (user && user.email) {
-                //                 const emailMatch = user.text.match(/^(.+)\s+\([^)]+\)$/);
-                //                 const displayName = emailMatch ? emailMatch[1].trim() : user.text;
-                //                 this.input.value = displayName;
-                //                 this.storeSelection(user.id, displayName);
-                //             }
-                //         } catch (error) {
-                //             console.error('Erreur lors de la restauration:', error);
-                //         }
-                //     }
-                // }
-
-
-
-                async restoreSelection() {
-    const stored = this.getStoredSelection();
-
-    if (this.hiddenInput.value) {
-        if (this.input.value && this.input.value.trim() !== '') {
-            return;
+        formValidated = false;
+        const submitButton = document.getElementById('submitButton');
+        if (submitButton) {
+            submitButton.disabled = true;
+            submitButton.classList.add('opacity-50', 'cursor-not-allowed');
         }
 
-        if (stored && stored.id === this.hiddenInput.value) {
-            this.input.value = stored.display;
-            return;
-        }
+        const alert = document.getElementById('subscriptionExistsAlert');
+        const preview = document.getElementById('montantPreview');
+        if (alert) alert.classList.add('hidden');
+        if (preview) preview.classList.add('hidden');
 
-        try {
-            const response = await fetch(`<?php echo e(route('private.users.index')); ?>?search=${this.hiddenInput.value}`, {
-                headers: {
-                    'Accept': 'application/json',
-                    'X-Requested-With': 'XMLHttpRequest',
-                    'X-CSRF-TOKEN': '<?php echo e(csrf_token()); ?>',
-                }
-            });
-            const data = await response.json();
-            const users = data.success && data.data ? data.data.data : [];
+        // Supprimer toutes les classes d'erreur
+        document.querySelectorAll('.border-red-500, .bg-red-50').forEach(el => {
+            el.classList.remove('border-red-500', 'bg-red-50');
+        });
 
-            const user = users.find(u => u.id === this.hiddenInput.value);
-            if (user) {
-                const displayName = `${user.nom} ${user.prenom}`.trim();
-                this.input.value = displayName;
-                this.storeSelection(user.id, displayName);
-            }
-        } catch (error) {
-            console.error('Erreur lors de la restauration:', error);
-        }
-    }
+        // Supprimer les messages d'erreur
+        document.querySelectorAll('.error-message').forEach(el => el.remove());
+
+        updateResume();
+        if (form) form.classList.remove('animate-pulse');
+    }, 500);
 }
 
+// =============================================================================
+// EVENT LISTENERS ET INITIALISATION FINALE
+// =============================================================================
 
-                clearResults() {
-                    // Supprimer tous les éléments avec data-index (les résultats utilisateur)
-                    const items = this.dropdown.querySelectorAll('[data-index]');
-                    items.forEach(item => item.remove());
+// Initialisation des event listeners pour la sauvegarde automatique
+function initializeAutoSave() {
+    ['input', 'change'].forEach(eventType => {
+        const montantInput = document.getElementById('montant_souscrit');
+        const dateSouscriptionInput = document.getElementById('date_souscription');
+        const dateEcheanceInput = document.getElementById('date_echeance');
 
-                    // Cacher les éléments statiques
-                    this.noResultsItem.classList.add('hidden');
-                    this.addNewItem.classList.add('hidden');
-                }
+        if (montantInput) montantInput.addEventListener(eventType, autoSave);
+        if (dateSouscriptionInput) dateSouscriptionInput.addEventListener(eventType, autoSave);
+        if (dateEcheanceInput) dateEcheanceInput.addEventListener(eventType, autoSave);
+    });
+}
 
-                updateSelection() {
-                    const items = this.dropdown.querySelectorAll('[data-index]');
-                    items.forEach((item, index) => {
-                        if (index === this.selectedIndex) {
-                            item.classList.add('bg-blue-50');
-                            item.classList.remove('hover:bg-slate-50');
-                        } else {
-                            item.classList.remove('bg-blue-50');
-                            item.classList.add('hover:bg-slate-50');
-                        }
-                    });
-                }
+// Gestion des raccourcis clavier
+function initializeKeyboardShortcuts() {
+    document.addEventListener('keydown', function(e) {
+        // Ctrl/Cmd + S pour valider
+        if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+            e.preventDefault();
+            const validateButton = document.querySelector('button[onclick="validateForm()"]');
+            if (validateButton) validateButton.classList.add('animate-pulse');
+            validateForm();
+        }
 
-                showLoading() {
-                    this.loadingItem.classList.remove('hidden');
-                    this.showDropdown();
-                }
-
-                hideLoading() {
-                    this.loadingItem.classList.add('hidden');
-                }
-
-                showNoResults() {
-                    this.noResultsItem.classList.remove('hidden');
-                }
-
-                showAddNew() {
-                    this.addNewItem.classList.remove('hidden');
-                    this.addNewItem.querySelector('span').textContent = `Ajouter "${this.input.value}"`;
-                }
-
-                showDropdown() {
-                    this.dropdown.classList.add('show');
-                }
-
-                hideDropdown() {
-                    this.dropdown.classList.remove('show');
-                }
-
-                destroy() {
-                    if (this.documentClickHandler) {
-                        document.removeEventListener('click', this.documentClickHandler);
-                    }
-
-                    if (this.currentRequest) {
-                        this.currentRequest.abort();
-                    }
-
-                    if (this.debounceTimer) {
-                        clearTimeout(this.debounceTimer);
-                    }
-                }
+        // Ctrl/Cmd + Enter pour soumettre
+        if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+            e.preventDefault();
+            if (formValidated) {
+                const form = document.getElementById('subscriptionForm');
+                if (form) form.submit();
+            } else {
+                showNotification('Veuillez d\'abord valider le formulaire avec Ctrl+S', 'info');
             }
+        }
 
+        // Escape pour réinitialiser la recherche
+        if (e.key === 'Escape' && document.activeElement === searchInput) {
+            clearSelection();
+        }
+    });
+}
 
-            // Fonction pour mettre à jour l'aperçu
-            function updatePreview() {
-                const fimecoSelect = document.getElementById('fimeco_id');
-                const montant = document.getElementById('montant_souscrit').value;
+// Gestion de la soumission du formulaire
+function initializeFormSubmission() {
+    const form = document.getElementById('subscriptionForm');
+    if (!form) return;
 
-                // FIMECO
-                if (fimecoSelect?.value) {
-                    const fimecoNom = fimecoSelect.options[fimecoSelect.selectedIndex].text;
-                    document.getElementById('preview-fimeco').textContent = fimecoNom;
-                } else {
-                    document.getElementById('preview-fimeco').textContent = '-';
-                }
+    form.addEventListener('submit', function(e) {
+        if (!formValidated) {
+            e.preventDefault();
+            showNotification('Veuillez d\'abord valider les données du formulaire', 'warning');
 
-                // Montant
-                if (montant) {
-                    const formatted = new Intl.NumberFormat('fr-FR').format(montant) + ' FCFA';
-                    document.getElementById('preview-montant').textContent = formatted;
-                } else {
-                    document.getElementById('preview-montant').textContent = '-';
-                }
+            const validateButton = document.querySelector('button[onclick="validateForm()"]');
+            if (validateButton) {
+                validateButton.classList.add('animate-bounce');
+                setTimeout(() => validateButton.classList.remove('animate-bounce'), 1000);
+                validateButton.focus();
             }
+            return;
+        }
 
-            // Validation du formulaire
-            document.getElementById('souscriptionForm').addEventListener('submit', function (e) {
-                const fimecoId = document.getElementById('fimeco_id').value;
-                const souscripteurId = document.getElementById('souscripteur_id').value;
-                const montant = parseFloat(document.getElementById('montant_souscrit').value);
+        if (!selectedSouscripteur) {
+            e.preventDefault();
+            showNotification('Erreur: aucun souscripteur sélectionné', 'error');
+            if (searchInput) searchInput.focus();
+            return;
+        }
 
-                if (!fimecoId) {
-                    e.preventDefault();
-                    alert('Veuillez sélectionner une FIMECO.');
-                    return false;
+        // Animation du bouton de soumission
+        const submitButton = document.getElementById('submitButton');
+        if (submitButton) {
+            const originalText = submitButton.innerHTML;
+            submitButton.innerHTML = '<div class="animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full mr-2 inline-block"></div> Création en cours...';
+            submitButton.disabled = true;
+            submitButton.classList.add('opacity-75');
+
+            // Restaurer après timeout pour éviter le blocage
+            setTimeout(() => {
+                if (submitButton.innerHTML.includes('Création en cours')) {
+                    submitButton.innerHTML = originalText;
+                    submitButton.disabled = false;
+                    submitButton.classList.remove('opacity-75');
                 }
+            }, 10000);
+        }
+    });
 
-                if (!souscripteurId) {
-                    e.preventDefault();
-                    alert('Veuillez sélectionner un souscripteur.');
-                    document.getElementById('souscripteur_search').focus();
-                    return false;
-                }
+    // Suppression de la sauvegarde après soumission réussie
+    form.addEventListener('submit', function() {
+        localStorage.removeItem('subscription_form_draft');
+    });
+}
 
-                if (!montant || montant < 10) {
-                    e.preventDefault();
-                    alert('Le montant de souscription doit être d\'au moins 10 FCFA.');
-                    return false;
-                }
+// Avertissement avant fermeture de la page
+function initializeBeforeUnload() {
+    window.addEventListener('beforeunload', function(e) {
+        const souscripteurId = document.getElementById('souscripteur_id')?.value;
+        const montant = document.getElementById('montant_souscrit')?.value;
+        const dateEcheance = document.getElementById('date_echeance')?.value;
 
-                // Confirmation
-                const confirmation = confirm(
-                    `Confirmez-vous votre souscription de ${new Intl.NumberFormat('fr-FR').format(montant)} FCFA ?`
-                );
+        const hasUnsavedData = souscripteurId || montant || dateEcheance;
 
-                if (!confirmation) {
-                    e.preventDefault();
-                    return false;
-                }
-            });
+        if (hasUnsavedData && !formValidated) {
+            e.preventDefault();
+            e.returnValue = 'Vous avez des modifications non sauvegardées.';
+        }
+    });
+}
 
-            // Événements
-            document.getElementById('montant_souscrit').addEventListener('input', updatePreview);
+// =============================================================================
+// INITIALISATION PRINCIPALE
+// =============================================================================
 
-            // Initialisation
-            document.addEventListener('DOMContentLoaded', function () {
-                // Initialiser l'autocomplete pour le souscripteur
-                const souscripteurContainer = document.querySelector('[data-type="souscripteur"]');
-                if (souscripteurContainer) {
-                    window.souscripteurAutocomplete = new AutoComplete(souscripteurContainer, 'souscripteur');
-                    // Restaurer l'affichage si une valeur est déjà sélectionnée
-                    window.souscripteurAutocomplete.restoreSelection();
-                }
+// Initialisation complète au chargement de la page
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialiser les composants principaux
+    initializeSearchComponent();
+    initializeFimecoData();
+    initializeMontantHandling();
+    initializeDateHandlers();
 
-                updateFimecoInfo();
-                updatePreview();
-            });
+    // Initialiser les fonctionnalités annexes
+    initializeAutoSave();
+    initializeKeyboardShortcuts();
+    initializeFormSubmission();
+    initializeBeforeUnload();
 
-            // Cleanup au moment de la soumission
-            document.getElementById('souscriptionForm').addEventListener('submit', function () {
-                sessionStorage.removeItem('autocomplete_souscripteur_selection');
-            });
+    // États initiaux
+    updateSearchability();
+    checkForExistingSubscription();
+    updateResume();
+
+    // Restaurer les données sauvegardées après un délai
+    setTimeout(restoreAutoSave, 1000);
+});
         </script>
     <?php $__env->stopPush(); ?>
 <?php $__env->stopSection(); ?>

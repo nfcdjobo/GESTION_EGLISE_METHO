@@ -224,157 +224,273 @@
             </div>
         </div>
 
-        <!-- Liste des participations -->
-        <div class="bg-white/80 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
-            <div class="p-6 border-b border-slate-200">
-                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                    <h2 class="text-xl font-bold text-slate-800 flex items-center">
-                        <i class="fas fa-list text-purple-600 mr-2"></i>
-                        Liste des Participations ({{ $participations->total() ?? 0 }})
-                    </h2>
-                    <div class="flex items-center space-x-2">
-                        <select id="sortBy"
-                            class="px-3 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors text-sm">
-                            <option value="created_at" {{ request('sort_by') == 'created_at' ? 'selected' : '' }}>Date
-                                d'ajout</option>
-                            <option value="date_culte" {{ request('sort_by') == 'date_culte' ? 'selected' : '' }}>Date du
-                                culte</option>
-                            <option value="participant" {{ request('sort_by') == 'participant' ? 'selected' : '' }}>
-                                Participant</option>
-                            <option value="statut_presence"
-                                {{ request('sort_by') == 'statut_presence' ? 'selected' : '' }}>Statut</option>
-                        </select>
-                        <select id="sortOrder"
-                            class="px-3 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors text-sm">
-                            <option value="desc" {{ request('sort_order') == 'desc' ? 'selected' : '' }}>Décroissant
-                            </option>
-                            <option value="asc" {{ request('sort_order') == 'asc' ? 'selected' : '' }}>Croissant
-                            </option>
-                        </select>
-                    </div>
+<!-- Section Liste des participations modifiée -->
+<div class="bg-white/80 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
+    <div class="p-6 border-b border-slate-200">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <h2 class="text-xl font-bold text-slate-800 flex items-center">
+                <i class="fas fa-list text-purple-600 mr-2"></i>
+                Liste des Participations ({{ $participations->total() ?? 0 }})
+            </h2>
+            <div class="flex items-center space-x-4">
+                <!-- Toggle Vue Liste/Grille -->
+                <div class="flex bg-slate-100 rounded-lg p-1">
+                    <button id="listViewBtn"
+                            class="flex items-center px-3 py-2 rounded-md text-sm font-medium transition-all duration-200 bg-blue-600 text-white">
+                        <i class="fas fa-list mr-2"></i>
+                        Liste
+                    </button>
+                    <button id="gridViewBtn"
+                            class="flex items-center px-3 py-2 rounded-md text-sm font-medium transition-all duration-200 text-slate-600 hover:text-slate-900">
+                        <i class="fas fa-th-large mr-2"></i>
+                        Grille
+                    </button>
+                </div>
+
+                <!-- Sélecteurs de tri -->
+                <div class="flex items-center space-x-2">
+                    <select id="sortBy"
+                        class="px-3 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors text-sm">
+                        <option value="created_at" {{ request('sort_by') == 'created_at' ? 'selected' : '' }}>Date d'ajout</option>
+                        <option value="date_culte" {{ request('sort_by') == 'date_culte' ? 'selected' : '' }}>Date du culte</option>
+                        <option value="participant" {{ request('sort_by') == 'participant' ? 'selected' : '' }}>Participant</option>
+                        <option value="statut_presence" {{ request('sort_by') == 'statut_presence' ? 'selected' : '' }}>Statut</option>
+                    </select>
+                    <select id="sortOrder"
+                        class="px-3 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors text-sm">
+                        <option value="desc" {{ request('sort_order') == 'desc' ? 'selected' : '' }}>Décroissant</option>
+                        <option value="asc" {{ request('sort_order') == 'asc' ? 'selected' : '' }}>Croissant</option>
+                    </select>
                 </div>
             </div>
-            <div class="p-6">
-                @if ($participations && $participations->count() > 0)
-                    <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-                        @foreach ($participations as $participation)
-                            <div
-                                class="bg-gradient-to-br from-white to-slate-50 rounded-xl border border-slate-200 p-6 hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
-                                <!-- Header -->
-                                <div class="flex items-start justify-between mb-4">
-                                    <div class="flex-1">
-                                        <h3 class="text-lg font-bold text-slate-900 mb-1">
-                                            {{ $participation->participant->nom ?? 'N/A' }}
-                                            {{ $participation->participant->prenom ?? '' }}</h3>
-                                        <p class="text-sm text-slate-600">
-                                            {{ $participation->culte->titre ?? 'Culte supprimé' }}</p>
+        </div>
+    </div>
+    <div class="p-6">
+        @if ($participations && $participations->count() > 0)
+            <!-- Vue Grille (masquée par défaut) -->
+            <div id="gridView" class="hidden grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+                @foreach ($participations as $participation)
+                    <div class="bg-gradient-to-br from-white to-slate-50 rounded-xl border border-slate-200 p-6 hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
+                        <!-- Header -->
+                        <div class="flex items-start justify-between mb-4">
+                            <div class="flex-1">
+                                <h3 class="text-lg font-bold text-slate-900 mb-1">
+                                    {{ $participation->participant->nom ?? 'N/A' }}
+                                    {{ $participation->participant->prenom ?? '' }}
+                                </h3>
+                                <p class="text-sm text-slate-600">
+                                    {{ $participation->culte->titre ?? 'Culte supprimé' }}
+                                </p>
+                            </div>
+                            <div class="flex flex-col items-end space-y-2">
+                                @php
+                                    $statutColors = [
+                                        'present' => 'bg-green-100 text-green-800',
+                                        'present_partiel' => 'bg-yellow-100 text-yellow-800',
+                                        'en_retard' => 'bg-orange-100 text-orange-800',
+                                        'parti_tot' => 'bg-red-100 text-red-800',
+                                    ];
+                                @endphp
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $statutColors[$participation->statut_presence] ?? 'bg-gray-100 text-gray-800' }}">
+                                    {{ $participation->statut_presence_libelle }}
+                                </span>
+                                @if ($participation->premiere_visite)
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                                        <i class="fas fa-star mr-1"></i> Nouvelle visite
+                                    </span>
+                                @endif
+                            </div>
+                        </div>
+
+                        <!-- Détails -->
+                        <div class="space-y-3 mb-4">
+                            <div class="flex items-center text-sm text-slate-600">
+                                <i class="fas fa-calendar-alt w-4 mr-2"></i>
+                                <span>{{ $participation->culte ? \Carbon\Carbon::parse($participation->culte->date_culte)->format('d/m/Y') : 'N/A' }}</span>
+                                @if ($participation->heure_arrivee)
+                                    <i class="fas fa-clock w-4 ml-4 mr-2"></i>
+                                    <span>{{ \Carbon\Carbon::parse($participation->heure_arrivee)->format('H:i') }}</span>
+                                @endif
+                            </div>
+                            <div class="flex items-center text-sm text-slate-600">
+                                <i class="fas fa-user-tag w-4 mr-2"></i>
+                                <span>{{ $participation->role_culte_libelle }}</span>
+                            </div>
+                            <div class="flex items-center text-sm text-slate-600">
+                                <i class="fas fa-laptop w-4 mr-2"></i>
+                                <span>{{ $participation->type_participation_libelle }}</span>
+                            </div>
+                            @if ($participation->accompagnateur)
+                                <div class="flex items-center text-sm text-slate-600">
+                                    <i class="fas fa-user-friends w-4 mr-2"></i>
+                                    <span>Accompagné par {{ $participation->accompagnateur->nom }} {{ $participation->accompagnateur->prenom }}</span>
+                                </div>
+                            @endif
+                        </div>
+
+                        <!-- Badges de suivi -->
+                        @if ($participation->demande_contact_pastoral || $participation->interesse_bapteme || $participation->souhaite_devenir_membre)
+                            <div class="flex flex-wrap gap-1 mb-4">
+                                @if ($participation->demande_contact_pastoral)
+                                    <span class="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-blue-100 text-blue-800">
+                                        <i class="fas fa-praying-hands mr-1"></i> Contact pastoral
+                                    </span>
+                                @endif
+                                @if ($participation->interesse_bapteme)
+                                    <span class="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-cyan-100 text-cyan-800">
+                                        <i class="fas fa-water mr-1"></i> Baptême
+                                    </span>
+                                @endif
+                                @if ($participation->souhaite_devenir_membre)
+                                    <span class="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-green-100 text-green-800">
+                                        <i class="fas fa-heart mr-1"></i> Membre
+                                    </span>
+                                @endif
+                            </div>
+                        @endif
+
+                        <!-- Actions -->
+                        <div class="flex items-center justify-between pt-4 border-t border-slate-200">
+                            <div class="flex items-center space-x-2">
+                                <a href="{{ route('private.participantscultes.show', [$participation->participant_id, $participation->culte_id]) }}"
+                                    class="inline-flex items-center justify-center w-8 h-8 text-cyan-600 bg-cyan-100 rounded-lg hover:bg-cyan-200 transition-colors"
+                                    title="Voir">
+                                    <i class="fas fa-eye text-sm"></i>
+                                </a>
+                                @can('participants-cultes.update')
+                                    <button type="button"
+                                        onclick="editParticipation('{{ $participation->participant_id }}', '{{ $participation->culte_id }}')"
+                                        class="inline-flex items-center justify-center w-8 h-8 text-yellow-600 bg-yellow-100 rounded-lg hover:bg-yellow-200 transition-colors"
+                                        title="Modifier">
+                                        <i class="fas fa-edit text-sm"></i>
+                                    </button>
+                                @endcan
+                                @can('participants-cultes.confirm-presence')
+                                    @if (!$participation->presence_confirmee)
+                                        <button type="button"
+                                            onclick="confirmerPresence('{{ $participation->participant_id }}', '{{ $participation->culte_id }}')"
+                                            class="inline-flex items-center justify-center w-8 h-8 text-green-600 bg-green-100 rounded-lg hover:bg-green-200 transition-colors"
+                                            title="Confirmer">
+                                            <i class="fas fa-check text-sm"></i>
+                                        </button>
+                                    @endif
+                                @endcan
+                            </div>
+                            @can('participants-cultes.delete')
+                                <button type="button"
+                                    onclick="deleteParticipation('{{ $participation->participant_id }}', '{{ $participation->culte_id }}')"
+                                    class="inline-flex items-center justify-center w-8 h-8 text-red-600 bg-red-100 rounded-lg hover:bg-red-200 transition-colors"
+                                    title="Supprimer">
+                                    <i class="fas fa-trash text-sm"></i>
+                                </button>
+                            @endcan
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+
+            <!-- Vue Liste (affichée par défaut) -->
+            <div id="listView" class="space-y-4">
+                @foreach ($participations as $participation)
+                    <div class="bg-gradient-to-r from-white to-slate-50 rounded-xl border border-slate-200 p-4 hover:shadow-lg transition-all duration-300">
+                        <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+                            <!-- Informations principales -->
+                            <div class="flex-1 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                                <!-- Participant et Culte -->
+                                <div class="space-y-1">
+                                    <div class="font-bold text-slate-900">
+                                        {{ $participation->participant->nom ?? 'N/A' }} {{ $participation->participant->prenom ?? '' }}
                                     </div>
-                                    <div class="flex flex-col items-end space-y-2">
-                                        @php
-                                            $statutColors = [
-                                                'present' => 'bg-green-100 text-green-800',
-                                                'present_partiel' => 'bg-yellow-100 text-yellow-800',
-                                                'en_retard' => 'bg-orange-100 text-orange-800',
-                                                'parti_tot' => 'bg-red-100 text-red-800',
-                                            ];
-                                        @endphp
-                                        <span
-                                            class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $statutColors[$participation->statut_presence] ?? 'bg-gray-100 text-gray-800' }}">
-                                            {{ $participation->statut_presence_libelle }}
-                                        </span>
-                                        @if ($participation->premiere_visite)
-                                            <span
-                                                class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
-                                                <i class="fas fa-star mr-1"></i> Nouvelle visite
-                                            </span>
+                                    <div class="text-sm text-slate-600">
+                                        {{ $participation->culte->titre ?? 'Culte supprimé' }}
+                                    </div>
+                                    <div class="text-xs text-slate-500">
+                                        {{ $participation->culte ? \Carbon\Carbon::parse($participation->culte->date_culte)->format('d/m/Y') : 'N/A' }}
+                                        @if ($participation->heure_arrivee)
+                                            • {{ \Carbon\Carbon::parse($participation->heure_arrivee)->format('H:i') }}
                                         @endif
                                     </div>
                                 </div>
 
-                                <!-- Détails -->
-                                <div class="space-y-3 mb-4">
-                                    <div class="flex items-center text-sm text-slate-600">
-                                        <i class="fas fa-calendar-alt w-4 mr-2"></i>
-                                        <span>{{ $participation->culte ? \Carbon\Carbon::parse($participation->culte->date_culte)->format('d/m/Y') : 'N/A' }}</span>
-                                        @if ($participation->heure_arrivee)
-                                            <i class="fas fa-clock w-4 ml-4 mr-2"></i>
-                                            <span>{{ \Carbon\Carbon::parse($participation->heure_arrivee)->format('H:i') }}</span>
-                                        @endif
+                                <!-- Statut et Type -->
+                                <div class="space-y-2">
+                                    @php
+                                        $statutColors = [
+                                            'present' => 'bg-green-100 text-green-800',
+                                            'present_partiel' => 'bg-yellow-100 text-yellow-800',
+                                            'en_retard' => 'bg-orange-100 text-orange-800',
+                                            'parti_tot' => 'bg-red-100 text-red-800',
+                                        ];
+                                    @endphp
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $statutColors[$participation->statut_presence] ?? 'bg-gray-100 text-gray-800' }}">
+                                        {{ $participation->statut_presence_libelle }}
+                                    </span>
+                                    <div class="text-sm text-slate-600">
+                                        <i class="fas fa-user-tag w-4 mr-1"></i>{{ $participation->role_culte_libelle }}
                                     </div>
-
-                                    <div class="flex items-center text-sm text-slate-600">
-                                        <i class="fas fa-user-tag w-4 mr-2"></i>
-                                        <span>{{ $participation->role_culte_libelle }}</span>
+                                    <div class="text-sm text-slate-600">
+                                        <i class="fas fa-laptop w-4 mr-1"></i>{{ $participation->type_participation_libelle }}
                                     </div>
+                                </div>
 
-                                    <div class="flex items-center text-sm text-slate-600">
-                                        <i class="fas fa-laptop w-4 mr-2"></i>
-                                        <span>{{ $participation->type_participation_libelle }}</span>
-                                    </div>
-
+                                <!-- Badges spéciaux -->
+                                <div class="space-y-2">
+                                    @if ($participation->premiere_visite)
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                                            <i class="fas fa-star mr-1"></i> Nouvelle visite
+                                        </span>
+                                    @endif
                                     @if ($participation->accompagnateur)
-                                        <div class="flex items-center text-sm text-slate-600">
-                                            <i class="fas fa-user-friends w-4 mr-2"></i>
-                                            <span>Accompagné par {{ $participation->accompagnateur->nom }}
-                                                {{ $participation->accompagnateur->prenom }}</span>
+                                        <div class="text-xs text-slate-500">
+                                            <i class="fas fa-user-friends mr-1"></i>
+                                            Accompagné par {{ $participation->accompagnateur->nom }}
                                         </div>
                                     @endif
-                                </div>
-
-                                <!-- Badges de suivi -->
-                                @if (
-                                    $participation->demande_contact_pastoral ||
-                                        $participation->interesse_bapteme ||
-                                        $participation->souhaite_devenir_membre)
-                                    <div class="flex flex-wrap gap-1 mb-4">
+                                    <!-- Badges de suivi -->
+                                    <div class="flex flex-wrap gap-1">
                                         @if ($participation->demande_contact_pastoral)
-                                            <span
-                                                class="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-blue-100 text-blue-800">
-                                                <i class="fas fa-praying-hands mr-1"></i> Contact pastoral
+                                            <span class="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">
+                                                <i class="fas fa-praying-hands mr-1"></i> Contact
                                             </span>
                                         @endif
                                         @if ($participation->interesse_bapteme)
-                                            <span
-                                                class="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-cyan-100 text-cyan-800">
+                                            <span class="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-cyan-100 text-cyan-800">
                                                 <i class="fas fa-water mr-1"></i> Baptême
                                             </span>
                                         @endif
                                         @if ($participation->souhaite_devenir_membre)
-                                            <span
-                                                class="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-green-100 text-green-800">
+                                            <span class="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">
                                                 <i class="fas fa-heart mr-1"></i> Membre
                                             </span>
                                         @endif
                                     </div>
-                                @endif
+                                </div>
 
                                 <!-- Actions -->
-                                <div class="flex items-center justify-between pt-4 border-t border-slate-200">
-                                    <div class="flex items-center space-x-2">
-                                        <a href="{{ route('private.participantscultes.show', [$participation->participant_id, $participation->culte_id]) }}"
-                                            class="inline-flex items-center justify-center w-8 h-8 text-cyan-600 bg-cyan-100 rounded-lg hover:bg-cyan-200 transition-colors"
-                                            title="Voir">
-                                            <i class="fas fa-eye text-sm"></i>
-                                        </a>
-                                        @can('participants-cultes.update')
+                                <div class="flex items-center justify-end lg:justify-start space-x-2">
+                                    <a href="{{ route('private.participantscultes.show', [$participation->participant_id, $participation->culte_id]) }}"
+                                        class="inline-flex items-center justify-center w-8 h-8 text-cyan-600 bg-cyan-100 rounded-lg hover:bg-cyan-200 transition-colors"
+                                        title="Voir">
+                                        <i class="fas fa-eye text-sm"></i>
+                                    </a>
+                                    @can('participants-cultes.update')
+                                        <button type="button"
+                                            onclick="editParticipation('{{ $participation->participant_id }}', '{{ $participation->culte_id }}')"
+                                            class="inline-flex items-center justify-center w-8 h-8 text-yellow-600 bg-yellow-100 rounded-lg hover:bg-yellow-200 transition-colors"
+                                            title="Modifier">
+                                            <i class="fas fa-edit text-sm"></i>
+                                        </button>
+                                    @endcan
+                                    @can('participants-cultes.confirm-presence')
+                                        @if (!$participation->presence_confirmee)
                                             <button type="button"
-                                                onclick="editParticipation('{{ $participation->participant_id }}', '{{ $participation->culte_id }}')"
-                                                class="inline-flex items-center justify-center w-8 h-8 text-yellow-600 bg-yellow-100 rounded-lg hover:bg-yellow-200 transition-colors"
-                                                title="Modifier">
-                                                <i class="fas fa-edit text-sm"></i>
+                                                onclick="confirmerPresence('{{ $participation->participant_id }}', '{{ $participation->culte_id }}')"
+                                                class="inline-flex items-center justify-center w-8 h-8 text-green-600 bg-green-100 rounded-lg hover:bg-green-200 transition-colors"
+                                                title="Confirmer">
+                                                <i class="fas fa-check text-sm"></i>
                                             </button>
-                                        @endcan
-                                        @can('participants-cultes.confirm-presence')
-                                            @if (!$participation->presence_confirmee)
-                                                <button type="button"
-                                                    onclick="confirmerPresence('{{ $participation->participant_id }}', '{{ $participation->culte_id }}')"
-                                                    class="inline-flex items-center justify-center w-8 h-8 text-green-600 bg-green-100 rounded-lg hover:bg-green-200 transition-colors"
-                                                    title="Confirmer">
-                                                    <i class="fas fa-check text-sm"></i>
-                                                </button>
-                                            @endif
-                                        @endcan
-                                    </div>
+                                        @endif
+                                    @endcan
                                     @can('participants-cultes.delete')
                                         <button type="button"
                                             onclick="deleteParticipation('{{ $participation->participant_id }}', '{{ $participation->culte_id }}')"
@@ -385,94 +501,135 @@
                                     @endcan
                                 </div>
                             </div>
-                        @endforeach
-                    </div>
-
-                    <!-- Pagination -->
-                    <div
-                        class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mt-6 pt-6 border-t border-slate-200">
-                        <div class="text-sm text-slate-700">
-                            Affichage de <span class="font-medium">{{ $participations->firstItem() }}</span> à <span
-                                class="font-medium">{{ $participations->lastItem() }}</span>
-                            sur <span class="font-medium">{{ $participations->total() }}</span> résultats
-                        </div>
-                        <div>
-                            {{ $participations->appends(request()->query())->links() }}
                         </div>
                     </div>
-                @else
-                    <div class="text-center py-12">
-                        <div class="w-24 h-24 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                            <i class="fas fa-users text-3xl text-slate-400"></i>
-                        </div>
-                        <h3 class="text-lg font-semibold text-slate-900 mb-2">Aucune participation trouvée</h3>
-                        <p class="text-slate-500 mb-6">
-                            @if (request()->hasAny(['participant_search', 'culte_id', 'statut_presence']))
-                                Aucune participation ne correspond à vos critères de recherche.
-                            @else
-                                Aucune participation enregistrée pour le moment.
-                            @endif
-                        </p>
-                    </div>
-                @endif
+                @endforeach
             </div>
-        </div>
+
+            <!-- Pagination -->
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mt-6 pt-6 border-t border-slate-200">
+                <div class="text-sm text-slate-700">
+                    Affichage de <span class="font-medium">{{ $participations->firstItem() }}</span> à <span class="font-medium">{{ $participations->lastItem() }}</span>
+                    sur <span class="font-medium">{{ $participations->total() }}</span> résultats
+                </div>
+                <div>
+                    {{ $participations->appends(request()->query())->links() }}
+                </div>
+            </div>
+        @else
+            <div class="text-center py-12">
+                <div class="w-24 h-24 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-users text-3xl text-slate-400"></i>
+                </div>
+                <h3 class="text-lg font-semibold text-slate-900 mb-2">Aucune participation trouvée</h3>
+                <p class="text-slate-500 mb-6">
+                    @if (request()->hasAny(['participant_search', 'culte_id', 'statut_presence']))
+                        Aucune participation ne correspond à vos critères de recherche.
+                    @else
+                        Aucune participation enregistrée pour le moment.
+                    @endif
+                </p>
+            </div>
+        @endif
+    </div>
+</div>
     </div>
 
     @push('scripts')
-        <script>
-            // Gestion du tri
-            document.getElementById('sortBy').addEventListener('change', function() {
-                updateSort();
-            });
+<script>
+// Gestion du tri
+document.getElementById('sortBy').addEventListener('change', function() {
+    updateSort();
+});
 
-            document.getElementById('sortOrder').addEventListener('change', function() {
-                updateSort();
-            });
+document.getElementById('sortOrder').addEventListener('change', function() {
+    updateSort();
+});
 
-            function updateSort() {
-                const sortBy = document.getElementById('sortBy').value;
-                const sortOrder = document.getElementById('sortOrder').value;
-                const url = new URL(window.location.href);
-                url.searchParams.set('sort_by', sortBy);
-                url.searchParams.set('sort_order', sortOrder);
-                window.location.href = url.toString();
-            }
+function updateSort() {
+    const sortBy = document.getElementById('sortBy').value;
+    const sortOrder = document.getElementById('sortOrder').value;
+    const url = new URL(window.location.href);
+    url.searchParams.set('sort_by', sortBy);
+    url.searchParams.set('sort_order', sortOrder);
+    window.location.href = url.toString();
+}
 
-            // Confirmer présence
-            function confirmerPresence(participantId, culteId) {
-                if (confirm('Confirmer la présence de ce participant ?')) {
-                    fetch(`{{ route('private.participantscultes.confirmer-presence', [':participant', ':culte']) }}`.replace(
+// Gestion du toggle vue Liste/Grille
+document.addEventListener('DOMContentLoaded', function() {
+    const listViewBtn = document.getElementById('listViewBtn');
+    const gridViewBtn = document.getElementById('gridViewBtn');
+    const listView = document.getElementById('listView');
+    const gridView = document.getElementById('gridView');
+
+    // Récupérer la préférence sauvegardée ou utiliser 'list' par défaut
+    let currentView = localStorage.getItem('participationsView') || 'list';
+
+    // Appliquer la vue au chargement
+    setView(currentView);
+
+    // Événements des boutons
+    listViewBtn.addEventListener('click', function() {
+        setView('list');
+        localStorage.setItem('participationsView', 'list');
+    });
+
+    gridViewBtn.addEventListener('click', function() {
+        setView('grid');
+        localStorage.setItem('participationsView', 'grid');
+    });
+
+    function setView(view) {
+        if (view === 'list') {
+            // Vue Liste active
+            listViewBtn.className = 'flex items-center px-3 py-2 rounded-md text-sm font-medium transition-all duration-200 bg-blue-600 text-white';
+            gridViewBtn.className = 'flex items-center px-3 py-2 rounded-md text-sm font-medium transition-all duration-200 text-slate-600 hover:text-slate-900';
+            listView.classList.remove('hidden');
+            gridView.classList.add('hidden');
+        } else {
+            // Vue Grille active
+            gridViewBtn.className = 'flex items-center px-3 py-2 rounded-md text-sm font-medium transition-all duration-200 bg-blue-600 text-white';
+            listViewBtn.className = 'flex items-center px-3 py-2 rounded-md text-sm font-medium transition-all duration-200 text-slate-600 hover:text-slate-900';
+            gridView.classList.remove('hidden');
+            listView.classList.add('hidden');
+        }
+    }
+});
+
+// Confirmer présence
+function confirmerPresence(participantId, culteId) {
+    if (confirm('Confirmer la présence de ce participant ?')) {
+        fetch(`{{ route('private.participantscultes.confirmer-presence', [':participant', ':culte']) }}`.replace(
                             ':participant', participantId).replace(':culte', culteId), {
-                            method: 'PATCH',
-                            headers: {
-                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                                'Accept': 'application/json'
-                            }
-                        })
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.success) {
-                                location.reload();
-                            } else {
-                                alert(data.message || 'Une erreur est survenue');
-                            }
-                        })
-                        .catch(error => {
-                            console.error('Erreur:', error);
-                            alert('Une erreur est survenue');
-                        });
+                method: 'PATCH',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    'Accept': 'application/json'
                 }
-            }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    location.reload();
+                } else {
+                    alert(data.message || 'Une erreur est survenue');
+                }
+            })
+            .catch(error => {
+                console.error('Erreur:', error);
+                alert('Une erreur est survenue');
+            });
+    }
+}
 
             // Supprimer participation
             function deleteParticipation(participantId, culteId) {
                 if (confirm('Êtes-vous sûr de vouloir supprimer cette participation ?')) {
                     fetch(`{{ route('private.participantscultes.destroy', [':participant', ':culte']) }}`.replace(
-                            ':participant', participantId).replace(':culte', culteId), {
+                                        ':participant', participantId).replace(':culte', culteId), {
                             method: 'DELETE',
                             headers: {
-                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
                                 'Accept': 'application/json'
                             }
                         })
@@ -493,8 +650,10 @@
 
             function editParticipation(participantId, culteId) {
                 // Redirection vers la page de modification ou ouverture d'un modal
+                alert("En cours d'implementation");
+                return;
                 window.location.href = `/private/participants-cultes/${participantId}/${culteId}`;
             }
-        </script>
+</script>
     @endpush
 @endsection

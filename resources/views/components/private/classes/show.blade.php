@@ -1,956 +1,1483 @@
 @extends('layouts.private.main')
-@section('title', 'Classe - ' . $classe->nom)
+@section('title', $classe->nom)
 
 @section('content')
     <div class="space-y-8">
-        <!-- Page Title & Breadcrumb -->
+        <!-- En-tête de page -->
         <div class="mb-8">
-            <div class="flex items-center justify-between">
-                <div>
-                    <h1
-                        class="text-3xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent">
-                        {{ $classe->nom }}</h1>
-                    <nav class="flex mt-2" aria-label="Breadcrumb">
-                        <ol class="inline-flex items-center space-x-1 md:space-x-3">
-                            <li class="inline-flex items-center">
-                                <a href="{{ route('private.classes.index') }}"
-                                    class="inline-flex items-center text-sm font-medium text-slate-700 hover:text-blue-600 transition-colors">
-                                    <i class="fas fa-chalkboard-teacher mr-2"></i>
-                                    Classes
-                                </a>
-                            </li>
-                            <li>
-                                <div class="flex items-center">
-                                    <i class="fas fa-chevron-right text-slate-400 mx-2"></i>
-                                    <span class="text-sm font-medium text-slate-500">{{ $classe->nom }}</span>
-                                </div>
-                            </li>
-                        </ol>
-                    </nav>
+            <div class="flex items-center space-x-4 mb-4">
+                <a href="{{ route('private.classes.index') }}"
+                   class="inline-flex items-center text-slate-600 hover:text-slate-900 transition-colors">
+                    <i class="fas fa-arrow-left mr-2"></i>
+                    Retour à la liste
+                </a>
+            </div>
+
+            <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+                <div class="flex items-center space-x-6">
+                    <!-- Image de la classe -->
+                    <div class="flex-shrink-0">
+                        @if($classe->image_classe)
+                            <img src="{{ asset('storage/' . $classe->image_classe) }}" alt="{{ $classe->nom }}"
+                                class="w-24 h-24 object-cover rounded-2xl shadow-lg">
+                        @else
+                            <div class="w-24 h-24 bg-gradient-to-br from-blue-400 to-purple-500 rounded-2xl flex items-center justify-center shadow-lg">
+                                <i class="fas fa-chalkboard-teacher text-3xl text-white"></i>
+                            </div>
+                        @endif
+                    </div>
+
+                    <div>
+                        <h1 class="text-3xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent">
+                            {{ $classe->nom }}
+                        </h1>
+
+                        <div class="flex items-center space-x-4 mt-2">
+                            @if($classe->tranche_age)
+                                <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
+                                    {{ $classe->tranche_age }}
+                                </span>
+                            @endif
+
+                            @if($classe->responsables && count($classe->responsables) > 0)
+                                <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
+                                    <i class="fas fa-check mr-1"></i> Active
+                                </span>
+                            @else
+                                <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-yellow-100 text-yellow-800">
+                                    <i class="fas fa-clock mr-1"></i> En attente
+                                </span>
+                            @endif
+                        </div>
+
+                        @if($classe->description)
+                            <p class="text-slate-600 mt-3 max-w-2xl">{{ $classe->description }}</p>
+                        @endif
+                    </div>
                 </div>
-                <div class="flex items-center space-x-3">
+
+                <!-- Actions -->
+                <div class="flex flex-wrap gap-3">
                     @can('classes.update')
                         <a href="{{ route('private.classes.edit', $classe) }}"
                             class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-yellow-500 to-orange-500 text-white text-sm font-medium rounded-xl hover:from-yellow-600 hover:to-orange-600 transition-all duration-200 shadow-md hover:shadow-lg">
                             <i class="fas fa-edit mr-2"></i> Modifier
                         </a>
                     @endcan
+
                     @can('classes.export')
                         <div class="relative">
-                            <button onclick="toggleExportMenu()"
+                            <button type="button" onclick="toggleExportMenu()"
                                 class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-green-500 to-emerald-500 text-white text-sm font-medium rounded-xl hover:from-green-600 hover:to-emerald-600 transition-all duration-200 shadow-md hover:shadow-lg">
                                 <i class="fas fa-download mr-2"></i> Exporter
                                 <i class="fas fa-chevron-down ml-2"></i>
                             </button>
-                            <div id="exportMenu"
-                                class="hidden absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border border-slate-200 z-10">
+                            <div id="exportMenu" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border border-slate-200 z-10">
                                 <div class="py-2">
-                                    <a href="{{ route('private.classes.export', $classe->id) }}?format=csv"
-                                        class="block px-4 py-2 text-sm text-slate-700 hover:bg-slate-50">
-                                        <i class="fas fa-file-csv mr-2"></i> Export CSV
+                                    <a href="{{ route('private.classes.export', ['classe' => $classe, 'format' => 'csv']) }}"
+                                        class="block px-4 py-2 text-sm text-slate-700 hover:bg-slate-100 transition-colors">
+                                        <i class="fas fa-file-csv mr-2"></i> CSV
                                     </a>
-                                    <a href="{{ route('private.classes.export', $classe->id) }}?format=excel"
-                                        class="block px-4 py-2 text-sm text-slate-700 hover:bg-slate-50">
-                                        <i class="fas fa-file-excel mr-2"></i> Export Excel
+                                    <a href="{{ route('private.classes.export', ['classe' => $classe, 'format' => 'excel']) }}"
+                                        class="block px-4 py-2 text-sm text-slate-700 hover:bg-slate-100 transition-colors">
+                                        <i class="fas fa-file-excel mr-2"></i> Excel
                                     </a>
-                                    <a href="{{ route('private.classes.export', $classe->id) }}?format=pdf"
-                                        class="block px-4 py-2 text-sm text-slate-700 hover:bg-slate-50">
-                                        <i class="fas fa-file-pdf mr-2"></i> Export PDF
+                                    <a href="{{ route('private.classes.export', ['classe' => $classe, 'format' => 'pdf']) }}"
+                                        class="block px-4 py-2 text-sm text-slate-700 hover:bg-slate-100 transition-colors">
+                                        <i class="fas fa-file-pdf mr-2"></i> PDF
                                     </a>
                                 </div>
                             </div>
                         </div>
                     @endcan
+
+                    @can('classes.duplicate')
+                        <form action="{{ route('private.classes.duplicate', $classe) }}" method="POST" class="inline">
+                            @csrf
+                            <button type="submit" onclick="return confirm('Voulez-vous dupliquer cette classe ?')"
+                                class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-cyan-500 to-blue-500 text-white text-sm font-medium rounded-xl hover:from-cyan-600 hover:to-blue-600 transition-all duration-200 shadow-md hover:shadow-lg">
+                                <i class="fas fa-copy mr-2"></i> Dupliquer
+                            </button>
+                        </form>
+                    @endcan
+                </div>
+            </div>
+        </div>
+
+        <!-- Statistiques rapides -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div class="bg-white/80 rounded-2xl shadow-lg p-6 border border-white/20 hover:shadow-xl transition-all duration-300">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <div class="w-12 h-12 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-xl flex items-center justify-center shadow-lg">
+                            <i class="fas fa-users text-white text-xl"></i>
+                        </div>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-2xl font-bold text-slate-800">{{ $classe->nombre_inscrits }}</p>
+                        <p class="text-sm text-slate-500">Membres inscrits</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white/80 rounded-2xl shadow-lg p-6 border border-white/20 hover:shadow-xl transition-all duration-300">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <div class="w-12 h-12 bg-gradient-to-r from-green-500 to-emerald-500 rounded-xl flex items-center justify-center shadow-lg">
+                            <i class="fas fa-user-tie text-white text-xl"></i>
+                        </div>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-2xl font-bold text-slate-800">{{ count($classe->responsables ?? []) }}</p>
+                        <p class="text-sm text-slate-500">Responsables</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white/80 rounded-2xl shadow-lg p-6 border border-white/20 hover:shadow-xl transition-all duration-300">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <div class="w-12 h-12 bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl flex items-center justify-center shadow-lg">
+                            <i class="fas fa-calendar text-white text-xl"></i>
+                        </div>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-lg font-bold text-slate-800">
+                            @if($classe->age_minimum && $classe->age_maximum)
+                                {{ $classe->age_minimum }}-{{ $classe->age_maximum }} ans
+                            @elseif($classe->age_minimum)
+                                {{ $classe->age_minimum }}+ ans
+                            @elseif($classe->age_maximum)
+                                Jusqu'à {{ $classe->age_maximum }} ans
+                            @else
+                                Tous âges
+                            @endif
+                        </p>
+                        <p class="text-sm text-slate-500">Tranche d'âge</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white/80 rounded-2xl shadow-lg p-6 border border-white/20 hover:shadow-xl transition-all duration-300">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <div class="w-12 h-12 bg-gradient-to-r from-yellow-500 to-orange-500 rounded-xl flex items-center justify-center shadow-lg">
+                            <i class="fas fa-book text-white text-xl"></i>
+                        </div>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-2xl font-bold text-slate-800">{{ count($classe->programme ?? []) }}</p>
+                        <p class="text-sm text-slate-500">Éléments du programme</p>
+                    </div>
                 </div>
             </div>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <!-- Informations principales -->
+            <!-- Colonne principale -->
             <div class="lg:col-span-2 space-y-8">
-                <!-- Carte principale -->
-                <div
-                    class="bg-white/80 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300 overflow-hidden">
-                    <!-- Image de couverture -->
-                    <div class="relative h-64 bg-gradient-to-br from-blue-400 to-purple-500">
-                        @if ($classe->image_classe)
-                            <img src="{{ Storage::url($classe->image_classe) }}" alt="{{ $classe->nom }}"
-                                class="w-full h-full object-cover">
-                        @else
-                            <div class="w-full h-full flex items-center justify-center">
-                                <i class="fas fa-chalkboard-teacher text-8xl text-white/80"></i>
-                            </div>
-                        @endif
-                        <div class="absolute inset-0 bg-black/20"></div>
-                        <div class="absolute bottom-4 left-4 right-4">
-                            <div class="flex items-end justify-between">
-                                <div>
-                                    <h2 class="text-2xl font-bold text-white">{{ $classe->nom }}</h2>
-                                    @if ($classe->tranche_age)
-                                        <p class="text-white/90 mt-1">{{ $classe->tranche_age }}</p>
-                                    @endif
-                                </div>
-                                @if ($classe->responsable_id)
-                                    <span
-                                        class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-500 text-white">
-                                        <i class="fas fa-check mr-1"></i> Active
-                                    </span>
-                                @else
-                                    <span
-                                        class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-yellow-500 text-white">
-                                        <i class="fas fa-clock mr-1"></i> En attente
-                                    </span>
-                                @endif
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Contenu -->
-                    <div class="p-6">
-                        @if ($classe->description)
-                            <div class="mb-6">
-                                <h3 class="text-lg font-semibold text-slate-900 mb-2 flex items-center">
-                                    <i class="fas fa-align-left text-blue-600 mr-2"></i>
-                                    Description
-                                </h3>
-                                <p class="text-slate-700 leading-relaxed">{{ $classe->description }}</p>
-                            </div>
-                        @endif
-
-                        <!-- Informations détaillées -->
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div class="space-y-4">
-                                @if ($classe->age_minimum || $classe->age_maximum)
-                                    <div>
-                                        <h4 class="text-sm font-medium text-slate-500 uppercase tracking-wider">Tranche
-                                            d'âge</h4>
-                                        <p class="text-lg font-semibold text-slate-900">
-                                            @if ($classe->age_minimum && $classe->age_maximum)
-                                                {{ $classe->age_minimum }} - {{ $classe->age_maximum }} ans
-                                            @elseif($classe->age_minimum)
-                                                {{ $classe->age_minimum }}+ ans
-                                            @elseif($classe->age_maximum)
-                                                Jusqu'à {{ $classe->age_maximum }} ans
-                                            @endif
-                                        </p>
-                                    </div>
-                                @endif
-
-                                <div>
-                                    <h4 class="text-sm font-medium text-slate-500 uppercase tracking-wider">Date de création
-                                    </h4>
-                                    <p class="text-lg font-semibold text-slate-900">
-                                        {{ $classe->created_at->format('d/m/Y') }}</p>
-                                </div>
-                            </div>
-
-                            <div class="space-y-4">
-                                <div>
-                                    <h4 class="text-sm font-medium text-slate-500 uppercase tracking-wider">Capacité</h4>
-                                    <p class="text-lg font-semibold text-slate-900">50 personnes max</p>
-                                </div>
-
-                                <div>
-                                    <h4 class="text-sm font-medium text-slate-500 uppercase tracking-wider">Dernière mise à
-                                        jour</h4>
-                                    <p class="text-lg font-semibold text-slate-900">
-                                        {{ $classe->updated_at->format('d/m/Y à H:i') }}</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
                 <!-- Responsables -->
-                <div
-                    class="bg-white/80 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
-                    <div class="p-6 border-b border-slate-200">
-                        <h3 class="text-xl font-bold text-slate-800 flex items-center">
-                            <i class="fas fa-users text-green-600 mr-2"></i>
-                            Équipe de Direction
-                        </h3>
-                    </div>
-                    <div class="p-6">
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <!-- Responsable -->
-                            <div class="p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border border-blue-200">
-                                <div class="flex items-center space-x-4">
-                                    <div
-                                        class="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center text-white font-bold text-lg">
-                                        @if ($classe->responsable)
-                                            {{ substr($classe->responsable->prenom, 0, 1) }}{{ substr($classe->responsable->nom, 0, 1) }}
-                                        @else
-                                            <i class="fas fa-user-plus"></i>
-                                        @endif
-                                    </div>
-                                    <div class="flex-1">
-                                        <h4 class="font-semibold text-slate-900">Responsable</h4>
-                                        @if ($classe->responsable)
-                                            <p class="text-slate-700">{{ $classe->responsable->nom_complet }}</p>
-                                            <p class="text-sm text-slate-500">{{ $classe->responsable->email }}</p>
-                                        @else
-                                            <p class="text-slate-500">Aucun responsable assigné</p>
-                                            @can('classes.assign-leaders')
-                                                <button onclick="assignResponsable()"
-                                                    class="text-blue-600 hover:text-blue-800 text-sm font-medium">
-                                                    Assigner un responsable
-                                                </button>
-                                            @endcan
-                                        @endif
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Enseignant -->
-                            <div
-                                class="p-4 bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl border border-green-200">
-                                <div class="flex items-center space-x-4">
-                                    <div
-                                        class="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center text-white font-bold text-lg">
-                                        @if ($classe->enseignantPrincipal)
-                                            {{ substr($classe->enseignantPrincipal->prenom, 0, 1) }}{{ substr($classe->enseignantPrincipal->nom, 0, 1) }}
-                                        @else
-                                            <i class="fas fa-chalkboard-teacher"></i>
-                                        @endif
-                                    </div>
-                                    <div class="flex-1">
-                                        <h4 class="font-semibold text-slate-900">Enseignant Principal</h4>
-                                        @if ($classe->enseignantPrincipal)
-                                            <p class="text-slate-700">{{ $classe->enseignantPrincipal->nom_complet }}</p>
-                                            <p class="text-sm text-slate-500">{{ $classe->enseignantPrincipal->email }}</p>
-                                        @else
-                                            <p class="text-slate-500">Aucun enseignant assigné</p>
-                                            @can('classes.assign-leaders')
-                                                <button onclick="assignEnseignant()"
-                                                    class="text-green-600 hover:text-green-800 text-sm font-medium">
-                                                    Assigner un enseignant
-                                                </button>
-                                            @endcan
-                                        @endif
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Membres de la classe -->
-                <div
-                    class="bg-white/80 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
+                <div class="bg-white/80 rounded-2xl shadow-lg border border-white/20">
                     <div class="p-6 border-b border-slate-200">
                         <div class="flex items-center justify-between">
-                            <h3 class="text-xl font-bold text-slate-800 flex items-center">
-                                <i class="fas fa-user-friends text-purple-600 mr-2"></i>
-                                Membres ({{ $classe->membres->count() }})
-                            </h3>
-                            <div class="flex items-center space-x-2">
-                                @can('classes.manage-members')
-                                    <button onclick="showAddMemberModal()"
-                                        class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-500 text-white text-sm font-medium rounded-xl hover:from-blue-600 hover:to-purple-600 transition-all duration-200">
-                                        <i class="fas fa-user-plus mr-2"></i> Ajouter un membre
-                                    </button>
-                                    <button onclick="showBulkAddModal()"
-                                        class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-green-500 to-emerald-500 text-white text-sm font-medium rounded-xl hover:from-green-600 hover:to-emerald-600 transition-all duration-200">
-                                        <i class="fas fa-users mr-2"></i> Ajout groupé
-                                    </button>
-                                @endcan
-                                @if ($classe->membres->count() > 6)
-                                    <a href="{{ route('private.classes.membres', $classe) }}"
-                                        class="inline-flex items-center px-4 py-2 bg-slate-600 text-white text-sm font-medium rounded-xl hover:bg-slate-700 transition-all duration-200">
-                                        <i class="fas fa-list mr-2"></i> Voir tous
-                                    </a>
-                                @endif
-                            </div>
+                            <h2 class="text-xl font-bold text-slate-800 flex items-center">
+                                <i class="fas fa-user-tie text-green-600 mr-2"></i>
+                                Responsables de la classe
+                            </h2>
+                            @can('classes.update')
+                                <button onclick="showManageResponsablesModal()"
+                                    class="inline-flex items-center px-3 py-2 bg-green-100 text-green-700 rounded-lg hover:bg-green-200 transition-colors text-sm">
+                                    <i class="fas fa-plus mr-2"></i> Gérer
+                                </button>
+                            @endcan
                         </div>
                     </div>
+
                     <div class="p-6">
-                        @if ($classe->membres->count() > 0)
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                @foreach ($classe->membres->take(6) as $membre)
-                                    <div
-                                        class="flex items-center justify-between p-4 bg-slate-50 rounded-xl hover:bg-slate-100 transition-colors">
-                                        <div class="flex items-center space-x-3">
-                                            <div
-                                                class="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white font-medium">
-                                                {{ substr($membre->prenom, 0, 1) }}{{ substr($membre->nom, 0, 1) }}
+                        @if($classe->responsables && count($classe->responsables) > 0)
+                            <div class="space-y-4">
+                                @foreach($classe->responsables_collection as $responsable)
+                                    <div class="flex items-center justify-between p-4 bg-slate-50 rounded-xl">
+                                        <div class="flex items-center space-x-4">
+                                            <div class="w-12 h-12 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full flex items-center justify-center text-white font-semibold">
+                                                {{ substr($responsable->prenom, 0, 1) }}{{ substr($responsable->nom, 0, 1) }}
                                             </div>
                                             <div>
-                                                <p class="font-medium text-slate-900">{{ $membre->nom_complet }}</p>
-                                                <p class="text-sm text-slate-500">{{ $membre->email }}</p>
-                                                @if ($membre->telephone_1)
-                                                    <p class="text-sm text-slate-500">{{ $membre->telephone_1 }}</p>
-                                                @endif
-                                                @if ($membre->date_naissance)
-                                                    <p class="text-xs text-slate-400">
-                                                        {{ $membre->date_naissance->diffInYears(now()) }} ans</p>
-                                                @endif
+                                                <h3 class="font-semibold text-slate-900">{{ $responsable->prenom }} {{ $responsable->nom }}</h3>
+
+                                                <div class="flex items-center space-x-3 text-sm">
+
+
+
+
+
+                                                    <span class="inline-flex items-center px-2 py-1 rounded-lg text-xs font-medium bg-blue-100 text-blue-800">
+                                                        {{ ucfirst($responsable->responsabilite) }}
+                                                    </span>
+                                                    @if($responsable->superieur)
+                                                        <span class="inline-flex items-center px-2 py-1 rounded-lg text-xs font-medium bg-yellow-100 text-yellow-800">
+                                                            <i class="fas fa-crown mr-1"></i> Supérieur
+                                                        </span>
+                                                    @endif
+                                                </div>
+                                                <p class="text-sm text-slate-500">{{ $responsable->email }}</p>
                                             </div>
                                         </div>
-                                        @can('classes.manage-members')
-                                            <button onclick="removeMember('{{ $membre->id }}')"
-                                                class="text-red-600 hover:text-red-800 p-2 rounded-lg hover:bg-red-50 transition-colors">
+                                        @can('classes.update')
+                                            <button onclick="removeResponsable('{{ $responsable->id }}')"
+                                                class="text-red-600 hover:text-red-800 p-2">
                                                 <i class="fas fa-times"></i>
                                             </button>
                                         @endcan
                                     </div>
                                 @endforeach
                             </div>
-                            @if($classe->membres->count() > 6)
-                                <div class="mt-4 text-center">
-                                    <p class="text-sm text-slate-500">Affichage des 6 premiers membres</p>
-                                    <a href="{{ route('private.classes.membres', $classe) }}"
-                                        class="text-blue-600 hover:text-blue-800 text-sm font-medium">
-                                        Voir tous les {{ $classe->membres->count() }} membres
-                                    </a>
-                                </div>
-                            @endif
                         @else
-                            <div class="text-center py-12">
-                                <div
-                                    class="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                                    <i class="fas fa-user-friends text-2xl text-slate-400"></i>
-                                </div>
-                                <h4 class="text-lg font-semibold text-slate-900 mb-2">Aucun membre inscrit</h4>
-                                <p class="text-slate-500 mb-4">Cette classe n'a pas encore de membres inscrits.</p>
-                                @can('classes.manage-members')
-                                    <div class="flex items-center justify-center space-x-3">
-                                        <button onclick="showAddMemberModal()"
-                                            class="inline-flex items-center px-4 py-2 bg-blue-600 text-white font-medium rounded-xl hover:bg-blue-700 transition-colors">
-                                            <i class="fas fa-user-plus mr-2"></i> Ajouter le premier membre
-                                        </button>
-                                        <button onclick="showBulkAddModal()"
-                                            class="inline-flex items-center px-4 py-2 bg-green-600 text-white font-medium rounded-xl hover:bg-green-700 transition-colors">
-                                            <i class="fas fa-users mr-2"></i> Ajout groupé
-                                        </button>
-                                    </div>
+                            <div class="text-center py-8">
+                                <i class="fas fa-user-tie text-3xl text-slate-400 mb-3"></i>
+                                <p class="text-slate-500">Aucun responsable assigné à cette classe</p>
+                                @can('classes.update')
+                                    <button onclick="showManageResponsablesModal()"
+                                        class="mt-3 inline-flex items-center px-4 py-2 bg-green-100 text-green-700 rounded-lg hover:bg-green-200 transition-colors">
+                                        <i class="fas fa-plus mr-2"></i> Ajouter un responsable
+                                    </button>
                                 @endcan
                             </div>
                         @endif
                     </div>
                 </div>
 
-                <!-- Programme -->
-                @if ($classe->programme && is_array($classe->programme) && count($classe->programme) > 0)
-                    <div
-                        class="bg-white/80 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
-                        <div class="p-6 border-b border-slate-200">
-                            <h3 class="text-xl font-bold text-slate-800 flex items-center">
-                                <i class="fas fa-book text-amber-600 mr-2"></i>
-                                Programme de la Classe
-                            </h3>
+                <!-- Membres de la classe -->
+                <div class="bg-white/80 rounded-2xl shadow-lg border border-white/20">
+                    <div class="p-6 border-b border-slate-200">
+                        <div class="flex items-center justify-between">
+                            <h2 class="text-xl font-bold text-slate-800 flex items-center">
+                                <i class="fas fa-users text-blue-600 mr-2"></i>
+                                Membres de la classe ({{ $classe->nombre_inscrits }})
+                            </h2>
+                            @can('classes.manage-members')
+                                <div class="flex items-center space-x-2">
+                                    <button onclick="showAddMembersModal()"
+                                        class="inline-flex items-center px-3 py-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition-colors text-sm">
+                                        <i class="fas fa-user-plus mr-2"></i> Ajouter
+                                    </button>
+                                    <button onclick="showMembersListModal()"
+                                        class="inline-flex items-center px-3 py-2 bg-purple-100 text-purple-700 rounded-lg hover:bg-purple-200 transition-colors text-sm">
+                                        <i class="fas fa-list mr-2"></i> Voir tout
+                                    </button>
+                                </div>
+                            @endcan
                         </div>
-                        <div class="p-6">
-                            <div class="space-y-4">
-                                @foreach ($classe->programme as $index => $lecon)
-                                    <div
-                                        class="p-4 border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors">
-                                        <div class="flex items-start justify-between">
-                                            <div class="flex-1">
-                                                <h4 class="font-semibold text-slate-900 flex items-center">
-                                                    <span
-                                                        class="w-6 h-6 bg-blue-500 text-white rounded-full flex items-center justify-center text-sm font-bold mr-3">{{ $index + 1 }}</span>
-                                                    {{ $lecon['titre'] ?? 'Leçon sans titre' }}
-                                                </h4>
-                                                @if (isset($lecon['description']))
-                                                    <p class="text-slate-600 mt-2 ml-9">{{ $lecon['description'] }}</p>
-                                                @endif
-                                            </div>
-                                            @if (isset($lecon['duree']))
-                                                <span
-                                                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 ml-4">
-                                                    <i class="fas fa-clock mr-1"></i> {{ $lecon['duree'] }} min
-                                                </span>
-                                            @endif
+                    </div>
+
+                    <div class="p-6">
+                        @if($classe->membres->count() > 0)
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                @foreach($classe->membres->take(6) as $membre)
+                                    <div class="flex items-center space-x-3 p-3 bg-slate-50 rounded-lg hover:bg-slate-100 transition-colors">
+                                        <div class="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white font-semibold text-sm">
+                                            {{ substr($membre->prenom, 0, 1) }}{{ substr($membre->nom, 0, 1) }}
                                         </div>
+                                        <div class="flex-1 min-w-0">
+                                            <p class="font-medium text-slate-900 truncate">{{ $membre->prenom }} {{ $membre->nom }}</p>
+                                            <p class="text-sm text-slate-500 truncate">{{ $membre->email }}</p>
+                                        </div>
+                                        @can('classes.manage-members')
+                                            <button onclick="removeMember('{{ $membre->id }}')"
+                                                class="text-red-600 hover:text-red-800 p-1">
+                                                <i class="fas fa-times text-sm"></i>
+                                            </button>
+                                        @endcan
                                     </div>
                                 @endforeach
                             </div>
-                        </div>
+
+                            @if($classe->membres->count() > 6)
+                                <div class="mt-4 text-center">
+                                    <button onclick="showMembersListModal()"
+                                        class="text-blue-600 hover:text-blue-800 text-sm font-medium">
+                                        Voir les {{ $classe->membres->count() - 6 }} autres membres
+                                    </button>
+                                </div>
+                            @endif
+                        @else
+                            <div class="text-center py-8">
+                                <i class="fas fa-users text-3xl text-slate-400 mb-3"></i>
+                                <p class="text-slate-500 mb-4">Aucun membre inscrit dans cette classe</p>
+                                @can('classes.manage-members')
+                                    <button onclick="showAddMembersModal()"
+                                        class="inline-flex items-center px-4 py-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition-colors">
+                                        <i class="fas fa-user-plus mr-2"></i> Ajouter des membres
+                                    </button>
+                                @endcan
+                            </div>
+                        @endif
                     </div>
-                @endif
+                </div>
             </div>
 
-            <!-- Sidebar avec statistiques -->
-            <div class="space-y-6">
-                <!-- Statistiques -->
-                <div
-                    class="bg-white/80 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
+            <!-- Colonne secondaire -->
+            <div class="space-y-8">
+                <!-- Programme -->
+                <div class="bg-white/80 rounded-2xl shadow-lg border border-white/20">
                     <div class="p-6 border-b border-slate-200">
-                        <h3 class="text-xl font-bold text-slate-800 flex items-center">
-                            <i class="fas fa-chart-pie text-indigo-600 mr-2"></i>
-                            Statistiques
-                        </h3>
+                        <h2 class="text-xl font-bold text-slate-800 flex items-center">
+                            <i class="fas fa-book text-purple-600 mr-2"></i>
+                            Programme
+                        </h2>
                     </div>
-                    <div class="p-6 space-y-6">
-                        <!-- Inscrits -->
-                        <div class="text-center">
-                            <div class="text-3xl font-bold text-blue-600">{{ $classe->nombre_inscrits }}</div>
-                            <div class="text-sm text-slate-500 uppercase tracking-wider">Membres inscrits</div>
-                        </div>
 
-                        <!-- Places disponibles -->
-                        <div class="text-center">
-                            <div class="text-3xl font-bold text-green-600">
-                                {{ $classe->places_disponibles ?? 50 - $classe->nombre_inscrits }}</div>
-                            <div class="text-sm text-slate-500 uppercase tracking-wider">Places disponibles</div>
-                        </div>
-
-                        <!-- Taux de remplissage -->
-                        <div>
-                            @php
-                                $pourcentage = round(($classe->nombre_inscrits / 50) * 100, 1);
-                            @endphp
-                            <div class="flex justify-between text-sm font-medium text-slate-700 mb-2">
-                                <span>Taux de remplissage</span>
-                                <span>{{ $pourcentage }}%</span>
+                    <div class="p-6">
+                        @if($classe->programme && count($classe->programme) > 0)
+                            <div class="space-y-3">
+                                @foreach($classe->programme as $index => $element)
+                                    <div class="flex items-start space-x-3">
+                                        <span class="inline-flex items-center justify-center w-6 h-6 bg-purple-100 text-purple-600 rounded-full text-xs font-medium mt-0.5">
+                                            {{ $index + 1 }}
+                                        </span>
+                                        <p class="text-slate-700 flex-1">{{ $element }}</p>
+                                    </div>
+                                @endforeach
                             </div>
-                            <div class="w-full bg-slate-200 rounded-full h-3">
-                                <div class="bg-gradient-to-r from-blue-500 to-purple-500 h-3 rounded-full transition-all duration-300"
-                                    style="width: {{ min($pourcentage, 100) }}%"></div>
+                        @else
+                            <div class="text-center py-6">
+                                <i class="fas fa-book-open text-2xl text-slate-400 mb-2"></i>
+                                <p class="text-slate-500">Aucun programme défini</p>
                             </div>
+                        @endif
+                    </div>
+                </div>
+
+                <!-- Informations complémentaires -->
+                <div class="bg-white/80 rounded-2xl shadow-lg border border-white/20">
+                    <div class="p-6 border-b border-slate-200">
+                        <h2 class="text-xl font-bold text-slate-800 flex items-center">
+                            <i class="fas fa-info-circle text-cyan-600 mr-2"></i>
+                            Informations
+                        </h2>
+                    </div>
+
+                    <div class="p-6 space-y-4">
+                        <div class="flex justify-between">
+                            <span class="text-slate-600">Date de création:</span>
+                            <span class="font-medium text-slate-900">{{ $classe->created_at->format('d/m/Y') }}</span>
                         </div>
 
-                        <!-- Statut -->
-                        <div
-                            class="text-center p-3 rounded-xl {{ $classe->nombre_inscrits >= 50 ? 'bg-red-50 border border-red-200' : 'bg-green-50 border border-green-200' }}">
-                            @if($classe->nombre_inscrits >= 50)
-                                <i class="fas fa-exclamation-circle text-red-600 text-2xl mb-2"></i>
-                                <div class="text-red-800 font-semibold">Classe complète</div>
-                            @else
-                                <i class="fas fa-check-circle text-green-600 text-2xl mb-2"></i>
-                                <div class="text-green-800 font-semibold">Places disponibles</div>
-                            @endif
+                        <div class="flex justify-between">
+                            <span class="text-slate-600">Dernière modification:</span>
+                            <span class="font-medium text-slate-900">{{ $classe->updated_at->format('d/m/Y à H:i') }}</span>
+                        </div>
+
+                        @if($classe->age_minimum || $classe->age_maximum)
+                            <div class="flex justify-between">
+                                <span class="text-slate-600">Âge requis:</span>
+                                <span class="font-medium text-slate-900">
+                                    @if($classe->age_minimum && $classe->age_maximum)
+                                        {{ $classe->age_minimum }} - {{ $classe->age_maximum }} ans
+                                    @elseif($classe->age_minimum)
+                                        {{ $classe->age_minimum }}+ ans
+                                    @else
+                                        Jusqu'à {{ $classe->age_maximum }} ans
+                                    @endif
+                                </span>
+                            </div>
+                        @endif
+
+                        <div class="flex justify-between">
+                            <span class="text-slate-600">Capacité:</span>
+                            <span class="font-medium text-green-600">Illimitée</span>
+                        </div>
+
+                        <div class="pt-4 border-t border-slate-200">
+                            <div class="flex justify-between mb-2">
+                                <span class="text-slate-600">Statut:</span>
+                                @if($classe->responsables && count($classe->responsables) > 0)
+                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                        <i class="fas fa-check mr-1"></i> Active
+                                    </span>
+                                @else
+                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                        <i class="fas fa-clock mr-1"></i> En attente
+                                    </span>
+                                @endif
+                            </div>
                         </div>
                     </div>
                 </div>
 
                 <!-- Actions rapides -->
-                <div
-                    class="bg-white/80 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
+                <div class="bg-white/80 rounded-2xl shadow-lg border border-white/20">
                     <div class="p-6 border-b border-slate-200">
-                        <h3 class="text-xl font-bold text-slate-800 flex items-center">
-                            <i class="fas fa-lightning-bolt text-yellow-600 mr-2"></i>
-                            Actions Rapides
-                        </h3>
+                        <h2 class="text-xl font-bold text-slate-800 flex items-center">
+                            <i class="fas fa-bolt text-yellow-600 mr-2"></i>
+                            Actions rapides
+                        </h2>
                     </div>
-                    <div class="p-6 space-y-3">
-                        @can('classes.manage-members')
-                            <button onclick="showAddMemberModal()"
-                                class="w-full inline-flex items-center justify-center px-4 py-3 bg-blue-600 text-white text-sm font-medium rounded-xl hover:bg-blue-700 transition-colors">
-                                <i class="fas fa-user-plus mr-2"></i> Ajouter un membre
-                            </button>
-                            <button onclick="showBulkAddModal()"
-                                class="w-full inline-flex items-center justify-center px-4 py-3 bg-green-600 text-white text-sm font-medium rounded-xl hover:bg-green-700 transition-colors">
-                                <i class="fas fa-users mr-2"></i> Ajout groupé
-                            </button>
-                        @endcan
 
-                        @can('classes.read')
-                            <a href="{{ route('private.classes.membres', $classe) }}"
-                                class="w-full inline-flex items-center justify-center px-4 py-3 bg-purple-600 text-white text-sm font-medium rounded-xl hover:bg-purple-700 transition-colors">
-                                <i class="fas fa-list mr-2"></i> Voir tous les membres
+                    <div class="p-6 space-y-3">
+                        @can('classes.update')
+                            <a href="{{ route('private.classes.edit', $classe) }}"
+                                class="block w-full px-4 py-3 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-lg transition-colors text-center">
+                                <i class="fas fa-edit mr-2"></i> Modifier la classe
                             </a>
                         @endcan
 
-                        <a href="#"
-                            class="w-full inline-flex items-center justify-center px-4 py-3 bg-amber-600 text-white text-sm font-medium rounded-xl hover:bg-amber-700 transition-colors">
-                            <i class="fas fa-check-square mr-2"></i> Marquer présences
-                        </a>
+                        @can('classes.manage-members')
+                            <button onclick="showAddMembersModal()"
+                                class="block w-full px-4 py-3 bg-green-50 hover:bg-green-100 text-green-700 rounded-lg transition-colors">
+                                <i class="fas fa-user-plus mr-2"></i> Ajouter des membres
+                            </button>
+                        @endcan
 
-                    @can('classes.communicate')
-                        <button onclick="showCommunicationModal()"
-                            class="w-full inline-flex items-center justify-center px-4 py-3 bg-indigo-600 text-white text-sm font-medium rounded-xl hover:bg-indigo-700 transition-colors">
-                            <i class="fas fa-envelope mr-2"></i> Envoyer message
-                        </button>
-                    @endcan
+                        @can('classes.export')
+                            <button onclick="toggleExportMenu()"
+                                class="block w-full px-4 py-3 bg-purple-50 hover:bg-purple-100 text-purple-700 rounded-lg transition-colors">
+                                <i class="fas fa-download mr-2"></i> Exporter les données
+                            </button>
+                        @endcan
 
-                    @can('classes.reports')
-                        <a href="#"
-                            class="w-full inline-flex items-center justify-center px-4 py-3 bg-slate-600 text-white text-sm font-medium rounded-xl hover:bg-slate-700 transition-colors">
-                            <i class="fas fa-chart-bar mr-2"></i> Voir rapport
-                        </a>
-                    @endcan
-                </div>
-            </div>
+                        @can('classes.archive')
+                            <form action="{{ route('private.classes.archive', $classe) }}" method="POST" class="block">
+                                @csrf
+                                @method('PATCH')
+                                <button type="submit" onclick="return confirm('Êtes-vous sûr de vouloir archiver cette classe ?')"
+                                    class="w-full px-4 py-3 bg-amber-50 hover:bg-amber-100 text-amber-700 rounded-lg transition-colors">
+                                    <i class="fas fa-archive mr-2"></i> Archiver la classe
+                                </button>
+                            </form>
+                        @endcan
 
-            <!-- Informations système -->
-            <div
-                class="bg-white/80 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
-                <div class="p-6 border-b border-slate-200">
-                    <h3 class="text-xl font-bold text-slate-800 flex items-center">
-                        <i class="fas fa-info-circle text-slate-600 mr-2"></i>
-                        Informations
-                    </h3>
-                </div>
-                <div class="p-6 space-y-4 text-sm">
-                    <div class="flex justify-between">
-                        <span class="text-slate-500">Créé le:</span>
-                        <span class="font-medium">{{ $classe->created_at->format('d/m/Y à H:i') }}</span>
-                    </div>
-                    <div class="flex justify-between">
-                        <span class="text-slate-500">Modifié le:</span>
-                        <span class="font-medium">{{ $classe->updated_at->format('d/m/Y à H:i') }}</span>
-                    </div>
-                    <div class="flex justify-between">
-                        <span class="text-slate-500">ID:</span>
-                        <code class="text-xs bg-slate-100 px-2 py-1 rounded">{{ $classe->id }}</code>
+                        @can('classes.delete')
+                            @if($classe->nombre_inscrits == 0)
+                                <button onclick="deleteClasse()"
+                                    class="block w-full px-4 py-3 bg-red-50 hover:bg-red-100 text-red-700 rounded-lg transition-colors">
+                                    <i class="fas fa-trash mr-2"></i> Supprimer la classe
+                                </button>
+                            @endif
+                        @endcan
                     </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
 
-<!-- Modal d'ajout de membre unique -->
-<div id="addMemberModal"
-    class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center p-4">
-    <div class="bg-white rounded-2xl shadow-xl max-w-md w-full">
-        <div class="p-6 border-b border-slate-200">
-            <h3 class="text-lg font-semibold text-slate-900">Ajouter un membre à la classe</h3>
-        </div>
-        <div class="p-6">
-            <form id="addMemberForm">
-                <div class="mb-4">
-                    <label class="block text-sm font-medium text-slate-700 mb-2">Sélectionner un utilisateur</label>
-                    <select id="memberSelect"
-                        class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                        <option value="">Chargement...</option>
-                    </select>
-                    <p class="text-xs text-slate-500 mt-1">Seuls les utilisateurs sans classe sont affichés</p>
-                </div>
-                <div class="flex items-center justify-end space-x-3">
-                    <button type="button" onclick="closeAddMemberModal()"
-                        class="px-4 py-2 text-slate-700 bg-slate-100 rounded-xl hover:bg-slate-200 transition-colors">
-                        Annuler
-                    </button>
-                    <button type="submit"
-                        class="px-4 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors">
-                        Ajouter
+    <!-- Modals -->
+    <!-- Modal de gestion des responsables -->
+    <div id="manageResponsablesModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-xl max-w-2xl w-full max-h-[80vh] overflow-y-auto">
+            <div class="p-6 border-b border-slate-200">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-lg font-semibold text-slate-900">Gérer les responsables</h3>
+                    <button type="button" onclick="closeManageResponsablesModal()" class="text-slate-400 hover:text-slate-600">
+                        <i class="fas fa-times text-xl"></i>
                     </button>
                 </div>
-            </form>
+            </div>
+            <div id="manageResponsablesContent" class="p-6">
+                <!-- Contenu chargé dynamiquement -->
+            </div>
         </div>
     </div>
-</div>
 
-<!-- Modal d'ajout groupé -->
-<div id="bulkAddModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center p-4">
-    <div class="bg-white rounded-2xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-hidden">
-        <div class="p-6 border-b border-slate-200">
-            <h3 class="text-lg font-semibold text-slate-900">Ajout groupé de membres</h3>
-            <p class="text-sm text-slate-600 mt-1">Sélectionnez plusieurs utilisateurs à ajouter à la classe</p>
-        </div>
-        <div class="p-6 overflow-y-auto max-h-[60vh]">
-            <form id="bulkAddForm">
-                <div class="mb-4">
-                    <div class="flex items-center justify-between mb-3">
-                        <label class="block text-sm font-medium text-slate-700">Utilisateurs disponibles</label>
-                        <div class="flex items-center space-x-2">
-                            <label class="flex items-center">
-                                <input type="checkbox" id="filterCompatible"
-                                    class="rounded border-slate-300 text-blue-600 focus:ring-blue-500">
-                                <span class="ml-2 text-sm text-slate-600">Âge compatible uniquement</span>
-                            </label>
-                            <input type="text" id="searchUsers" placeholder="Rechercher..."
-                                class="px-3 py-1 text-sm border border-slate-300 rounded-lg">
-                        </div>
-                    </div>
-                    <div id="availableUsersList"
-                        class="space-y-2 max-h-64 overflow-y-auto border border-slate-200 rounded-lg p-3">
-                        <div class="text-center py-8 text-slate-500">
-                            <i class="fas fa-spinner fa-spin text-2xl mb-2"></i>
-                            <p>Chargement des utilisateurs...</p>
-                        </div>
-                    </div>
-                    <div class="mt-3 flex items-center justify-between text-sm">
-                        <span id="selectedCount" class="text-slate-600">0 utilisateur(s) sélectionné(s)</span>
-                        <button type="button" onclick="selectAllVisible()"
-                            class="text-blue-600 hover:text-blue-800">Tout sélectionner</button>
-                    </div>
-                </div>
-                <div class="mb-4">
-                    <label class="flex items-center">
-                        <input type="checkbox" id="forceAgeCheck"
-                            class="rounded border-slate-300 text-orange-600 focus:ring-orange-500">
-                        <span class="ml-2 text-sm text-slate-700">Forcer l'ajout même si l'âge n'est pas
-                            compatible</span>
-                    </label>
-                </div>
-                <div class="flex items-center justify-end space-x-3">
-                    <button type="button" onclick="closeBulkAddModal()"
-                        class="px-4 py-2 text-slate-700 bg-slate-100 rounded-xl hover:bg-slate-200 transition-colors">
-                        Annuler
-                    </button>
-                    <button type="submit"
-                        class="px-4 py-2 bg-green-600 text-white rounded-xl hover:bg-green-700 transition-colors">
-                        <i class="fas fa-users mr-2"></i> Ajouter les membres
+    <!-- Modal d'ajout de membres -->
+    <div id="addMembersModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-xl max-w-4xl w-full max-h-[80vh] overflow-y-auto">
+            <div class="p-6 border-b border-slate-200">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-lg font-semibold text-slate-900">Ajouter des membres</h3>
+                    <button type="button" onclick="closeAddMembersModal()" class="text-slate-400 hover:text-slate-600">
+                        <i class="fas fa-times text-xl"></i>
                     </button>
                 </div>
-            </form>
+            </div>
+            <div id="addMembersContent" class="p-6">
+                <!-- Contenu chargé dynamiquement -->
+            </div>
         </div>
     </div>
-</div>
 
-<script>
-    let availableUsers = [];
-    let filteredUsers = [];
+    <!-- Modal de liste des membres -->
+    <div id="membersListModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-xl max-w-4xl w-full max-h-[80vh] overflow-y-auto">
+            <div class="p-6 border-b border-slate-200">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-lg font-semibold text-slate-900">Liste complète des membres</h3>
+                    <button type="button" onclick="closeMembersListModal()" class="text-slate-400 hover:text-slate-600">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
+                </div>
+            </div>
+            <div id="membersListContent" class="p-6">
+                <!-- Contenu chargé dynamiquement -->
+            </div>
+        </div>
+    </div>
 
-    // Menu d'export
-    function toggleExportMenu() {
-        const menu = document.getElementById('exportMenu');
-        menu.classList.toggle('hidden');
-    }
-
-    // Fermer le menu d'export si on clique ailleurs
-    document.addEventListener('click', function(e) {
-        const menu = document.getElementById('exportMenu');
-        const button = e.target.closest('button');
-        if (!button || button.onclick !== toggleExportMenu) {
-            menu.classList.add('hidden');
+    <!-- Scripts JavaScript -->
+    <script>
+        // Toggle du menu d'export
+        function toggleExportMenu() {
+            const menu = document.getElementById('exportMenu');
+            menu.classList.toggle('hidden');
         }
-    });
 
-    // Modal d'ajout de membre unique
-    function showAddMemberModal() {
-        document.getElementById('addMemberModal').classList.remove('hidden');
-        loadAvailableMembers();
-    }
+        // Fermer le menu d'export si on clique ailleurs
+        document.addEventListener('click', function(e) {
+            const menu = document.getElementById('exportMenu');
+            const button = e.target.closest('button');
 
-    function closeAddMemberModal() {
-        document.getElementById('addMemberModal').classList.add('hidden');
-    }
+            if (!button || !button.onclick || button.onclick.toString().indexOf('toggleExportMenu') === -1) {
+                menu.classList.add('hidden');
+            }
+        });
 
-    // Modal d'ajout groupé
-    function showBulkAddModal() {
-        document.getElementById('bulkAddModal').classList.remove('hidden');
-        loadAvailableUsersForBulk();
-    }
+        // Gestion des modals
+        function showManageResponsablesModal() {
+            document.getElementById('manageResponsablesModal').classList.remove('hidden');
+            document.body.classList.add('overflow-hidden');
+            loadManageResponsablesContent();
+        }
 
-    function closeBulkAddModal() {
-        document.getElementById('bulkAddModal').classList.add('hidden');
-        // Reset form
-        document.getElementById('availableUsersList').innerHTML = '';
-        availableUsers = [];
-        filteredUsers = [];
-        updateSelectedCount();
-    }
+        function closeManageResponsablesModal() {
+            document.getElementById('manageResponsablesModal').classList.add('hidden');
+            document.body.classList.remove('overflow-hidden');
+        }
 
-    // Charger les membres disponibles pour le modal simple
-    function loadAvailableMembers() {
-        const select = document.getElementById('memberSelect');
-        select.innerHTML = '<option value="">Chargement...</option>';
+        function showAddMembersModal() {
+            document.getElementById('addMembersModal').classList.remove('hidden');
+            document.body.classList.add('overflow-hidden');
+            loadAddMembersContent();
+        }
 
-        fetch("{{ route('private.classes.membres-disponibles', $classe->id) }}", {
-                headers: {
-                    'Accept': 'application/json',
-                    'X-Requested-With': 'XMLHttpRequest'
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    select.innerHTML = '<option value="">Sélectionner un utilisateur</option>';
-                    data.data.membres.data.forEach(user => {
-                        const option = document.createElement('option');
-                        option.value = user.id;
-                        const ageInfo = user.age ? ` (${user.age} ans)` : '';
-                        const compatibleInfo = user.age_compatible ? '' : ' - ⚠️ Âge incompatible';
-                        option.textContent = `${user.prenom} ${user.nom}${ageInfo}${compatibleInfo}`;
-                        if (!user.age_compatible) {
-                            option.style.color = '#dc2626';
-                        }
-                        select.appendChild(option);
-                    });
-                } else {
-                    select.innerHTML = '<option value="">Erreur lors du chargement</option>';
-                }
-            })
-            .catch(error => {
-                console.error('Erreur:', error);
-                select.innerHTML = '<option value="">Erreur lors du chargement</option>';
-            });
-    }
+        function closeAddMembersModal() {
+            document.getElementById('addMembersModal').classList.add('hidden');
+            document.body.classList.remove('overflow-hidden');
+        }
 
-    // Charger les utilisateurs pour l'ajout groupé
-    function loadAvailableUsersForBulk() {
-        const container = document.getElementById('availableUsersList');
-        container.innerHTML = `
-        <div class="text-center py-8 text-slate-500">
-            <i class="fas fa-spinner fa-spin text-2xl mb-2"></i>
-            <p>Chargement des utilisateurs...</p>
+        function showMembersListModal() {
+            document.getElementById('membersListModal').classList.remove('hidden');
+            document.body.classList.add('overflow-hidden');
+            loadMembersListContent();
+        }
+
+        function closeMembersListModal() {
+            document.getElementById('membersListModal').classList.add('hidden');
+            document.body.classList.remove('overflow-hidden');
+        }
+
+        // Chargement du contenu des modals
+        // function loadManageResponsablesContent() {
+        //     const content = document.getElementById('manageResponsablesContent');
+        //     content.innerHTML = `
+        //         <div class="text-center py-8">
+        //             <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+        //             <p class="mt-2 text-slate-600">Chargement...</p>
+        //         </div>
+        //     `;
+        //     // Ici vous pourriez charger le contenu via AJAX
+        // }
+
+        // Chargement du contenu des modals
+function loadManageResponsablesContent() {
+    const content = document.getElementById('manageResponsablesContent');
+    content.innerHTML = `
+        <div class="text-center py-8">
+            <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+            <p class="mt-2 text-slate-600">Chargement des membres...</p>
         </div>
     `;
 
-        fetch("{{ route('private.classes.membres-disponibles', $classe->id) }}", {
-                headers: {
-                    'Accept': 'application/json',
-                    'X-Requested-With': 'XMLHttpRequest'
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    availableUsers = data.data.membres.data;
-                    filteredUsers = [...availableUsers];
-                    renderUsersList();
-                } else {
-                    container.innerHTML = `
-                <div class="text-center py-8 text-red-500">
-                    <i class="fas fa-exclamation-triangle text-2xl mb-2"></i>
-                    <p>Erreur lors du chargement</p>
+    // Charger les membres pour la gestion des responsables
+    fetch(`{{ route('private.classes.getMembresForResponsables', $classe) }}`, {
+        headers: {
+            'Accept': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest',
+            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            content.innerHTML = generateManageResponsablesContent(data.data);
+        } else {
+            content.innerHTML = `
+                <div class="text-center py-8">
+                    <i class="fas fa-exclamation-triangle text-3xl text-red-400 mb-3"></i>
+                    <p class="text-red-600">Erreur lors du chargement</p>
                 </div>
             `;
-                }
-            })
-            .catch(error => {
-                console.error('Erreur:', error);
-                container.innerHTML = `
-            <div class="text-center py-8 text-red-500">
-                <i class="fas fa-exclamation-triangle text-2xl mb-2"></i>
-                <p>Erreur lors du chargement</p>
+        }
+    })
+    .catch(error => {
+        console.error('Erreur:', error);
+        content.innerHTML = `
+            <div class="text-center py-8">
+                <i class="fas fa-exclamation-triangle text-3xl text-red-400 mb-3"></i>
+                <p class="text-red-600">Erreur lors du chargement</p>
             </div>
         `;
-            });
+    });
+}
+
+
+// Générer le contenu pour la gestion des responsables
+function generateManageResponsablesContent(data) {
+    const { membres, types_responsabilite } = data;
+    const membersList = Array.isArray(membres) ? membres : membres.data;
+
+    if (!membersList || membersList.length === 0) {
+        return `
+            <div class="text-center py-8">
+                <i class="fas fa-users text-3xl text-slate-400 mb-3"></i>
+                <p class="text-slate-500">Aucun membre dans cette classe</p>
+            </div>
+        `;
     }
 
-    // Rendu de la liste des utilisateurs
-    function renderUsersList() {
-        const container = document.getElementById('availableUsersList');
-
-        if (filteredUsers.length === 0) {
-            container.innerHTML = `
-            <div class="text-center py-8 text-slate-500">
-                <i class="fas fa-users text-2xl mb-2"></i>
-                <p>Aucun utilisateur disponible</p>
+    let html = `
+        <!-- Barre de recherche -->
+        <div class="mb-6">
+            <div class="relative">
+                <input type="text" id="searchMembres" placeholder="Rechercher un membre..." onkeyup="searchMembres()"
+                    class="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <i class="fas fa-search text-slate-400"></i>
+                </div>
             </div>
-        `;
-            return;
-        }
+        </div>
 
-        container.innerHTML = filteredUsers.map(user => `
-        <label class="flex items-center p-3 rounded-lg border border-slate-200 hover:bg-slate-50 cursor-pointer">
-            <input type="checkbox" name="user_ids[]" value="${user.id}" class="rounded border-slate-300 text-blue-600 focus:ring-blue-500 mr-3" onchange="updateSelectedCount()">
-            <div class="flex-1">
-                <div class="flex items-center justify-between">
-                    <span class="font-medium text-slate-900">${user.prenom} ${user.nom}</span>
-                    <div class="flex items-center space-x-2">
-                        ${user.age ? `<span class="text-sm text-slate-500">${user.age} ans</span>` : ''}
-                        ${user.age_compatible ?
-                            '<span class="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">Compatible</span>' :
-                            '<span class="text-xs bg-orange-100 text-orange-800 px-2 py-1 rounded-full">⚠️ Âge incompatible</span>'
-                        }
+        <!-- Liste des membres -->
+        <div class="space-y-3 max-h-96 overflow-y-auto" id="membresList">
+    `;
+
+    membersList.forEach(membre => {
+        const typesOptions = types_responsabilite.map(type =>
+            `<option value="${type}" ${membre.responsabilite === type ? 'selected' : ''}>${type.charAt(0).toUpperCase() + type.slice(1)}</option>`
+        ).join('');
+
+        html += `
+            <div class="membre-item flex items-center justify-between p-4 bg-slate-50 rounded-xl hover:bg-slate-100 transition-colors" data-membre-nom="${membre.prenom.toLowerCase()} ${membre.nom.toLowerCase()}" data-membre-email="${membre?.email?.toLowerCase()}">
+                <div class="flex items-center space-x-3">
+                    <div class="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white font-semibold text-sm">
+                        ${membre.prenom.charAt(0)}${membre.nom.charAt(0)}
+                    </div>
+                    <div>
+                        <p class="font-semibold text-slate-900">${membre.prenom} ${membre.nom}</p>
+                        <p class="text-sm text-slate-500">${membre.email ?? 'Aucun email disponible'}</p>
+                        ${membre.is_responsable ? `
+                            <span class="inline-flex items-center px-2 py-1 rounded-lg text-xs font-medium bg-green-100 text-green-800 mt-1">
+                                <i class="fas fa-user-tie mr-1"></i> ${membre.responsabilite}
+                                ${membre.superieur ? ' (Supérieur)' : ''}
+                            </span>
+                        ` : ''}
                     </div>
                 </div>
-                <p class="text-sm text-slate-500">${user.email}</p>
+
+                <div class="flex items-center space-x-2">
+                    ${membre.is_responsable ? `
+                        <!-- Membre responsable : options de modification -->
+                        <select onchange="updateResponsabilite('${membre.id}', this.value, ${membre.superieur})"
+                            class="text-sm border border-slate-300 rounded-lg px-2 py-1 focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            ${typesOptions}
+                        </select>
+
+                        <label class="flex items-center">
+                            <input type="checkbox" ${membre.superieur ? 'checked' : ''}
+                                onchange="toggleSuperieur('${membre.id}', '${membre.responsabilite}', this.checked)"
+                                class="w-4 h-4 text-blue-600 bg-white border-gray-300 rounded focus:ring-blue-500 mr-2">
+                            <span class="text-xs text-slate-600">Supérieur</span>
+                        </label>
+
+                        <button onclick="removeResponsabilite('${membre.id}')"
+                            class="inline-flex items-center justify-center w-8 h-8 text-red-600 bg-red-100 rounded-lg hover:bg-red-200 transition-colors"
+                            title="Retirer la responsabilité">
+                            <i class="fas fa-times text-sm"></i>
+                        </button>
+                    ` : `
+                        <!-- Membre normal : option d'ajout -->
+                        <select id="responsabilite_${membre.id}"
+                            class="text-sm border border-slate-300 rounded-lg px-2 py-1 focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            <option value="">Choisir une responsabilité</option>
+                            ${types_responsabilite.map(type => `<option value="${type}">${type.charAt(0).toUpperCase() + type.slice(1)}</option>`).join('')}
+                        </select>
+
+                        <label class="flex items-center">
+                            <input type="checkbox" id="superieur_${membre.id}"
+                                class="w-4 h-4 text-blue-600 bg-white border-gray-300 rounded focus:ring-blue-500 mr-2">
+                            <span class="text-xs text-slate-600">Supérieur</span>
+                        </label>
+
+                        <button onclick="addResponsabilite('${membre.id}')"
+                            class="inline-flex items-center justify-center w-8 h-8 text-green-600 bg-green-100 rounded-lg hover:bg-green-200 transition-colors"
+                            title="Ajouter une responsabilité">
+                            <i class="fas fa-plus text-sm"></i>
+                        </button>
+                    `}
+                </div>
             </div>
-        </label>
-    `).join('');
-    }
-
-    // Filtrage des utilisateurs
-    function filterUsers() {
-        const searchTerm = document.getElementById('searchUsers').value.toLowerCase();
-        const compatibleOnly = document.getElementById('filterCompatible').checked;
-
-        filteredUsers = availableUsers.filter(user => {
-            const matchesSearch = !searchTerm ||
-                user.prenom.toLowerCase().includes(searchTerm) ||
-                user.nom.toLowerCase().includes(searchTerm) ||
-                user.email.toLowerCase().includes(searchTerm);
-
-            const matchesCompatible = !compatibleOnly || user.age_compatible;
-
-            return matchesSearch && matchesCompatible;
-        });
-
-        renderUsersList();
-        updateSelectedCount();
-    }
-
-    // Événements de filtrage
-    document.getElementById('searchUsers').addEventListener('input', filterUsers);
-    document.getElementById('filterCompatible').addEventListener('change', filterUsers);
-
-    // Sélectionner tous les utilisateurs visibles
-    function selectAllVisible() {
-        const checkboxes = document.querySelectorAll('#availableUsersList input[type="checkbox"]');
-        const allChecked = Array.from(checkboxes).every(cb => cb.checked);
-
-        checkboxes.forEach(cb => {
-            cb.checked = !allChecked;
-        });
-
-        updateSelectedCount();
-    }
-
-    // Mettre à jour le compteur de sélection
-    function updateSelectedCount() {
-        const checkedBoxes = document.querySelectorAll('#availableUsersList input[type="checkbox"]:checked');
-        const count = checkedBoxes.length;
-        document.getElementById('selectedCount').textContent = `${count} utilisateur(s) sélectionné(s)`;
-    }
-
-    // Ajouter un membre unique
-    document.getElementById('addMemberForm').addEventListener('submit', function(e) {
-        e.preventDefault();
-
-        const userId = document.getElementById('memberSelect').value;
-        if (!userId) {
-            alert('Veuillez sélectionner un utilisateur');
-            return;
-        }
-
-        fetch("{{ route('private.classes.inscrire', $classe->id) }}", {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json',
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                    'X-Requested-With': 'XMLHttpRequest'
-                },
-                body: JSON.stringify({
-                    user_id: userId
-                })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    closeAddMemberModal();
-                    showSuccessMessage(data.message);
-                    setTimeout(() => location.reload(), 1500);
-                } else {
-                    alert(data.message || 'Erreur lors de l\'ajout du membre');
-                }
-            })
-            .catch(error => {
-                console.error('Erreur:', error);
-                alert('Une erreur est survenue');
-            });
+        `;
     });
 
-    // Ajout groupé
-    document.getElementById('bulkAddForm').addEventListener('submit', function(e) {
-        e.preventDefault();
+    html += '</div>';
 
-        const checkedBoxes = document.querySelectorAll('#availableUsersList input[type="checkbox"]:checked');
-        const userIds = Array.from(checkedBoxes).map(cb => cb.value);
-
-        if (userIds.length === 0) {
-            alert('Veuillez sélectionner au moins un utilisateur');
-            return;
-        }
-
-        const forceAgeCheck = document.getElementById('forceAgeCheck').checked;
-
-        // Confirmation
-        if (!confirm(`Voulez-vous ajouter ${userIds.length} utilisateur(s) à la classe ?`)) {
-            return;
-        }
-
-        fetch("{{ route('private.classes.ajouter-membres', $classe->id) }}", {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json',
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                    'X-Requested-With': 'XMLHttpRequest'
-                },
-                body: JSON.stringify({
-                    user_ids: userIds,
-                    force_age_check: forceAgeCheck
-                })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    closeBulkAddModal();
-                    showSuccessMessage(data.message);
-                    setTimeout(() => location.reload(), 2000);
-                } else {
-                    alert(data.message || 'Erreur lors de l\'ajout des membres');
-                }
-            })
-            .catch(error => {
-                console.error('Erreur:', error);
-                alert('Une erreur est survenue');
-            });
-    });
-
-    // Retirer un membre
-    function removeMember(userId) {
-        if (!confirm('Êtes-vous sûr de vouloir retirer ce membre de la classe ?')) {
-            return;
-        }
-
-        fetch("{{ route('private.classes.desinscrire', $classe->id) }}", {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json',
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                    'X-Requested-With': 'XMLHttpRequest'
-                },
-                body: JSON.stringify({
-                    user_id: userId
-                })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    showSuccessMessage(data.message);
-                    setTimeout(() => location.reload(), 1500);
-                } else {
-                    alert(data.message || 'Erreur lors de la suppression du membre');
-                }
-            })
-            .catch(error => {
-                console.error('Erreur:', error);
-                alert('Une erreur est survenue');
-            });
+    // Ajouter la pagination si nécessaire
+    if (!Array.isArray(membres) && membres.links) {
+        html += `
+            <div class="mt-4 flex justify-center">
+                <!-- Pagination sera ajoutée ici si nécessaire -->
+            </div>
+        `;
     }
 
-    // Fonction d'affichage des messages de succès
-    function showSuccessMessage(message) {
-        const alertDiv = document.createElement('div');
-        alertDiv.className = 'fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50';
-        alertDiv.innerHTML = `
-        <div class="flex items-center">
-            <i class="fas fa-check-circle mr-2"></i>
-            <span>${message}</span>
+    return html;
+}
+
+
+
+// Fonction de recherche des membres
+function searchMembres() {
+    const searchTerm = document.getElementById('searchMembres').value.toLowerCase();
+    const membreItems = document.querySelectorAll('.membre-item');
+
+    membreItems.forEach(item => {
+        const membreNom = item.getAttribute('data-membre-nom');
+        const membreEmail = item.getAttribute('data-membre-email');
+
+        if (membreNom.includes(searchTerm) || membreEmail.includes(searchTerm)) {
+            item.style.display = 'flex';
+        } else {
+            item.style.display = 'none';
+        }
+    });
+}
+
+// Ajouter une responsabilité
+function addResponsabilite(userId) {
+    const responsabiliteSelect = document.getElementById(`responsabilite_${userId}`);
+    const superieurCheckbox = document.getElementById(`superieur_${userId}`);
+
+    const responsabilite = responsabiliteSelect.value;
+    const superieur = superieurCheckbox.checked;
+
+    if (!responsabilite) {
+        showErrorMessage('Veuillez sélectionner une responsabilité');
+        return;
+    }
+
+    updateResponsabiliteApi(userId, 'add', responsabilite, superieur);
+}
+
+
+// Mettre à jour une responsabilité
+function updateResponsabilite(userId, responsabilite, superieur) {
+    updateResponsabiliteApi(userId, 'update', responsabilite, superieur);
+}
+
+
+// Basculer le statut supérieur
+function toggleSuperieur(userId, responsabilite, superieur) {
+    updateResponsabiliteApi(userId, 'update', responsabilite, superieur);
+}
+
+// Retirer une responsabilité
+function removeResponsabilite(userId) {
+    if (!confirm('Êtes-vous sûr de vouloir retirer cette responsabilité ?')) {
+        return;
+    }
+
+    updateResponsabiliteApi(userId, 'remove');
+}
+
+
+// API pour mettre à jour les responsabilités
+function updateResponsabiliteApi(userId, action, responsabilite = null, superieur = false) {
+    const payload = {
+        user_id: userId,
+        action: action
+    };
+
+    if (responsabilite) {
+        payload.responsabilite = responsabilite;
+    }
+
+    if (superieur !== undefined) {
+        payload.superieur = superieur;
+    }
+
+    fetch(`{{ route('private.classes.updateResponsabilite', $classe) }}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+            'X-Requested-With': 'XMLHttpRequest'
+        },
+        body: JSON.stringify(payload)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showSuccessMessage(data.message || 'Responsabilité mise à jour avec succès');
+            // Recharger le contenu de la modal
+            loadManageResponsablesContent();
+            // Optionnellement recharger la page après un délai
+            setTimeout(() => location.reload(), 1500);
+        } else {
+            showErrorMessage(data.message || 'Erreur lors de la mise à jour');
+        }
+    })
+    .catch(error => {
+        console.error('Erreur:', error);
+        showErrorMessage('Une erreur est survenue');
+    });
+}
+
+
+function loadAddMembersContent() {
+    const content = document.getElementById('addMembersContent');
+    content.innerHTML = `
+        <div class="text-center py-8">
+            <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+            <p class="mt-2 text-slate-600">Chargement des utilisateurs disponibles...</p>
         </div>
     `;
-        document.body.appendChild(alertDiv);
 
-        setTimeout(() => {
-            alertDiv.remove();
-        }, 3000);
+    // Charger les utilisateurs disponibles
+    fetch(`{{ route('private.classes.getUtilisateursDisponibles', $classe) }}`, {
+        headers: {
+            'Accept': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest',
+            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            content.innerHTML = generateAddMembersContent(data.data.utilisateurs);
+            // Initialiser le compteur après le chargement du contenu
+            setTimeout(() => {
+                updateSelectedCount();
+                updateSelectAllState();
+            }, 100);
+        } else {
+            content.innerHTML = `
+                <div class="text-center py-8">
+                    <i class="fas fa-exclamation-triangle text-3xl text-red-400 mb-3"></i>
+                    <p class="text-red-600">Erreur lors du chargement</p>
+                </div>
+            `;
+        }
+    })
+    .catch(error => {
+        console.error('Erreur:', error);
+        content.innerHTML = `
+            <div class="text-center py-8">
+                <i class="fas fa-exclamation-triangle text-3xl text-red-400 mb-3"></i>
+                <p class="text-red-600">Erreur lors du chargement</p>
+            </div>
+        `;
+    });
+}
+
+        function loadMembersListContent() {
+            const content = document.getElementById('membersListContent');
+            content.innerHTML = `
+                <div class="text-center py-8">
+                    <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+                    <p class="mt-2 text-slate-600">Chargement des membres...</p>
+                </div>
+            `;
+
+            // Charger la liste complète des membres
+            fetch(`{{ route('private.classes.members', $classe) }}`, {
+                headers: {
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    content.innerHTML = generateMembersListContent(data.data.membres);
+                } else {
+                    content.innerHTML = `
+                        <div class="text-center py-8">
+                            <i class="fas fa-exclamation-triangle text-3xl text-red-400 mb-3"></i>
+                            <p class="text-red-600">Erreur lors du chargement</p>
+                        </div>
+                    `;
+                }
+            })
+            .catch(error => {
+                console.error('Erreur:', error);
+                content.innerHTML = `
+                    <div class="text-center py-8">
+                        <i class="fas fa-exclamation-triangle text-3xl text-red-400 mb-3"></i>
+                        <p class="text-red-600">Erreur lors du chargement</p>
+                    </div>
+                `;
+            });
+        }
+
+        // Générer le contenu pour l'ajout de membres
+        // function generateAddMembersContent(utilisateurs) {
+        //     if (!utilisateurs || (Array.isArray(utilisateurs) ? utilisateurs.length === 0 : utilisateurs.data.length === 0)) {
+        //         return `
+        //             <div class="text-center py-8">
+        //                 <i class="fas fa-users text-3xl text-slate-400 mb-3"></i>
+        //                 <p class="text-slate-500">Aucun utilisateur disponible pour inscription</p>
+        //             </div>
+        //         `;
+        //     }
+
+        //     const users = Array.isArray(utilisateurs) ? utilisateurs : utilisateurs.data;
+        //     let html = `
+        //         <form id="addMembersForm" onsubmit="submitAddMembers(event)">
+        //             <div class="mb-4">
+        //                 <label class="block text-sm font-medium text-slate-700 mb-2">
+        //                     Sélectionner les utilisateurs à ajouter:
+        //                 </label>
+        //                 <div class="max-h-60 overflow-y-auto border border-slate-200 rounded-lg">
+        //                     <div class="p-3 border-b border-slate-200 bg-slate-50">
+        //                         <label class="flex items-center">
+        //                             <input type="checkbox" id="selectAll" onchange="toggleSelectAll()"
+        //                                 class="w-4 h-4 text-blue-600 bg-white border-gray-300 rounded focus:ring-blue-500 mr-3">
+        //                             <span class="font-medium text-slate-700">Sélectionner tout</span>
+        //                         </label>
+        //                     </div>
+        //     `;
+
+        //     users.forEach(user => {
+        //         html += `
+        //             <div class="p-3 border-b border-slate-100 hover:bg-slate-50">
+        //                 <label class="flex items-center">
+        //                     <input type="checkbox" name="user_ids[]" value="${user.id}"
+        //                         class="w-4 h-4 text-blue-600 bg-white border-gray-300 rounded focus:ring-blue-500 mr-3 user-checkbox">
+        //                     <div class="flex items-center space-x-3 flex-1">
+        //                         <div class="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white font-semibold text-xs">
+        //                             ${user.prenom.charAt(0)}${user.nom.charAt(0)}
+        //                         </div>
+        //                         <div>
+        //                             <p class="font-medium text-slate-900">${user.prenom} ${user.nom}</p>
+        //                             <p class="text-sm text-slate-500">${user.email ?? 'Aucun email disponible'}</p>
+        //                             ${user.age ? `<p class="text-xs text-slate-400">${user.age} ans</p>` : ''}
+        //                         </div>
+        //                     </div>
+        //                     ${!user.age_compatible ? '<span class="text-xs text-amber-600 bg-amber-100 px-2 py-1 rounded">Âge incompatible</span>' : ''}
+        //                 </label>
+        //             </div>
+        //         `;
+        //     });
+
+        //     html += `
+        //                 </div>
+        //             </div>
+        //             <div class="flex items-center justify-between">
+        //                 <label class="flex items-center">
+        //                     <input type="checkbox" name="force_age_check" value="1"
+        //                         class="w-4 h-4 text-blue-600 bg-white border-gray-300 rounded focus:ring-blue-500 mr-2">
+        //                     <span class="text-sm text-slate-600">Forcer l'ajout même si l'âge est incompatible</span>
+        //                 </label>
+        //                 <button type="submit"
+        //                     class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+        //                     Ajouter les membres sélectionnés
+        //                 </button>
+        //             </div>
+        //         </form>
+        //     `;
+
+        //     return html;
+        // }
+
+        // Générer le contenu pour l'ajout de membres
+function generateAddMembersContent(utilisateurs) {
+    if (!utilisateurs || (Array.isArray(utilisateurs) ? utilisateurs.length === 0 : utilisateurs.data.length === 0)) {
+        return `
+            <div class="text-center py-8">
+                <i class="fas fa-users text-3xl text-slate-400 mb-3"></i>
+                <p class="text-slate-500">Aucun utilisateur disponible pour inscription</p>
+            </div>
+        `;
     }
 
-    // Assigner responsable/enseignant (placeholders)
-    function assignResponsable() {
-        alert('Fonctionnalité d\'assignation du responsable à implémenter');
-    }
+    const users = Array.isArray(utilisateurs) ? utilisateurs : utilisateurs.data;
+    let html = `
+        <form id="addMembersForm" onsubmit="submitAddMembers(event)">
+            <!-- Barre de recherche -->
+            <div class="mb-4">
+                <div class="relative">
+                    <input type="text" id="searchUtilisateurs" placeholder="Rechercher un utilisateur..." onkeyup="searchUtilisateurs()"
+                        class="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <i class="fas fa-search text-slate-400"></i>
+                    </div>
+                </div>
+            </div>
 
-    function assignEnseignant() {
-        alert('Fonctionnalité d\'assignation de l\'enseignant à implémenter');
-    }
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-slate-700 mb-2">
+                    Sélectionner les utilisateurs à ajouter:
+                </label>
+                <div class="max-h-60 overflow-y-auto border border-slate-200 rounded-lg">
+                    <div class="p-3 border-b border-slate-200 bg-slate-50">
+                        <label class="flex items-center">
+                            <input type="checkbox" id="selectAll" onchange="toggleSelectAll()"
+                                class="w-4 h-4 text-blue-600 bg-white border-gray-300 rounded focus:ring-blue-500 mr-3">
+                            <span class="font-medium text-slate-700">Sélectionner tout</span>
+                        </label>
+                    </div>
+                    <div id="utilisateursList">
+    `;
 
-    function showCommunicationModal() {
-        alert('Fonctionnalité de communication à implémenter');
-    }
+    users.forEach(user => {
+        html += `
+            <div class="utilisateur-item p-3 border-b border-slate-100 hover:bg-slate-50"
+                 data-user-nom="${user.prenom.toLowerCase()} ${user.nom.toLowerCase()}"
+                 data-user-email="${user?.email?.toLowerCase()}">
+                <label class="flex items-center">
+                    <input type="checkbox" name="user_ids[]" value="${user.id}"
+                        class="w-4 h-4 text-blue-600 bg-white border-gray-300 rounded focus:ring-blue-500 mr-3 user-checkbox">
+                    <div class="flex items-center space-x-3 flex-1">
+                        <div class="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white font-semibold text-xs">
+                            ${user.prenom.charAt(0)}${user.nom.charAt(0)}
+                        </div>
+                        <div>
+                            <p class="font-medium text-slate-900">${user.prenom} ${user.nom}</p>
+                            <p class="text-sm text-slate-500">${user.email?? 'Aucun email disponible'}</p>
+                            ${user.age ? `<p class="text-xs text-slate-400">${user.age} ans</p>` : ''}
+                        </div>
+                    </div>
+                    ${!user.age_compatible ? '<span class="text-xs text-amber-600 bg-amber-100 px-2 py-1 rounded">Âge incompatible</span>' : ''}
+                </label>
+            </div>
+        `;
+    });
 
-    // Fermer les modals en cliquant à l'extérieur
-    document.getElementById('addMemberModal').addEventListener('click', function(e) {
-        if (e.target === this) {
-            closeAddMemberModal();
+    html += `
+                    </div>
+                </div>
+            </div>
+
+            <!-- Filtres supplémentaires -->
+            <div class="mb-4 p-3 bg-slate-50 rounded-lg">
+                <div class="flex items-center justify-between text-sm">
+                    <label class="flex items-center">
+                        <input type="checkbox" id="filterAgeCompatible" onchange="filterByAgeCompatibility()"
+                            class="w-4 h-4 text-blue-600 bg-white border-gray-300 rounded focus:ring-blue-500 mr-2">
+                        <span class="text-slate-600">Afficher uniquement les âges compatibles</span>
+                    </label>
+                    <span id="selectedCount" class="text-slate-500">0 sélectionné(s)</span>
+                </div>
+            </div>
+
+            <div class="flex items-center justify-between">
+                <label class="flex items-center">
+                    <input type="checkbox" name="force_age_check" value="1"
+                        class="w-4 h-4 text-blue-600 bg-white border-gray-300 rounded focus:ring-blue-500 mr-2">
+                    <span class="text-sm text-slate-600">Forcer l'ajout même si l'âge est incompatible</span>
+                </label>
+                <button type="submit"
+                    class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                    Ajouter les membres sélectionnés
+                </button>
+            </div>
+        </form>
+    `;
+
+    return html;
+}
+
+
+
+// Fonction de recherche des utilisateurs
+function searchUtilisateurs() {
+    const searchTerm = document.getElementById('searchUtilisateurs').value.toLowerCase();
+    const utilisateurItems = document.querySelectorAll('.utilisateur-item');
+    let visibleCount = 0;
+
+    utilisateurItems.forEach(item => {
+        const userNom = item.getAttribute('data-user-nom');
+        const userEmail = item.getAttribute('data-user-email');
+
+        if (userNom.includes(searchTerm) || userEmail.includes(searchTerm)) {
+            item.style.display = 'block';
+            visibleCount++;
+        } else {
+            item.style.display = 'none';
+            // Désélectionner les éléments cachés
+            const checkbox = item.querySelector('.user-checkbox');
+            if (checkbox) {
+                checkbox.checked = false;
+            }
         }
     });
 
-    document.getElementById('bulkAddModal').addEventListener('click', function(e) {
-        if (e.target === this) {
-            closeBulkAddModal();
+    // Mettre à jour le compteur
+    updateSelectedCount();
+
+    // Mettre à jour l'état du "Sélectionner tout"
+    updateSelectAllState();
+}
+
+// Filtrer par compatibilité d'âge
+function filterByAgeCompatibility() {
+    const filterCheckbox = document.getElementById('filterAgeCompatible');
+    const utilisateurItems = document.querySelectorAll('.utilisateur-item');
+
+    utilisateurItems.forEach(item => {
+        const ageIncompatibleBadge = item.querySelector('span.text-amber-600');
+        const hasAgeIncompatibility = ageIncompatibleBadge !== null;
+
+        if (filterCheckbox.checked) {
+            // Afficher seulement les âges compatibles
+            if (hasAgeIncompatibility) {
+                item.style.display = 'none';
+                // Désélectionner les éléments cachés
+                const checkbox = item.querySelector('.user-checkbox');
+                if (checkbox) {
+                    checkbox.checked = false;
+                }
+            } else {
+                item.style.display = 'block';
+            }
+        } else {
+            // Afficher tous les utilisateurs (mais respecter la recherche)
+            const searchTerm = document.getElementById('searchUtilisateurs').value.toLowerCase();
+            const userNom = item.getAttribute('data-user-nom');
+            const userEmail = item.getAttribute('data-user-email');
+
+            if (userNom.includes(searchTerm) || userEmail.includes(searchTerm)) {
+                item.style.display = 'block';
+            }
         }
     });
-</script>
+
+    // Mettre à jour le compteur
+    updateSelectedCount();
+
+    // Mettre à jour l'état du "Sélectionner tout"
+    updateSelectAllState();
+}
+
+
+// Mettre à jour le compteur de sélection
+function updateSelectedCount() {
+    const checkboxes = document.querySelectorAll('.user-checkbox');
+    const selectedCheckboxes = document.querySelectorAll('.user-checkbox:checked');
+    const countElement = document.getElementById('selectedCount');
+
+    if (countElement) {
+        countElement.textContent = `${selectedCheckboxes.length} sélectionné(s)`;
+    }
+}
+
+// Mettre à jour l'état du bouton "Sélectionner tout"
+function updateSelectAllState() {
+    const selectAllCheckbox = document.getElementById('selectAll');
+    const visibleCheckboxes = Array.from(document.querySelectorAll('.user-checkbox')).filter(cb => {
+        return cb.closest('.utilisateur-item').style.display !== 'none';
+    });
+    const visibleCheckedCheckboxes = visibleCheckboxes.filter(cb => cb.checked);
+
+    if (selectAllCheckbox) {
+        if (visibleCheckboxes.length === 0) {
+            selectAllCheckbox.checked = false;
+            selectAllCheckbox.indeterminate = false;
+        } else if (visibleCheckedCheckboxes.length === visibleCheckboxes.length) {
+            selectAllCheckbox.checked = true;
+            selectAllCheckbox.indeterminate = false;
+        } else if (visibleCheckedCheckboxes.length > 0) {
+            selectAllCheckbox.checked = false;
+            selectAllCheckbox.indeterminate = true;
+        } else {
+            selectAllCheckbox.checked = false;
+            selectAllCheckbox.indeterminate = false;
+        }
+    }
+}
+
+
+// Mise à jour de la fonction toggleSelectAll existante
+function toggleSelectAll() {
+    const selectAll = document.getElementById('selectAll');
+    const visibleCheckboxes = Array.from(document.querySelectorAll('.user-checkbox')).filter(cb => {
+        return cb.closest('.utilisateur-item').style.display !== 'none';
+    });
+
+    visibleCheckboxes.forEach(checkbox => {
+        checkbox.checked = selectAll.checked;
+    });
+
+    updateSelectedCount();
+}
+
+// Ajouter des écouteurs d'événements pour les checkboxes
+document.addEventListener('change', function(e) {
+    if (e.target.classList.contains('user-checkbox')) {
+        updateSelectedCount();
+        updateSelectAllState();
+    }
+});
+
+
+
+        // Générer le contenu pour la liste des membres
+        function generateMembersListContent(membres) {
+            const membersList = Array.isArray(membres) ? membres : membres.data;
+
+            if (!membersList || membersList.length === 0) {
+                return `
+                    <div class="text-center py-8">
+                        <i class="fas fa-users text-3xl text-slate-400 mb-3"></i>
+                        <p class="text-slate-500">Aucun membre inscrit dans cette classe</p>
+                    </div>
+                `;
+            }
+
+            let html = '<div class="space-y-3">';
+            membersList.forEach(membre => {
+                html += `
+                    <div class="flex items-center justify-between p-4 bg-slate-50 rounded-xl hover:bg-slate-100 transition-colors">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white font-semibold text-sm">
+                                ${membre.prenom.charAt(0)}${membre.nom.charAt(0)}
+                            </div>
+                            <div>
+                                <p class="font-semibold text-slate-900">${membre.prenom} ${membre.nom}</p>
+                                <p class="text-sm text-slate-500">${membre.email ?? 'Aucun email disponible'}</p>
+                                ${membre.telephone_1 ? `<p class="text-sm text-slate-400">${membre.telephone_1}</p>` : ''}
+                            </div>
+                        </div>
+                        @can('classes.manage-members')
+                            <button onclick="removeMember('${membre.id}')"
+                                class="inline-flex items-center justify-center w-8 h-8 text-red-600 bg-red-100 rounded-lg hover:bg-red-200 transition-colors"
+                                title="Retirer de la classe">
+                                <i class="fas fa-times text-sm"></i>
+                            </button>
+                        @endcan
+                    </div>
+                `;
+            });
+            html += '</div>';
+
+            return html;
+        }
+
+        // Fonctions utilitaires
+        function toggleSelectAll() {
+            const selectAll = document.getElementById('selectAll');
+            const checkboxes = document.querySelectorAll('.user-checkbox');
+
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = selectAll.checked;
+            });
+        }
+
+        function submitAddMembers(event) {
+            event.preventDefault();
+
+            const form = event.target;
+            const formData = new FormData(form);
+
+            // Afficher un indicateur de chargement
+            const submitButton = form.querySelector('button[type="submit"]');
+            const originalText = submitButton.innerHTML;
+            submitButton.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Ajout en cours...';
+            submitButton.disabled = true;
+
+            fetch(`{{ route('private.classes.ajouter-membres', $classe) }}`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                submitButton.innerHTML = originalText;
+                submitButton.disabled = false;
+
+                if (data.success) {
+                    showSuccessMessage(data.message || 'Membres ajoutés avec succès');
+                    closeAddMembersModal();
+                    setTimeout(() => location.reload(), 1500);
+                } else {
+                    showErrorMessage(data.message || 'Erreur lors de l\'ajout des membres');
+                }
+            })
+            .catch(error => {
+                console.error('Erreur:', error);
+                submitButton.innerHTML = originalText;
+                submitButton.disabled = false;
+                showErrorMessage('Une erreur est survenue lors de l\'ajout des membres');
+            });
+        }
+
+        // Retirer un membre
+        function removeMember(userId) {
+            if (!confirm('Êtes-vous sûr de vouloir retirer ce membre de la classe ?')) {
+                return;
+            }
+
+            fetch(`{{ route('private.classes.desinscrireUtilisateur', $classe) }}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: JSON.stringify({
+                    user_id: userId
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showSuccessMessage(data.message || 'Membre retiré avec succès');
+                    setTimeout(() => location.reload(), 1500);
+                } else {
+                    showErrorMessage(data.message || 'Erreur lors de la suppression du membre');
+                }
+            })
+            .catch(error => {
+                console.error('Erreur:', error);
+                showErrorMessage('Une erreur est survenue');
+            });
+        }
+
+        // Retirer un responsable
+        function removeResponsable(userId) {
+            if (!confirm('Êtes-vous sûr de vouloir retirer ce responsable ?')) {
+                return;
+            }
+
+            fetch(`{{ route('private.classes.retirerResponsable', $classe) }}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: JSON.stringify({
+                    user_id: userId
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showSuccessMessage(data.message || 'Responsable retiré avec succès');
+                    setTimeout(() => location.reload(), 1500);
+                } else {
+                    showErrorMessage(data.message || 'Erreur lors de la suppression du responsable');
+                }
+            })
+            .catch(error => {
+                console.error('Erreur:', error);
+                showErrorMessage('Une erreur est survenue');
+            });
+        }
+
+        // Supprimer la classe
+        @can('classes.delete')
+        function deleteClasse() {
+            if (confirm('Êtes-vous sûr de vouloir supprimer définitivement cette classe ? Cette action est irréversible.')) {
+                fetch(`{{ route('private.classes.destroy', $classe) }}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showSuccessMessage(data.message || 'Classe supprimée avec succès');
+                        setTimeout(() => {
+                            window.location.href = '{{ route("private.classes.index") }}';
+                        }, 1500);
+                    } else {
+                        showErrorMessage(data.message || 'Erreur lors de la suppression');
+                    }
+                })
+                .catch(error => {
+                    console.error('Erreur:', error);
+                    showErrorMessage('Une erreur est survenue lors de la suppression');
+                });
+            }
+        }
+        @endcan
+
+        // Fonctions d'affichage des messages
+        function showSuccessMessage(message) {
+            showMessage(message, 'success');
+        }
+
+        function showErrorMessage(message) {
+            showMessage(message, 'error');
+        }
+
+        function showMessage(message, type = 'success') {
+            const bgColor = type === 'success' ? 'bg-green-500' : 'bg-red-500';
+            const icon = type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle';
+
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `fixed top-4 right-4 ${bgColor} text-white px-6 py-3 rounded-xl shadow-lg z-50 transform transition-all duration-300 translate-x-full`;
+            alertDiv.innerHTML = `
+                <div class="flex items-center">
+                    <i class="fas ${icon} mr-2"></i>
+                    <span>${message}</span>
+                </div>
+            `;
+
+            document.body.appendChild(alertDiv);
+
+            // Animation d'entrée
+            setTimeout(() => {
+                alertDiv.classList.remove('translate-x-full');
+                alertDiv.classList.add('translate-x-0');
+            }, 100);
+
+            // Animation de sortie et suppression
+            setTimeout(() => {
+                alertDiv.classList.remove('translate-x-0');
+                alertDiv.classList.add('translate-x-full');
+                setTimeout(() => alertDiv.remove(), 300);
+            }, 3000);
+        }
+
+        // Fermer les modals en cliquant à l'extérieur
+        document.getElementById('manageResponsablesModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeManageResponsablesModal();
+            }
+        });
+
+        document.getElementById('addMembersModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeAddMembersModal();
+            }
+        });
+
+        document.getElementById('membersListModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeMembersListModal();
+            }
+        });
+
+        // Fermer les modals avec la touche Escape
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeManageResponsablesModal();
+                closeAddMembersModal();
+                closeMembersListModal();
+            }
+        });
+    </script>
 
 @endsection

@@ -48,6 +48,8 @@ Route::middleware(['auth', 'user.status'])->prefix('dashboard/users')->name('pri
     // Afficher un membres spécifique
     Route::get('/{user}', [UserController::class, 'show'])->middleware('permission:users.read')->name('show');
 
+    Route::get('/{fimeco}/notsubscribedtofimeco', [UserController::class, 'usersNotSubscribedToFimeco'])->middleware(['permission:users.read', 'permission:fimecos.update'])->name('not-subscribed-to-fimeco');
+
     // Afficher le formulaire d'édition
     Route::get('/{user}/edit', [UserController::class, 'edit'])->middleware('permission:users.update')->name('edit');
 

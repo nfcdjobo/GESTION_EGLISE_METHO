@@ -53,6 +53,7 @@ require __DIR__.'/private/web/interventions.php';
 require __DIR__.'/private/web/multimedia.php';
 require __DIR__.'/private/web/fimecos.php';
 require __DIR__.'/private/web/moissons.php';
+require __DIR__.'/private/web/assiduite-faible.php';
 
 require __DIR__.'/auth/index.php';
 

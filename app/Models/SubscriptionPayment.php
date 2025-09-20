@@ -193,6 +193,53 @@ class SubscriptionPayment extends Model
         return $this->created_at->diffInHours($this->date_validation);
     }
 
+    /**
+ * Calcule le délai de validation
+ */
+public function getDelaiValidation(): ?int
+{
+    if ($this->statut === 'en_attente') {
+        return now()->diffInHours($this->created_at);
+    }
+
+    if ($this->date_validation) {
+        return $this->created_at->diffInHours($this->date_validation);
+    }
+
+    return null;
+}
+
+
+/**
+ * Vérifie si le paiement peut être rejeté
+ */
+public function peutEtreRejete(): bool
+{
+    return $this->statut === 'en_attente' && !$this->trashed();
+}
+
+
+/**
+ * Vérifie si la validation peut être annulée
+ */
+public function peutAnnulerValidation(): bool
+{
+    return $this->statut !== 'en_attente' &&
+           $this->date_validation &&
+           $this->date_validation->diffInHours(now()) <= 24; // Limite de 24h
+}
+
+
+/**
+ * Vérifie si le paiement peut être validé
+ */
+public function peutEtreValide(): bool
+{
+    return $this->statut === 'en_attente' &&
+           $this->subscription &&
+           !$this->trashed();
+}
+
     // Méthodes métier
 
     /**
