@@ -4,7 +4,7 @@
 @section('content')
     <div class="space-y-8">
         <!-- En-tête de page -->
-        <div class="mb-8">
+        {{-- <div class="mb-8">
             <div class="flex items-center space-x-4 mb-4">
                 <a href="{{ route('private.classes.index') }}"
                    class="inline-flex items-center text-slate-600 hover:text-slate-900 transition-colors">
@@ -18,7 +18,30 @@
             <p class="text-slate-500 mt-1">
                 Vue d'ensemble et analyse des performances - {{ \Carbon\Carbon::now()->format('l d F Y') }}
             </p>
-        </div>
+        </div> --}}
+
+         <div class="mb-8">
+                <h1 class="text-3xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent">Statistiques des Classes</h1>
+                <nav class="flex mt-2" aria-label="Breadcrumb">
+                    <ol class="inline-flex items-center space-x-1 md:space-x-3">
+                        <li class="inline-flex items-center">
+                            <a href="{{ route('private.classes.index') }}"
+                                class="inline-flex items-center text-sm font-medium text-slate-700 hover:text-blue-600 transition-colors">
+                                <i class="fas fa-users  mr-2"></i>
+                                Classes
+                            </a>
+                        </li>
+                        <li>
+                            <div class="flex items-center">
+                                <i class="fas fa-chevron-right text-slate-400 mx-2"></i>
+                                <span class="text-sm font-medium text-slate-500">Vue d'ensemble et analyse des performances </span>
+                            </div>
+                        </li>
+                    </ol>
+                </nav>
+            </div>
+
+
 
         <!-- Statistiques principales -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -578,7 +601,6 @@
                 entries.forEach(entry => {
                     if (entry.isIntersecting) {
                         entry.target.style.opacity = '1';
-                        // entry.target.style.transform = 'translateY(0)';
                     }
                 });
             }, observerOptions);
@@ -586,7 +608,6 @@
             // Observer les cartes de statistiques
             document.querySelectorAll('.bg-white\\/80').forEach(card => {
                 card.style.opacity = '0';
-                // card.style.transform = 'translateY(20px)';
                 card.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
                 observer.observe(card);
             });

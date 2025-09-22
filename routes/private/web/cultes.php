@@ -35,6 +35,18 @@ Route::prefix('dashboard/cultes')->name('private.cultes.')->middleware(['auth', 
 
     Route::get('/dashboard', [CulteController::class, 'dashboard'])->name('dashboard');
 
+    // Export multiple de cultes
+    Route::post('export/multiple', [CulteController::class, 'exportMultiple'])->name('export.multiple')->middleware('permission:cultes.read');
+
+    // Route pour télécharger les exports multiples directement
+    Route::get('export/multiple/pdf', [CulteController::class, 'exportMultiplePdfDirect'])->name('export.multiple.pdf')->middleware('permission:cultes.read');
+
+    Route::get('export/multiple/excel', [CulteController::class, 'exportMultipleExcelDirect'])->name('export.multiple.excel')->middleware('permission:cultes.read');
+
+
+
+
+
     Route::get('/{culte}', [CulteController::class, 'show'])->name('show');
 
     Route::get('/{culte}/edit', [CulteController::class, 'edit'])->name('edit');
@@ -58,13 +70,14 @@ Route::prefix('dashboard/cultes')->name('private.cultes.')->middleware(['auth', 
 
 
     // Routes spécifiques pour les participants d'un culte
-    Route::get('/{culte}/participants', [ParticipantCulteController::class, 'participantsCulte'])
-        ->name('participants')
-        ->where('culte', '[0-9a-f-]{36}');
+    Route::get('/{culte}/participants', [ParticipantCulteController::class, 'participantsCulte'])->name('participants')->where('culte', '[0-9a-f-]{36}');
 
-    Route::post('/{culte}/participants/ajouter', [ParticipantCulteController::class, 'ajouterParticipant'])
-        ->name('participants.ajouter')
-        ->where('culte', '[0-9a-f-]{36}');
+    // Export individuel d'un culte
+    Route::get('{culte}/export/pdf', [CulteController::class, 'exportPdf'])->name('export.pdf')->middleware('permission:cultes.read');
+
+    Route::get('{culte}/export/excel', [CulteController::class, 'exportExcel'])->name('export.excel')->middleware('permission:cultes.read');
+
+    Route::post('/{culte}/participants/ajouter', [ParticipantCulteController::class, 'ajouterParticipant'])->name('participants.ajouter')->where('culte', '[0-9a-f-]{36}');
 
 
 

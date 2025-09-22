@@ -113,21 +113,9 @@ class User extends Authenticatable
                     ->withTimestamps();
     }
 
-    /**
-     * Classes dont l'utilisateur est responsable
-     */
-    public function classesResponsables()
-    {
-        return $this->hasMany(Classe::class, 'responsable_id');
-    }
+   
 
-    /**
-     * Classes dont l'utilisateur est enseignant principal
-     */
-    public function classesEnseignant()
-    {
-        return $this->hasMany(Classe::class, 'enseignant_principal_id');
-    }
+
 
     /**
      * Cultes où l'utilisateur est pasteur principal

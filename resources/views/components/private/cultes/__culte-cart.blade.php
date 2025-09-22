@@ -168,7 +168,7 @@
                 @if($culte->offrande_totale)
                     <div class="flex items-center text-green-600">
                         <i class="fas fa-hand-holding-heart mr-1"></i>
-                        <span>{{ number_format($culte->offrande_totale, 0) }}€</span>
+                        <span>{{ number_format($culte->offrande_totale, 0) }}FCFA</span>
                     </div>
                 @endif
             </div>

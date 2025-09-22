@@ -474,11 +474,11 @@ document.addEventListener('DOMContentLoaded', function() {
 const statCards = document.querySelectorAll('.hover\\:-translate-y-1');
 statCards.forEach(card => {
     card.addEventListener('mouseenter', function() {
-        this.style.transform = 'translateY(-4px)';
+        // this.style.transform = 'translateY(-4px)';
     });
 
     card.addEventListener('mouseleave', function() {
-        this.style.transform = 'translateY(0)';
+        // this.style.transform = 'translateY(0)';
     });
 });
 </script>

@@ -6,9 +6,10 @@
         <div class="mb-8">
             <div class="flex items-center justify-between">
                 <div>
-                    <h1
-                        class="text-3xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent">
-                        <?php echo e($culte->titre); ?></h1>
+                    <h1 class="text-3xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent">
+                        <?php echo e($culte->titre); ?>
+
+                    </h1>
                     <nav class="flex mt-2" aria-label="Breadcrumb">
                         <ol class="inline-flex items-center space-x-1 md:space-x-3">
                             <li class="inline-flex items-center">
@@ -36,6 +37,14 @@
                             <i class="fas fa-edit mr-2"></i> Modifier
                         </a>
                     <?php endif; ?>
+
+<?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('cultes.read')): ?>
+    <button type="button" onclick="openExportModal('<?php echo e($culte->id); ?>')"
+        class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-emerald-600 to-teal-600 text-white text-sm font-medium rounded-xl hover:from-emerald-700 hover:to-teal-700 transition-all duration-200 shadow-md hover:shadow-lg">
+        <i class="fas fa-download mr-2"></i> Exporter
+    </button>
+<?php endif; ?>
+
                     <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('cultes.create')): ?>
                         <button type="button" onclick="openDuplicateModal('<?php echo e($culte->id); ?>')"
                             class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white text-sm font-medium rounded-xl hover:from-purple-700 hover:to-pink-700 transition-all duration-200 shadow-md hover:shadow-lg">
@@ -47,11 +56,10 @@
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <!-- Informations principales -->
+            <!-- Colonne principale -->
             <div class="lg:col-span-2 space-y-8">
                 <!-- Informations générales -->
-                <div
-                    class="bg-white/80 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
+                <div class="bg-white/80 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
                     <div class="p-6 border-b border-slate-200">
                         <div class="flex items-center justify-between">
                             <h2 class="text-xl font-bold text-slate-800 flex items-center">
@@ -68,8 +76,7 @@
                                     'reporte' => 'bg-purple-100 text-purple-800',
                                 ];
                             ?>
-                            <span
-                                class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium <?php echo e($statutColors[$culte->statut] ?? 'bg-gray-100 text-gray-800'); ?>">
+                            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium <?php echo e($statutColors[$culte->statut] ?? 'bg-gray-100 text-gray-800'); ?>">
                                 <?php echo e($culte->statut_libelle); ?>
 
                             </span>
@@ -88,15 +95,16 @@
                                 </div>
                                 <div>
                                     <span class="text-sm font-medium text-slate-500">Programme</span>
-                                    <p class="text-lg font-semibold text-slate-900">
-                                        <?php echo e($culte->programme->nom ?? 'Non défini'); ?></p>
+                                    <p class="text-lg font-semibold text-slate-900"><?php echo e($culte->programme->nom ?? 'Non défini'); ?></p>
                                 </div>
                             </div>
                             <div class="space-y-4">
                                 <div>
                                     <span class="text-sm font-medium text-slate-500">Date</span>
                                     <p class="text-lg font-semibold text-slate-900">
-                                        <?php echo e(\Carbon\Carbon::parse($culte->date_culte)->format('l d F Y')); ?></p>
+                                        <?php echo e(\Carbon\Carbon::parse($culte->date_culte)->format('l d F Y')); ?>
+
+                                    </p>
                                 </div>
                                 <div>
                                     <span class="text-sm font-medium text-slate-500">Horaires</span>
@@ -149,26 +157,22 @@
                         <div class="mt-6 pt-6 border-t border-slate-200">
                             <div class="flex flex-wrap gap-2">
                                 <?php if($culte->est_public): ?>
-                                    <span
-                                        class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-cyan-100 text-cyan-800">
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-cyan-100 text-cyan-800">
                                         <i class="fas fa-globe mr-1"></i> Public
                                     </span>
                                 <?php endif; ?>
                                 <?php if($culte->necessite_invitation): ?>
-                                    <span
-                                        class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
                                         <i class="fas fa-envelope mr-1"></i> Sur invitation
                                     </span>
                                 <?php endif; ?>
                                 <?php if($culte->diffusion_en_ligne): ?>
-                                    <span
-                                        class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
                                         <i class="fas fa-broadcast-tower mr-1"></i> Diffusion en ligne
                                     </span>
                                 <?php endif; ?>
                                 <?php if($culte->est_enregistre): ?>
-                                    <span
-                                        class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
                                         <i class="fas fa-video mr-1"></i> Enregistré
                                     </span>
                                 <?php endif; ?>
@@ -178,8 +182,7 @@
                 </div>
 
                 <!-- Responsables -->
-                <div
-                    class="bg-white/80 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
+                <div class="bg-white/80 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
                     <div class="p-6 border-b border-slate-200">
                         <h2 class="text-xl font-bold text-slate-800 flex items-center">
                             <i class="fas fa-users text-purple-600 mr-2"></i>
@@ -189,61 +192,49 @@
                     <div class="p-6">
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <?php if($culte->pasteurPrincipal): ?>
-                                <div
-                                    class="flex items-center space-x-3 p-4 bg-gradient-to-r from-blue-50 to-cyan-50 rounded-xl">
+                                <div class="flex items-center space-x-3 p-4 bg-gradient-to-r from-blue-50 to-cyan-50 rounded-xl">
                                     <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
                                         <i class="fas fa-user-tie text-blue-600"></i>
                                     </div>
                                     <div>
                                         <p class="text-sm font-medium text-slate-500">Pasteur principal</p>
-                                        <p class="font-semibold text-slate-900"><?php echo e($culte->pasteurPrincipal->nom); ?>
-
-                                            <?php echo e($culte->pasteurPrincipal->prenom); ?></p>
+                                        <p class="font-semibold text-slate-900"><?php echo e($culte->pasteurPrincipal->nom); ?> <?php echo e($culte->pasteurPrincipal->prenom); ?></p>
                                     </div>
                                 </div>
                             <?php endif; ?>
 
                             <?php if($culte->predicateur): ?>
-                                <div
-                                    class="flex items-center space-x-3 p-4 bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl">
+                                <div class="flex items-center space-x-3 p-4 bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl">
                                     <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
                                         <i class="fas fa-microphone text-green-600"></i>
                                     </div>
                                     <div>
                                         <p class="text-sm font-medium text-slate-500">Prédicateur</p>
-                                        <p class="font-semibold text-slate-900"><?php echo e($culte->predicateur->nom); ?>
-
-                                            <?php echo e($culte->predicateur->prenom); ?></p>
+                                        <p class="font-semibold text-slate-900"><?php echo e($culte->predicateur->nom); ?> <?php echo e($culte->predicateur->prenom); ?></p>
                                     </div>
                                 </div>
                             <?php endif; ?>
 
                             <?php if($culte->responsableCulte): ?>
-                                <div
-                                    class="flex items-center space-x-3 p-4 bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl">
+                                <div class="flex items-center space-x-3 p-4 bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl">
                                     <div class="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
                                         <i class="fas fa-user-cog text-purple-600"></i>
                                     </div>
                                     <div>
                                         <p class="text-sm font-medium text-slate-500">Responsable du culte</p>
-                                        <p class="font-semibold text-slate-900"><?php echo e($culte->responsableCulte->nom); ?>
-
-                                            <?php echo e($culte->responsableCulte->prenom); ?></p>
+                                        <p class="font-semibold text-slate-900"><?php echo e($culte->responsableCulte->nom); ?> <?php echo e($culte->responsableCulte->prenom); ?></p>
                                     </div>
                                 </div>
                             <?php endif; ?>
 
                             <?php if($culte->dirigeantLouange): ?>
-                                <div
-                                    class="flex items-center space-x-3 p-4 bg-gradient-to-r from-amber-50 to-orange-50 rounded-xl">
+                                <div class="flex items-center space-x-3 p-4 bg-gradient-to-r from-amber-50 to-orange-50 rounded-xl">
                                     <div class="w-10 h-10 bg-amber-100 rounded-full flex items-center justify-center">
                                         <i class="fas fa-music text-amber-600"></i>
                                     </div>
                                     <div>
                                         <p class="text-sm font-medium text-slate-500">Dirigeant de louange</p>
-                                        <p class="font-semibold text-slate-900"><?php echo e($culte->dirigeantLouange->nom); ?>
-
-                                            <?php echo e($culte->dirigeantLouange->prenom); ?></p>
+                                        <p class="font-semibold text-slate-900"><?php echo e($culte->dirigeantLouange->nom); ?> <?php echo e($culte->dirigeantLouange->prenom); ?></p>
                                     </div>
                                 </div>
                             <?php endif; ?>
@@ -253,8 +244,7 @@
 
                 <!-- Message et prédication -->
                 <?php if($culte->titre_message || $culte->passage_biblique || $culte->resume_message || $culte->plan_message): ?>
-                    <div
-                        class="bg-white/80 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
+                    <div class="bg-white/80 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
                         <div class="p-6 border-b border-slate-200">
                             <h2 class="text-xl font-bold text-slate-800 flex items-center">
                                 <i class="fas fa-bible text-amber-600 mr-2"></i>
@@ -273,7 +263,9 @@
                                 <div>
                                     <h3 class="text-lg font-semibold text-slate-800 mb-2">Passage biblique</h3>
                                     <p class="text-lg font-semibold text-blue-700 bg-blue-50 p-3 rounded-lg">
-                                        <?php echo e($culte->passage_biblique); ?></p>
+                                        <?php echo e($culte->passage_biblique); ?>
+
+                                    </p>
                                 </div>
                             <?php endif; ?>
 
@@ -329,27 +321,20 @@
                                 </div>
                             <?php endif; ?>
 
-                            
                             <?php if($culte->resume_message || $culte->plan_message): ?>
-                                <div
-                                    class="bg-gradient-to-r from-blue-50 to-amber-50 p-4 rounded-lg border border-blue-200">
+                                <div class="bg-gradient-to-r from-blue-50 to-amber-50 p-4 rounded-lg border border-blue-200">
                                     <h4 class="font-semibold text-slate-800 mb-2">Aperçu du message</h4>
                                     <div class="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
                                         <div class="text-center">
-                                            <div class="text-lg font-bold text-blue-600">
-                                                <?php echo e($culte->getMessageWordCount()); ?></div>
+                                            <div class="text-lg font-bold text-blue-600"><?php echo e($culte->getMessageWordCount()); ?></div>
                                             <div class="text-slate-600">Mots au total</div>
                                         </div>
                                         <div class="text-center">
-                                            <div class="text-lg font-bold text-amber-600">
-                                                <?php echo e($culte->getMessageReadingTime()); ?></div>
+                                            <div class="text-lg font-bold text-amber-600"><?php echo e($culte->getMessageReadingTime()); ?></div>
                                             <div class="text-slate-600">Min de lecture</div>
                                         </div>
                                         <div class="text-center">
-                                            <div class="text-lg font-bold text-purple-600">
-                                                <?php echo e($culte->hasRichContent() ? 'Oui' : 'Non'); ?>
-
-                                            </div>
+                                            <div class="text-lg font-bold text-purple-600"><?php echo e($culte->hasRichContent() ? 'Oui' : 'Non'); ?></div>
                                             <div class="text-slate-600">Mise en forme</div>
                                         </div>
                                     </div>
@@ -359,11 +344,9 @@
                     </div>
                 <?php endif; ?>
 
-
                 <!-- Statistiques et participation -->
                 <?php if($culte->statut === 'termine' || $culte->nombre_participants): ?>
-                    <div
-                        class="bg-white/80 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
+                    <div class="bg-white/80 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
                         <div class="p-6 border-b border-slate-200">
                             <h2 class="text-xl font-bold text-slate-800 flex items-center">
                                 <i class="fas fa-chart-bar text-green-600 mr-2"></i>
@@ -374,9 +357,7 @@
                             <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
                                 <?php if($culte->nombre_participants): ?>
                                     <div class="text-center p-4 bg-gradient-to-r from-blue-50 to-cyan-50 rounded-xl">
-                                        <div class="text-2xl font-bold text-blue-600"><?php echo e($culte->nombre_participants); ?>
-
-                                        </div>
+                                        <div class="text-2xl font-bold text-blue-600"><?php echo e($culte->nombre_participants); ?></div>
                                         <div class="text-sm text-slate-600">Participants</div>
                                     </div>
                                 <?php endif; ?>
@@ -411,26 +392,21 @@
 
                                 <?php if($culte->nombre_conversions): ?>
                                     <div class="text-center p-4 bg-gradient-to-r from-yellow-50 to-amber-50 rounded-xl">
-                                        <div class="text-2xl font-bold text-yellow-600"><?php echo e($culte->nombre_conversions); ?>
-
-                                        </div>
+                                        <div class="text-2xl font-bold text-yellow-600"><?php echo e($culte->nombre_conversions); ?></div>
                                         <div class="text-sm text-slate-600">Conversions</div>
                                     </div>
                                 <?php endif; ?>
 
                                 <?php if($culte->nombre_baptemes): ?>
                                     <div class="text-center p-4 bg-gradient-to-r from-indigo-50 to-purple-50 rounded-xl">
-                                        <div class="text-2xl font-bold text-indigo-600"><?php echo e($culte->nombre_baptemes); ?>
-
-                                        </div>
+                                        <div class="text-2xl font-bold text-indigo-600"><?php echo e($culte->nombre_baptemes); ?></div>
                                         <div class="text-sm text-slate-600">Baptêmes</div>
                                     </div>
                                 <?php endif; ?>
 
                                 <?php if($culte->offrande_totale): ?>
                                     <div class="text-center p-4 bg-gradient-to-r from-emerald-50 to-green-50 rounded-xl">
-                                        <div class="text-2xl font-bold text-emerald-600">
-                                            <?php echo e(number_format($culte->offrande_totale, 0)); ?>€</div>
+                                        <div class="text-2xl font-bold text-emerald-600"><?php echo e(number_format($culte->offrande_totale, 0)); ?>FCFA</div>
                                         <div class="text-sm text-slate-600">Offrandes</div>
                                     </div>
                                 <?php endif; ?>
@@ -443,27 +419,215 @@
                                         <?php if($culte->heure_debut_reelle): ?>
                                             <div>
                                                 <span class="text-sm font-medium text-slate-500">Début réel</span>
-                                                <p class="text-lg font-semibold text-slate-900">
-                                                    <?php echo e(\Carbon\Carbon::parse($culte->heure_debut_reelle)->format('H:i')); ?>
-
-                                                </p>
+                                                <p class="text-lg font-semibold text-slate-900"><?php echo e(\Carbon\Carbon::parse($culte->heure_debut_reelle)->format('H:i')); ?></p>
                                             </div>
                                         <?php endif; ?>
                                         <?php if($culte->heure_fin_reelle): ?>
                                             <div>
                                                 <span class="text-sm font-medium text-slate-500">Fin réelle</span>
-                                                <p class="text-lg font-semibold text-slate-900">
-                                                    <?php echo e(\Carbon\Carbon::parse($culte->heure_fin_reelle)->format('H:i')); ?>
-
-                                                </p>
+                                                <p class="text-lg font-semibold text-slate-900"><?php echo e(\Carbon\Carbon::parse($culte->heure_fin_reelle)->format('H:i')); ?></p>
                                             </div>
                                         <?php endif; ?>
                                         <?php if($culte->duree_totale): ?>
                                             <div>
                                                 <span class="text-sm font-medium text-slate-500">Durée totale</span>
-                                                <p class="text-lg font-semibold text-slate-900"><?php echo e($culte->duree_totale); ?>
+                                                <p class="text-lg font-semibold text-slate-900"><?php echo e($culte->duree_totale); ?></p>
+                                            </div>
+                                        <?php endif; ?>
+                                    </div>
+                                </div>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                <?php endif; ?>
 
-                                                </p>
+                <!-- Statistiques Financières Détaillées -->
+                <?php if(isset($fondsStatistiques) && $fondsStatistiques['total_transactions'] > 0): ?>
+                    <div class="bg-white/80 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
+                        <div class="p-6 border-b border-slate-200">
+                            <h2 class="text-xl font-bold text-slate-800 flex items-center">
+                                <i class="fas fa-coins text-yellow-600 mr-2"></i>
+                                Statistiques Financières
+                            </h2>
+                        </div>
+                        <div class="p-6 space-y-6">
+                            <!-- Métriques principales -->
+                            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                <div class="text-center p-4 bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl">
+                                    <div class="text-2xl font-bold text-green-600"><?php echo e(number_format($fondsStatistiques['montant_total'], 0)); ?></div>
+                                    <div class="text-sm text-slate-600">FCFA Total</div>
+                                </div>
+                                <div class="text-center p-4 bg-gradient-to-r from-blue-50 to-cyan-50 rounded-xl">
+                                    <div class="text-2xl font-bold text-blue-600"><?php echo e($fondsStatistiques['total_transactions']); ?></div>
+                                    <div class="text-sm text-slate-600">Transactions</div>
+                                </div>
+                                <div class="text-center p-4 bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl">
+                                    <div class="text-2xl font-bold text-purple-600"><?php echo e($fondsStatistiques['donateurs_uniques']); ?></div>
+                                    <div class="text-sm text-slate-600">Donateurs</div>
+                                </div>
+                                <div class="text-center p-4 bg-gradient-to-r from-amber-50 to-orange-50 rounded-xl">
+                                    <div class="text-2xl font-bold text-amber-600"><?php echo e(number_format($metriques['transaction_moyenne'], 0)); ?></div>
+                                    <div class="text-sm text-slate-600">FCFA/Transaction</div>
+                                </div>
+                            </div>
+
+                            <!-- Ratios par participant -->
+                            <?php if($culte->nombre_participants > 0): ?>
+                                <div class="bg-gradient-to-r from-slate-50 to-blue-50 p-4 rounded-xl border border-slate-200">
+                                    <h3 class="text-lg font-semibold text-slate-800 mb-4 flex items-center">
+                                        <i class="fas fa-calculator text-blue-600 mr-2"></i>
+                                        Ratios par Participant
+                                    </h3>
+                                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                        <div class="text-center">
+                                            <div class="text-xl font-bold text-blue-600"><?php echo e(number_format($metriques['offrande_par_participant'], 0)); ?> FCFA</div>
+                                            <div class="text-sm text-slate-600">Total/Participant</div>
+                                        </div>
+                                        <div class="text-center">
+                                            <div class="text-xl font-bold text-green-600"><?php echo e(number_format($metriques['dime_par_participant'], 0)); ?> FCFA</div>
+                                            <div class="text-sm text-slate-600">Dîme/Participant</div>
+                                        </div>
+                                        <div class="text-center">
+                                            <div class="text-xl font-bold text-purple-600"><?php echo e(number_format($metriques['offrande_pure_par_participant'], 0)); ?> FCFA</div>
+                                            <div class="text-sm text-slate-600">Offrande/Participant</div>
+                                        </div>
+                                        <div class="text-center">
+                                            <div class="text-xl font-bold text-orange-600"><?php echo e($metriques['taux_participation_financiere']); ?>%</div>
+                                            <div class="text-sm text-slate-600">Taux participation</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            <?php endif; ?>
+
+                            <!-- Répartition par type -->
+                            <?php if(count($fondsStatistiques['par_type']) > 0): ?>
+                                <div>
+                                    <h3 class="text-lg font-semibold text-slate-800 mb-4 flex items-center">
+                                        <i class="fas fa-chart-pie text-green-600 mr-2"></i>
+                                        Répartition par Type
+                                    </h3>
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <?php $__currentLoopData = $fondsStatistiques['par_type']; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $type => $data): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                            <div class="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
+                                                <div>
+                                                    <span class="font-medium text-slate-700 capitalize"><?php echo e(str_replace('_', ' ', $type)); ?></span>
+                                                    <div class="text-sm text-slate-500"><?php echo e($data['nombre']); ?> transaction(s)</div>
+                                                </div>
+                                                <div class="text-right">
+                                                    <div class="font-bold text-slate-900"><?php echo e(number_format($data['montant'], 0)); ?> FCFA</div>
+                                                    <div class="text-sm text-slate-500"><?php echo e($data['pourcentage']); ?>%</div>
+                                                </div>
+                                            </div>
+                                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                    </div>
+                                </div>
+                            <?php endif; ?>
+
+                            <!-- Comparaison avec moyennes -->
+                            <?php if(isset($metriques['comparaison']) && $metriques['comparaison']['moyenne_type_culte'] > 0): ?>
+                                <div class="bg-gradient-to-r from-yellow-50 to-amber-50 p-4 rounded-xl border border-yellow-200">
+                                    <h3 class="text-lg font-semibold text-slate-800 mb-3 flex items-center">
+                                        <i class="fas fa-chart-line text-amber-600 mr-2"></i>
+                                        Comparaison avec la Moyenne
+                                    </h3>
+                                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                        <div class="text-center">
+                                            <div class="text-lg font-bold text-slate-900"><?php echo e(number_format($fondsStatistiques['montant_total'], 0)); ?> FCFA</div>
+                                            <div class="text-sm text-slate-600">Ce culte</div>
+                                        </div>
+                                        <div class="text-center">
+                                            <div class="text-lg font-bold text-slate-700"><?php echo e(number_format($metriques['comparaison']['moyenne_type_culte'], 0)); ?> FCFA</div>
+                                            <div class="text-sm text-slate-600">Moyenne <?php echo e($culte->type_culte_libelle); ?></div>
+                                        </div>
+                                        <div class="text-center">
+                                            <?php
+                                                $ecart = $metriques['comparaison']['ecart_pourcentage'];
+                                                $couleur = $ecart > 0 ? 'text-green-600' : 'text-red-600';
+                                                $icone = $ecart > 0 ? 'fas fa-arrow-up' : 'fas fa-arrow-down';
+                                            ?>
+                                            <div class="text-lg font-bold <?php echo e($couleur); ?> flex items-center justify-center">
+                                                <i class="<?php echo e($icone); ?> mr-1"></i>
+                                                <?php echo e(abs($ecart)); ?>%
+                                            </div>
+                                            <div class="text-sm text-slate-600">Écart</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            <?php endif; ?>
+
+                            <!-- Top donateurs -->
+                            <?php if(count($fondsStatistiques['top_donateurs']) > 0): ?>
+                                <div>
+                                    <h3 class="text-lg font-semibold text-slate-800 mb-4 flex items-center">
+                                        <i class="fas fa-trophy text-yellow-600 mr-2"></i>
+                                        Top Donateurs
+                                    </h3>
+                                    <div class="space-y-2">
+                                        <?php $__currentLoopData = $fondsStatistiques['top_donateurs']; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $index => $donateur): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                            <div class="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
+                                                <div class="flex items-center space-x-3">
+                                                    <div class="w-8 h-8 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full flex items-center justify-center text-white font-bold text-sm">
+                                                        <?php echo e($index + 1); ?>
+
+                                                    </div>
+                                                    <div>
+                                                        <span class="font-medium text-slate-700"><?php echo e($donateur['donateur']); ?></span>
+                                                        <div class="text-sm text-slate-500"><?php echo e($donateur['nombre_dons']); ?> don(s)</div>
+                                                    </div>
+                                                </div>
+                                                <div class="font-bold text-slate-900"><?php echo e(number_format($donateur['montant_total'], 0)); ?> FCFA</div>
+                                            </div>
+                                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                    </div>
+                                </div>
+                            <?php endif; ?>
+
+                            <!-- Modes de paiement -->
+                            <?php if(count($fondsStatistiques['par_mode_paiement']) > 0): ?>
+                                <div>
+                                    <h3 class="text-lg font-semibold text-slate-800 mb-4 flex items-center">
+                                        <i class="fas fa-credit-card text-indigo-600 mr-2"></i>
+                                        Modes de Paiement
+                                    </h3>
+                                    <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+                                        <?php $__currentLoopData = $fondsStatistiques['par_mode_paiement']; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $mode => $data): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                            <div class="text-center p-3 bg-slate-50 rounded-lg">
+                                                <div class="font-medium text-slate-700 capitalize mb-1"><?php echo e(str_replace('_', ' ', $mode)); ?></div>
+                                                <div class="text-lg font-bold text-slate-900"><?php echo e(number_format($data['montant'], 0)); ?> FCFA</div>
+                                                <div class="text-sm text-slate-500"><?php echo e($data['nombre']); ?> transaction(s) (<?php echo e($data['pourcentage']); ?>%)</div>
+                                            </div>
+                                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                    </div>
+                                </div>
+                            <?php endif; ?>
+
+                            <!-- Informations supplémentaires -->
+                            <?php if($fondsStatistiques['transactions_anonymes'] > 0 || $fondsStatistiques['dons_en_nature'] > 0): ?>
+                                <div class="bg-gradient-to-r from-gray-50 to-slate-50 p-4 rounded-xl">
+                                    <h3 class="text-lg font-semibold text-slate-800 mb-3">Informations Complémentaires</h3>
+                                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                                        <?php if($fondsStatistiques['transactions_anonymes'] > 0): ?>
+                                            <div class="text-center">
+                                                <div class="text-lg font-bold text-slate-600"><?php echo e($fondsStatistiques['transactions_anonymes']); ?></div>
+                                                <div class="text-slate-500">Dons anonymes</div>
+                                            </div>
+                                        <?php endif; ?>
+                                        <?php if($fondsStatistiques['dons_en_nature'] > 0): ?>
+                                            <div class="text-center">
+                                                <div class="text-lg font-bold text-slate-600"><?php echo e($fondsStatistiques['dons_en_nature']); ?></div>
+                                                <div class="text-slate-500">Dons en nature</div>
+                                            </div>
+                                        <?php endif; ?>
+                                        <?php if($fondsStatistiques['recus_demandes'] > 0): ?>
+                                            <div class="text-center">
+                                                <div class="text-lg font-bold text-slate-600"><?php echo e($fondsStatistiques['recus_demandes']); ?></div>
+                                                <div class="text-slate-500">Reçus demandés</div>
+                                            </div>
+                                        <?php endif; ?>
+                                        <?php if($fondsStatistiques['recus_emis'] > 0): ?>
+                                            <div class="text-center">
+                                                <div class="text-lg font-bold text-slate-600"><?php echo e($fondsStatistiques['recus_emis']); ?></div>
+                                                <div class="text-slate-500">Reçus émis</div>
                                             </div>
                                         <?php endif; ?>
                                     </div>
@@ -474,14 +638,8 @@
                 <?php endif; ?>
 
                 <!-- Notes et commentaires -->
-                <?php if(
-                    $culte->notes_pasteur ||
-                        $culte->notes_organisateur ||
-                        $culte->temoignages ||
-                        $culte->points_forts ||
-                        $culte->points_amelioration): ?>
-                    <div
-                        class="bg-white/80 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
+                <?php if($culte->notes_pasteur || $culte->notes_organisateur || $culte->temoignages || $culte->points_forts || $culte->points_amelioration): ?>
+                    <div class="bg-white/80 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
                         <div class="p-6 border-b border-slate-200">
                             <h2 class="text-xl font-bold text-slate-800 flex items-center">
                                 <i class="fas fa-comment-alt text-cyan-600 mr-2"></i>
@@ -645,8 +803,7 @@
             <!-- Sidebar -->
             <div class="space-y-6">
                 <!-- Actions rapides -->
-                <div
-                    class="bg-white/80 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
+                <div class="bg-white/80 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
                     <div class="p-6 border-b border-slate-200">
                         <h2 class="text-xl font-bold text-slate-800 flex items-center">
                             <i class="fas fa-bolt text-yellow-600 mr-2"></i>
@@ -661,9 +818,15 @@
                             </a>
                         <?php endif; ?>
 
+                        <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('fonds.create')): ?>
+                            <a href="<?php echo e(route('private.fonds.create', ['culte_id' => $culte->id])); ?>"
+                                class="w-full inline-flex items-center justify-center px-4 py-2 bg-gradient-to-r from-emerald-600 to-teal-600 text-white text-sm font-medium rounded-xl hover:from-emerald-700 hover:to-teal-700 transition-all duration-200">
+                                <i class="fas fa-coins mr-2"></i> Ajouter une transaction
+                            </a>
+                        <?php endif; ?>
+
                         <?php if($culte->statut !== 'termine'): ?>
-                            <button type="button"
-                                onclick="openStatusModal('<?php echo e($culte->id); ?>', '<?php echo e($culte->statut); ?>')"
+                            <button type="button" onclick="openStatusModal('<?php echo e($culte->id); ?>', '<?php echo e($culte->statut); ?>')"
                                 class="w-full inline-flex items-center justify-center px-4 py-2 bg-gradient-to-r from-blue-600 to-cyan-600 text-white text-sm font-medium rounded-xl hover:from-blue-700 hover:to-cyan-700 transition-all duration-200">
                                 <i class="fas fa-exchange-alt mr-2"></i> Changer le statut
                             </button>
@@ -701,10 +864,72 @@
                     </div>
                 </div>
 
+                <!-- Résumé Financier Rapide -->
+                <?php if(isset($fondsStatistiques) && $fondsStatistiques['total_transactions'] > 0): ?>
+                    <div class="bg-white/80 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
+                        <div class="p-6 border-b border-slate-200">
+                            <h2 class="text-xl font-bold text-slate-800 flex items-center">
+                                <i class="fas fa-wallet text-green-600 mr-2"></i>
+                                Résumé Financier
+                            </h2>
+                        </div>
+                        <div class="p-6 space-y-4">
+                            <div class="text-center p-4 bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl">
+                                <div class="text-2xl font-bold text-green-600"><?php echo e(number_format($fondsStatistiques['montant_total'], 0)); ?></div>
+                                <div class="text-sm text-slate-600">FCFA collectés</div>
+                            </div>
+
+                            <?php if($culte->nombre_participants > 0): ?>
+                                <div class="space-y-2 text-sm">
+                                    <div class="flex justify-between">
+                                        <span class="text-slate-600">Par participant:</span>
+                                        <span class="font-semibold"><?php echo e(number_format($metriques['offrande_par_participant'], 0)); ?> FCFA</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-slate-600">Participation:</span>
+                                        <span class="font-semibold"><?php echo e($metriques['taux_participation_financiere']); ?>%</span>
+                                    </div>
+                                </div>
+                            <?php endif; ?>
+
+                            <!-- Répartition Dîmes/Offrandes -->
+                            <?php if(isset($metriques['pourcentage_dimes']) && ($metriques['pourcentage_dimes'] > 0 || $metriques['pourcentage_offrandes'] > 0)): ?>
+                                <div class="space-y-2">
+                                    <div class="text-sm font-medium text-slate-700">Répartition:</div>
+                                    <div class="space-y-1">
+                                        <div class="flex items-center justify-between text-sm">
+                                            <span class="text-slate-600">Dîmes:</span>
+                                            <span class="font-semibold text-blue-600"><?php echo e($metriques['pourcentage_dimes']); ?>%</span>
+                                        </div>
+                                        <div class="w-full bg-slate-200 rounded-full h-2">
+                                            <div class="bg-blue-600 h-2 rounded-full" style="width: <?php echo e($metriques['pourcentage_dimes']); ?>%"></div>
+                                        </div>
+                                        <div class="flex items-center justify-between text-sm">
+                                            <span class="text-slate-600">Offrandes:</span>
+                                            <span class="font-semibold text-purple-600"><?php echo e($metriques['pourcentage_offrandes']); ?>%</span>
+                                        </div>
+                                        <div class="w-full bg-slate-200 rounded-full h-2">
+                                            <div class="bg-purple-600 h-2 rounded-full" style="width: <?php echo e($metriques['pourcentage_offrandes']); ?>%"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            <?php endif; ?>
+
+                            <?php if($fondsStatistiques['total_transactions'] > 0): ?>
+                                <div class="text-center pt-2 border-t border-slate-200">
+                                    <div class="text-xs text-slate-500">
+                                        <?php echo e($fondsStatistiques['total_transactions']); ?> transaction(s) •
+                                        <?php echo e($fondsStatistiques['donateurs_uniques']); ?> donateur(s)
+                                    </div>
+                                </div>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                <?php endif; ?>
+
                 <!-- Évaluations -->
                 <?php if($culte->note_globale || $culte->note_louange || $culte->note_message || $culte->note_organisation): ?>
-                    <div
-                        class="bg-white/80 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
+                    <div class="bg-white/80 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
                         <div class="p-6 border-b border-slate-200">
                             <h2 class="text-xl font-bold text-slate-800 flex items-center">
                                 <i class="fas fa-star text-amber-600 mr-2"></i>
@@ -716,12 +941,10 @@
                                 <div class="flex items-center justify-between">
                                     <span class="text-sm font-medium text-slate-700">Note globale</span>
                                     <div class="flex items-center">
-                                        <span
-                                            class="text-lg font-bold text-amber-600 mr-2"><?php echo e($culte->note_globale); ?>/10</span>
+                                        <span class="text-lg font-bold text-amber-600 mr-2"><?php echo e($culte->note_globale); ?>/10</span>
                                         <div class="flex">
                                             <?php for($i = 1; $i <= 10; $i++): ?>
-                                                <i
-                                                    class="fas fa-star text-xs <?php echo e($i <= $culte->note_globale ? 'text-amber-400' : 'text-slate-300'); ?>"></i>
+                                                <i class="fas fa-star text-xs <?php echo e($i <= $culte->note_globale ? 'text-amber-400' : 'text-slate-300'); ?>"></i>
                                             <?php endfor; ?>
                                         </div>
                                     </div>
@@ -745,8 +968,7 @@
                             <?php if($culte->note_organisation): ?>
                                 <div class="flex items-center justify-between">
                                     <span class="text-sm font-medium text-slate-700">Organisation</span>
-                                    <span
-                                        class="text-lg font-bold text-green-600"><?php echo e($culte->note_organisation); ?>/10</span>
+                                    <span class="text-lg font-bold text-green-600"><?php echo e($culte->note_organisation); ?>/10</span>
                                 </div>
                             <?php endif; ?>
                         </div>
@@ -754,8 +976,7 @@
                 <?php endif; ?>
 
                 <!-- Informations système -->
-                <div
-                    class="bg-white/80 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
+                <div class="bg-white/80 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
                     <div class="p-6 border-b border-slate-200">
                         <h2 class="text-xl font-bold text-slate-800 flex items-center">
                             <i class="fas fa-cog text-slate-600 mr-2"></i>
@@ -770,9 +991,7 @@
                         <?php if($culte->createur): ?>
                             <div class="flex justify-between">
                                 <span class="text-slate-500">Créé par:</span>
-                                <span class="text-slate-900 font-medium"><?php echo e($culte->createur->nom); ?>
-
-                                    <?php echo e($culte->createur->prenom); ?></span>
+                                <span class="text-slate-900 font-medium"><?php echo e($culte->createur->nom); ?> <?php echo e($culte->createur->prenom); ?></span>
                             </div>
                         <?php endif; ?>
                         <div class="flex justify-between">
@@ -782,14 +1001,11 @@
                         <?php if($culte->modificateur): ?>
                             <div class="flex justify-between">
                                 <span class="text-slate-500">Modifié par:</span>
-                                <span class="text-slate-900 font-medium"><?php echo e($culte->modificateur->nom); ?>
-
-                                    <?php echo e($culte->modificateur->prenom); ?></span>
+                                <span class="text-slate-900 font-medium"><?php echo e($culte->modificateur->nom); ?> <?php echo e($culte->modificateur->prenom); ?></span>
                             </div>
                         <?php endif; ?>
                     </div>
                 </div>
-
             </div>
         </div>
     </div>
@@ -838,8 +1054,7 @@
     </div>
 
     <!-- Modal duplication -->
-    <div id="duplicateModal"
-        class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center p-4">
+    <div id="duplicateModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl shadow-xl max-w-md w-full">
             <div class="p-6">
                 <h3 class="text-lg font-semibold text-slate-900 mb-4">Dupliquer le culte</h3>
@@ -854,8 +1069,7 @@
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-slate-700 mb-2">Nouvelle heure</label>
-                            <input type="time" name="nouvelle_heure" id="nouvelle_heure"
-                                value="<?php echo e($culte->heure_debut); ?>"
+                            <input type="time" name="nouvelle_heure" id="nouvelle_heure" value="<?php echo e($culte->heure_debut); ?>"
                                 class="w-full px-3 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
                         </div>
                         <div>
@@ -882,8 +1096,343 @@
         </div>
     </div>
 
+
+
+
+
+<!-- Modal d'export à ajouter avant la fermeture du div content principal -->
+<!-- Modal d'export -->
+<div id="exportModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl shadow-xl max-w-lg w-full max-h-[90vh] overflow-y-auto">
+        <!-- En-tête du modal -->
+        <div class="p-6 border-b border-slate-200">
+            <div class="flex items-center justify-between">
+                <h3 class="text-xl font-semibold text-slate-900 flex items-center">
+                    <i class="fas fa-download text-emerald-600 mr-3"></i>
+                    Exporter le Culte
+                </h3>
+                <button type="button" onclick="closeExportModal()"
+                    class="text-slate-400 hover:text-slate-600 transition-colors">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            <p class="text-sm text-slate-600 mt-2">
+                Choisissez le format d'export pour le rapport du culte "<?php echo e($culte->titre); ?>"
+            </p>
+        </div>
+
+        <!-- Corps du modal -->
+        <div class="p-6 space-y-6">
+            <!-- Sélection du format -->
+            <div>
+                <h4 class="text-lg font-semibold text-slate-800 mb-4 flex items-center">
+                    <i class="fas fa-file-alt text-blue-600 mr-2"></i>
+                    Format d'Export
+                </h4>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- Option PDF -->
+                    <div class="export-option border-2 border-slate-200 rounded-xl p-4 cursor-pointer transition-all duration-200 hover:border-red-300 hover:bg-red-50"
+                         data-format="pdf" onclick="selectExportFormat('pdf')">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-12 h-12 bg-red-100 rounded-xl flex items-center justify-center">
+                                <i class="fas fa-file-pdf text-red-600 text-xl"></i>
+                            </div>
+                            <div class="flex-1">
+                                <h5 class="font-semibold text-slate-900">Format PDF</h5>
+                                <p class="text-sm text-slate-600">Rapport complet avec mise en page professionnelle</p>
+                                <div class="flex items-center mt-2 text-xs text-slate-500">
+                                    <i class="fas fa-check-circle text-green-500 mr-1"></i>
+                                    <span>Idéal pour impression et archivage</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mt-3 flex items-center justify-between text-sm">
+                            <span class="text-slate-600">Taille: ~200-500 KB</span>
+                            <span class="text-slate-600">Pages: 2-4</span>
+                        </div>
+                    </div>
+
+                    <!-- Option Excel -->
+                    <div class="export-option border-2 border-slate-200 rounded-xl p-4 cursor-pointer transition-all duration-200 hover:border-green-300 hover:bg-green-50"
+                         data-format="excel" onclick="selectExportFormat('excel')">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center">
+                                <i class="fas fa-file-excel text-green-600 text-xl"></i>
+                            </div>
+                            <div class="flex-1">
+                                <h5 class="font-semibold text-slate-900">Format Excel</h5>
+                                <p class="text-sm text-slate-600">Données structurées sur plusieurs feuilles</p>
+                                <div class="flex items-center mt-2 text-xs text-slate-500">
+                                    <i class="fas fa-chart-bar text-blue-500 mr-1"></i>
+                                    <span>Parfait pour analyses et calculs</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mt-3 flex items-center justify-between text-sm">
+                            <span class="text-slate-600">Taille: ~50-150 KB</span>
+                            <span class="text-slate-600">Feuilles: 2-3</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contenu de l'export -->
+            <div>
+                <h4 class="text-lg font-semibold text-slate-800 mb-4 flex items-center">
+                    <i class="fas fa-list-check text-purple-600 mr-2"></i>
+                    Contenu Inclus
+                </h4>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                    <div class="space-y-2">
+                        <div class="flex items-center">
+                            <i class="fas fa-check text-green-500 mr-2"></i>
+                            <span>Informations générales</span>
+                        </div>
+                        <div class="flex items-center">
+                            <i class="fas fa-check text-green-500 mr-2"></i>
+                            <span>Responsables et intervenants</span>
+                        </div>
+                        <div class="flex items-center">
+                            <i class="fas fa-check text-green-500 mr-2"></i>
+                            <span>Message et prédication</span>
+                        </div>
+                        <div class="flex items-center">
+                            <i class="fas fa-check text-green-500 mr-2"></i>
+                            <span>Statistiques de participation</span>
+                        </div>
+                    </div>
+                    <div class="space-y-2">
+                        <?php if(isset($fondsStatistiques) && $fondsStatistiques['total_transactions'] > 0): ?>
+                        <div class="flex items-center">
+                            <i class="fas fa-check text-green-500 mr-2"></i>
+                            <span>Données financières détaillées</span>
+                        </div>
+                        <div class="flex items-center">
+                            <i class="fas fa-check text-green-500 mr-2"></i>
+                            <span>Ratios et métriques</span>
+                        </div>
+                        <div class="flex items-center">
+                            <i class="fas fa-check text-green-500 mr-2"></i>
+                            <span>Top donateurs</span>
+                        </div>
+                        <?php endif; ?>
+                        <?php if($culte->note_globale): ?>
+                        <div class="flex items-center">
+                            <i class="fas fa-check text-green-500 mr-2"></i>
+                            <span>Évaluations et notes</span>
+                        </div>
+                        <?php endif; ?>
+                        <?php if($culte->notes_pasteur || $culte->points_forts || $culte->points_amelioration): ?>
+                        <div class="flex items-center">
+                            <i class="fas fa-check text-green-500 mr-2"></i>
+                            <span>Notes et commentaires</span>
+                        </div>
+                        <?php endif; ?>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Options d'export -->
+            <div>
+                <h4 class="text-lg font-semibold text-slate-800 mb-4 flex items-center">
+                    <i class="fas fa-cog text-slate-600 mr-2"></i>
+                    Options d'Export
+                </h4>
+                <div class="space-y-3">
+                    <label class="flex items-center">
+                        <input type="checkbox" id="includeFinancial" checked
+                            class="w-4 h-4 text-emerald-600 border-slate-300 rounded focus:ring-emerald-500">
+                        <span class="ml-2 text-sm text-slate-700">Inclure les données financières</span>
+                        <?php if(isset($fondsStatistiques) && $fondsStatistiques['total_transactions'] > 0): ?>
+                            <span class="ml-2 text-xs text-green-600">(<?php echo e($fondsStatistiques['total_transactions']); ?> transactions)</span>
+                        <?php endif; ?>
+                    </label>
+                    <label class="flex items-center">
+                        <input type="checkbox" id="includeNotes" checked
+                            class="w-4 h-4 text-emerald-600 border-slate-300 rounded focus:ring-emerald-500">
+                        <span class="ml-2 text-sm text-slate-700">Inclure les notes et commentaires</span>
+                    </label>
+                    <label class="flex items-center">
+                        <input type="checkbox" id="includeMetadata"
+                            class="w-4 h-4 text-emerald-600 border-slate-300 rounded focus:ring-emerald-500">
+                        <span class="ml-2 text-sm text-slate-700">Inclure les métadonnées système</span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Aperçu des informations -->
+            <div class="bg-slate-50 rounded-xl p-4">
+                <h5 class="font-semibold text-slate-800 mb-2 flex items-center">
+                    <i class="fas fa-info-circle text-blue-500 mr-2"></i>
+                    Aperçu du Rapport
+                </h5>
+                <div class="grid grid-cols-2 gap-4 text-sm">
+                    <div>
+                        <span class="text-slate-600">Culte:</span>
+                        <span class="font-medium text-slate-900"><?php echo e($culte->titre); ?></span>
+                    </div>
+                    <div>
+                        <span class="text-slate-600">Date:</span>
+                        <span class="font-medium text-slate-900"><?php echo e($culte->date_culte->format('d/m/Y')); ?></span>
+                    </div>
+                    <?php if($culte->nombre_participants): ?>
+                    <div>
+                        <span class="text-slate-600">Participants:</span>
+                        <span class="font-medium text-slate-900"><?php echo e(number_format($culte->nombre_participants)); ?></span>
+                    </div>
+                    <?php endif; ?>
+                    <?php if(isset($fondsStatistiques) && $fondsStatistiques['total_transactions'] > 0): ?>
+                    <div>
+                        <span class="text-slate-600">Collecte:</span>
+                        <span class="font-medium text-slate-900"><?php echo e(number_format($fondsStatistiques['montant_total'], 0)); ?> FCFA</span>
+                    </div>
+                    <?php endif; ?>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pied du modal -->
+        <div class="flex items-center justify-between p-6 border-t border-slate-200 bg-slate-50 rounded-b-2xl">
+            <div class="text-sm text-slate-600">
+                <i class="fas fa-clock mr-1"></i>
+                Export généré le <?php echo e(now()->format('d/m/Y à H:i')); ?>
+
+            </div>
+            <div class="flex items-center space-x-3">
+                <button type="button" onclick="closeExportModal()"
+                    class="px-4 py-2 text-slate-700 bg-white border border-slate-300 rounded-xl hover:bg-slate-50 transition-colors">
+                    Annuler
+                </button>
+                <button type="button" id="exportBtn" onclick="executeExport()" disabled
+                    class="px-6 py-2 bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-xl hover:from-emerald-700 hover:to-teal-700 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center">
+                    <i class="fas fa-download mr-2"></i>
+                    <span id="exportBtnText">Sélectionner un format</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<style>
+.export-option.selected {
+    border-color: #10b981 !important;
+    background-color: #ecfdf5 !important;
+}
+
+.export-option.selected .fas {
+    color: #10b981 !important;
+}
+
+.export-option:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+</style>
+
     <?php $__env->startPush('scripts'); ?>
         <script>
+            let selectedFormat = null;
+
+            function openExportModal(culteId) {
+                selectedFormat = null;
+                updateExportButton();
+                // Reset des sélections
+                document.querySelectorAll('.export-option').forEach(option => {
+                    option.classList.remove('selected');
+                });
+                document.getElementById('exportModal').classList.remove('hidden');
+            }
+
+            function closeExportModal() {
+    document.getElementById('exportModal').classList.add('hidden');
+    selectedFormat = null;
+}
+
+function selectExportFormat(format) {
+    selectedFormat = format;
+
+    // Reset de toutes les options
+    document.querySelectorAll('.export-option').forEach(option => {
+        option.classList.remove('selected');
+    });
+
+    // Sélectionner l'option choisie
+    document.querySelector(`[data-format="${format}"]`).classList.add('selected');
+
+    updateExportButton();
+}
+
+function updateExportButton() {
+    const btn = document.getElementById('exportBtn');
+    const btnText = document.getElementById('exportBtnText');
+
+    if (selectedFormat) {
+        btn.disabled = false;
+        btnText.textContent = `Exporter en ${selectedFormat.toUpperCase()}`;
+        btn.classList.remove('opacity-50', 'cursor-not-allowed');
+    } else {
+        btn.disabled = true;
+        btnText.textContent = 'Sélectionner un format';
+        btn.classList.add('opacity-50', 'cursor-not-allowed');
+    }
+}
+
+function executeExport() {
+    if (!selectedFormat) {
+        alert('Veuillez sélectionner un format d\'export');
+        return;
+    }
+
+    // Afficher un indicateur de chargement
+    const btn = document.getElementById('exportBtn');
+    const originalText = btn.innerHTML;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Génération...';
+    btn.disabled = true;
+
+    // Construire l'URL d'export
+    const culteId = '<?php echo e($culte->id); ?>';
+    let exportUrl;
+
+    if (selectedFormat === 'pdf') {
+        exportUrl = `<?php echo e(route('private.cultes.export.pdf', ':culte')); ?>`.replace(':culte', culteId);
+    } else {
+        exportUrl = `<?php echo e(route('private.cultes.export.excel', ':culte')); ?>`.replace(':culte', culteId);
+    }
+
+    // Lancer le téléchargement
+    window.location.href = exportUrl;
+
+    // Rétablir le bouton après un délai
+    setTimeout(() => {
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+        closeExportModal();
+    }, 2000);
+}
+
+// Fermer le modal en cliquant à l'extérieur
+document.getElementById('exportModal').addEventListener('click', function(e) {
+    if (e.target === this) {
+        closeExportModal();
+    }
+});
+
+// Raccourci clavier Échap pour fermer
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape' && !document.getElementById('exportModal').classList.contains('hidden')) {
+        closeExportModal();
+    }
+});
+
+
+
+
+
+
+
+
+
             // Modal statut
             function openStatusModal(culteId, currentStatus) {
                 document.getElementById('culte_id').value = culteId;
@@ -971,8 +1520,7 @@
                     .then(response => response.json())
                     .then(data => {
                         if (data.success) {
-                            window.location.href = `<?php echo e(route('private.cultes.show', ':culteid')); ?>`.replace(':culteid',
-                                data.data.id);
+                            window.location.href = `<?php echo e(route('private.cultes.show', ':culteid')); ?>`.replace(':culteid', data.data.id);
                         } else {
                             alert(data.message || 'Une erreur est survenue');
                         }

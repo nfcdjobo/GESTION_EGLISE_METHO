@@ -122,9 +122,9 @@
                                     <div class="text-sm text-slate-500">Reste avant</div>
                                 </div>
                                 {{-- <div class="text-center">
-                                <div class="text-lg font-semibold text-orange-600">{{ number_format($payment['nouveau_reste'], 0, ',', ' ') >= 0 ? number_format($payment['nouveau_reste'], 0, ',', ' ') : '+'. (-1*number_format($payment['nouveau_reste'], 0, ',', ' ')) }}</div>
-                                <div class="text-sm text-orange-700">{{$payment['nouveau_reste'] >= 0 ? 'Reste après' : 'Montant supplementaire'}}</div>
-                            </div> --}}
+                                    <div class="text-lg font-semibold text-orange-600">{{ number_format($payment['nouveau_reste'], 0, ',', ' ') >= 0 ? number_format($payment['nouveau_reste'], 0, ',', ' ') : '+'. (-1*number_format($payment['nouveau_reste'], 0, ',', ' ')) }}</div>
+                                    <div class="text-sm text-orange-700">{{$payment['nouveau_reste'] >= 0 ? 'Reste après' : 'Montant supplementaire'}}</div>
+                                </div> --}}
                                 <div class="text-center">
                                     <div class="text-lg font-semibold text-orange-600">
                                         {{ ($payment['nouveau_reste'] < 0 ? '+' : '') . number_format(abs($payment['nouveau_reste']), 0, ',', ' ') }}
@@ -160,10 +160,14 @@
                         </div>
                         <div class="p-6 space-y-4">
                             @if ($payment['validateur'])
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                                     <div>
                                         <h4 class="font-medium text-slate-700 mb-2">Validé par</h4>
-                                        <p class="text-slate-900">{{ $payment['validateur']['name'] }}</p>
+                                        <p class="text-slate-900">{{ $payment['validateur']['nom'] . ' '.$payment['validateur']['prenom'] }}</p>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-medium text-slate-700 mb-2">Contacts</h4>
+                                        <p class="text-slate-900">{{ $payment['validateur']['telephone_1'] }}</p>
                                     </div>
                                     @if ($payment['date_validation'])
                                         <div>
@@ -368,7 +372,7 @@
                                     <p class="text-sm text-slate-600">
                                         {{ \Carbon\Carbon::parse($payment['date_validation'])->format('d/m/Y à H:i') }}</p>
                                     @if ($payment['validateur'])
-                                        <p class="text-sm text-slate-500">par {{ $payment['validateur']['name'] }}</p>
+                                        <p class="text-sm text-slate-500">par {{ $payment['validateur']['nom'] . ' '.$payment['validateur']['prenom']}}</p>
                                     @endif
                                 </div>
                             </div>
@@ -376,29 +380,7 @@
                     </div>
                 </div>
 
-                <!-- Informations techniques -->
-                {{-- <div class="bg-white/80 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
-                <div class="p-6 border-b border-slate-200">
-                    <h2 class="text-xl font-bold text-slate-800 flex items-center">
-                        <i class="fas fa-cog text-gray-600 mr-2"></i>
-                        Informations Techniques
-                    </h2>
-                </div>
-                <div class="p-6 space-y-3 text-sm">
-                    <div class="flex items-center justify-between">
-                        <span class="text-slate-600">ID du paiement:</span>
-                        <code class="px-2 py-1 bg-slate-100 text-slate-800 rounded text-xs">{{ $payment['id'] }}</code>
-                    </div>
-                    <div class="flex items-center justify-between">
-                        <span class="text-slate-600">ID souscription:</span>
-                        <code class="px-2 py-1 bg-slate-100 text-slate-800 rounded text-xs">{{ $payment['subscription_id'] }}</code>
-                    </div>
-                    <div class="flex items-center justify-between">
-                        <span class="text-slate-600">Version souscription:</span>
-                        <span class="text-slate-900">#{{ $payment['subscription_version_at_payment'] }}</span>
-                    </div>
-                </div>
-            </div> --}}
+
             </div>
         </div>
     </div>
@@ -410,7 +392,7 @@
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
                         }
                     })
                     .then(response => response.json())

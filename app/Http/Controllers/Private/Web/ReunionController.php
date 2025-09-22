@@ -91,7 +91,7 @@ class ReunionController extends Controller
             }
 
             if ($request->boolean('paginate', true)) {
-                $perPage = min($request->get('per_page', 15), 100);
+                $perPage = min($request->get('per_page', default: 10), 100);
                 $reunions = $query->paginate($perPage);
             } else {
                 $reunions = $query->get();

@@ -611,31 +611,61 @@
                     });
             }
 
-            // Génération de reçu
-            function generateReceipt(transactionId) {
-                if (confirm('Générer un reçu fiscal pour cette transaction ?')) {
-                    fetch(`{{ route('private.fonds.receipt.strict', ':fond') }}`.replace(':fond', transactionId), {
-                            method: 'POST',
-                            headers: {
-                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                                'Accept': 'application/json'
-                            }
-                        })
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.success) {
-                                alert(`Reçu généré avec succès. Numéro: ${data.data.numero_recu}`);
-                                location.reload();
-                            } else {
-                                alert(data.message || 'Une erreur est survenue');
-                            }
-                        })
-                        .catch(error => {
-                            console.error('Erreur:', error);
-                            alert('Une erreur est survenue');
-                        });
-                }
-            }
+
+// Génération de reçu
+function generateReceipt(transactionId) {
+    // Afficher un loader/indicateur de chargement
+    const button = event.target.closest('button');
+    const originalContent = button.innerHTML;
+    button.innerHTML = '<i class="fas fa-spinner fa-spin text-sm"></i>';
+    button.disabled = true;
+
+    // Ouvrir directement la route de téléchargement dans un nouvel onglet
+    const receiptUrl = `{{ route('private.fonds.receipt.download', ':fond') }}`.replace(':fond', transactionId);
+
+    // Créer un lien temporaire pour forcer le téléchargement
+    const link = document.createElement('a');
+    link.href = receiptUrl;
+    link.target = '_blank';
+    link.style.display = 'none';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    // Restaurer le bouton après un délai
+    setTimeout(() => {
+        button.innerHTML = originalContent;
+        button.disabled = false;
+    }, 2000);
+
+    // Optional: Afficher une notification de succès
+    showNotification('Génération du reçu en cours...', 'info');
+}
+
+
+// Fonction pour afficher les notifications (optionnelle)
+function showNotification(message, type = 'success') {
+    // Créer une notification temporaire
+    const notification = document.createElement('div');
+    notification.className = `fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg transition-all duration-300 ${
+        type === 'success' ? 'bg-green-500 text-white' :
+        type === 'error' ? 'bg-red-500 text-white' :
+        'bg-blue-500 text-white'
+    }`;
+    notification.innerHTML = `
+        <div class="flex items-center">
+            <i class="fas ${type === 'success' ? 'fa-check' : type === 'error' ? 'fa-times' : 'fa-info'} mr-2"></i>
+            ${message}
+        </div>
+    `;
+
+    document.body.appendChild(notification);
+
+    // Supprimer la notification après 3 secondes
+    setTimeout(() => {
+        notification.remove();
+    }, 3000);
+}
 
             // Suppression
             function deleteTransaction(transactionId) {

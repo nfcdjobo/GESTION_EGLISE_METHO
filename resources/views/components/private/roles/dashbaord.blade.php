@@ -660,7 +660,7 @@ function updateCharts() {
     fetch(`{{ route('private.roles.dashboard') }}?period=${period}&ajax=1`, {
         headers: {
             'Accept': 'application/json',
-            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            'X-CSRF-TOKEN': '{{ csrf_token() }}',
         }
     })
     .then(response => response.json())
@@ -682,7 +682,7 @@ function refreshAlerts() {
     fetch('{{ route("private.roles.dashboard") }}?alerts=1', {
         headers: {
             'Accept': 'application/json',
-            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            'X-CSRF-TOKEN': '{{ csrf_token() }}',
         }
     })
     .then(response => response.json())
@@ -731,7 +731,7 @@ function refreshMetrics() {
     fetch('{{ route("private.roles.dashboard") }}?metrics=1', {
         headers: {
             'Accept': 'application/json',
-            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            'X-CSRF-TOKEN': '{{ csrf_token() }}',
         }
     })
     .then(response => response.json())

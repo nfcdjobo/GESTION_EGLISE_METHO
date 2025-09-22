@@ -26,6 +26,8 @@ class PaiementController extends Controller
     public function index(Request $request)
     {
         try {
+
+
             $query = SubscriptionPayment::with([
                 'subscription.souscripteur:id,nom,prenom,email,photo_profil',
                 'subscription.fimeco:id,nom,statut',
@@ -39,7 +41,7 @@ class PaiementController extends Controller
             $this->applySorting($query, $request);
 
             // Pagination
-            $perPage = min($request->get('per_page', 20), 100);
+            $perPage = min($request->get('per_page', 10), 100);
             /** @var \Illuminate\Pagination\LengthAwarePaginator $payments */
             $payments = $query->paginate($perPage);
 
@@ -60,7 +62,13 @@ class PaiementController extends Controller
                 ]);
             }
 
-            return view('components.private.payments.index', compact('payments'));
+            $meta = [
+                        'total' => $payments->total(),
+                        'per_page' => $payments->perPage(),
+                        'current_page' => $payments->currentPage(),
+                        'last_page' => $payments->lastPage(),
+            ];
+            return view('components.private.paiements.index', compact('payments', 'meta'));
 
         } catch (Exception $e) {
             if ($request->expectsJson()) {
@@ -84,7 +92,7 @@ class PaiementController extends Controller
             $payment = SubscriptionPayment::with([
                 'subscription.souscripteur:id,nom,prenom,email,photo_profil,telephone_1',
                 'subscription.fimeco:id,nom,description,cible,montant_solde,progression',
-                'validateur:id,nom,email'
+                'validateur:id,nom,prenom,telephone_1,email'
             ])->findOrFail($id);
 
             $data = [
@@ -102,9 +110,10 @@ class PaiementController extends Controller
                 ]);
             }
 
-            return view('components.private.payments.show', $data);
+            return view('components.private.paiements.show', $data);
 
         } catch (Exception $e) {
+            dd($e->getMessage());
             if ($request->expectsJson()) {
                 return response()->json([
                     'success' => false,
@@ -113,7 +122,7 @@ class PaiementController extends Controller
                 ], 404);
             }
 
-            return redirect()->route('private.payments.index')
+            return redirect()->route('private.paiements.index')
                 ->withErrors(['error' => 'Paiement non trouvé']);
         }
     }

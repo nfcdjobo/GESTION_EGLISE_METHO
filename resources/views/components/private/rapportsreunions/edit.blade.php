@@ -265,7 +265,7 @@
                             </div>
 
                             <div>
-                                <label for="montant_collecte" class="block text-sm font-medium text-slate-700 mb-2">Montant collecté (€)</label>
+                                <label for="montant_collecte" class="block text-sm font-medium text-slate-700 mb-2">Montant collecté (FCFA)</label>
                                 <input type="number" id="montant_collecte" name="montant_collecte" value="{{ old('montant_collecte', $rapport->montant_collecte) }}" min="0" step="0.01"
                                     class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors @error('montant_collecte') border-red-500 focus:ring-red-500 focus:border-red-500 @enderror">
                                 @error('montant_collecte')
@@ -441,7 +441,7 @@
                         </button>
 
                         @can('rapports-reunions.delete')
-                        
+
                             @if($rapport->statut !== 'publie')
                                 <button type="button" onclick="supprimerRapport()" class="w-full inline-flex items-center justify-center px-4 py-2 bg-gradient-to-r from-red-600 to-rose-600 text-white text-sm font-medium rounded-xl hover:from-red-700 hover:to-rose-700 transition-all duration-200">
                                     <i class="fas fa-trash mr-2"></i> Supprimer

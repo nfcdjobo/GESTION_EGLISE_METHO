@@ -5,13 +5,19 @@ namespace App\Http\Controllers\Private\Web;
 use Carbon\Carbon;
 use App\Models\User;
 use App\Models\Culte;
+use App\Models\Fonds;
 use App\Models\Programme;
+use App\Exports\CulteExport;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 use App\Http\Requests\CulteRequest;
 use App\Http\Controllers\Controller;
+
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\CultesMultipleExport;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 
@@ -111,7 +117,7 @@ class CulteController extends Controller
         }
 
         // Pagination
-        $perPage = min($request->get('per_page', 15), 100);
+        $perPage = min($request->get('per_page', 10), 100);
         $cultes = $query->paginate($perPage);
 
         // Réponse selon le type de requête
@@ -152,8 +158,9 @@ class CulteController extends Controller
         return view('components.private.cultes.create', compact('programmes', 'pasteurs', 'users'));
     }
 
+
     /**
-     * Afficher un culte spécifique
+     * Afficher un culte spécifique avec ses statistiques financières
      */
     public function show(Culte $culte)
     {
@@ -168,15 +175,243 @@ class CulteController extends Controller
             'modificateur'
         ]);
 
+        // Récupérer les fonds associés au culte
+        $fondsStatistiques = $this->calculerStatistiquesFinancieres($culte);
+
+        // Calculer les ratios et métriques
+        $metriques = $this->calculerMetriques($culte, $fondsStatistiques);
+
         if (request()->expectsJson()) {
             return response()->json([
                 'success' => true,
-                'data' => $culte
+                'data' => [
+                    'culte' => $culte,
+                    'fonds_statistiques' => $fondsStatistiques,
+                    'metriques' => $metriques
+                ]
             ]);
         }
 
-        return view('components.private.cultes.show', compact('culte'));
+        return view('components.private.cultes.show', compact('culte', 'fondsStatistiques', 'metriques'));
     }
+
+
+    /**
+     * Calculer les statistiques financières pour un culte
+     */
+    private function calculerStatistiquesFinancieres(Culte $culte): array
+    {
+        $fonds = Fonds::where('culte_id', $culte->id)
+            ->where('statut', 'validee')
+            ->get();
+
+        if ($fonds->isEmpty()) {
+            return [
+                'total_transactions' => 0,
+                'montant_total' => 0,
+                'par_type' => [],
+                'par_mode_paiement' => [],
+                'donateurs_uniques' => 0,
+                'transactions_anonymes' => 0,
+                'dons_en_nature' => 0,
+                'valeur_dons_nature' => 0,
+                'recus_demandes' => 0,
+                'recus_emis' => 0,
+                'top_donateurs' => [],
+            ];
+        }
+
+        $statistiques = [
+            'total_transactions' => $fonds->count(),
+            'montant_total' => $fonds->sum('montant'),
+            'par_type' => [],
+            'par_mode_paiement' => [],
+            'donateurs_uniques' => $fonds->whereNotNull('donateur_id')->unique('donateur_id')->count(),
+            'transactions_anonymes' => $fonds->where('est_anonyme', true)->count(),
+            'dons_en_nature' => $fonds->where('type_transaction', 'don_materiel')->count(),
+            'valeur_dons_nature' => $fonds->where('type_transaction', 'don_materiel')->sum('valeur_estimee'),
+            'recus_demandes' => $fonds->where('recu_demande', true)->count(),
+            'recus_emis' => $fonds->where('recu_emis', true)->count(),
+        ];
+
+        // Grouper par type de transaction
+        $parType = $fonds->groupBy('type_transaction');
+        foreach ($parType as $type => $transactions) {
+            $statistiques['par_type'][$type] = [
+                'nombre' => $transactions->count(),
+                'montant' => $transactions->sum('montant'),
+                'pourcentage' => $statistiques['montant_total'] > 0
+                    ? round(($transactions->sum('montant') / $statistiques['montant_total']) * 100, 1)
+                    : 0
+            ];
+        }
+
+        // Grouper par mode de paiement
+        $parMode = $fonds->groupBy('mode_paiement');
+        foreach ($parMode as $mode => $transactions) {
+            $statistiques['par_mode_paiement'][$mode] = [
+                'nombre' => $transactions->count(),
+                'montant' => $transactions->sum('montant'),
+                'pourcentage' => $statistiques['montant_total'] > 0
+                    ? round(($transactions->sum('montant') / $statistiques['montant_total']) * 100, 1)
+                    : 0
+            ];
+        }
+
+        // Top donateurs (non anonymes)
+        $statistiques['top_donateurs'] = $fonds->whereNotNull('donateur_id')
+            ->where('est_anonyme', false)
+            ->groupBy('donateur_id')
+            ->map(function ($transactions) {
+                $donateur = $transactions->first()->donateur;
+                return [
+                    'donateur' => $donateur ? $donateur->nom_complet : 'Inconnu',
+                    'nombre_dons' => $transactions->count(),
+                    'montant_total' => $transactions->sum('montant')
+                ];
+            })
+            ->sortByDesc('montant_total')
+            ->take(5)
+            ->values()
+            ->toArray();
+
+        return $statistiques;
+    }
+
+
+   /**
+     * Calculer les métriques et ratios pour un culte
+     */
+    private function calculerMetriques(Culte $culte, array $fondsStats): array
+    {
+        $metriques = [];
+
+        // Ratios financiers
+        if ($culte->nombre_participants > 0) {
+            $metriques['offrande_par_participant'] = round($fondsStats['montant_total'] / $culte->nombre_participants, 0);
+
+            // Ratio dîme par participant
+            $montantDimes = $fondsStats['par_type']['dime']['montant'] ?? 0;
+            $metriques['dime_par_participant'] = round($montantDimes / $culte->nombre_participants, 0);
+
+            // Ratio offrandes (hors dîmes) par participant
+            $montantOffrandes = $fondsStats['montant_total'] - $montantDimes;
+            $metriques['offrande_pure_par_participant'] = round($montantOffrandes / $culte->nombre_participants, 0);
+        } else {
+            $metriques['offrande_par_participant'] = 0;
+            $metriques['dime_par_participant'] = 0;
+            $metriques['offrande_pure_par_participant'] = 0;
+        }
+
+        // Ratio donateurs/participants
+        if ($culte->nombre_participants > 0) {
+            $metriques['taux_participation_financiere'] = round(
+                ($fondsStats['donateurs_uniques'] / $culte->nombre_participants) * 100, 1
+            );
+        } else {
+            $metriques['taux_participation_financiere'] = 0;
+        }
+
+        // Don moyen par donateur
+        if ($fondsStats['donateurs_uniques'] > 0) {
+            $metriques['don_moyen_par_donateur'] = round(
+                $fondsStats['montant_total'] / $fondsStats['donateurs_uniques'], 0
+            );
+        } else {
+            $metriques['don_moyen_par_donateur'] = 0;
+        }
+
+        // Transaction moyenne
+        if ($fondsStats['total_transactions'] > 0) {
+            $metriques['transaction_moyenne'] = round(
+                $fondsStats['montant_total'] / $fondsStats['total_transactions'], 0
+            );
+        } else {
+            $metriques['transaction_moyenne'] = 0;
+        }
+
+        // Pourcentage de dîmes vs offrandes
+        if ($fondsStats['montant_total'] > 0) {
+            $montantDimes = $fondsStats['par_type']['dime']['montant'] ?? 0;
+            $metriques['pourcentage_dimes'] = round(($montantDimes / $fondsStats['montant_total']) * 100, 1);
+            $metriques['pourcentage_offrandes'] = round(100 - $metriques['pourcentage_dimes'], 1);
+        } else {
+            $metriques['pourcentage_dimes'] = 0;
+            $metriques['pourcentage_offrandes'] = 0;
+        }
+
+        // Comparaison avec la moyenne des cultes similaires (même type, derniers 6 mois)
+        $moyenneSimilaires = $this->obtenirMoyenneCultesSimilaires($culte);
+        $metriques['comparaison'] = [
+            'moyenne_type_culte' => $moyenneSimilaires,
+            'ecart_pourcentage' => $moyenneSimilaires > 0
+                ? round((($fondsStats['montant_total'] - $moyenneSimilaires) / $moyenneSimilaires) * 100, 1)
+                : 0
+        ];
+
+        return $metriques;
+    }
+
+
+
+
+    /**
+     * Obtenir la moyenne des offrandes pour des cultes similaires
+     */
+    private function obtenirMoyenneCultesSimilaires(Culte $culte): float
+    {
+        return Culte::where('type_culte', $culte->type_culte)
+            ->where('statut', 'termine')
+            ->where('date_culte', '>=', now()->subMonths(6))
+            ->where('id', '!=', $culte->id)
+            ->whereNotNull('offrande_totale')
+            ->avg('offrande_totale') ?? 0;
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     /**
      * Afficher le formulaire d'édition
@@ -884,4 +1119,541 @@ class CulteController extends Controller
 
         return $totalCapacite > 0 ? round(($totalParticipants / $totalCapacite) * 100, 1) : 0;
     }
+
+
+
+
+
+
+
+
+
+
+    /**
+     * Export PDF d'un culte
+     */
+    public function exportPdf(Culte $culte)
+    {
+
+        try {
+            // Charger les relations nécessaires
+            $culte->load([
+                'programme',
+                'pasteurPrincipal',
+                'predicateur',
+                'responsableCulte',
+                'dirigeantLouange',
+                'responsableFinances',
+                'createur',
+                'modificateur'
+            ]);
+
+            // Calculer les statistiques financières
+            $fondsStatistiques = $this->calculerStatistiquesFinancieres($culte);
+            $metriques = $this->calculerMetriques($culte, $fondsStatistiques);
+
+            // Date de génération
+            $dateGeneration = now()->format('d/m/Y à H:i');
+
+            // Données pour la vue
+            $data = [
+                'culte' => $culte,
+                'fondsStatistiques' => $fondsStatistiques,
+                'metriques' => $metriques,
+                'dateGeneration' => $dateGeneration,
+            ];
+
+            // Générer le PDF
+            $pdf = Pdf::loadView('exports.cultes.culte-pdf', $data);
+            $pdf->setPaper('A4', 'portrait');
+
+            // Nom du fichier
+            $filename = 'rapport-culte-' . $culte->date_culte->format('Y-m-d') . '-' . \Str::slug($culte->titre) . '.pdf';
+
+            return $pdf->download($filename);
+
+        } catch (\Exception $e) {
+            dd($e->getMessage());
+            return redirect()->back()
+                ->with('error', 'Erreur lors de la génération du PDF : ' . $e->getMessage());
+        }
+    }
+
+
+        /**
+     * Export Excel d'un culte
+     */
+    public function exportExcel(Culte $culte)
+    {
+        try {
+            // Charger les relations nécessaires
+            $culte->load([
+                'programme',
+                'pasteurPrincipal',
+                'predicateur',
+                'responsableCulte',
+                'dirigeantLouange',
+                'responsableFinances',
+                'createur',
+                'modificateur'
+            ]);
+
+            // Calculer les statistiques financières
+            $fondsStatistiques = $this->calculerStatistiquesFinancieres($culte);
+            $metriques = $this->calculerMetriques($culte, $fondsStatistiques);
+
+            // Nom du fichier
+            $filename = 'rapport-culte-' . $culte->date_culte->format('Y-m-d') . '-' . \Str::slug($culte->titre) . '.xlsx';
+
+            return Excel::download(
+                new CulteExport($culte, $fondsStatistiques, $metriques),
+                $filename
+            );
+
+        } catch (\Exception $e) {
+            return redirect()->back()
+                ->with('error', 'Erreur lors de la génération du fichier Excel : ' . $e->getMessage());
+        }
+    }
+
+
+
+
+
+
+        /**
+     * Export en lot (multiple cultes)
+     */
+    public function exportMultiple(Request $request)
+    {
+        $request->validate([
+            'culte_ids' => 'required|array|min:1',
+            'culte_ids.*' => 'exists:cultes,id',
+            'format' => 'required|in:pdf,excel'
+        ]);
+
+        try {
+            $cultes = Culte::whereIn('id', $request->culte_ids)
+                ->with([
+                    'programme',
+                    'pasteurPrincipal',
+                    'predicateur',
+                    'responsableCulte',
+                    'dirigeantLouange'
+                ])
+                ->orderBy('date_culte')
+                ->get();
+
+            if ($request->get('format') === 'pdf') {
+                return $this->exportMultiplePdf($cultes);
+            } else {
+                return $this->exportMultipleExcel($cultes);
+            }
+
+        } catch (\Exception $e) {
+            return redirect()->back()
+                ->with('error', 'Erreur lors de l\'export multiple : ' . $e->getMessage());
+        }
+    }
+
+
+
+        /**
+     * Export PDF multiple
+     */
+    private function exportMultiplePdf($cultes)
+    {
+        $dateGeneration = now()->format('d/m/Y à H:i');
+
+        // Calculer les statistiques pour chaque culte
+        $cultesData = $cultes->map(function ($culte) {
+            $fondsStatistiques = $this->calculerStatistiquesFinancieres($culte);
+            $metriques = $this->calculerMetriques($culte, $fondsStatistiques);
+
+            return [
+                'culte' => $culte,
+                'fondsStatistiques' => $fondsStatistiques,
+                'metriques' => $metriques,
+            ];
+        });
+
+        $data = [
+            'cultes' => $cultesData,
+            'dateGeneration' => $dateGeneration,
+            'totalCultes' => $cultes->count(),
+            'periodeDebut' => $cultes->first()->date_culte->format('d/m/Y'),
+            'periodeFin' => $cultes->last()->date_culte->format('d/m/Y'),
+        ];
+
+        $pdf = Pdf::loadView('exports.cultes.cultes-multiple-pdf', $data);
+        $pdf->setPaper('A4', 'landscape');
+
+        $filename = 'rapport-cultes-' . $cultes->first()->date_culte->format('Y-m-d') .
+                   '-au-' . $cultes->last()->date_culte->format('Y-m-d') . '.pdf';
+
+        return $pdf->download($filename);
+    }
+
+
+
+        /**
+     * Export Excel multiple
+     */
+    private function exportMultipleExcel($cultes)
+    {
+        $filename = 'rapport-cultes-' . $cultes->first()->date_culte->format('Y-m-d') .
+                   '-au-' . $cultes->last()->date_culte->format('Y-m-d') . '.xlsx';
+
+        return Excel::download(
+            new CultesMultipleExport($cultes),
+            $filename
+        );
+    }
+
+
+
+    /**
+     * Export PDF multiple avec paramètres URL
+     */
+    public function exportMultiplePdfDirect(Request $request)
+    {
+        $request->validate([
+            'culte_ids' => 'required|string', // IDs séparés par des virgules
+            'date_debut' => 'nullable|date',
+            'date_fin' => 'nullable|date|after_or_equal:date_debut',
+            'type_culte' => 'nullable|string',
+            'programme_id' => 'nullable|uuid|exists:programmes,id'
+        ]);
+
+        try {
+            // Parser les IDs des cultes
+            $culteIds = explode(',', $request->culte_ids);
+            $culteIds = array_filter($culteIds, 'is_numeric');
+
+            if (empty($culteIds)) {
+                return redirect()->back()
+                    ->with('error', 'Aucun culte valide sélectionné pour l\'export');
+            }
+
+            // Construire la requête avec filtres
+            $query = Culte::whereIn('id', $culteIds)
+                ->with([
+                    'programme',
+                    'pasteurPrincipal',
+                    'predicateur',
+                    'responsableCulte',
+                    'dirigeantLouange'
+                ]);
+
+            // Appliquer les filtres additionnels
+            if ($request->filled('date_debut') && $request->filled('date_fin')) {
+                $query->whereBetween('date_culte', [
+                    $request->date_debut,
+                    $request->date_fin
+                ]);
+            }
+
+            if ($request->filled('type_culte')) {
+                $query->where('type_culte', $request->type_culte);
+            }
+
+            if ($request->filled('programme_id')) {
+                $query->where('programme_id', $request->programme_id);
+            }
+
+            $cultes = $query->orderBy('date_culte')->get();
+
+            if ($cultes->isEmpty()) {
+                return redirect()->back()
+                    ->with('error', 'Aucun culte trouvé avec les critères spécifiés');
+            }
+
+            return $this->exportMultiplePdf($cultes);
+
+        } catch (\Exception $e) {
+            return redirect()->back()
+                ->with('error', 'Erreur lors de l\'export PDF : ' . $e->getMessage());
+        }
+    }
+
+
+     /**
+     * Export Excel multiple avec paramètres URL
+     */
+    public function exportMultipleExcelDirect(Request $request)
+    {
+        $request->validate([
+            'culte_ids' => 'required|string', // IDs séparés par des virgules
+            'date_debut' => 'nullable|date',
+            'date_fin' => 'nullable|date|after_or_equal:date_debut',
+            'type_culte' => 'nullable|string',
+            'programme_id' => 'nullable|uuid|exists:programmes,id'
+        ]);
+
+        try {
+            // Parser les IDs des cultes
+            $culteIds = explode(',', $request->culte_ids);
+            $culteIds = array_filter($culteIds, 'is_numeric');
+
+            if (empty($culteIds)) {
+                return redirect()->back()
+                    ->with('error', 'Aucun culte valide sélectionné pour l\'export');
+            }
+
+            // Construire la requête avec filtres
+            $query = Culte::whereIn('id', $culteIds)
+                ->with([
+                    'programme',
+                    'pasteurPrincipal',
+                    'predicateur',
+                    'responsableCulte',
+                    'dirigeantLouange'
+                ]);
+
+            // Appliquer les filtres additionnels
+            if ($request->filled('date_debut') && $request->filled('date_fin')) {
+                $query->whereBetween('date_culte', [
+                    $request->date_debut,
+                    $request->date_fin
+                ]);
+            }
+
+            if ($request->filled('type_culte')) {
+                $query->where('type_culte', $request->type_culte);
+            }
+
+            if ($request->filled('programme_id')) {
+                $query->where('programme_id', $request->programme_id);
+            }
+
+            $cultes = $query->orderBy('date_culte')->get();
+
+            if ($cultes->isEmpty()) {
+                return redirect()->back()
+                    ->with('error', 'Aucun culte trouvé avec les critères spécifiés');
+            }
+
+            return $this->exportMultipleExcel($cultes);
+
+        } catch (\Exception $e) {
+            return redirect()->back()
+                ->with('error', 'Erreur lors de l\'export Excel : ' . $e->getMessage());
+        }
+    }
+
+
+
+    /**
+     * Générer un rapport consolidé par période
+     */
+    public function exportPeriode(Request $request)
+    {
+        $request->validate([
+            'date_debut' => 'required|date',
+            'date_fin' => 'required|date|after_or_equal:date_debut',
+            'format' => 'required|in:pdf,excel',
+            'type_culte' => 'nullable|string',
+            'programme_id' => 'nullable|uuid|exists:programmes,id',
+            'statut' => 'nullable|in:planifie,en_preparation,en_cours,termine,annule,reporte',
+            'pasteur_id' => 'nullable|uuid|exists:users,id'
+        ]);
+
+        try {
+            // Construire la requête
+            $query = Culte::whereBetween('date_culte', [
+                    $request->date_debut,
+                    $request->date_fin
+                ])
+                ->with([
+                    'programme',
+                    'pasteurPrincipal',
+                    'predicateur',
+                    'responsableCulte',
+                    'dirigeantLouange'
+                ]);
+
+            // Appliquer les filtres
+            if ($request->filled('type_culte')) {
+                $query->where('type_culte', $request->type_culte);
+            }
+
+            if ($request->filled('programme_id')) {
+                $query->where('programme_id', $request->programme_id);
+            }
+
+            if ($request->filled('statut')) {
+                $query->where('statut', $request->statut);
+            }
+
+            if ($request->filled('pasteur_id')) {
+                $query->where('pasteur_principal_id', $request->pasteur_id);
+            }
+
+            $cultes = $query->orderBy('date_culte')->get();
+
+            if ($cultes->isEmpty()) {
+                return redirect()->back()
+                    ->with('error', 'Aucun culte trouvé pour la période spécifiée');
+            }
+
+            // Export selon le format demandé
+            if ($request->get('format') === 'pdf') {
+                return $this->exportMultiplePdf($cultes);
+            } else {
+                return $this->exportMultipleExcel($cultes);
+            }
+
+        } catch (\Exception $e) {
+            return redirect()->back()
+                ->with('error', 'Erreur lors de l\'export par période : ' . $e->getMessage());
+        }
+    }
+
+
+
+    /**
+     * Export des statistiques de performance
+     */
+    public function exportStatistiques(Request $request)
+    {
+        $request->validate([
+            'date_debut' => 'required|date',
+            'date_fin' => 'required|date|after_or_equal:date_debut',
+            'format' => 'required|in:pdf,excel',
+            'grouper_par' => 'nullable|in:type,pasteur,mois,programme'
+        ]);
+
+        try {
+            $dateDebut = $request->date_debut;
+            $dateFin = $request->date_fin;
+            $grouperPar = $request->get('grouper_par', 'type');
+
+            // Récupérer les statistiques selon la méthode existante
+            $statistiques = $this->calculerStatistiquesPeriode($dateDebut, $dateFin, $grouperPar);
+
+            // Nom du fichier
+            $filename = 'statistiques-cultes-' . $dateDebut . '-au-' . $dateFin;
+
+            if ($request->get('format') === 'pdf') {
+                return $this->exportStatistiquesPdf($statistiques, $filename);
+            } else {
+                return $this->exportStatistiquesExcel($statistiques, $filename);
+            }
+
+        } catch (\Exception $e) {
+            return redirect()->back()
+                ->with('error', 'Erreur lors de l\'export des statistiques : ' . $e->getMessage());
+        }
+    }
+
+
+
+    /**
+     * Export PDF des statistiques
+     */
+    private function exportStatistiquesPdf(array $statistiques, string $filename): \Illuminate\Http\Response
+    {
+        $dateGeneration = now()->format('d/m/Y à H:i');
+
+        $data = [
+            'statistiques' => $statistiques,
+            'dateGeneration' => $dateGeneration,
+        ];
+
+        $pdf = Pdf::loadView('exports.statistiques-pdf', $data);
+        $pdf->setPaper('A4', 'landscape');
+
+        return $pdf->download($filename . '.pdf');
+    }
+
+    /**
+     * Export Excel des statistiques
+     */
+    private function exportStatistiquesExcel(array $statistiques, string $filename)
+    {
+        // return Excel::download(
+        //     // new StatistiquesExport($statistiques),
+        //     $filename . '.xlsx'
+        // );
+        return [];
+    }
+
+
+    /**
+     * Calculer les statistiques pour une période donnée
+     */
+    private function calculerStatistiquesPeriode(string $dateDebut, string $dateFin, string $grouperPar): array
+    {
+        $query = Culte::whereBetween('date_culte', [$dateDebut, $dateFin]);
+
+        $statistiques = [
+            'periode' => [
+                'debut' => $dateDebut,
+                'fin' => $dateFin,
+                'grouper_par' => $grouperPar
+            ],
+            'totaux' => [
+                'nombre_cultes' => $query->count(),
+                'total_participants' => $query->sum('nombre_participants') ?: 0,
+                'total_conversions' => $query->sum('nombre_conversions') ?: 0,
+                'total_baptemes' => $query->sum('nombre_baptemes') ?: 0,
+                'total_offrandes' => $query->sum('offrande_totale') ?: 0,
+            ],
+            'moyennes' => [
+                'participants_par_culte' => round($query->avg('nombre_participants') ?: 0, 1),
+                'note_globale' => round($query->avg('note_globale') ?: 0, 1),
+                'offrandes_par_culte' => round($query->avg('offrande_totale') ?: 0, 2),
+            ]
+        ];
+
+        // Groupement selon le critère
+        switch ($grouperPar) {
+            case 'type':
+                $statistiques['groupes'] = $query->select('type_culte')
+                    ->selectRaw('COUNT(*) as nombre')
+                    ->selectRaw('SUM(nombre_participants) as total_participants')
+                    ->selectRaw('SUM(offrande_totale) as total_offrandes')
+                    ->groupBy('type_culte')
+                    ->get();
+                break;
+
+            case 'pasteur':
+                $statistiques['groupes'] = $query->join('users', 'cultes.pasteur_principal_id', '=', 'users.id')
+                    ->select('users.nom_complet as pasteur')
+                    ->selectRaw('COUNT(*) as nombre')
+                    ->selectRaw('SUM(cultes.nombre_participants) as total_participants')
+                    ->selectRaw('SUM(cultes.offrande_totale) as total_offrandes')
+                    ->groupBy('users.id', 'users.nom_complet')
+                    ->get();
+                break;
+
+            case 'mois':
+                $statistiques['groupes'] = $query->selectRaw('EXTRACT(YEAR FROM date_culte) as annee')
+                    ->selectRaw('EXTRACT(MONTH FROM date_culte) as mois')
+                    ->selectRaw('COUNT(*) as nombre')
+                    ->selectRaw('SUM(nombre_participants) as total_participants')
+                    ->selectRaw('SUM(offrande_totale) as total_offrandes')
+                    ->groupBy('annee', 'mois')
+                    ->orderBy('annee')
+                    ->orderBy('mois')
+                    ->get();
+                break;
+
+            case 'programme':
+                $statistiques['groupes'] = $query->join('programmes', 'cultes.programme_id', '=', 'programmes.id')
+                    ->select('programmes.nom_programme as programme')
+                    ->selectRaw('COUNT(*) as nombre')
+                    ->selectRaw('SUM(cultes.nombre_participants) as total_participants')
+                    ->selectRaw('SUM(cultes.offrande_totale) as total_offrandes')
+                    ->groupBy('programmes.id', 'programmes.nom_programme')
+                    ->get();
+                break;
+        }
+
+        return $statistiques;
+    }
+
+
+
+
 }

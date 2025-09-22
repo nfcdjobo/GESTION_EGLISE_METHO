@@ -70,7 +70,7 @@ class SubscriptionPaymentObserver
                             'subscription_id' => $payment->subscription_id,
                             'payment_id' => $payment->id,
                             'action' => 'paiement_annule',
-                            'commentaire' => "Paiement de {$payment->montant}€ annulé: " . $payment->commentaire,
+                            'commentaire' => "Paiement de {$payment->montant}FCFA annulé: " . $payment->commentaire,
                             'user_id' => $payment->validateur_id
                         ]);
                     }

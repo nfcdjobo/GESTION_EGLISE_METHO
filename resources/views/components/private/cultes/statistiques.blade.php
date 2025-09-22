@@ -190,11 +190,11 @@
                     </div>
                     <div class="ml-4">
                         <p class="text-2xl font-bold text-slate-800">
-                            {{ number_format($statistiques['totaux']['total_offrandes'], 0) }}€</p>
+                            {{ number_format($statistiques['totaux']['total_offrandes'], 0) }}FCFA</p>
                         <p class="text-sm text-slate-500">Total offrandes</p>
                         @if ($statistiques['moyennes']['offrandes_par_culte'])
                             <p class="text-xs text-orange-600">
-                                {{ number_format($statistiques['moyennes']['offrandes_par_culte'], 0) }}€ par culte</p>
+                                {{ number_format($statistiques['moyennes']['offrandes_par_culte'], 0) }}FCFA par culte</p>
                         @endif
                     </div>
                 </div>
@@ -364,7 +364,7 @@
                                         <div>
                                             <span class="text-slate-600">Offrandes:</span>
                                             <span
-                                                class="font-semibold text-emerald-700">{{ number_format($mois->total_offrandes ?: 0) }}€</span>
+                                                class="font-semibold text-emerald-700">{{ number_format($mois->total_offrandes ?: 0) }}FCFA</span>
                                         </div>
                                     </div>
                                     <div class="w-full bg-gray-200 rounded-full h-2 mt-3">
@@ -402,7 +402,7 @@
 
                     <div class="text-center p-6 bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl">
                         <div class="text-3xl font-bold text-green-600 mb-2">
-                            {{ number_format($statistiques['moyennes']['offrandes_par_culte'] ?: 0, 0) }}€</div>
+                            {{ number_format($statistiques['moyennes']['offrandes_par_culte'] ?: 0, 0) }}FCFA</div>
                         <div class="text-sm text-slate-600">Offrande par culte</div>
                     </div>
 
@@ -511,7 +511,7 @@
                     entries.forEach(entry => {
                         if (entry.isIntersecting) {
                             entry.target.style.opacity = '1';
-                            entry.target.style.transform = 'translateY(0)';
+                            // entry.target.style.transform = 'translateY(0)';
                         }
                     });
                 }, {
@@ -520,7 +520,7 @@
 
                 cards.forEach(card => {
                     card.style.opacity = '0';
-                    card.style.transform = 'translateY(20px)';
+                    // card.style.transform = 'translateY(20px)';
                     card.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
                     observer.observe(card);
                 });

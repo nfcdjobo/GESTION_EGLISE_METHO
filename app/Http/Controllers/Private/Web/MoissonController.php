@@ -77,7 +77,7 @@ class MoissonController extends Controller
             $query->orderBy($sortField, $sortDirection);
         }
 
-        $moissons = $query->paginate($request->input('per_page', 15));
+        $moissons = $query->paginate($request->input('per_page', 10));
 
         // Calculer les statistiques pour la page - (PostgreSQL)
         $totalCollecte = Moisson::sum('montant_solde');

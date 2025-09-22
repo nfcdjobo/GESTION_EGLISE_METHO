@@ -5,19 +5,26 @@
     <div class="space-y-8">
         <!-- En-tête de page -->
         <div class="mb-8">
-            <div class="flex items-center space-x-4 mb-4">
-                <a href="{{ route('private.classes.show', $classe) }}"
-                   class="inline-flex items-center text-slate-600 hover:text-slate-900 transition-colors">
-                    <i class="fas fa-arrow-left mr-2"></i>
-                    Retour à la classe
-                </a>
-            </div>
             <h1 class="text-3xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent">
-                Modifier la classe
-            </h1>
-            <p class="text-slate-500 mt-1">
-                Modification de "{{ $classe->nom }}" - {{ $classe->nombre_inscrits }} membre(s) inscrit(s)
-            </p>
+                Modifier la classe</h1>
+            <nav class="flex mt-2" aria-label="Breadcrumb">
+                <ol class="inline-flex items-center space-x-1 md:space-x-3">
+                    <li class="inline-flex items-center">
+                        <a href="{{ route('private.classes.index') }}"
+                            class="inline-flex items-center text-sm font-medium text-slate-700 hover:text-blue-600 transition-colors">
+                            <i class="fas fa-users  mr-2"></i>
+                            Classes
+                        </a>
+                    </li>
+                    <li>
+                        <div class="flex items-center">
+                            <i class="fas fa-chevron-right text-slate-400 mx-2"></i>
+                            <span class="text-sm font-medium text-slate-500">Modification de "{{ $classe->nom }}" -
+                                {{ $classe->nombre_inscrits }} membre(s) inscrit(s)</span>
+                        </div>
+                    </li>
+                </ol>
+            </nav>
         </div>
 
         <!-- Formulaire de modification -->
@@ -29,7 +36,8 @@
                 </h2>
             </div>
 
-            <form action="{{ route('private.classes.update', $classe) }}" method="POST" enctype="multipart/form-data" class="p-6">
+            <form action="{{ route('private.classes.update', $classe) }}" method="POST" enctype="multipart/form-data"
+                class="p-6" id="classe-form">
                 @csrf
                 @method('PUT')
 
@@ -87,8 +95,8 @@
                                 <label for="age_minimum" class="block text-sm font-medium text-slate-700 mb-2">
                                     Âge minimum
                                 </label>
-                                <input type="number" id="age_minimum" name="age_minimum" value="{{ old('age_minimum', $classe->age_minimum) }}"
-                                    min="0" max="120"
+                                <input type="number" id="age_minimum" name="age_minimum"
+                                    value="{{ old('age_minimum', $classe->age_minimum) }}" min="0" max="120"
                                     class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors @error('age_minimum') border-red-500 @enderror"
                                     placeholder="Ex: 6">
                                 @error('age_minimum')
@@ -99,8 +107,8 @@
                                 <label for="age_maximum" class="block text-sm font-medium text-slate-700 mb-2">
                                     Âge maximum
                                 </label>
-                                <input type="number" id="age_maximum" name="age_maximum" value="{{ old('age_maximum', $classe->age_maximum) }}"
-                                    min="0" max="120"
+                                <input type="number" id="age_maximum" name="age_maximum"
+                                    value="{{ old('age_maximum', $classe->age_maximum) }}" min="0" max="120"
                                     class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors @error('age_maximum') border-red-500 @enderror"
                                     placeholder="Ex: 12">
                                 @error('age_maximum')
@@ -114,9 +122,10 @@
                             <label for="image_classe" class="block text-sm font-medium text-slate-700 mb-2">
                                 Image de la classe
                             </label>
-                            <div class="border-2 border-dashed border-slate-300 rounded-xl p-6 text-center hover:border-slate-400 transition-colors">
-                                <input type="file" id="image_classe" name="image_classe" accept="image/*"
-                                    class="hidden" onchange="previewImage(this)">
+                            <div
+                                class="border-2 border-dashed border-slate-300 rounded-xl p-6 text-center hover:border-slate-400 transition-colors">
+                                <input type="file" id="image_classe" name="image_classe" accept="image/*" class="hidden"
+                                    onchange="previewImage(this)">
 
                                 @if($classe->image_classe)
                                     <div id="current-image" class="mb-4">
@@ -156,16 +165,15 @@
                     <!-- Colonne droite - Responsables et programme -->
                     <div class="space-y-6">
                         <!-- Responsables -->
-                        <!-- Responsables -->
                         <div>
                             <label class="block text-sm font-medium text-slate-700 mb-4">
                                 Responsables de la classe
                             </label>
                             <div id="responsables-container" class="space-y-4">
-                                <!-- Les responsables existants seront ajoutés dynamiquement -->
+                                <!-- Les responsables seront ajoutés dynamiquement -->
                             </div>
 
-                            <button type="button" onclick="addResponsable()"
+                            <button type="button" id="add-responsable-btn" onclick="addResponsable()"
                                 class="mt-3 inline-flex items-center px-4 py-2 bg-green-100 text-green-700 rounded-lg hover:bg-green-200 transition-colors">
                                 <i class="fas fa-plus mr-2"></i> Ajouter un responsable
                             </button>
@@ -255,7 +263,8 @@
                             <form action="{{ route('private.classes.archive', $classe) }}" method="POST" class="inline">
                                 @csrf
                                 @method('PATCH')
-                                <button type="submit" onclick="return confirm('Êtes-vous sûr de vouloir archiver cette classe ?')"
+                                <button type="submit"
+                                    onclick="return confirm('Êtes-vous sûr de vouloir archiver cette classe ?')"
                                     class="inline-flex items-center px-4 py-2 bg-amber-100 text-amber-700 rounded-xl hover:bg-amber-200 transition-colors">
                                     <i class="fas fa-archive mr-2"></i> Archiver
                                 </button>
@@ -279,117 +288,56 @@
     </div>
 
     <!-- Scripts JavaScript -->
-    {{-- <script>
-        let responsableIndex = {{ count($classe->responsables ?? []) }};
-        let programmeIndex = {{ count($classe->programme ?? []) }};
+    <script>
+        // Configuration et variables globales
+        let responsableIndex = 0;
+        let selectedUsers = new Set();
+        let allUsers = [];
+        let existingResponsables = [];
+        let typesResponsabilite = [];
+        let dropdownTimeout = null;
 
-        // Gestion de l'aperçu d'image
-        function previewImage(input) {
-            const file = input.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    document.getElementById('preview-img').src = e.target.result;
-                    document.getElementById('image-preview').classList.remove('hidden');
-                    document.getElementById('upload-placeholder').classList.add('hidden');
-                    document.getElementById('current-image')?.classList.add('hidden');
-                };
-                reader.readAsDataURL(file);
-            }
-        }
-
-        function showUploadNew() {
-            document.getElementById('current-image').classList.add('hidden');
-            document.getElementById('upload-placeholder').classList.remove('hidden');
-        }
-
-        function removeImage() {
-            document.getElementById('image_classe').value = '';
-            document.getElementById('image-preview').classList.add('hidden');
-            document.getElementById('upload-placeholder').classList.remove('hidden');
-            document.getElementById('current-image')?.classList.remove('hidden');
-        }
-
-        // Gestion des responsables
-        function addResponsable() {
-            const container = document.getElementById('responsables-container');
-            const template = `
-                <div class="responsable-item bg-slate-50 p-4 rounded-xl border border-slate-200">
-                    <div class="grid grid-cols-12 gap-3 items-end">
-                        <div class="col-span-5">
-                            <label class="block text-xs font-medium text-slate-600 mb-1">Utilisateur</label>
-                            <select name="responsables[${responsableIndex}][id]" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                                <option value="">Sélectionner un utilisateur</option>
-                                @foreach($utilisateurs as $utilisateur)
-                                    <option value="{{ $utilisateur->id }}">{{ $utilisateur->prenom }} {{ $utilisateur->nom }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                        <div class="col-span-4">
-                            <label class="block text-xs font-medium text-slate-600 mb-1">Responsabilité</label>
-                            <select name="responsables[${responsableIndex}][responsabilite]" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                                <option value="">Type de responsabilité</option>
-                                @foreach($types_responsabilite as $type)
-                                    <option value="{{ $type }}">{{ ucfirst($type) }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                        <div class="col-span-2">
-                            <label class="block text-xs font-medium text-slate-600 mb-1">Supérieur</label>
-                            <div class="flex items-center justify-center">
-                                <input type="checkbox" name="responsables[${responsableIndex}][superieur]" value="1"
-                                    class="w-4 h-4 text-blue-600 bg-white border-gray-300 rounded focus:ring-blue-500">
-                            </div>
-                        </div>
-                        <div class="col-span-1">
-                            <button type="button" onclick="removeResponsable(this)"
-                                class="w-8 h-8 text-red-600 bg-red-100 rounded-lg hover:bg-red-200 transition-colors flex items-center justify-center">
-                                <i class="fas fa-trash text-xs"></i>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            `;
-
-            container.insertAdjacentHTML('beforeend', template);
-            responsableIndex++;
-        }
-
-        function removeResponsable(button) {
-            const container = document.getElementById('responsables-container');
-            if (container.children.length > 1) {
-                button.closest('.responsable-item').remove();
-            }
-        }
-
-        // Gestion du programme
-        function addProgrammeItem() {
-            const container = document.getElementById('programme-container');
-            const template = `
-                <div class="programme-item flex gap-3">
-                    <input type="text" name="programme[]"
-                        class="flex-1 px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                        placeholder="Ex: Mathématiques de base">
-                    <button type="button" onclick="removeProgrammeItem(this)"
-                        class="w-10 h-10 text-red-600 bg-red-100 rounded-lg hover:bg-red-200 transition-colors flex items-center justify-center">
-                        <i class="fas fa-trash text-sm"></i>
-                    </button>
-                </div>
-            `;
-
-            container.insertAdjacentHTML('beforeend', template);
-        }
-
-        function removeProgrammeItem(button) {
-            const container = document.getElementById('programme-container');
-            if (container.children.length > 1) {
-                button.closest('.programme-item').remove();
-            }
-        }
-
-        // Validation côté client
+        // Initialisation des données depuis PHP
         document.addEventListener('DOMContentLoaded', function() {
-            const form = document.querySelector('form');
+            // Récupération sécurisée des données PHP
+            try {
+                allUsers = @json($utilisateurs);
+                existingResponsables = @json($classe->responsables ?? []);
+                typesResponsabilite = @json($types_responsabilite);
+
+                // Conversion des IDs en string pour cohérence
+                allUsers = allUsers.map(user => ({
+                    ...user,
+                    id: String(user.id)
+                }));
+
+                existingResponsables = existingResponsables.map(resp => ({
+                    ...resp,
+                    id: String(resp.id)
+                }));
+
+                console.log('Données initialisées:', { allUsers, existingResponsables });
+
+            } catch (error) {
+                console.error('Erreur lors de l\'initialisation des données:', error);
+                allUsers = [];
+                existingResponsables = [];
+                typesResponsabilite = [];
+            }
+
+            // Initialisation des responsables existants
+            existingResponsables.forEach(responsable => {
+                selectedUsers.add(String(responsable.id));
+                createResponsableItem(responsable);
+            });
+
+            initializeEventListeners();
+            updateAddResponsableButton();
+        });
+
+        // Initialisation des écouteurs d'événements
+        function initializeEventListeners() {
+            const form = document.getElementById('classe-form');
             const ageMin = document.getElementById('age_minimum');
             const ageMax = document.getElementById('age_maximum');
 
@@ -405,465 +353,508 @@
                 }
             }
 
-            ageMin.addEventListener('input', validateAges);
-            ageMax.addEventListener('input', validateAges);
+            ageMin?.addEventListener('input', validateAges);
+            ageMax?.addEventListener('input', validateAges);
 
-            // Validation des responsables supérieurs
-            form.addEventListener('submit', function(e) {
-                const superieurs = document.querySelectorAll('input[name*="[superieur]"]:checked');
-                if (superieurs.length > 1) {
+            // Validation du formulaire
+            form?.addEventListener('submit', function(e) {
+                if (!validateForm()) {
                     e.preventDefault();
-                    alert('Une seule personne peut être désignée comme responsable supérieur');
                 }
             });
-        });
-    </script> --}}
 
-    <script>
-let responsableIndex = {{ count($classe->responsables ?? []) + 1 }};
-let programmeIndex = {{ count($classe->programme ?? []) }};
-let selectedUsers = new Set(); // Pour suivre les utilisateurs sélectionnés
-let allUsers = @json($utilisateurs); // Tous les utilisateurs disponibles
-let existingResponsables = @json($classe->responsables ?? []); // Responsables existants
-
-// Initialiser les utilisateurs déjà sélectionnés
-existingResponsables.forEach(responsable => {
-    selectedUsers.add(responsable.id);
-});
-
-// Gestion de l'aperçu d'image
-function previewImage(input) {
-    const file = input.files[0];
-    if (file) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            document.getElementById('preview-img').src = e.target.result;
-            document.getElementById('image-preview').classList.remove('hidden');
-            document.getElementById('upload-placeholder').classList.add('hidden');
-            document.getElementById('current-image')?.classList.add('hidden');
-        };
-        reader.readAsDataURL(file);
-    }
-}
-
-function showUploadNew() {
-    document.getElementById('current-image').classList.add('hidden');
-    document.getElementById('upload-placeholder').classList.remove('hidden');
-}
-
-function removeImage() {
-    document.getElementById('image_classe').value = '';
-    document.getElementById('image-preview').classList.add('hidden');
-    document.getElementById('upload-placeholder').classList.remove('hidden');
-    document.getElementById('current-image')?.classList.remove('hidden');
-}
-
-// Vérifier et mettre à jour l'état du bouton "Ajouter un responsable"
-function updateAddResponsableButton() {
-    setTimeout(() => {
-        const addButton = document.querySelector('button[onclick="addResponsable()"]');
-        if (!addButton) {
-            console.error('Bouton "Ajouter un responsable" non trouvé');
-            return;
+            // Fermeture des dropdowns au clic externe
+            document.addEventListener('click', function(e) {
+                if (!e.target.closest('.responsable-search-container')) {
+                    closeAllDropdowns();
+                }
+            });
         }
 
-        const availableUsers = allUsers.filter(user => !selectedUsers.has(user.id));
-
-        if (availableUsers.length === 0) {
-            addButton.disabled = true;
-            addButton.style.opacity = '0.5';
-            addButton.style.cursor = 'not-allowed';
-            addButton.title = 'Tous les utilisateurs sont déjà sélectionnés';
-            addButton.onmouseenter = null;
-            addButton.onmouseleave = null;
-        } else {
-            addButton.disabled = false;
-            addButton.style.opacity = '1';
-            addButton.style.cursor = 'pointer';
-            addButton.title = '';
-            addButton.onmouseenter = function() {
-                this.style.backgroundColor = 'rgb(187 247 208)';
-            };
-            addButton.onmouseleave = function() {
-                this.style.backgroundColor = 'rgb(220 252 231)';
-            };
-        }
-    }, 10);
-}
-
-// Créer un responsable existant
-function createExistingResponsable(responsable, index) {
-    const container = document.getElementById('responsables-container');
-
-    const responsableDiv = document.createElement('div');
-    responsableDiv.className = 'responsable-item bg-slate-50 p-4 rounded-xl border border-slate-200';
-
-    // Trouver l'utilisateur correspondant
-    const user = allUsers.find(u => u.id === responsable.id);
-    const userName = user ? `${user.prenom} ${user.nom}` : 'Utilisateur non trouvé';
-
-    responsableDiv.innerHTML = `
-        <div class="grid grid-cols-12 gap-3 items-end">
-            <div class="col-span-5">
-                <label class="block text-xs font-medium text-slate-600 mb-1">Utilisateur</label>
-                <div class="relative">
-                    <input type="text"
-                        class="user-search w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                        placeholder="Rechercher un utilisateur..."
-                        value="${userName}"
-                        autocomplete="off"
-                        onkeyup="searchUsers(this)"
-                        onfocus="showUserDropdown(this)"
-                        onblur="hideUserDropdown(this)">
-                    <select name="responsables[${index}][id]" class="hidden user-select">
-                        <option value="">Sélectionner un utilisateur</option>
-                        <option value="${responsable.id}" selected>${userName}</option>
-                    </select>
-                    <button type="button" class="clear-user-btn absolute right-2 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-red-500" onclick="clearSelectedUser(this)" title="Désélectionner">
-                        <i class="fas fa-times text-sm"></i>
-                    </button>
-                    <div class="user-dropdown absolute z-10 w-full bg-white border border-slate-300 rounded-lg shadow-lg mt-1 max-h-40 overflow-y-auto hidden">
-                    </div>
-                </div>
-            </div>
-            <div class="col-span-4">
-                <label class="block text-xs font-medium text-slate-600 mb-1">Responsabilité</label>
-                <select name="responsables[${index}][responsabilite]" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                    <option value="">Type de responsabilité</option>
-                    @foreach($types_responsabilite as $type)
-                        <option value="{{ $type }}" ${responsable.responsabilite === '{{ $type }}' ? 'selected' : ''}>{{ ucfirst($type) }}</option>
-                    @endforeach
-                </select>
-            </div>
-            <div class="col-span-2">
-                <label class="block text-xs font-medium text-slate-600 mb-1">Supérieur</label>
-                <div class="flex items-center justify-center">
-                    <input type="checkbox" name="responsables[${index}][superieur]" value="1"
-                        ${responsable.superieur ? 'checked' : ''}
-                        class="w-4 h-4 text-blue-600 bg-white border-gray-300 rounded focus:ring-blue-500"
-                        onchange="handleSuperieurChange(this)">
-                </div>
-            </div>
-            <div class="col-span-1">
-                <button type="button" onclick="removeResponsable(this)"
-                    class="w-8 h-8 text-red-600 bg-red-100 rounded-lg hover:bg-red-200 transition-colors flex items-center justify-center">
-                    <i class="fas fa-trash text-xs"></i>
-                </button>
-            </div>
-        </div>
-    `;
-
-    container.appendChild(responsableDiv);
-    initializeUserSearch(responsableDiv);
-}
-
-// Gestion des responsables avec recherche
-function addResponsable() {
-    const availableUsers = allUsers.filter(user => !selectedUsers.has(user.id));
-    if (availableUsers.length === 0) {
-        alert('Tous les utilisateurs disponibles sont déjà sélectionnés');
-        return;
-    }
-
-    const container = document.getElementById('responsables-container');
-    const responsableDiv = document.createElement('div');
-    responsableDiv.className = 'responsable-item bg-slate-50 p-4 rounded-xl border border-slate-200';
-
-    responsableDiv.innerHTML = `
-        <div class="grid grid-cols-12 gap-3 items-end">
-            <div class="col-span-5">
-                <label class="block text-xs font-medium text-slate-600 mb-1">Utilisateur</label>
-                <div class="relative">
-                    <input type="text"
-                        class="user-search w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                        placeholder="Rechercher un utilisateur..."
-                        autocomplete="off"
-                        onkeyup="searchUsers(this)"
-                        onfocus="showUserDropdown(this)"
-                        onblur="hideUserDropdown(this)">
-                    <select name="responsables[${responsableIndex}][id]" class="hidden user-select">
-                        <option value="">Sélectionner un utilisateur</option>
-                    </select>
-                    <button type="button" class="clear-user-btn absolute right-2 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-red-500 hidden" onclick="clearSelectedUser(this)" title="Désélectionner">
-                        <i class="fas fa-times text-sm"></i>
-                    </button>
-                    <div class="user-dropdown absolute z-10 w-full bg-white border border-slate-300 rounded-lg shadow-lg mt-1 max-h-40 overflow-y-auto hidden">
-                    </div>
-                </div>
-            </div>
-            <div class="col-span-4">
-                <label class="block text-xs font-medium text-slate-600 mb-1">Responsabilité</label>
-                <select name="responsables[${responsableIndex}][responsabilite]" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                    <option value="">Type de responsabilité</option>
-                    @foreach($types_responsabilite as $type)
-                        <option value="{{ $type }}">{{ ucfirst($type) }}</option>
-                    @endforeach
-                </select>
-            </div>
-            <div class="col-span-2">
-                <label class="block text-xs font-medium text-slate-600 mb-1">Supérieur</label>
-                <div class="flex items-center justify-center">
-                    <input type="checkbox" name="responsables[${responsableIndex}][superieur]" value="1"
-                        class="w-4 h-4 text-blue-600 bg-white border-gray-300 rounded focus:ring-blue-500"
-                        onchange="handleSuperieurChange(this)">
-                </div>
-            </div>
-            <div class="col-span-1">
-                <button type="button" onclick="removeResponsable(this)"
-                    class="w-8 h-8 text-red-600 bg-red-100 rounded-lg hover:bg-red-200 transition-colors flex items-center justify-center">
-                    <i class="fas fa-trash text-xs"></i>
-                </button>
-            </div>
-        </div>
-    `;
-
-    container.appendChild(responsableDiv);
-    initializeUserSearch(responsableDiv);
-    responsableIndex++;
-    updateAddResponsableButton();
-}
-
-function removeResponsable(button) {
-    const responsableItem = button.closest('.responsable-item');
-    const userSelect = responsableItem.querySelector('.user-select');
-
-    if (userSelect.value) {
-        selectedUsers.delete(userSelect.value);
-    }
-
-    responsableItem.remove();
-    updateAllUserDropdowns();
-    updateAddResponsableButton();
-}
-
-function clearSelectedUser(button) {
-    const responsableItem = button.closest('.responsable-item');
-    const searchInput = responsableItem.querySelector('.user-search');
-    const userSelect = responsableItem.querySelector('.user-select');
-    const clearButton = button;
-
-    if (userSelect.value) {
-        selectedUsers.delete(userSelect.value);
-    }
-
-    searchInput.value = '';
-    userSelect.value = '';
-
-    const options = userSelect.querySelectorAll('option');
-    options.forEach((option, index) => {
-        if (index > 0) {
-            option.remove();
-        }
-    });
-
-    clearButton.classList.add('hidden');
-    updateAllUserDropdowns();
-    updateAddResponsableButton();
-    showUserDropdown(searchInput);
-}
-
-function initializeUserSearch(responsableElement) {
-    const searchInput = responsableElement.querySelector('.user-search');
-    const dropdown = responsableElement.querySelector('.user-dropdown');
-    const select = responsableElement.querySelector('.user-select');
-    updateUserDropdown(dropdown, select);
-}
-
-function searchUsers(input) {
-    const dropdown = input.nextElementSibling.nextElementSibling.nextElementSibling;
-    const select = input.nextElementSibling;
-    const searchTerm = input.value.toLowerCase();
-
-    if (!searchTerm && select.value) {
-        dropdown.classList.add('hidden');
-        return;
-    }
-
-    const availableUsers = allUsers.filter(user =>
-        !selectedUsers.has(user.id) &&
-        (user.prenom.toLowerCase().includes(searchTerm) ||
-         user.nom.toLowerCase().includes(searchTerm) ||
-         user.email?.toLowerCase()?.includes(searchTerm))
-    );
-
-    dropdown.innerHTML = '';
-    if (availableUsers.length > 0) {
-        availableUsers.forEach(user => {
-            const option = document.createElement('div');
-            option.className = 'px-3 py-2 hover:bg-slate-100 cursor-pointer text-sm';
-            option.innerHTML = `
-                <div class="font-medium">${user.prenom} ${user.nom}</div>
-                <div class="text-xs text-slate-500">${user.email ?? 'Aucun email disponible'}</div>
-            `;
-            option.onclick = () => selectUser(input, user, select, dropdown);
-            dropdown.appendChild(option);
-        });
-        dropdown.classList.remove('hidden');
-    } else {
-        dropdown.innerHTML = '<div class="px-3 py-2 text-sm text-slate-500">Aucun utilisateur trouvé</div>';
-        dropdown.classList.remove('hidden');
-    }
-}
-
-function selectUser(input, user, select, dropdown) {
-    const clearButton = input.parentElement.querySelector('.clear-user-btn');
-
-    if (select.value) {
-        selectedUsers.delete(select.value);
-    }
-
-    selectedUsers.add(user.id);
-    input.value = `${user.prenom} ${user.nom}`;
-    select.value = user.id;
-    dropdown.classList.add('hidden');
-    clearButton.classList.remove('hidden');
-
-    let existingOption = select.querySelector(`option[value="${user.id}"]`);
-    if (!existingOption) {
-        const option = document.createElement('option');
-        option.value = user.id;
-        option.textContent = `${user.prenom} ${user.nom}`;
-        option.selected = true;
-        select.appendChild(option);
-    } else {
-        existingOption.selected = true;
-    }
-
-    updateAllUserDropdowns();
-    updateAddResponsableButton();
-}
-
-function showUserDropdown(input) {
-    const dropdown = input.nextElementSibling.nextElementSibling.nextElementSibling;
-    const select = input.nextElementSibling;
-
-    if (select.value && !input.value) {
-        return;
-    }
-
-    if (!input.value) {
-        updateUserDropdown(dropdown, select);
-    }
-    dropdown.classList.remove('hidden');
-}
-
-function hideUserDropdown(input) {
-    setTimeout(() => {
-        const dropdown = input.nextElementSibling.nextElementSibling.nextElementSibling;
-        dropdown.classList.add('hidden');
-    }, 200);
-}
-
-function updateUserDropdown(dropdown, select) {
-    const availableUsers = allUsers.filter(user => !selectedUsers.has(user.id));
-
-    dropdown.innerHTML = '';
-    if (availableUsers.length > 0) {
-        availableUsers.forEach(user => {
-            const option = document.createElement('div');
-            option.className = 'px-3 py-2 hover:bg-slate-100 cursor-pointer text-sm';
-            option.innerHTML = `
-                <div class="font-medium">${user.prenom} ${user.nom}</div>
-                <div class="text-xs text-slate-500">${user.email ?? 'Aucun email disponible'}</div>
-            `;
-            option.onclick = () => {
-                const input = dropdown.previousElementSibling.previousElementSibling.previousElementSibling;
-                selectUser(input, user, select, dropdown);
-            };
-            dropdown.appendChild(option);
-        });
-    } else {
-        dropdown.innerHTML = '<div class="px-3 py-2 text-sm text-slate-500">Tous les utilisateurs sont sélectionnés</div>';
-    }
-}
-
-function updateAllUserDropdowns() {
-    document.querySelectorAll('.user-dropdown').forEach(dropdown => {
-        const select = dropdown.previousElementSibling.previousElementSibling;
-        updateUserDropdown(dropdown, select);
-    });
-}
-
-function handleSuperieurChange(checkbox) {
-    if (checkbox.checked) {
-        document.querySelectorAll('input[name*="[superieur]"]').forEach(cb => {
-            if (cb !== checkbox) {
-                cb.checked = false;
+        // Validation du formulaire
+        function validateForm() {
+            // Vérification qu'un seul responsable supérieur est sélectionné
+            const superieurs = document.querySelectorAll('input[name*="[superieur]"]:checked');
+            if (superieurs.length > 1) {
+                alert('Une seule personne peut être désignée comme responsable supérieur');
+                return false;
             }
-        });
-    }
-}
 
-// Gestion du programme
-function addProgrammeItem() {
-    const container = document.getElementById('programme-container');
-    const template = `
-        <div class="programme-item flex gap-3">
-            <input type="text" name="programme[]"
-                class="flex-1 px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                placeholder="Ex: Mathématiques de base">
-            <button type="button" onclick="removeProgrammeItem(this)"
-                class="w-10 h-10 text-red-600 bg-red-100 rounded-lg hover:bg-red-200 transition-colors flex items-center justify-center">
-                <i class="fas fa-trash text-sm"></i>
-            </button>
-        </div>
-    `;
-    container.insertAdjacentHTML('beforeend', template);
-}
+            // Vérification que tous les responsables ont un utilisateur sélectionné
+            const responsableItems = document.querySelectorAll('.responsable-item');
+            for (let item of responsableItems) {
+                const select = item.querySelector('.user-select');
+                if (!select || !select.value) {
+                    alert('Veuillez sélectionner un utilisateur pour chaque responsable');
+                    return false;
+                }
+            }
 
-function removeProgrammeItem(button) {
-    const container = document.getElementById('programme-container');
-    if (container.children.length > 1) {
-        button.closest('.programme-item').remove();
-    }
-}
-
-// Validation côté client
-document.addEventListener('DOMContentLoaded', function() {
-    const form = document.querySelector('form');
-    const ageMin = document.getElementById('age_minimum');
-    const ageMax = document.getElementById('age_maximum');
-
-    // Créer les responsables existants
-    existingResponsables.forEach((responsable, index) => {
-        createExistingResponsable(responsable, index);
-    });
-
-    // Initialiser l'état du bouton
-    updateAddResponsableButton();
-
-    function validateAges() {
-        const min = parseInt(ageMin.value);
-        const max = parseInt(ageMax.value);
-
-        if (min && max && min > max) {
-            ageMax.setCustomValidity('L\'âge maximum doit être supérieur à l\'âge minimum');
-        } else {
-            ageMax.setCustomValidity('');
+            return true;
         }
-    }
 
-    ageMin.addEventListener('input', validateAges);
-    ageMax.addEventListener('input', validateAges);
+        // Création d'un élément responsable
+        function createResponsableItem(responsable = null) {
+            const container = document.getElementById('responsables-container');
+            if (!container) return;
 
-    form.addEventListener('submit', function(e) {
-        const superieurs = document.querySelectorAll('input[name*="[superieur]"]:checked');
-        if (superieurs.length > 1) {
-            e.preventDefault();
-            alert('Une seule personne peut être désignée comme responsable supérieur');
+            const currentIndex = responsableIndex++;
+            const responsableDiv = document.createElement('div');
+            responsableDiv.className = 'responsable-item bg-slate-50 p-4 rounded-xl border border-slate-200';
+            responsableDiv.dataset.index = currentIndex;
+
+            let selectedUser = null;
+            let userName = '';
+
+            if (responsable) {
+                selectedUser = allUsers.find(u => String(u.id) === String(responsable.id));
+                userName = selectedUser ? `${selectedUser.prenom} ${selectedUser.nom}` : 'Utilisateur non trouvé';
+            }
+
+            responsableDiv.innerHTML = `
+                <div class="grid grid-cols-12 gap-3 items-end">
+                    <div class="col-span-5">
+                        <label class="block text-xs font-medium text-slate-600 mb-1">Utilisateur</label>
+                        <div class="relative responsable-search-container">
+                            <input type="text"
+                                class="user-search w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                placeholder="Rechercher un utilisateur..."
+                                value="${userName}"
+                                autocomplete="off"
+                                data-index="${currentIndex}">
+                            <select name="responsables[${currentIndex}][id]" class="hidden user-select" required>
+                                <option value="">Sélectionner un utilisateur</option>
+                                ${responsable ? `<option value="${responsable.id}" selected>${userName}</option>` : ''}
+                            </select>
+                            <button type="button" class="clear-user-btn absolute right-2 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-red-500 ${!responsable ? 'hidden' : ''}"
+                                title="Désélectionner">
+                                <i class="fas fa-times text-sm"></i>
+                            </button>
+                            <div class="user-dropdown absolute z-20 w-full bg-white border border-slate-300 rounded-lg shadow-lg mt-1 max-h-40 overflow-y-auto hidden">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-span-4">
+                        <label class="block text-xs font-medium text-slate-600 mb-1">Responsabilité</label>
+                        <select name="responsables[${currentIndex}][responsabilite]"
+                            class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                            <option value="">Type de responsabilité</option>
+                            ${typesResponsabilite.map(type =>
+                                `<option value="${type}" ${responsable && responsable.responsabilite === type ? 'selected' : ''}>${type.charAt(0).toUpperCase() + type.slice(1)}</option>`
+                            ).join('')}
+                        </select>
+                    </div>
+                    <div class="col-span-2">
+                        <label class="block text-xs font-medium text-slate-600 mb-1">Supérieur</label>
+                        <div class="flex items-center justify-center">
+                            <input type="checkbox" name="responsables[${currentIndex}][superieur]" value="1"
+                                ${responsable && responsable.superieur ? 'checked' : ''}
+                                class="w-4 h-4 text-blue-600 bg-white border-gray-300 rounded focus:ring-blue-500 superieur-checkbox">
+                        </div>
+                    </div>
+                    <div class="col-span-1">
+                        <button type="button" class="remove-responsable-btn w-8 h-8 text-red-600 bg-red-100 rounded-lg hover:bg-red-200 transition-colors flex items-center justify-center">
+                            <i class="fas fa-trash text-xs"></i>
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            container.appendChild(responsableDiv);
+            initializeResponsableEvents(responsableDiv);
+            return responsableDiv;
         }
-    });
 
-    document.addEventListener('click', function(e) {
-        if (!e.target.closest('.user-search') &&
-            !e.target.closest('.user-dropdown') &&
-            !e.target.closest('.clear-user-btn')) {
+        // Initialisation des événements pour un responsable
+        function initializeResponsableEvents(responsableDiv) {
+            const searchInput = responsableDiv.querySelector('.user-search');
+            const clearBtn = responsableDiv.querySelector('.clear-user-btn');
+            const removeBtn = responsableDiv.querySelector('.remove-responsable-btn');
+            const superieurCheckbox = responsableDiv.querySelector('.superieur-checkbox');
+
+            // Événements de recherche
+            searchInput.addEventListener('input', function() {
+                handleUserSearch(this);
+            });
+
+            searchInput.addEventListener('focus', function() {
+                showUserDropdown(this);
+            });
+
+            searchInput.addEventListener('blur', function() {
+                scheduleDropdownHide(this);
+            });
+
+            // Bouton de suppression d'utilisateur
+            clearBtn.addEventListener('click', function() {
+                clearSelectedUser(this);
+            });
+
+            // Bouton de suppression de responsable
+            removeBtn.addEventListener('click', function() {
+                removeResponsable(this);
+            });
+
+            // Checkbox supérieur
+            superieurCheckbox.addEventListener('change', function() {
+                handleSuperieurChange(this);
+            });
+
+            // Préparer les données du dropdown SANS l'afficher
+            updateUserDropdownData(responsableDiv);
+        }
+
+        // Ajout d'un nouveau responsable
+        function addResponsable() {
+            const availableUsers = getAvailableUsers();
+            if (availableUsers.length === 0) {
+                alert('Tous les utilisateurs disponibles sont déjà sélectionnés');
+                return;
+            }
+
+            createResponsableItem();
+            updateAddResponsableButton();
+        }
+
+        // Suppression d'un responsable
+        function removeResponsable(button) {
+            const responsableItem = button.closest('.responsable-item');
+            const userSelect = responsableItem.querySelector('.user-select');
+
+            if (userSelect && userSelect.value) {
+                selectedUsers.delete(String(userSelect.value));
+            }
+
+            responsableItem.remove();
+            updateAllDropdowns();
+            updateAddResponsableButton();
+        }
+
+        // Gestion de la recherche d'utilisateurs
+        function handleUserSearch(input) {
+            const responsableDiv = input.closest('.responsable-item');
+            const dropdown = responsableDiv.querySelector('.user-dropdown');
+            const searchTerm = input.value.toLowerCase().trim();
+
+            if (!searchTerm) {
+                updateUserDropdown(responsableDiv);
+                return;
+            }
+
+            const availableUsers = getAvailableUsers().filter(user =>
+                user.prenom.toLowerCase().includes(searchTerm) ||
+                user.nom.toLowerCase().includes(searchTerm) ||
+                (user.email && user.email.toLowerCase().includes(searchTerm))
+            );
+
+            displayUsers(dropdown, availableUsers, input);
+        }
+
+        // Affichage des utilisateurs dans le dropdown
+        function displayUsers(dropdown, users, searchInput) {
+            dropdown.innerHTML = '';
+
+            if (users.length === 0) {
+                dropdown.innerHTML = '<div class="px-3 py-2 text-sm text-slate-500">Aucun utilisateur trouvé</div>';
+            } else {
+                users.forEach(user => {
+                    const option = document.createElement('div');
+                    option.className = 'px-3 py-2 hover:bg-slate-100 cursor-pointer text-sm user-option';
+                    option.innerHTML = `
+                        <div class="font-medium">${escapeHtml(user.prenom)} ${escapeHtml(user.nom)}</div>
+                        <div class="text-xs text-slate-500">${user.email ? escapeHtml(user.email) : 'Aucun email disponible'}</div>
+                    `;
+
+                    option.addEventListener('mousedown', function(e) {
+                        e.preventDefault(); // Empêche le blur de l'input
+                        selectUser(searchInput, user);
+                    });
+
+                    dropdown.appendChild(option);
+                });
+            }
+
+            dropdown.classList.remove('hidden');
+        }
+
+        // Sélection d'un utilisateur
+        function selectUser(searchInput, user) {
+            const responsableDiv = searchInput.closest('.responsable-item');
+            const userSelect = responsableDiv.querySelector('.user-select');
+            const clearBtn = responsableDiv.querySelector('.clear-user-btn');
+            const dropdown = responsableDiv.querySelector('.user-dropdown');
+
+            // Retirer l'ancien utilisateur s'il y en avait un
+            if (userSelect.value) {
+                selectedUsers.delete(String(userSelect.value));
+            }
+
+            // Ajouter le nouveau utilisateur
+            selectedUsers.add(String(user.id));
+
+            // Mettre à jour l'interface
+            searchInput.value = `${user.prenom} ${user.nom}`;
+
+            // Mettre à jour le select
+            userSelect.value = String(user.id);
+
+            // Créer/mettre à jour l'option dans le select
+            let existingOption = userSelect.querySelector(`option[value="${user.id}"]`);
+            if (!existingOption) {
+                const option = document.createElement('option');
+                option.value = String(user.id);
+                option.textContent = `${user.prenom} ${user.nom}`;
+                option.selected = true;
+                userSelect.appendChild(option);
+            } else {
+                existingOption.selected = true;
+            }
+
+            // Afficher le bouton de suppression
+            clearBtn.classList.remove('hidden');
+
+            // Cacher le dropdown actuel
+            dropdown.classList.add('hidden');
+
+            // Mettre à jour seulement les autres dropdowns (pas celui actuel)
+            updateOtherDropdowns(responsableDiv);
+            updateAddResponsableButton();
+        }
+
+        // Effacer la sélection d'utilisateur
+        function clearSelectedUser(button) {
+            const responsableDiv = button.closest('.responsable-item');
+            const searchInput = responsableDiv.querySelector('.user-search');
+            const userSelect = responsableDiv.querySelector('.user-select');
+            const clearBtn = button;
+
+            if (userSelect.value) {
+                selectedUsers.delete(String(userSelect.value));
+            }
+
+            // Réinitialiser l'interface
+            searchInput.value = '';
+            userSelect.value = '';
+            clearBtn.classList.add('hidden');
+
+            // Supprimer les options du select (sauf la première)
+            const options = userSelect.querySelectorAll('option');
+            options.forEach((option, index) => {
+                if (index > 0) {
+                    option.remove();
+                }
+            });
+
+            updateOtherDropdowns(responsableDiv);
+            updateAddResponsableButton();
+        }
+
+        // Affichage du dropdown utilisateur
+        function showUserDropdown(input) {
+            const responsableDiv = input.closest('.responsable-item');
+            const dropdown = responsableDiv.querySelector('.user-dropdown');
+            const userSelect = responsableDiv.querySelector('.user-select');
+
+            // Si un utilisateur est déjà sélectionné et l'input est vide, ne pas montrer le dropdown
+            if (userSelect.value && !input.value) {
+                return;
+            }
+
+            clearTimeout(dropdownTimeout);
+            updateUserDropdown(responsableDiv);
+        }
+
+        // Programmation de la fermeture du dropdown
+        function scheduleDropdownHide(input) {
+            dropdownTimeout = setTimeout(() => {
+                const responsableDiv = input.closest('.responsable-item');
+                const dropdown = responsableDiv.querySelector('.user-dropdown');
+                dropdown.classList.add('hidden');
+            }, 150);
+        }
+
+        // Mise à jour des autres dropdowns (exclut le dropdown actuel)
+        function updateOtherDropdowns(currentResponsableDiv) {
+            document.querySelectorAll('.responsable-item').forEach(responsableDiv => {
+                if (responsableDiv !== currentResponsableDiv) {
+                    const dropdown = responsableDiv.querySelector('.user-dropdown');
+                    // Ne mettre à jour que si le dropdown n'est pas visible
+                    if (dropdown.classList.contains('hidden')) {
+                        updateUserDropdownData(responsableDiv);
+                    }
+                }
+            });
+        }
+
+        // Mise à jour du dropdown d'un responsable
+        function updateUserDropdown(responsableDiv) {
+            const dropdown = responsableDiv.querySelector('.user-dropdown');
+            const searchInput = responsableDiv.querySelector('.user-search');
+            const availableUsers = getAvailableUsers();
+
+            displayUsers(dropdown, availableUsers, searchInput);
+        }
+
+        // Mise à jour des données du dropdown sans l'afficher
+        function updateUserDropdownData(responsableDiv) {
+            const dropdown = responsableDiv.querySelector('.user-dropdown');
+            const searchInput = responsableDiv.querySelector('.user-search');
+            const availableUsers = getAvailableUsers();
+
+            // Mettre à jour le contenu sans afficher le dropdown
+            dropdown.innerHTML = '';
+            availableUsers.forEach(user => {
+                const option = document.createElement('div');
+                option.className = 'px-3 py-2 hover:bg-slate-100 cursor-pointer text-sm user-option';
+                option.innerHTML = `
+                    <div class="font-medium">${escapeHtml(user.prenom)} ${escapeHtml(user.nom)}</div>
+                    <div class="text-xs text-slate-500">${user.email ? escapeHtml(user.email) : 'Aucun email disponible'}</div>
+                `;
+
+                option.addEventListener('mousedown', function(e) {
+                    e.preventDefault();
+                    selectUser(searchInput, user);
+                });
+
+                dropdown.appendChild(option);
+            });
+        }
+
+        // Mise à jour de tous les dropdowns (utilisé seulement lors du remove)
+        function updateAllDropdowns() {
+            document.querySelectorAll('.responsable-item').forEach(responsableDiv => {
+                updateUserDropdownData(responsableDiv);
+            });
+        }
+
+        // Fermeture de tous les dropdowns
+        function closeAllDropdowns() {
             document.querySelectorAll('.user-dropdown').forEach(dropdown => {
                 dropdown.classList.add('hidden');
             });
         }
-    });
-});
-</script>
+
+        // Obtenir les utilisateurs disponibles
+        function getAvailableUsers() {
+            return allUsers.filter(user => !selectedUsers.has(String(user.id)));
+        }
+
+        // Mise à jour du bouton d'ajout de responsable
+        function updateAddResponsableButton() {
+            const addButton = document.getElementById('add-responsable-btn');
+            if (!addButton) return;
+
+            const availableUsers = getAvailableUsers();
+
+            if (availableUsers.length === 0) {
+                addButton.disabled = true;
+                addButton.classList.add('opacity-50', 'cursor-not-allowed');
+                addButton.title = 'Tous les utilisateurs sont déjà sélectionnés';
+            } else {
+                addButton.disabled = false;
+                addButton.classList.remove('opacity-50', 'cursor-not-allowed');
+                addButton.title = '';
+            }
+        }
+
+        // Gestion du responsable supérieur
+        function handleSuperieurChange(checkbox) {
+            if (checkbox.checked) {
+                // Décocher tous les autres checkboxes supérieur
+                document.querySelectorAll('.superieur-checkbox').forEach(cb => {
+                    if (cb !== checkbox) {
+                        cb.checked = false;
+                    }
+                });
+            }
+        }
+
+        // Échappement HTML pour sécurité
+        function escapeHtml(text) {
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return text.replace(/[&<>"']/g, function(m) { return map[m]; });
+        }
+
+        // Gestion de l'aperçu d'image
+        function previewImage(input) {
+            const file = input.files[0];
+            if (file) {
+                if (file.size > 5 * 1024 * 1024) { // 5MB max
+                    alert('Le fichier est trop volumineux. Taille maximale : 5MB');
+                    input.value = '';
+                    return;
+                }
+
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('preview-img').src = e.target.result;
+                    document.getElementById('image-preview').classList.remove('hidden');
+                    document.getElementById('upload-placeholder').classList.add('hidden');
+                    const currentImage = document.getElementById('current-image');
+                    if (currentImage) currentImage.classList.add('hidden');
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function showUploadNew() {
+            const currentImage = document.getElementById('current-image');
+            const uploadPlaceholder = document.getElementById('upload-placeholder');
+
+            if (currentImage) currentImage.classList.add('hidden');
+            if (uploadPlaceholder) uploadPlaceholder.classList.remove('hidden');
+        }
+
+        function removeImage() {
+            const imageInput = document.getElementById('image_classe');
+            const imagePreview = document.getElementById('image-preview');
+            const uploadPlaceholder = document.getElementById('upload-placeholder');
+            const currentImage = document.getElementById('current-image');
+
+            if (imageInput) imageInput.value = '';
+            if (imagePreview) imagePreview.classList.add('hidden');
+            if (uploadPlaceholder) uploadPlaceholder.classList.remove('hidden');
+            if (currentImage) currentImage.classList.remove('hidden');
+        }
+
+        // Gestion du programme
+        function addProgrammeItem() {
+            const container = document.getElementById('programme-container');
+            if (!container) return;
+
+            const programmeDiv = document.createElement('div');
+            programmeDiv.className = 'programme-item flex gap-3';
+            programmeDiv.innerHTML = `
+                <input type="text" name="programme[]"
+                    class="flex-1 px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    placeholder="Ex: Mathématiques de base">
+                <button type="button" onclick="removeProgrammeItem(this)"
+                    class="w-10 h-10 text-red-600 bg-red-100 rounded-lg hover:bg-red-200 transition-colors flex items-center justify-center">
+                    <i class="fas fa-trash text-sm"></i>
+                </button>
+            `;
+            container.appendChild(programmeDiv);
+        }
+
+        function removeProgrammeItem(button) {
+            const container = document.getElementById('programme-container');
+            const item = button.closest('.programme-item');
+
+            // Garder au moins un élément de programme
+            if (container.children.length > 1) {
+                item.remove();
+            } else {
+                // Si c'est le dernier élément, vider juste l'input
+                const input = item.querySelector('input[name="programme[]"]');
+                if (input) input.value = '';
+            }
+        }
+    </script>
 
 @endsection

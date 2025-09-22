@@ -4,10 +4,8 @@
 <div class="space-y-8">
     <!-- Page Title -->
     <div class="mb-8">
-        <div class="bg-white rounded-xl shadow-lg p-6 border border-slate-200">
         <h1 class="text-3xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent">Gestion des Rôles</h1>
-        <p class="text-slate-500 mt-1">Administration des rôles et permissions - <?php echo e(\Carbon\Carbon::now()->format('l d F Y')); ?></p>
-        </div>
+        <p class="text-slate-500 mt-1">Administration des rôles et permissions</p>
     </div>
 
     <!-- Filtres et actions -->

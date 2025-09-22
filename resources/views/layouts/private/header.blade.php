@@ -344,7 +344,7 @@
                             <i class="fas fa-user-circle text-amber-500 mr-2 text-xs"></i>
                             Mon profil
                         </a>
-                        <a href="#"
+                        <a href="{{route('private.parametres.index')}}"
                             class="flex items-center px-3 py-2 text-sm text-slate-600 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition-colors">
                             <i class="fas fa-cogs text-amber-500 mr-2 text-xs"></i>
                             Paramètres

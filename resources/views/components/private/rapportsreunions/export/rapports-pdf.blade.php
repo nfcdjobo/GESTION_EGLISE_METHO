@@ -307,7 +307,7 @@
                         <div class="cover-stat-label">Total présents</div>
                     </div>
                     <div class="cover-stat-cell">
-                        <div class="cover-stat-number">{{ number_format($rapports->sum('montant_collecte') ?: 0, 0) }}€</div>
+                        <div class="cover-stat-number">{{ number_format($rapports->sum('montant_collecte') ?: 0, 0) }}FCFA</div>
                         <div class="cover-stat-label">Montant total</div>
                     </div>
                 </div>

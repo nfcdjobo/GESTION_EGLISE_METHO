@@ -41,7 +41,7 @@ class SubscriptionController extends Controller
             $this->applySorting($query, $request);
 
             // Pagination
-            $perPage = min($request->get('per_page', 15), 100);
+            $perPage = min($request->get('per_page', 10), 100);
             $subscriptions = $query->paginate($perPage);
 
             $meta = [
@@ -74,7 +74,7 @@ class SubscriptionController extends Controller
             return view('components.private.subscriptions.index', compact('subscriptions', 'meta'));
 
         } catch (Exception $e) {
-            
+
             if ($request->expectsJson()) {
                 return response()->json([
                     'success' => false,

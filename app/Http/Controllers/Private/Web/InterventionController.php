@@ -71,7 +71,7 @@ class InterventionController extends Controller
             $query->ordonneesParPassage();
         }
 
-        $interventions = $query->paginate($request->get('per_page', 15));
+        $interventions = $query->paginate($request->get('per_page', 10));
 
         // Données pour les filtres
         $cultes = Culte::select('id', 'titre')->orderBy('titre')->get();

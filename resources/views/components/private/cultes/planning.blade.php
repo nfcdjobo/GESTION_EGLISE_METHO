@@ -686,7 +686,7 @@
                     entries.forEach(entry => {
                         if (entry.isIntersecting) {
                             entry.target.style.opacity = '1';
-                            entry.target.style.transform = 'translateY(0)';
+                            // entry.target.style.transform = 'translateY(0)';
                         }
                     });
                 }, {
@@ -695,7 +695,7 @@
 
                 elements.forEach(element => {
                     element.style.opacity = '0';
-                    element.style.transform = 'translateY(20px)';
+                    // element.style.transform = 'translateY(20px)';
                     element.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
                     observer.observe(element);
                 });
@@ -745,7 +745,7 @@
             }
 
             .calendar-item:hover {
-                transform: translateY(-2px);
+                /* transform: translateY(-2px); */
                 box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
             }
 

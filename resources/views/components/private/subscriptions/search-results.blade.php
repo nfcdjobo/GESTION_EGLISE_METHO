@@ -568,11 +568,11 @@
                 const results = document.querySelectorAll('.bg-gradient-to-r.from-slate-50');
                 results.forEach((result, index) => {
                     result.style.opacity = '0';
-                    result.style.transform = 'translateY(20px)';
+                    // result.style.transform = 'translateY(20px)';
                     setTimeout(() => {
                         result.style.transition = 'all 0.5s ease';
                         result.style.opacity = '1';
-                        result.style.transform = 'translateY(0)';
+                        // result.style.transform = 'translateY(0)';
                     }, index * 100);
                 });
             });

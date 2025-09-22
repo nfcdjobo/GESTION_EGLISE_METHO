@@ -253,7 +253,9 @@ class ParticipantCulteController extends Controller
      */
     public function storeWithUserCreation(Request $request): JsonResponse
     {
-
+        // dd($request->all());
+        // $data = $request->all();
+        // return response()->json($data);
         try {
             $validator = $this->validateParticipationWithUser($request);
 
@@ -307,12 +309,13 @@ class ParticipantCulteController extends Controller
 
             $participationData = [
                 "culte_id" => $request->culte_id,
-                "participant_id" => $participantId,
                 "statut_presence" => $request->statut_presence,
                 "type_participation" => $request->type_participation,
+                "role_culte" => $request->role_culte,
                 "heure_arrivee" => $request->heure_arrivee,
+                'premiere_visite' => $request->premiere_visite,
+                "participant_id" => $participantId,
                 "heure_depart" => $request->heure_depart,
-                "role_culte" => $request->role_culte
             ];
 
 
@@ -892,7 +895,7 @@ class ParticipantCulteController extends Controller
                 });
             }
 
-            $participants = $participantsQuery->paginate(20);
+            $participants = $participantsQuery->paginate(10);
 
             // Récupérer tous les membres actifs pour le formulaire d'ajout
             $membresDisponibles = User::actifs()
@@ -911,6 +914,7 @@ class ParticipantCulteController extends Controller
                 'total' => ParticipantCulte::where('culte_id', $culteId)->count(),
                 'presents' => ParticipantCulte::where('culte_id', $culteId)->where('statut_presence', 'present')->count(),
                 'en_ligne' => ParticipantCulte::where('culte_id', $culteId)->where('type_participation', 'en_ligne')->count(),
+                'hybride' => ParticipantCulte::where('culte_id', $culteId)->where('type_participation', 'hybride')->count(),
                 'premieres_visites' => ParticipantCulte::where('culte_id', $culteId)->where('premiere_visite', true)->count(),
                 'necessitant_suivi' => ParticipantCulte::where('culte_id', $culteId)
                     ->where(function ($q) {
@@ -962,7 +966,7 @@ class ParticipantCulteController extends Controller
             $participationExistante = ParticipantCulte::where('participant_id', $request->participant_id)
                 ->where('culte_id', $culteId)
                 ->first();
-
+            dd($request->all());
             if ($participationExistante) {
                 return back()->with('error', 'Ce participant est déjà inscrit à ce culte.');
             }

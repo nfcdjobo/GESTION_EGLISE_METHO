@@ -65,7 +65,7 @@ class TypeReunionController extends Controller
             $query->orderBy($sortBy, $sortOrder);
 
             if ($request->boolean('paginate', true)) {
-                $perPage = min($request->get('per_page', 15), 100);
+                $perPage = min($request->get('per_page', 10), 100);
                 $types = $query->paginate($perPage);
             } else {
                 $types = $query->get();

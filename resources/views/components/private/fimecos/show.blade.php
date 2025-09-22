@@ -28,7 +28,7 @@
                         </a>
                     @endcan
                     @can('fimecos.rapport')
-                        <a href="{{ route('private.fimecos.rapport', $fimeco['id']) }}"
+                        <a href="{{ route('private.fimecos.rapport', $fimeco['id']) }}?format=excel"
                             class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white text-sm font-medium rounded-xl hover:from-purple-700 hover:to-pink-700 transition-all duration-200 shadow-md hover:shadow-lg">
                             <i class="fas fa-file-alt mr-2"></i> Rapport
                         </a>
@@ -465,7 +465,7 @@
                 @endcan
 
                 @can('fimecos.rapport')
-                    <a href="{{ route('private.fimecos.rapport', ['id' => $fimeco['id'], 'format' => 'pdf']) }}"
+                    <a href="{{ route('private.fimecos.rapport', $fimeco['id']) }}?format=pdf"
                         class="inline-flex items-center justify-center px-4 py-3 bg-gradient-to-r from-indigo-600 to-blue-600 text-white font-medium rounded-xl hover:from-indigo-700 hover:to-blue-700 transition-all duration-200 shadow-md hover:shadow-lg">
                         <i class="fas fa-file-pdf mr-2"></i>
                         Télécharger PDF
@@ -534,11 +534,11 @@
                 const cards = document.querySelectorAll('.bg-white\\/80');
                 cards.forEach((card, index) => {
                     card.style.opacity = '0';
-                    card.style.transform = 'translateY(20px)';
+                    // card.style.transform = 'translateY(20px)';
                     setTimeout(() => {
                         card.style.transition = 'all 0.5s ease';
                         card.style.opacity = '1';
-                        card.style.transform = 'translateY(0)';
+                        // card.style.transform = 'translateY(0)';
                     }, index * 100);
                 });
             });

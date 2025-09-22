@@ -108,7 +108,7 @@ class MultimediaController extends Controller
             $query->visible();
         }
 
-        $multimedia = $query->paginate($request->get('per_page', 20));
+        $multimedia = $query->paginate($request->get('per_page', 10));
 
         // Données pour les filtres
         $cultes = Culte::select('id', 'titre')->orderBy('titre')->get();

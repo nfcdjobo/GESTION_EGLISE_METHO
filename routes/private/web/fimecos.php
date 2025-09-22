@@ -19,7 +19,7 @@ Route::prefix('dashboard')->name('private.')->middleware(['auth', 'verified', 'u
         Route::get('/create', [FimecoController::class, 'create'])->name('create');
 
         Route::get('/dashboard', [FimecoController::class, 'dashboard'])->name('dashboard');
-        Route::get('/rapport', [FimecoController::class, 'rapport'])->name('rapport');
+
 
         Route::get('/export', [FimecoController::class, 'export'])->name('export');
         Route::get('/search', [FimecoController::class, 'search'])->name('search');
@@ -32,6 +32,8 @@ Route::prefix('dashboard')->name('private.')->middleware(['auth', 'verified', 'u
          Route::get('/{fimeco}/edit', [FimecoController::class, 'edit'])->name('edit');
         Route::post('/{fimeco}/cloture', [FimecoController::class, 'cloture'])->name('cloture');
         Route::post('/{fimeco}/reouvrir', [FimecoController::class, 'reouvrir'])->name('reouvrir');
+
+        Route::get('/{fimeco}/rapport', [FimecoController::class, 'rapport'])->name('rapport');
 
         Route::get('/{fimeco}/statistiques', [FimecoController::class, 'statistiques'])->name('statistiques');
 

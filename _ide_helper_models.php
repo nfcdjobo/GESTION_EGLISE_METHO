@@ -1472,6 +1472,86 @@ namespace App\Models{
 namespace App\Models{
 /**
  * @property string $id
+ * @property string $nom_eglise
+ * @property string $telephone_1
+ * @property string|null $telephone_2
+ * @property string $email_principal
+ * @property string|null $email_secondaire
+ * @property string $adresse
+ * @property string $ville
+ * @property string|null $commune
+ * @property string $pays
+ * @property string|null $code_postal
+ * @property string|null $logo
+ * @property array|null $images_hero
+ * @property string|null $verset_biblique
+ * @property string|null $reference_verset
+ * @property string|null $mission_statement
+ * @property string|null $vision
+ * @property string|null $description_eglise
+ * @property string|null $facebook_url
+ * @property string|null $instagram_url
+ * @property string|null $youtube_url
+ * @property string|null $twitter_url
+ * @property string|null $website_url
+ * @property array|null $horaires_cultes
+ * @property \Illuminate\Support\Carbon|null $date_fondation
+ * @property int|null $nombre_membres
+ * @property string|null $histoire_eglise
+ * @property string $devise
+ * @property string $langue
+ * @property string $fuseau_horaire
+ * @property bool $actif
+ * @property bool $singleton
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read mixed $images_hero_urls
+ * @property-read mixed $logo_url
+ * @method static \Illuminate\Database\Eloquent\Builder|Parametres actif()
+ * @method static \Illuminate\Database\Eloquent\Builder|Parametres newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Parametres newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Parametres query()
+ * @method static \Illuminate\Database\Eloquent\Builder|Parametres whereActif($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Parametres whereAdresse($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Parametres whereCodePostal($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Parametres whereCommune($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Parametres whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Parametres whereDateFondation($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Parametres whereDescriptionEglise($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Parametres whereDevise($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Parametres whereEmailPrincipal($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Parametres whereEmailSecondaire($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Parametres whereFacebookUrl($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Parametres whereFuseauHoraire($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Parametres whereHistoireEglise($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Parametres whereHorairesCultes($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Parametres whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Parametres whereImagesHero($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Parametres whereInstagramUrl($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Parametres whereLangue($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Parametres whereLogo($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Parametres whereMissionStatement($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Parametres whereNomEglise($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Parametres whereNombreMembres($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Parametres wherePays($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Parametres whereReferenceVerset($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Parametres whereSingleton($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Parametres whereTelephone1($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Parametres whereTelephone2($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Parametres whereTwitterUrl($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Parametres whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Parametres whereVersetBiblique($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Parametres whereVille($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Parametres whereVision($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Parametres whereWebsiteUrl($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Parametres whereYoutubeUrl($value)
+ */
+	class Parametres extends \Eloquent {}
+}
+
+namespace App\Models{
+/**
+ * @property string $id
  * @property string $participant_id ID de l'utilisateur participant
  * @property string $culte_id ID du culte
  * @property string $statut_presence Type de présence du participant
@@ -1710,6 +1790,20 @@ namespace App\Models{
 
 namespace App\Models{
 /**
+ * @property string $id
+ * @property string $action
+ * @property string $model_type
+ * @property string $model_id
+ * @property string|null $user_id
+ * @property string|null $target_user_id
+ * @property array|null $changes
+ * @property array|null $original
+ * @property string|null $ip_address
+ * @property string|null $user_agent
+ * @property string|null $session_id
+ * @property array|null $context
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read mixed $action_name
  * @property-read mixed $description
  * @property-read mixed $formatted_changes
@@ -1725,6 +1819,20 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|PermissionAuditLog newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|PermissionAuditLog query()
  * @method static \Illuminate\Database\Eloquent\Builder|PermissionAuditLog recent($days = 7)
+ * @method static \Illuminate\Database\Eloquent\Builder|PermissionAuditLog whereAction($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PermissionAuditLog whereChanges($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PermissionAuditLog whereContext($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PermissionAuditLog whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PermissionAuditLog whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PermissionAuditLog whereIpAddress($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PermissionAuditLog whereModelId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PermissionAuditLog whereModelType($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PermissionAuditLog whereOriginal($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PermissionAuditLog whereSessionId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PermissionAuditLog whereTargetUserId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PermissionAuditLog whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PermissionAuditLog whereUserAgent($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PermissionAuditLog whereUserId($value)
  */
 	class PermissionAuditLog extends \Eloquent {}
 }
@@ -1806,7 +1914,6 @@ namespace App\Models{
  * @property string $type_projet Type de projet
  * @property string $categorie Catégorie du projet
  * @property string|null $budget_prevu Budget prévisionnel total
- * @property string $budget_collecte Montant déjà collecté
  * @property string $budget_depense Montant déjà dépensé
  * @property string|null $budget_minimum Budget minimum pour démarrer
  * @property string $devise Devise du budget
@@ -1832,13 +1939,14 @@ namespace App\Models{
  * @property string|null $latitude Latitude GPS
  * @property string|null $longitude Longitude GPS
  * @property string $statut Statut du projet
+ * @property string|null $statut_precedent Statut précédent (historique)
  * @property string $priorite Niveau de priorité
- * @property string $pourcentage_completion Pourcentage davancement
+ * @property string $pourcentage_completion Pourcentage d'avancement
  * @property string|null $derniere_activite Dernière activité enregistrée
  * @property \Illuminate\Support\Carbon|null $derniere_mise_a_jour Date de dernière mise à jour
  * @property string|null $approuve_par Qui a approuvé le projet
- * @property \Illuminate\Support\Carbon|null $approuve_le Date dapprobation
- * @property string|null $commentaires_approbation Commentaires dapprobation
+ * @property \Illuminate\Support\Carbon|null $approuve_le Date d'approbation
+ * @property string|null $commentaires_approbation Commentaires d'approbation
  * @property bool $necessite_approbation Nécessite une approbation
  * @property array|null $objectifs_mesurables Objectifs mesurables (JSON)
  * @property array|null $indicateurs_succes Indicateurs de succès (JSON)
@@ -1867,18 +1975,18 @@ namespace App\Models{
  * @property bool $conforme_reglementation Conforme à la réglementation
  * @property string|null $autorisations_requises Autorisations requises
  * @property bool $audit_requis Audit requis
- * @property string|null $observations_audit Observations daudit
+ * @property string|null $observations_audit Observations d'audit
  * @property bool $projet_recurrent Projet récurrent
  * @property string|null $frequence_recurrence Fréquence de récurrence
  * @property string|null $projet_parent_id Projet parent si récurrent
  * @property array|null $metadonnees Métadonnées supplémentaires (JSON)
  * @property string|null $reference_externe Référence externe
- * @property string|null $integration_systemes Intégration avec dautres systèmes
+ * @property string|null $integration_systemes Intégration avec d'autres systèmes
  * @property string|null $notes_responsable Notes du responsable
  * @property string|null $notes_admin Notes administratives
  * @property string|null $historique_modifications Historique des modifications
- * @property string|null $cree_par Utilisateur qui a créé le projet
- * @property string|null $modifie_par Dernier utilisateur ayant modifié
+ * @property string|null $cree_par Membre qui a créé le projet
+ * @property string|null $modifie_par Dernier membre ayant modifié
  * @property \Illuminate\Support\Carbon|null $derniere_activite_date Date de dernière activité
  * @property string|null $derniere_activite_par Auteur de la dernière activité
  * @property \Illuminate\Support\Carbon|null $created_at
@@ -1891,8 +1999,10 @@ namespace App\Models{
  * @property-read \App\Models\User|null $derniereActivitePar
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fonds> $fonds
  * @property-read int|null $fonds_count
+ * @property-read mixed $budget_collecte
  * @property-read mixed $budget_format
  * @property-read array $content_overview
+ * @property-read mixed $contexte_formatted
  * @property-read mixed $description_formatted
  * @property-read mixed $equipe_projet_noms
  * @property-read mixed $est_approuve
@@ -1901,14 +2011,10 @@ namespace App\Models{
  * @property-read mixed $jours_restants
  * @property-read mixed $montant_restant
  * @property-read mixed $nom_complet
- * @property-read mixed $notes_formatted
- * @property-read mixed $plan_message_formatted
- * @property-read mixed $points_formatted
+ * @property-read mixed $objectif_formatted
  * @property-read mixed $pourcentage_financement
  * @property-read mixed $priorite_libelle
- * @property-read mixed $resume_message_formatted
  * @property-read mixed $statut_libelle
- * @property-read mixed $temoignages_formatted
  * @property-read mixed $type_projet_libelle
  * @property-read \App\Models\User|null $modificateur
  * @property-read Projet|null $projetParent
@@ -1950,7 +2056,6 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|Projet whereAuditRequis($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Projet whereAutorisationsRequises($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Projet whereBeneficiaires($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Projet whereBudgetCollecte($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Projet whereBudgetDepense($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Projet whereBudgetMinimum($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Projet whereBudgetPrevu($value)
@@ -2027,6 +2132,7 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|Projet whereSiteWeb($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Projet whereSourcesFinancement($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Projet whereStatut($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Projet whereStatutPrecedent($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Projet whereTypeProjet($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Projet whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Projet whereVille($value)
@@ -2036,6 +2142,250 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|Projet withoutTrashed()
  */
 	class Projet extends \Eloquent {}
+}
+
+namespace App\Models{
+/**
+ * @property string $id
+ * @property string $nom_projet Nom du projet
+ * @property string $code_projet Code unique du projet
+ * @property string|null $description Description détaillée du projet
+ * @property string|null $objectif Objectifs du projet
+ * @property string|null $contexte Contexte et justification
+ * @property string $type_projet Type de projet
+ * @property string $categorie Catégorie du projet
+ * @property string|null $budget_prevu Budget prévisionnel total
+ * @property string $budget_depense Montant déjà dépensé
+ * @property string|null $budget_minimum Budget minimum pour démarrer
+ * @property string $devise Devise du budget
+ * @property array|null $detail_budget Détail du budget par poste (JSON)
+ * @property array|null $sources_financement Sources de financement (JSON)
+ * @property \Illuminate\Support\Carbon|null $date_creation Date de création du projet
+ * @property \Illuminate\Support\Carbon|null $date_debut Date de début du projet
+ * @property \Illuminate\Support\Carbon|null $date_fin_prevue Date de fin prévue
+ * @property \Illuminate\Support\Carbon|null $date_fin_reelle Date de fin réelle
+ * @property int|null $duree_prevue_jours Durée prévue en jours
+ * @property int|null $duree_reelle_jours Durée réelle en jours
+ * @property string|null $responsable_id Responsable principal du projet
+ * @property string|null $coordinateur_id Coordinateur du projet
+ * @property string|null $chef_projet_id Chef de projet
+ * @property array|null $equipe_projet Équipe du projet (JSON)
+ * @property array|null $partenaires Partenaires du projet (JSON)
+ * @property array|null $beneficiaires Bénéficiaires du projet (JSON)
+ * @property string|null $localisation Localisation du projet
+ * @property string|null $adresse_complete Adresse complète
+ * @property string|null $ville Ville
+ * @property string|null $region Région
+ * @property string $pays Pays
+ * @property string|null $latitude Latitude GPS
+ * @property string|null $longitude Longitude GPS
+ * @property string $statut Statut du projet
+ * @property string|null $statut_precedent Statut précédent (historique)
+ * @property string $priorite Niveau de priorité
+ * @property string $pourcentage_completion Pourcentage d'avancement
+ * @property string|null $derniere_activite Dernière activité enregistrée
+ * @property \Illuminate\Support\Carbon|null $derniere_mise_a_jour Date de dernière mise à jour
+ * @property string|null $approuve_par Qui a approuvé le projet
+ * @property \Illuminate\Support\Carbon|null $approuve_le Date d'approbation
+ * @property string|null $commentaires_approbation Commentaires d'approbation
+ * @property bool $necessite_approbation Nécessite une approbation
+ * @property array|null $objectifs_mesurables Objectifs mesurables (JSON)
+ * @property array|null $indicateurs_succes Indicateurs de succès (JSON)
+ * @property array|null $risques_identifies Risques identifiés (JSON)
+ * @property array|null $mesures_mitigation Mesures de mitigation (JSON)
+ * @property array|null $documents_joints Documents joints (JSON)
+ * @property array|null $photos_projet Photos du projet (JSON)
+ * @property string|null $site_web Site web du projet
+ * @property array|null $liens_utiles Liens utiles (JSON)
+ * @property string|null $manuel_procedure Manuel de procédure
+ * @property bool $visible_public Visible au public
+ * @property bool $ouvert_aux_dons Ouvert aux dons
+ * @property string|null $message_promotion Message promotionnel
+ * @property string|null $image_principale Image principale du projet
+ * @property array|null $canaux_communication Canaux de communication (JSON)
+ * @property string|null $resultats_obtenus Résultats obtenus
+ * @property string|null $impact_communaute Impact sur la communauté
+ * @property string|null $lecons_apprises Leçons apprises
+ * @property string|null $recommandations Recommandations
+ * @property string|null $note_satisfaction Note de satisfaction (1-10)
+ * @property string|null $feedback_beneficiaires Feedback des bénéficiaires
+ * @property bool $necessite_suivi Nécessite un suivi post-projet
+ * @property \Illuminate\Support\Carbon|null $prochaine_evaluation Date de prochaine évaluation
+ * @property string|null $plan_suivi Plan de suivi
+ * @property array|null $projet_lie Projets liés (JSON)
+ * @property bool $conforme_reglementation Conforme à la réglementation
+ * @property string|null $autorisations_requises Autorisations requises
+ * @property bool $audit_requis Audit requis
+ * @property string|null $observations_audit Observations d'audit
+ * @property bool $projet_recurrent Projet récurrent
+ * @property string|null $frequence_recurrence Fréquence de récurrence
+ * @property string|null $projet_parent_id Projet parent si récurrent
+ * @property array|null $metadonnees Métadonnées supplémentaires (JSON)
+ * @property string|null $reference_externe Référence externe
+ * @property string|null $integration_systemes Intégration avec d'autres systèmes
+ * @property string|null $notes_responsable Notes du responsable
+ * @property string|null $notes_admin Notes administratives
+ * @property string|null $historique_modifications Historique des modifications
+ * @property string|null $cree_par Membre qui a créé le projet
+ * @property string|null $modifie_par Dernier membre ayant modifié
+ * @property \Illuminate\Support\Carbon|null $derniere_activite_date Date de dernière activité
+ * @property string|null $derniere_activite_par Auteur de la dernière activité
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property-read \App\Models\User|null $approbateur
+ * @property-read \App\Models\User|null $chefProjet
+ * @property-read \App\Models\User|null $coordinateur
+ * @property-read \App\Models\User|null $createur
+ * @property-read \App\Models\User|null $derniereActivitePar
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fonds> $fonds
+ * @property-read int|null $fonds_count
+ * @property mixed $budget_collecte
+ * @property-read mixed $budget_format
+ * @property-read array $content_overview
+ * @property-read mixed $description_formatted
+ * @property-read mixed $equipe_projet_noms
+ * @property-read mixed $est_approuve
+ * @property-read mixed $est_en_retard
+ * @property-read mixed $est_finance
+ * @property-read mixed $jours_restants
+ * @property-read mixed $montant_restant
+ * @property-read mixed $nom_complet
+ * @property-read mixed $notes_formatted
+ * @property-read mixed $plan_message_formatted
+ * @property-read mixed $points_formatted
+ * @property-read mixed $pourcentage_financement
+ * @property-read mixed $priorite_libelle
+ * @property-read mixed $resume_message_formatted
+ * @property-read mixed $statut_libelle
+ * @property-read mixed $temoignages_formatted
+ * @property-read mixed $type_projet_libelle
+ * @property-read \App\Models\User|null $modificateur
+ * @property-read \App\Models\Projet|null $projetParent
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Projet> $projetsEnfants
+ * @property-read int|null $projets_enfants_count
+ * @property-read \App\Models\User|null $responsable
+ * @method static \Illuminate\Database\Eloquent\Builder|ProjetCopy actifs()
+ * @method static \Illuminate\Database\Eloquent\Builder|ProjetCopy annules()
+ * @method static \Illuminate\Database\Eloquent\Builder|ProjetCopy approuves()
+ * @method static \Illuminate\Database\Eloquent\Builder|ProjetCopy enAttente()
+ * @method static \Illuminate\Database\Eloquent\Builder|ProjetCopy enAttenteApprobation()
+ * @method static \Illuminate\Database\Eloquent\Builder|ProjetCopy enAttenteDisponibles()
+ * @method static \Illuminate\Database\Eloquent\Builder|ProjetCopy enCours()
+ * @method static \Illuminate\Database\Eloquent\Builder|ProjetCopy enPlanification()
+ * @method static \Illuminate\Database\Eloquent\Builder|ProjetCopy enRechercheFinancement()
+ * @method static \Illuminate\Database\Eloquent\Builder|ProjetCopy enRetard()
+ * @method static \Illuminate\Database\Eloquent\Builder|ProjetCopy necessitantSuivi()
+ * @method static \Illuminate\Database\Eloquent\Builder|ProjetCopy newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|ProjetCopy newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|ProjetCopy onlyTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|ProjetCopy ouvertsAuxDons()
+ * @method static \Illuminate\Database\Eloquent\Builder|ProjetCopy parCategorie($categorie)
+ * @method static \Illuminate\Database\Eloquent\Builder|ProjetCopy parPeriode($dateDebut, $dateFin)
+ * @method static \Illuminate\Database\Eloquent\Builder|ProjetCopy parPriorite($priorite)
+ * @method static \Illuminate\Database\Eloquent\Builder|ProjetCopy parRegion($region)
+ * @method static \Illuminate\Database\Eloquent\Builder|ProjetCopy parResponsable($responsableId)
+ * @method static \Illuminate\Database\Eloquent\Builder|ProjetCopy parType($type)
+ * @method static \Illuminate\Database\Eloquent\Builder|ProjetCopy parVille($ville)
+ * @method static \Illuminate\Database\Eloquent\Builder|ProjetCopy query()
+ * @method static \Illuminate\Database\Eloquent\Builder|ProjetCopy recurrents()
+ * @method static \Illuminate\Database\Eloquent\Builder|ProjetCopy searchContent($search)
+ * @method static \Illuminate\Database\Eloquent\Builder|ProjetCopy searchInCKEditorFields(string $search)
+ * @method static \Illuminate\Database\Eloquent\Builder|ProjetCopy suspendus()
+ * @method static \Illuminate\Database\Eloquent\Builder|ProjetCopy termines()
+ * @method static \Illuminate\Database\Eloquent\Builder|ProjetCopy visiblesPublic()
+ * @method static \Illuminate\Database\Eloquent\Builder|ProjetCopy whereAdresseComplete($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ProjetCopy whereApprouveLe($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ProjetCopy whereApprouvePar($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ProjetCopy whereAuditRequis($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ProjetCopy whereAutorisationsRequises($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ProjetCopy whereBeneficiaires($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ProjetCopy whereBudgetDepense($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ProjetCopy whereBudgetMinimum($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ProjetCopy whereBudgetPrevu($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ProjetCopy whereCanauxCommunication($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ProjetCopy whereCategorie($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ProjetCopy whereChefProjetId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ProjetCopy whereCodeProjet($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ProjetCopy whereCommentairesApprobation($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ProjetCopy whereConformeReglementation($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ProjetCopy whereContexte($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ProjetCopy whereCoordinateurId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ProjetCopy whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ProjetCopy whereCreePar($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ProjetCopy whereDateCreation($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ProjetCopy whereDateDebut($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ProjetCopy whereDateFinPrevue($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ProjetCopy whereDateFinReelle($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ProjetCopy whereDeletedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ProjetCopy whereDerniereActivite($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ProjetCopy whereDerniereActiviteDate($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ProjetCopy whereDerniereActivitePar($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ProjetCopy whereDerniereMiseAJour($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ProjetCopy whereDescription($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ProjetCopy whereDetailBudget($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ProjetCopy whereDevise($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ProjetCopy whereDocumentsJoints($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ProjetCopy whereDureePrevueJours($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ProjetCopy whereDureeReelleJours($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ProjetCopy whereEquipeProjet($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ProjetCopy whereFeedbackBeneficiaires($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ProjetCopy whereFrequenceRecurrence($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ProjetCopy whereHistoriqueModifications($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ProjetCopy whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ProjetCopy whereImagePrincipale($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ProjetCopy whereImpactCommunaute($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ProjetCopy whereIndicateursSucces($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ProjetCopy whereIntegrationSystemes($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ProjetCopy whereLatitude($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ProjetCopy whereLeconsApprises($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ProjetCopy whereLiensUtiles($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ProjetCopy whereLocalisation($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ProjetCopy whereLongitude($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ProjetCopy whereManuelProcedure($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ProjetCopy whereMessagePromotion($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ProjetCopy whereMesuresMitigation($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ProjetCopy whereMetadonnees($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ProjetCopy whereModifiePar($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ProjetCopy whereNecessiteApprobation($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ProjetCopy whereNecessiteSuivi($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ProjetCopy whereNomProjet($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ProjetCopy whereNoteSatisfaction($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ProjetCopy whereNotesAdmin($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ProjetCopy whereNotesResponsable($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ProjetCopy whereObjectif($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ProjetCopy whereObjectifsMesurables($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ProjetCopy whereObservationsAudit($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ProjetCopy whereOuvertAuxDons($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ProjetCopy wherePartenaires($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ProjetCopy wherePays($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ProjetCopy wherePhotosProjet($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ProjetCopy wherePlanSuivi($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ProjetCopy wherePourcentageCompletion($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ProjetCopy wherePriorite($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ProjetCopy whereProchaineEvaluation($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ProjetCopy whereProjetLie($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ProjetCopy whereProjetParentId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ProjetCopy whereProjetRecurrent($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ProjetCopy whereRecommandations($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ProjetCopy whereReferenceExterne($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ProjetCopy whereRegion($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ProjetCopy whereResponsableId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ProjetCopy whereResultatsObtenus($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ProjetCopy whereRisquesIdentifies($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ProjetCopy whereSiteWeb($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ProjetCopy whereSourcesFinancement($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ProjetCopy whereStatut($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ProjetCopy whereStatutPrecedent($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ProjetCopy whereTypeProjet($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ProjetCopy whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ProjetCopy whereVille($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ProjetCopy whereVisiblePublic($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ProjetCopy withContent()
+ * @method static \Illuminate\Database\Eloquent\Builder|ProjetCopy withTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|ProjetCopy withoutTrashed()
+ */
+	class ProjetCopy extends \Eloquent {}
 }
 
 namespace App\Models{
@@ -2866,10 +3216,6 @@ namespace App\Models{
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Annonce> $annonces
  * @property-read int|null $annonces_count
  * @property-read \App\Models\Classe|null $classe
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Classe> $classesEnseignant
- * @property-read int|null $classes_enseignant_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Classe> $classesResponsables
- * @property-read int|null $classes_responsables_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Culte> $cultesPasteur
  * @property-read int|null $cultes_pasteur_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Culte> $cultesPredicateur

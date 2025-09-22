@@ -40,7 +40,7 @@
                                 <?php if($classe->tranche_age): ?>
                                     <span><?php echo e($classe->tranche_age); ?></span>
                                 <?php endif; ?>
-                                <span><?php echo e($classe->nombre_inscrits); ?> membre(s)</span>
+                                <span><?php echo e($classe->nombre_inscrits + $classe->responsables()->count()); ?> membre(s)</span>
                                 <?php if($classe->age_minimum || $classe->age_maximum): ?>
                                     <span>
                                         <?php if($classe->age_minimum && $classe->age_maximum): ?>
@@ -306,6 +306,8 @@
         // Basculer la sélection de tous les utilisateurs
         function toggleSelectAll() {
             const checkboxes = document.querySelectorAll('.user-checkbox');
+            if (checkboxes.length === 0) return; // Pas de checkboxes disponibles
+
             isAllSelected = !isAllSelected;
 
             checkboxes.forEach(checkbox => {
@@ -316,50 +318,60 @@
             updateToggleButton();
         }
 
-        // Mettre à jour le bouton de basculement
-        function updateToggleButton() {
-            const button = document.querySelector('[onclick="toggleSelectAll()"]');
-            const icon = button.querySelector('i');
-            const text = button.querySelector('span') || button.childNodes[button.childNodes.length - 1];
+// Mettre à jour le bouton de basculement
+function updateToggleButton() {
+    const button = document.querySelector('[onclick="toggleSelectAll()"]');
+    if (!button) return; // Sortir si le bouton n'existe pas
 
-            if (isAllSelected) {
-                icon.className = 'fas fa-square mr-2';
-                if (text.textContent) text.textContent = ' Tout désélectionner';
-            } else {
-                icon.className = 'fas fa-check-square mr-2';
-                if (text.textContent) text.textContent = ' Tout sélectionner';
-            }
+    const icon = button.querySelector('i');
+    const textNode = Array.from(button.childNodes).find(node =>
+        node.nodeType === Node.TEXT_NODE && node.textContent.trim()
+    );
+
+    if (isAllSelected) {
+        if (icon) icon.className = 'fas fa-square mr-2';
+        if (textNode) textNode.textContent = ' Tout désélectionner';
+    } else {
+        if (icon) icon.className = 'fas fa-check-square mr-2';
+        if (textNode) textNode.textContent = ' Tout sélectionner';
+    }
+}
+
+// Mettre à jour le compteur de sélectionnés
+function updateSelectedCount() {
+    const selectedCheckboxes = document.querySelectorAll('.user-checkbox:checked');
+    const count = selectedCheckboxes.length;
+
+    // Vérifier que l'élément existe avant de l'utiliser
+    const selectedCountElement = document.getElementById('selectedCount');
+    if (selectedCountElement) {
+        selectedCountElement.textContent = count;
+    }
+
+    const addButton = document.getElementById('addSelectedBtn');
+    if (addButton) {
+        addButton.disabled = count === 0;
+
+        if (count === 0) {
+            addButton.classList.add('disabled:bg-slate-400', 'disabled:cursor-not-allowed');
+            addButton.classList.remove('bg-green-600', 'hover:bg-green-700');
+        } else {
+            addButton.classList.remove('disabled:bg-slate-400', 'disabled:cursor-not-allowed');
+            addButton.classList.add('bg-green-600', 'hover:bg-green-700');
         }
+    }
 
-        // Mettre à jour le compteur de sélectionnés
-        function updateSelectedCount() {
-            const selectedCheckboxes = document.querySelectorAll('.user-checkbox:checked');
-            const count = selectedCheckboxes.length;
+    // Mettre à jour l'état du bouton "Tout sélectionner"
+    const allCheckboxes = document.querySelectorAll('.user-checkbox');
+    const allSelected = allCheckboxes.length > 0 && selectedCheckboxes.length === allCheckboxes.length;
 
-            document.getElementById('selectedCount').textContent = count;
+    if (allSelected !== isAllSelected) {
+        isAllSelected = allSelected;
+        updateToggleButton();
+    }
+}
 
-            const addButton = document.getElementById('addSelectedBtn');
-            addButton.disabled = count === 0;
-
-            if (count === 0) {
-                addButton.classList.add('disabled:bg-slate-400', 'disabled:cursor-not-allowed');
-                addButton.classList.remove('bg-green-600', 'hover:bg-green-700');
-            } else {
-                addButton.classList.remove('disabled:bg-slate-400', 'disabled:cursor-not-allowed');
-                addButton.classList.add('bg-green-600', 'hover:bg-green-700');
-            }
-
-            // Mettre à jour l'état du bouton "Tout sélectionner"
-            const allCheckboxes = document.querySelectorAll('.user-checkbox');
-            const allSelected = allCheckboxes.length > 0 && selectedCheckboxes.length === allCheckboxes.length;
-
-            if (allSelected !== isAllSelected) {
-                isAllSelected = allSelected;
-                updateToggleButton();
-            }
-        }
-
-        // Ajouter un utilisateur seul
+// Ajouter un utilisateur seul
         function addSingleUser(userId) {
             if (confirm('Voulez-vous ajouter cet utilisateur à la classe ?')) {
                 const form = document.createElement('form');
@@ -384,8 +396,10 @@
             }
         }
 
+        const addMembersForm = document.getElementById('addMembersForm');
+
         // Validation du formulaire
-        document.getElementById('addMembersForm').addEventListener('submit', function(e) {
+        addMembersForm?.addEventListener('submit', function(e) {
             const selectedCheckboxes = document.querySelectorAll('.user-checkbox:checked');
 
             if (selectedCheckboxes.length === 0) {
@@ -425,27 +439,83 @@
             submitButton.disabled = true;
         });
 
-        // Initialiser le compteur au chargement
+// Initialiser le script
         document.addEventListener('DOMContentLoaded', function() {
+            // Vérifier si nous avons des utilisateurs avant d'initialiser
+            const userCheckboxes = document.querySelectorAll('.user-checkbox');
+            if (userCheckboxes.length === 0) {
+                console.log('Aucun utilisateur disponible - scripts d\'interaction désactivés');
+                return;
+            }
+
+            // Initialiser le compteur
             updateSelectedCount();
 
             // Écouter les changements sur les checkboxes
-            document.querySelectorAll('.user-checkbox').forEach(checkbox => {
+            userCheckboxes.forEach(checkbox => {
                 checkbox.addEventListener('change', updateSelectedCount);
             });
+
+            // Validation du formulaire (seulement s'il existe)
+            const addMembersForm = document.getElementById('addMembersForm');
+            if (addMembersForm) {
+                addMembersForm.addEventListener('submit', function(e) {
+                    const selectedCheckboxes = document.querySelectorAll('.user-checkbox:checked');
+
+                    if (selectedCheckboxes.length === 0) {
+                        e.preventDefault();
+                        alert('Veuillez sélectionner au moins un utilisateur à ajouter.');
+                        return false;
+                    }
+
+                    // Vérifier s'il y a des utilisateurs avec âge incompatible
+                    const forceAgeCheck = document.querySelector('input[name="force_age_check"]');
+                    const forceAgeCheckValue = forceAgeCheck ? forceAgeCheck.checked : false;
+                    let hasIncompatibleAge = false;
+
+                    selectedCheckboxes.forEach(checkbox => {
+                        const card = checkbox.closest('.user-card');
+                        if (card && card.classList.contains('border-amber-300') && !forceAgeCheckValue) {
+                            hasIncompatibleAge = true;
+                        }
+                    });
+
+                    if (hasIncompatibleAge) {
+                        const confirmed = confirm(
+                            'Certains utilisateurs sélectionnés ont un âge incompatible avec cette classe. ' +
+                            'Voulez-vous continuer sans forcer l\'ajout ? ' +
+                            '(Cochez "Forcer l\'âge incompatible" pour les inclure)'
+                        );
+
+                        if (!confirmed) {
+                            e.preventDefault();
+                            return false;
+                        }
+                    }
+
+                    // Afficher un indicateur de chargement
+                    const submitButton = document.getElementById('addSelectedBtn');
+                    if (submitButton) {
+                        const originalText = submitButton.innerHTML;
+                        submitButton.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Ajout en cours...';
+                        submitButton.disabled = true;
+                    }
+                });
+            }
         });
 
-        // Afficher les messages de statut
+
+// Afficher les messages de statut
         <?php if(session('success')): ?>
-            showSuccessMessage('<?php echo e(session('success')); ?>');
+            showSuccessMessage('<?php echo e(addslashes(session('success'))); ?>');
         <?php endif; ?>
 
         <?php if(session('error')): ?>
-            showErrorMessage('<?php echo e(session('error')); ?>');
+            showErrorMessage('<?php echo e(addslashes(session('error'))); ?>');
         <?php endif; ?>
 
         <?php if($errors->any()): ?>
-            showErrorMessage('<?php echo e($errors->first()); ?>');
+            showErrorMessage('<?php echo e(addslashes($errors->first())); ?>');
         <?php endif; ?>
 
         // Fonctions d'affichage des messages
@@ -457,7 +527,7 @@
             showMessage(message, 'error');
         }
 
-        function showMessage(message, type = 'success') {
+function showMessage(message, type = 'success') {
             const bgColor = type === 'success' ? 'bg-green-500' : 'bg-red-500';
             const icon = type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle';
 

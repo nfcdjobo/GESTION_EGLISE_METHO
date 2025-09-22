@@ -82,29 +82,34 @@
             </div>
 
             <!-- Statistiques des participants -->
-            <div class="lg:col-span-3 grid grid-cols-2 md:grid-cols-5 gap-4">
+            <div class="lg:col-span-3 grid grid-cols-2 md:grid-cols-3 gap-4">
                 <div class="bg-white/80 rounded-2xl shadow-lg border border-white/20 p-6 text-center">
-                    <div class="text-2xl font-bold text-blue-600">{{ $statistiques['total'] }}</div>
-                    <div class="text-sm text-slate-600">Total</div>
+                    <div class="text-6xl font-bold text-blue-600">{{ $statistiques['total'] }}</div>
+                    <div class="text-xl text-slate-600">Total</div>
                 </div>
                 <div class="bg-white/80 rounded-2xl shadow-lg border border-white/20 p-6 text-center">
-                    <div class="text-2xl font-bold text-green-600">{{ $statistiques['presents'] }}</div>
-                    <div class="text-sm text-slate-600">Présents</div>
+                    <div class="text-6xl font-bold text-green-600">{{ $statistiques['presents'] }}</div>
+                    <div class="text-xl text-slate-600">Présents</div>
                 </div>
                 <div class="bg-white/80 rounded-2xl shadow-lg border border-white/20 p-6 text-center">
-                    <div class="text-2xl font-bold text-purple-600">{{ $statistiques['en_ligne'] }}</div>
-                    <div class="text-sm text-slate-600">En ligne</div>
+                    <div class="text-6xl font-bold text-purple-600">{{ $statistiques['en_ligne'] }}</div>
+                    <div class="text-xl text-slate-600">En ligne</div>
                 </div>
                 <div class="bg-white/80 rounded-2xl shadow-lg border border-white/20 p-6 text-center">
-                    <div class="text-2xl font-bold text-amber-600">{{ $statistiques['premieres_visites'] }}</div>
-                    <div class="text-sm text-slate-600">1ères visites</div>
+                    <div class="text-6xl font-bold text-purple-600">{{ $statistiques['hybride'] }}</div>
+                    <div class="text-xl text-slate-600">Hybride</div>
                 </div>
                 <div class="bg-white/80 rounded-2xl shadow-lg border border-white/20 p-6 text-center">
-                    <div class="text-2xl font-bold text-red-600">{{ $statistiques['necessitant_suivi'] }}</div>
-                    <div class="text-sm text-slate-600">Suivi requis</div>
+                    <div class="text-6xl font-bold text-amber-600">{{ $statistiques['premieres_visites'] }}</div>
+                    <div class="text-xl text-slate-600">Premières visites</div>
+                </div>
+                <div class="bg-white/80 rounded-2xl shadow-lg border border-white/20 p-6 text-center">
+                    <div class="text-6xl font-bold text-red-600">{{ $statistiques['necessitant_suivi'] }}</div>
+                    <div class="text-xl text-slate-600">Suivi requis</div>
                 </div>
             </div>
         </div>
+
 
         <!-- Filtres et recherche -->
         <div class="bg-white/80 rounded-2xl shadow-lg border border-white/20 p-6">

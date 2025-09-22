@@ -3,22 +3,30 @@
 <?php $__env->startSection('content'); ?>
     <div class="space-y-8">
         <!-- En-tête de page -->
-        <div class="mb-8">
-            <div class="flex items-center space-x-4 mb-4">
-                <a href="<?php echo e(route('private.classes.index')); ?>"
-                   class="inline-flex items-center text-slate-600 hover:text-slate-900 transition-colors">
-                    <i class="fas fa-arrow-left mr-2"></i>
-                    Retour aux classes
-                </a>
-            </div>
-            <h1 class="text-3xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent">
-                Statistiques des Classes
-            </h1>
-            <p class="text-slate-500 mt-1">
-                Vue d'ensemble et analyse des performances - <?php echo e(\Carbon\Carbon::now()->format('l d F Y')); ?>
+        
 
-            </p>
-        </div>
+         <div class="mb-8">
+                <h1 class="text-3xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent">Statistiques des Classes</h1>
+                <nav class="flex mt-2" aria-label="Breadcrumb">
+                    <ol class="inline-flex items-center space-x-1 md:space-x-3">
+                        <li class="inline-flex items-center">
+                            <a href="<?php echo e(route('private.classes.index')); ?>"
+                                class="inline-flex items-center text-sm font-medium text-slate-700 hover:text-blue-600 transition-colors">
+                                <i class="fas fa-users  mr-2"></i>
+                                Classes
+                            </a>
+                        </li>
+                        <li>
+                            <div class="flex items-center">
+                                <i class="fas fa-chevron-right text-slate-400 mx-2"></i>
+                                <span class="text-sm font-medium text-slate-500">Vue d'ensemble et analyse des performances </span>
+                            </div>
+                        </li>
+                    </ol>
+                </nav>
+            </div>
+
+
 
         <!-- Statistiques principales -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">

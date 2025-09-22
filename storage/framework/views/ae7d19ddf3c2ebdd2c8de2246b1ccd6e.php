@@ -160,10 +160,14 @@
                         </div>
                         <div class="p-6 space-y-4">
                             <?php if($payment['validateur']): ?>
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                                     <div>
                                         <h4 class="font-medium text-slate-700 mb-2">Validé par</h4>
-                                        <p class="text-slate-900"><?php echo e($payment['validateur']['name']); ?></p>
+                                        <p class="text-slate-900"><?php echo e($payment['validateur']['nom'] . ' '.$payment['validateur']['prenom']); ?></p>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-medium text-slate-700 mb-2">Contacts</h4>
+                                        <p class="text-slate-900"><?php echo e($payment['validateur']['telephone_1']); ?></p>
                                     </div>
                                     <?php if($payment['date_validation']): ?>
                                         <div>
@@ -372,7 +376,7 @@
                                     <p class="text-sm text-slate-600">
                                         <?php echo e(\Carbon\Carbon::parse($payment['date_validation'])->format('d/m/Y à H:i')); ?></p>
                                     <?php if($payment['validateur']): ?>
-                                        <p class="text-sm text-slate-500">par <?php echo e($payment['validateur']['name']); ?></p>
+                                        <p class="text-sm text-slate-500">par <?php echo e($payment['validateur']['nom'] . ' '.$payment['validateur']['prenom']); ?></p>
                                     <?php endif; ?>
                                 </div>
                             </div>
@@ -380,8 +384,7 @@
                     </div>
                 </div>
 
-                <!-- Informations techniques -->
-                
+
             </div>
         </div>
     </div>
@@ -394,7 +397,7 @@
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': '<?php echo e(csrf_token()); ?>'
+                            'X-CSRF-TOKEN': '<?php echo e(csrf_token()); ?>',
                         }
                     })
                     .then(response => response.json())

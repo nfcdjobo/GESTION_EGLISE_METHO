@@ -4,616 +4,831 @@ namespace App\Http\Controllers\Private\Web;
 
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\DB;
 use App\Services\PermissionService;
+use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\DashboardExport;
+
 class DashboardController extends Controller
 {
-     protected PermissionService $permissionService;
+    protected $permissionService;
 
     public function __construct(PermissionService $permissionService)
     {
         $this->permissionService = $permissionService;
-
-        // Appliquer les middlewares de permissions
         $this->middleware('auth');
-        $this->middleware('user.status');
-        $this->middleware('permission:users.read')->only(['index', 'show']);
-        $this->middleware('permission:users.create')->only(['create', 'store']);
-        $this->middleware('permission:users.update')->only(['edit', 'update']);
-        $this->middleware('permission:users.delete')->only(['destroy']);
-        $this->middleware('permission:users.export')->only(['export']);
-        $this->middleware('permission:users.import')->only(['import', 'processImport']);
-        $this->middleware('permission:users.validate')->only(['validate']);
-        $this->middleware('permission:users.archive')->only(['archive']);
-        $this->middleware('permission:users.restore')->only(['restore']);
     }
 
     /**
-     * Afficher le tableau de bord principal
+     * Affichage principal du dashboard unifié
      */
     public function index(Request $request)
     {
-
         try {
+            $period = $request->get('period', 'mensuelle');
+            $startDate = $request->get('start_date');
+            $endDate = $request->get('end_date');
+
+            // Calcul des dates selon la période
+            $dateRange = $this->calculateDateRange($period, $startDate, $endDate);
+
             $dashboardData = [
-                'statistiques_generales' => $this->getStatistiquesGenerales(),
-                'activites_recentes' => $this->getActivitesRecentes(),
-                'finances' => $this->getStatistiquesFinancieres(),
-                'evenements_a_venir' => $this->getEvenementsAVenir(),
-                'cultes_recents' => $this->getCultesRecents(),
-                'membres_statistiques' => $this->getMembresStatistiques(),
-                'annonces_importantes' => $this->getAnnoncesImportantes(),
-                'notifications' => $this->getNotifications(),
-                'multimedia_recents' => $this->getMultimediaRecents(),
-                'performances_mensuelles' => $this->getPerformancesMensuelles()
+                'period' => $period,
+                'date_range' => $dateRange,
+                'kpis' => $this->getMainKPIs($dateRange),
+                'members_evolution' => $this->getMembersEvolution($dateRange, $period),
+                'culte_attendance' => $this->getCulteAttendance($dateRange, $period),
+                'offrandes_evolution' => $this->getOffrandesEvolution($dateRange, $period),
+                'presence_offrande_ratio' => $this->getPresenceOffradeRatio($dateRange, $period),
+                'souscripteur_fimeco_ratio' => $this->getSouscripteurFimecoRatio($dateRange, $period),
+                'fimeco_evolution' => $this->getFimecoEvolution($dateRange, $period),
+                'ratios' => $this->calculateRatios($dateRange),
+                'trends' => $this->getTrends($dateRange)
             ];
 
-             if ($request->expectsJson()) {
+            // Détecter le type de requête et retourner la réponse appropriée
+            if ($request->wantsJson() || $request->ajax()) {
+                // Réponse JSON pour les requêtes AJAX/API
                 return response()->json([
                     'success' => true,
                     'data' => $dashboardData
                 ]);
+            } else {
+                // Réponse Blade pour les requêtes web
+                return view('components.private.index', compact('dashboardData'));
             }
 
-            return view('components.private.index', $dashboardData);
-
         } catch (\Exception $e) {
+            Log::error('Erreur Dashboard: ' . $e->getMessage());
+
+            if ($request->wantsJson() || $request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Erreur lors du chargement du dashboard'
+                ], 500);
+            } else {
+                return redirect()->back()->with('error', 'Erreur lors du chargement du dashboard');
+            }
+        }
+    }
+
+    /**
+     * Export des données du dashboard
+     */
+    // public function exporte(Request $request)
+    // {
+    //     try {
+    //         $period = $request->get('period', 'mensuelle');
+    //         $format = $request->get('format', 'excel'); // excel, csv, pdf
+    //         $startDate = $request->get('start_date');
+    //         $endDate = $request->get('end_date');
+
+    //         $dateRange = $this->calculateDateRange($period, $startDate, $endDate);
+
+    //         // Récupération de toutes les données
+    //         $exportData = [
+    //             'members' => $this->getMembersEvolution($dateRange, $period),
+    //             'cultes' => $this->getCulteAttendance($dateRange, $period),
+    //             'offrandes' => $this->getOffrandesEvolution($dateRange, $period),
+    //             'fimecos' => $this->getFimecoEvolution($dateRange, $period),
+    //             'ratios' => $this->calculateRatios($dateRange),
+    //             'metadata' => [
+    //                 'period' => $period,
+    //                 'start_date' => $dateRange['start']->format('Y-m-d'),
+    //                 'end_date' => $dateRange['end']->format('Y-m-d'),
+    //                 'exported_at' => now()->format('Y-m-d H:i:s'),
+    //                 'exported_by' => Auth::user()->prenom . ' ' . Auth::user()->nom
+    //             ]
+    //         ];
+
+    //         return response()->json([
+    //             'success' => true,
+    //             'data' => $exportData,
+    //             'message' => 'Données exportées avec succès'
+    //         ]);
+
+    //     } catch (\Exception $e) {
+    //         Log::error('Erreur Export Dashboard: ' . $e->getMessage());
+    //         return response()->json([
+    //             'success' => false,
+    //             'message' => 'Erreur lors de l\'export des données'
+    //         ], 500);
+    //     }
+    // }
+
+    /**
+     * Export des données du dashboard en Excel ou PDF
+     */
+    public function exporte(Request $request)
+    {
+        try {
+            $period = $request->get('period', 'mensuelle');
+            $format = $request->get('format', 'excel'); // excel ou pdf
+            $startDate = $request->get('start_date');
+            $endDate = $request->get('end_date');
+
+            $dateRange = $this->calculateDateRange($period, $startDate, $endDate);
+
+            // Récupération de toutes les données
+            $dashboardData = [
+                'period' => $period,
+                'date_range' => $dateRange,
+                'kpis' => $this->getMainKPIs($dateRange),
+                'members_evolution' => $this->getMembersEvolution($dateRange, $period),
+                'culte_attendance' => $this->getCulteAttendance($dateRange, $period),
+                'offrandes_evolution' => $this->getOffrandesEvolution($dateRange, $period),
+                'presence_offrande_ratio' => $this->getPresenceOffradeRatio($dateRange, $period),
+                'souscripteur_fimeco_ratio' => $this->getSouscripteurFimecoRatio($dateRange, $period),
+                'fimeco_evolution' => $this->getFimecoEvolution($dateRange, $period),
+                'ratios' => $this->calculateRatios($dateRange),
+                'trends' => $this->getTrends($dateRange),
+                'metadata' => [
+                    'period' => $period,
+                    'start_date' => $dateRange['start']->format('d/m/Y'),
+                    'end_date' => $dateRange['end']->format('d/m/Y'),
+                    'exported_at' => now()->format('d/m/Y H:i:s'),
+                    'exported_by' => Auth::user()->prenom . ' ' . Auth::user()->nom,
+                    'church_name' => 'Église - Tableau de Bord',
+                    'period_label' => $this->getPeriodLabel($period)
+                ]
+            ];
+
+            if ($format === 'excel') {
+                return $this->exportExcel($dashboardData);
+            } elseif ($format === 'pdf') {
+                return $this->exportPdf($dashboardData);
+            }
+
             return response()->json([
                 'success' => false,
-                'message' => 'Erreur lors du chargement du dashboard',
-                'error' => $e->getMessage()
+                'message' => 'Format d\'export non supporté'
+            ], 400);
+
+        } catch (\Exception $e) {
+            dd($e->getMessage());
+            Log::error('Erreur Export Dashboard: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Erreur lors de l\'export des données: ' . $e->getMessage()
             ], 500);
         }
     }
 
+
     /**
-     * Statistiques générales de l'église
+     * Export Excel
      */
-    private function getStatistiquesGenerales()
+    private function exportExcel($data)
     {
+        $filename = 'dashboard-eglise-' . Carbon::now()->format('Y-m-d-H-i-s') . '.xlsx';
+
+        return Excel::download(new DashboardExport($data), $filename);
+    }
+
+
+    /**
+     * Export PDF
+     */
+    private function exportPdf($data)
+    {
+        $pdf = Pdf::loadView('exports.dashboard.dashboard-pdf', compact('data'))
+            ->setPaper('a4', 'landscape')
+            ->setOptions([
+                'isHtml5ParserEnabled' => true,
+                'isRemoteEnabled' => true,
+                'defaultFont' => 'DejaVu Sans'
+            ]);
+
+        $filename = 'dashboard-eglise-' . Carbon::now()->format('Y-m-d-H-i-s') . '.pdf';
+
+        return $pdf->download($filename);
+    }
+
+
+    /**
+     * Obtenir le label de la période
+     */
+    private function getPeriodLabel($period)
+    {
+        $labels = [
+            'semaine' => 'Hebdomadaire',
+            'mensuelle' => 'Mensuelle',
+            'trimestrielle' => 'Trimestrielle',
+            'semestrielle' => 'Semestrielle',
+            'annuelle' => 'Annuelle'
+        ];
+
+        return $labels[$period] ?? 'Personnalisée';
+    }
+
+
+
+    /**
+ * 1. Évolution du nombre de personnes (membres) inscrites
+ */
+public function getMembersEvolution($dateRange, $period)
+{
+    $groupBy = $this->getGroupByPeriod($period);
+
+    // Requête simplifiée sans paramètres complexes
+    $data = DB::table('users')
+        ->selectRaw("
+            {$groupBy} as period,
+            COUNT(*) as total_membres,
+            COUNT(CASE WHEN statut_membre = 'actif' THEN 1 END) as membres_actifs,
+            COUNT(CASE WHEN statut_membre = 'visiteur' THEN 1 END) as visiteurs,
+            COUNT(CASE WHEN statut_membre = 'nouveau_converti' THEN 1 END) as nouveaux_convertis
+        ")
+        ->whereNull('deleted_at')
+        ->where('created_at', '>=', $dateRange['start'])
+        ->where('created_at', '<=', $dateRange['end'])
+        ->groupByRaw($groupBy)
+        ->orderByRaw($groupBy)
+        ->get();
+
+    $results = [];
+    foreach ($data as $item) {
+
+        // Calcul simple des nouveaux membres sans paramètres complexes
+        $nouveauxMembres = 0; // Temporairement mis à 0 pour éviter l'erreur
+
+         $nouveauxMembres = DB::table('users')
+            ->whereNull('deleted_at')
+            ->whereBetween('created_at', [$dateRange['start'], $dateRange['end']])
+            ->count();
+
+        $results[] = [
+            'period' => $this->formatPeriodLabel($item->period, $period),
+            'total_membres' => (int) $item->total_membres,
+            'nouveaux_membres' => (int) $nouveauxMembres,
+            'membres_actifs' => (int) $item->membres_actifs,
+            'visiteurs' => (int) $item->visiteurs,
+            'nouveaux_convertis' => (int) $item->nouveaux_convertis
+        ];
+    }
+
+    return $results;
+}
+
+    /**
+     * 2. Évolution du nombre de personnes présentes au culte
+     */
+    public function getCulteAttendance($dateRange, $period)
+    {
+        $groupBy = $this->getGroupByPeriod($period, 'c.date_culte');
+
+        $query = DB::table('cultes as c')
+            ->leftJoin('participant_cultes as pc', 'c.id', '=', 'pc.culte_id')
+            ->select([
+                DB::raw($groupBy . ' as period'),
+                DB::raw('AVG(c.nombre_participants) as avg_participants'),
+                DB::raw('SUM(c.nombre_participants) as total_participants'),
+                DB::raw('AVG(c.nombre_adultes) as avg_adultes'),
+                DB::raw('AVG(c.nombre_enfants) as avg_enfants'),
+                DB::raw('AVG(c.nombre_jeunes) as avg_jeunes'),
+                DB::raw('SUM(c.nombre_nouveaux) as total_nouveaux'),
+                DB::raw('COUNT(CASE WHEN pc.type_participation = \'en_ligne\' THEN 1 END) as participants_en_ligne'),
+                DB::raw('COUNT(CASE WHEN pc.type_participation = \'physique\' THEN 1 END) as participants_physiques'),
+                DB::raw('COUNT(CASE WHEN pc.premiere_visite = true THEN 1 END) as nouveaux_visiteurs'),
+                DB::raw('COUNT(DISTINCT c.id) as nombre_cultes')
+            ])
+            ->whereNull('c.deleted_at')
+            ->where('c.statut', 'termine')
+            ->whereBetween('c.date_culte', [$dateRange['start'], $dateRange['end']])
+            ->groupBy(DB::raw($groupBy))
+            ->orderBy(DB::raw($groupBy));
+
+        return $query->get()->map(function($item) use ($period) {
+            return [
+                'period' => $this->formatPeriodLabel($item->period, $period),
+                'avg_participants' => round($item->avg_participants, 0),
+                'total_participants' => $item->total_participants,
+                'avg_adultes' => round($item->avg_adultes, 0),
+                'avg_enfants' => round($item->avg_enfants, 0),
+                'avg_jeunes' => round($item->avg_jeunes, 0),
+                'total_nouveaux' => $item->total_nouveaux,
+                'participants_en_ligne' => $item->participants_en_ligne,
+                'participants_physiques' => $item->participants_physiques,
+                'nouveaux_visiteurs' => $item->nouveaux_visiteurs,
+                'nombre_cultes' => $item->nombre_cultes,
+                'taux_presence' => $item->total_participants > 0 ? round(($item->participants_physiques / $item->total_participants) * 100, 1) : 0
+            ];
+        });
+    }
+
+    /**
+     * 3. Évolution des offrandes avec graphiques
+     */
+    public function getOffrandesEvolution($dateRange, $period)
+    {
+        $groupBy = $this->getGroupByPeriod($period, 'date_transaction');
+
+        $query = DB::table('fonds')
+            ->select([
+                DB::raw($groupBy . ' as period'),
+                DB::raw('SUM(CASE WHEN type_transaction = \'dime\' THEN montant ELSE 0 END) as dimes'),
+                DB::raw('SUM(CASE WHEN type_transaction = \'offrande_ordinaire\' THEN montant ELSE 0 END) as offrandes_ordinaires'),
+                DB::raw('SUM(CASE WHEN type_transaction = \'offrande_libre\' THEN montant ELSE 0 END) as offrandes_libres'),
+                DB::raw('SUM(CASE WHEN type_transaction = \'offrande_speciale\' THEN montant ELSE 0 END) as offrandes_speciales'),
+                DB::raw('SUM(CASE WHEN type_transaction = \'offrande_mission\' THEN montant ELSE 0 END) as offrandes_missions'),
+                DB::raw('SUM(CASE WHEN type_transaction = \'offrande_construction\' THEN montant ELSE 0 END) as offrandes_construction'),
+                DB::raw('SUM(montant) as total_offrandes'),
+                DB::raw('COUNT(*) as nombre_transactions'),
+                DB::raw('AVG(montant) as montant_moyen'),
+                DB::raw('COUNT(DISTINCT donateur_id) as donateurs_uniques')
+            ])
+            ->whereNull('deleted_at')
+            ->where('statut', 'validee')
+            ->whereBetween('date_transaction', [$dateRange['start'], $dateRange['end']])
+            ->groupBy(DB::raw($groupBy))
+            ->orderBy(DB::raw($groupBy));
+
+        return $query->get()->map(function($item) use ($period) {
+            return [
+                'period' => $this->formatPeriodLabel($item->period, $period),
+                'dimes' => $item->dimes,
+                'offrandes_ordinaires' => $item->offrandes_ordinaires,
+                'offrandes_libres' => $item->offrandes_libres,
+                'offrandes_speciales' => $item->offrandes_speciales,
+                'offrandes_missions' => $item->offrandes_missions,
+                'offrandes_construction' => $item->offrandes_construction,
+                'total_offrandes' => $item->total_offrandes,
+                'nombre_transactions' => $item->nombre_transactions,
+                'montant_moyen' => round($item->montant_moyen, 0),
+                'donateurs_uniques' => $item->donateurs_uniques
+            ];
+        });
+    }
+
+    /**
+     * 4. Ratio entre nombre de personnes présentes au culte et offrande
+     */
+    public function getPresenceOffradeRatio($dateRange, $period)
+    {
+        $groupBy = $this->getGroupByPeriod($period, 'c.date_culte');
+
+        $query = DB::table('cultes as c')
+            ->leftJoin('fonds as f', 'c.id', '=', 'f.culte_id')
+            ->select([
+                DB::raw($groupBy . ' as period'),
+                DB::raw('AVG(c.nombre_participants) as avg_participants'),
+                DB::raw('SUM(CASE WHEN f.statut = \'validee\' THEN f.montant ELSE 0 END) as total_offrandes'),
+                DB::raw('COUNT(DISTINCT c.id) as nombre_cultes')
+            ])
+            ->whereNull('c.deleted_at')
+            ->where('c.statut', 'termine')
+            ->whereBetween('c.date_culte', [$dateRange['start'], $dateRange['end']])
+            ->groupBy(DB::raw($groupBy))
+            ->orderBy(DB::raw($groupBy));
+
+        return $query->get()->map(function($item) use ($period) {
+            $ratio = $item->avg_participants > 0 ?
+                round($item->total_offrandes / $item->avg_participants, 0) : 0;
+
+            return [
+                'period' => $this->formatPeriodLabel($item->period, $period),
+                'avg_participants' => round($item->avg_participants, 0),
+                'total_offrandes' => $item->total_offrandes,
+                'ratio_offrande_par_personne' => $ratio,
+                'nombre_cultes' => $item->nombre_cultes
+            ];
+        });
+    }
+
+    /**
+     * 5. Ratio entre nombre de souscripteurs et montant collecté FIMECO
+     */
+    public function getSouscripteurFimecoRatio($dateRange, $period)
+    {
+        $groupBy = $this->getGroupByPeriod($period, 's.date_souscription');
+
+        $query = DB::table('subscriptions as s')
+            ->join('fimecos as f', 's.fimeco_id', '=', 'f.id')
+            ->select([
+                DB::raw($groupBy . ' as period'),
+                DB::raw('COUNT(DISTINCT s.souscripteur_id) as nombre_souscripteurs'),
+                DB::raw('SUM(s.montant_paye) as total_collecte'),
+                DB::raw('SUM(s.montant_souscrit) as total_souscrit'),
+                DB::raw('AVG(s.montant_paye) as montant_moyen_paye'),
+                DB::raw('AVG(s.progression) as progression_moyenne'),
+                DB::raw('COUNT(DISTINCT f.id) as nombre_fimecos')
+            ])
+            ->whereNull('s.deleted_at')
+            ->whereNull('f.deleted_at')
+            ->whereBetween('s.date_souscription', [$dateRange['start'], $dateRange['end']])
+            ->groupBy(DB::raw($groupBy))
+            ->orderBy(DB::raw($groupBy));
+
+        return $query->get()->map(function($item) use ($period) {
+            $ratio = $item->nombre_souscripteurs > 0 ?
+                round($item->total_collecte / $item->nombre_souscripteurs, 0) : 0;
+
+            return [
+                'period' => $this->formatPeriodLabel($item->period, $period),
+                'nombre_souscripteurs' => $item->nombre_souscripteurs,
+                'total_collecte' => $item->total_collecte,
+                'total_souscrit' => $item->total_souscrit,
+                'ratio_collecte_par_souscripteur' => $ratio,
+                'montant_moyen_paye' => round($item->montant_moyen_paye, 0),
+                'progression_moyenne' => round($item->progression_moyenne, 1),
+                'taux_realisation' => $item->total_souscrit > 0 ?
+                    round(($item->total_collecte / $item->total_souscrit) * 100, 1) : 0
+            ];
+        });
+    }
+
+    /**
+     * 6. Évaluation et évolution des FIMECO
+     */
+    public function getFimecoEvolution($dateRange, $period)
+    {
+        $groupBy = $this->getGroupByPeriod($period, 'debut');
+
+        $fimecos = DB::table('fimecos')
+            ->select([
+                DB::raw($groupBy . ' as period'),
+                'id',
+                'nom',
+                'cible',
+                'montant_solde',
+                'reste',
+                'montant_supplementaire',
+                'progression',
+                'statut_global',
+                'statut',
+                'debut',
+                'fin'
+            ])
+            ->whereNull('deleted_at')
+            ->whereBetween('debut', [$dateRange['start'], $dateRange['end']])
+            ->orderBy('debut');
+
+        $evolution = [];
+        $currentFimecos = $fimecos->get();
+
+        foreach ($currentFimecos as $fimeco) {
+            $souscriptions = DB::table('subscriptions')
+                ->where('fimeco_id', $fimeco->id)
+                ->whereNull('deleted_at')
+                ->get();
+
+            $evolution[] = [
+                'period' => $this->formatPeriodLabel($fimeco->period, $period),
+                'fimeco_id' => $fimeco->id,
+                'nom' => $fimeco->nom,
+                'cible' => $fimeco->cible,
+                'montant_solde' => $fimeco->montant_solde,
+                'reste' => $fimeco->reste,
+                'montant_supplementaire' => $fimeco->montant_supplementaire,
+                'progression' => $fimeco->progression,
+                'statut_global' => $fimeco->statut_global,
+                'statut' => $fimeco->statut,
+                'nombre_souscripteurs' => $souscriptions->count(),
+                'montant_moyen_souscription' => $souscriptions->avg('montant_souscrit'),
+                'taux_paiement' => $souscriptions->avg('progression'),
+                'debut' => $fimeco->debut,
+                'fin' => $fimeco->fin
+            ];
+        }
+
+        // Agrégation par période si nécessaire
+        $aggregated = collect($evolution)->groupBy('period')->map(function($group) {
+            return [
+                'period' => $group->first()['period'],
+                'nombre_fimecos' => $group->count(),
+                'cible_totale' => $group->sum('cible'),
+                'collecte_totale' => $group->sum('montant_solde'),
+                'progression_moyenne' => $group->avg('progression'),
+                'souscripteurs_totaux' => $group->sum('nombre_souscripteurs'),
+                'fimecos_details' => $group->toArray()
+            ];
+        })->values();
+
+        return $aggregated;
+    }
+
+    /**
+     * Calcul des ratios principaux
+     */
+    public function calculateRatios($dateRange)
+    {
+        // Ratio présence/offrande
+        $culteStats = DB::table('cultes as c')
+            ->leftJoin('fonds as f', 'c.id', '=', 'f.culte_id')
+            ->select([
+                DB::raw('AVG(c.nombre_participants) as avg_participants'),
+                DB::raw('SUM(CASE WHEN f.statut = \'validee\' THEN f.montant ELSE 0 END) as total_offrandes')
+            ])
+            ->whereNull('c.deleted_at')
+            ->where('c.statut', 'termine')
+            ->whereBetween('c.date_culte', [$dateRange['start'], $dateRange['end']])
+            ->first();
+
+        // Ratio souscripteur/collecte FIMECO
+        $fimecoStats = DB::table('subscriptions as s')
+            ->join('fimecos as f', 's.fimeco_id', '=', 'f.id')
+            ->select([
+                DB::raw('COUNT(DISTINCT s.souscripteur_id) as total_souscripteurs'),
+                DB::raw('SUM(s.montant_paye) as total_collecte')
+            ])
+            ->whereNull('s.deleted_at')
+            ->whereNull('f.deleted_at')
+            ->whereBetween('s.date_souscription', [$dateRange['start'], $dateRange['end']])
+            ->first();
+
         return [
-            // Membres
-            'total_membres' => DB::table('users')
-                ->whereNull('deleted_at')
-                ->where('actif', true)
-                ->count(),
-
-            'nouveaux_membres_mois' => DB::table('users')
-                ->whereNull('deleted_at')
-                ->where('actif', true)
-                ->whereMonth('created_at', Carbon::now()->month)
-                ->whereYear('created_at', Carbon::now()->year)
-                ->count(),
-
-            'membres_actifs' => DB::table('users')
-                ->whereNull('deleted_at')
-                ->where('actif', true)
-                ->where('statut_membre', 'actif')
-                ->count(),
-
-            // Cultes
-            'total_cultes_mois' => DB::table('cultes')
-                ->whereNull('deleted_at')
-                ->whereMonth('date_culte', Carbon::now()->month)
-                ->whereYear('date_culte', Carbon::now()->year)
-                ->count(),
-
-            'moyenne_participants_culte' => DB::table('cultes')
-                ->whereNull('deleted_at')
-                ->whereNotNull('nombre_participants')
-                ->whereMonth('date_culte', Carbon::now()->month)
-                ->avg('nombre_participants'),
-
-            // Événements
-            'evenements_planifies' => DB::table('events')
-                ->whereNull('deleted_at')
-                ->where('date_debut', '>=', Carbon::now())
-                ->whereIn('statut', ['planifie', 'en_promotion', 'ouvert_inscription'])
-                ->count(),
-
-            // Finances
-            'offrandes_mois' => DB::table('fonds')
-                ->whereNull('deleted_at')
-                ->where('statut', 'validee')
-                ->whereMonth('date_transaction', Carbon::now()->month)
-                ->whereYear('date_transaction', Carbon::now()->year)
-                ->sum('montant'),
-
-            // Classes
-            'total_classes' => DB::table('classes')
-                ->whereNull('deleted_at')
-                ->count(),
-
-            'total_inscrits_classes' => DB::table('classes')
-                ->whereNull('deleted_at')
-                ->sum('nombre_inscrits')
+            'presence_offrande_ratio' => $culteStats->avg_participants > 0 ?
+                round($culteStats->total_offrandes / $culteStats->avg_participants, 0) : 0,
+            'souscripteur_collecte_ratio' => $fimecoStats->total_souscripteurs > 0 ?
+                round($fimecoStats->total_collecte / $fimecoStats->total_souscripteurs, 0) : 0,
+            'avg_participants' => round($culteStats->avg_participants, 0),
+            'total_offrandes' => $culteStats->total_offrandes,
+            'total_souscripteurs' => $fimecoStats->total_souscripteurs,
+            'total_collecte_fimeco' => $fimecoStats->total_collecte
         ];
     }
 
     /**
-     * Activités récentes
+     * KPIs principaux pour la vue d'ensemble
      */
-    private function getActivitesRecentes()
+    public function getMainKPIs($dateRange)
     {
-        $activites = [];
-
-        // Cultes récents
-        $cultes = DB::table('cultes')
-            ->select('id', 'titre', 'date_culte', 'nombre_participants', 'created_at')
+        // Total membres
+        $totalMembres = DB::table('users')
             ->whereNull('deleted_at')
-            ->orderBy('date_culte', 'desc')
-            ->limit(5)
-            ->get()
-            ->map(function ($culte) {
+            ->count();
+
+        $nouveauxMembres = DB::table('users')
+            ->whereNull('deleted_at')
+            ->whereBetween('created_at', [$dateRange['start'], $dateRange['end']])
+            ->count();
+
+        // Présence moyenne
+        $presenceStats = DB::table('cultes')
+            ->whereNull('deleted_at')
+            ->where('statut', 'termine')
+            ->whereBetween('date_culte', [$dateRange['start'], $dateRange['end']])
+            ->selectRaw('AVG(nombre_participants) as avg_participants, COUNT(*) as nombre_cultes')
+            ->first();
+
+        // Offrandes totales
+        $offrandesTotales = DB::table('fonds')
+            ->whereNull('deleted_at')
+            ->where('statut', 'validee')
+            ->whereBetween('date_transaction', [$dateRange['start'], $dateRange['end']])
+            ->sum('montant');
+
+        // FIMECO actuel
+        $fimecoActuel = DB::table('fimecos')
+            ->whereNull('deleted_at')
+            ->where('statut', 'active')
+            ->first();
+
+        return [
+            'total_membres' => $totalMembres,
+            'nouveaux_membres' => $nouveauxMembres,
+            'avg_participants' => round($presenceStats->avg_participants ?? 0, 0),
+            'nombre_cultes' => $presenceStats->nombre_cultes ?? 0,
+            'total_offrandes' => $offrandesTotales,
+            'fimeco_progression' => $fimecoActuel ? round($fimecoActuel->progression, 1) : 0,
+            'fimeco_nom' => $fimecoActuel->nom ?? 'Aucun FIMECO actif'
+        ];
+    }
+
+    /**
+     * Vue d'ensemble générale - SUPPRIMÉE car intégrée dans index()
+     */
+    // public function getOverviewData($dateRange) - Supprimée
+
+    /**
+     * Calcul des tendances
+     */
+    private function getTrends($dateRange)
+    {
+        // Comparaison avec la période précédente
+        $currentPeriod = Carbon::parse($dateRange['start'])->diffInDays(Carbon::parse($dateRange['end']));
+        $previousStart = Carbon::parse($dateRange['start'])->subDays($currentPeriod);
+        $previousEnd = Carbon::parse($dateRange['start']);
+
+        $currentOffrandes = DB::table('fonds')
+            ->where('statut', 'validee')
+            ->whereBetween('date_transaction', [$dateRange['start'], $dateRange['end']])
+            ->sum('montant');
+
+        $previousOffrandes = DB::table('fonds')
+            ->where('statut', 'validee')
+            ->whereBetween('date_transaction', [$previousStart, $previousEnd])
+            ->sum('montant');
+
+        $offrandesTrend = $previousOffrandes > 0 ?
+            round((($currentOffrandes - $previousOffrandes) / $previousOffrandes) * 100, 1) : 0;
+
+        return [
+            'offrandes_trend' => $offrandesTrend,
+            'current_offrandes' => $currentOffrandes,
+            'previous_offrandes' => $previousOffrandes
+        ];
+    }
+
+    /**
+     * Calcul des plages de dates selon la période
+     */
+    private function calculateDateRange($period, $startDate = null, $endDate = null)
+    {
+        if ($startDate && $endDate) {
+            return [
+                'start' => Carbon::parse($startDate)->startOfDay(),
+                'end' => Carbon::parse($endDate)->endOfDay()
+            ];
+        }
+
+        $now = Carbon::now();
+
+        switch ($period) {
+            case 'semaine':
                 return [
-                    'type' => 'culte',
-                    'titre' => $culte->titre,
-                    'date' => $culte->date_culte,
-                    'details' => "{$culte->nombre_participants} participants",
-                    'timestamp' => $culte->created_at
+                    'start' => $now->copy()->startOfWeek(),
+                    'end' => $now->copy()->endOfWeek()
                 ];
-            });
-
-        // Événements récents
-        $events = DB::table('events')
-            ->select('id', 'titre', 'date_debut', 'nombre_participants', 'created_at')
-            ->whereNull('deleted_at')
-            ->orderBy('created_at', 'desc')
-            ->limit(5)
-            ->get()
-            ->map(function ($event) {
+            case 'mensuelle':
                 return [
-                    'type' => 'evenement',
-                    'titre' => $event->titre,
-                    'date' => $event->date_debut,
-                    'details' => "Événement planifié",
-                    'timestamp' => $event->created_at
+                    'start' => $now->copy()->subMonths(11)->startOfMonth(),
+                    'end' => $now->copy()->endOfMonth()
                 ];
-            });
-
-        // Nouveaux membres
-        $nouveaux_membres = DB::table('users')
-            ->select('prenom', 'nom', 'created_at')
-            ->whereNull('deleted_at')
-            ->where('created_at', '>=', Carbon::now()->subDays(7))
-            ->orderBy('created_at', 'desc')
-            ->limit(5)
-            ->get()
-            ->map(function ($membre) {
+            case 'trimestrielle':
                 return [
-                    'type' => 'nouveau_membre',
-                    'titre' => "Nouveau membre: {$membre->prenom} {$membre->nom}",
-                    'date' => Carbon::parse($membre->created_at)->format('Y-m-d'),
-                    'details' => 'Inscription récente',
-                    'timestamp' => $membre->created_at
+                    'start' => $now->copy()->subMonths(12)->startOfQuarter(),
+                    'end' => $now->copy()->endOfQuarter()
                 ];
-            });
-
-        return collect($activites)
-            ->merge($cultes)
-            ->merge($events)
-            ->merge($nouveaux_membres)
-            ->sortByDesc('timestamp')
-            ->take(10)
-            ->values();
-    }
-
-    /**
-     * Statistiques financières
-     */
-    private function getStatistiquesFinancieres()
-    {
-        $moisActuel = Carbon::now();
-        $moisPrecedent = Carbon::now()->subMonth();
-
-        return [
-            // Mois actuel
-            'offrandes_mois_actuel' => DB::table('fonds')
-                ->whereNull('deleted_at')
-                ->where('statut', 'validee')
-                ->whereMonth('date_transaction', $moisActuel->month)
-                ->whereYear('date_transaction', $moisActuel->year)
-                ->where('type_transaction', 'like', 'offrande_%')
-                ->sum('montant'),
-
-            'dimes_mois_actuel' => DB::table('fonds')
-                ->whereNull('deleted_at')
-                ->where('statut', 'validee')
-                ->where('type_transaction', 'dime')
-                ->whereMonth('date_transaction', $moisActuel->month)
-                ->whereYear('date_transaction', $moisActuel->year)
-                ->sum('montant'),
-
-            // Mois précédent pour comparaison
-            'offrandes_mois_precedent' => DB::table('fonds')
-                ->whereNull('deleted_at')
-                ->where('statut', 'validee')
-                ->whereMonth('date_transaction', $moisPrecedent->month)
-                ->whereYear('date_transaction', $moisPrecedent->year)
-                ->where('type_transaction', 'like', 'offrande_%')
-                ->sum('montant'),
-
-            // Transactions en attente
-            'transactions_en_attente' => DB::table('fonds')
-                ->whereNull('deleted_at')
-                ->where('statut', 'en_attente')
-                ->count(),
-
-            // Donateurs réguliers
-            'donateurs_reguliers_count' => DB::table('donateurs_reguliers')->count(),
-
-            // Évolution par type
-            'repartition_par_type' => DB::table('fonds')
-                ->select('type_transaction', DB::raw('SUM(montant) as total'))
-                ->whereNull('deleted_at')
-                ->where('statut', 'validee')
-                ->whereMonth('date_transaction', $moisActuel->month)
-                ->whereYear('date_transaction', $moisActuel->year)
-                ->groupBy('type_transaction')
-                ->get()
-        ];
-    }
-
-    /**
-     * Événements à venir
-     */
-    private function getEvenementsAVenir()
-    {
-        return DB::table('events_a_venir')
-            ->select(
-                'id',
-                'titre',
-                'date_debut',
-                'heure_debut',
-                'lieu_nom',
-                'type_evenement',
-                'nombre_inscrits',
-                'places_disponibles',
-                'statut_inscription',
-                'jours_restants'
-            )
-            ->orderBy('date_debut')
-            ->limit(10)
-            ->get();
-    }
-
-    /**
-     * Cultes récents avec statistiques
-     */
-    private function getCultesRecents()
-    {
-        return DB::table('cultes')
-            ->select(
-                'id',
-                'titre',
-                'date_culte',
-                'type_culte',
-                'nombre_participants',
-                'nombre_conversions',
-                'offrande_totale',
-                'statut'
-            )
-            ->whereNull('deleted_at')
-            ->orderBy('date_culte', 'desc')
-            ->limit(5)
-            ->get();
-    }
-
-    /**
-     * Statistiques des membres
-     */
-    private function getMembresStatistiques()
-    {
-        return [
-            'par_statut' => DB::table('users')
-                ->select('statut_membre', DB::raw('count(*) as total'))
-                ->whereNull('deleted_at')
-                ->where('actif', true)
-                ->groupBy('statut_membre')
-                ->get(),
-
-            'par_tranche_age' => DB::table('users')
-                ->select(
-                    DB::raw("
-                        CASE
-                            WHEN EXTRACT(YEAR FROM AGE(COALESCE(date_naissance, CURRENT_DATE))) < 18 THEN 'Moins de 18 ans'
-                            WHEN EXTRACT(YEAR FROM AGE(COALESCE(date_naissance, CURRENT_DATE))) BETWEEN 18 AND 35 THEN '18-35 ans'
-                            WHEN EXTRACT(YEAR FROM AGE(COALESCE(date_naissance, CURRENT_DATE))) BETWEEN 36 AND 55 THEN '36-55 ans'
-                            ELSE 'Plus de 55 ans'
-                        END as tranche_age
-                    "),
-                    DB::raw('count(*) as total')
-                )
-                ->whereNull('deleted_at')
-                ->where('actif', true)
-                ->whereNotNull('date_naissance')
-                ->groupBy('tranche_age')
-                ->get(),
-
-            'par_sexe' => DB::table('users')
-                ->select('sexe', DB::raw('count(*) as total'))
-                ->whereNull('deleted_at')
-                ->where('actif', true)
-                ->groupBy('sexe')
-                ->get(),
-
-            'anniversaires_mois' => DB::table('anniversaires_du_mois')
-                ->count(),
-
-            'nouveaux_visiteurs' => DB::table('nouveaux_visiteurs_suivi')
-                ->where('date_inscription', '>=', Carbon::now()->subDays(30))
-                ->count()
-        ];
-    }
-
-    /**
-     * Annonces importantes
-     */
-    private function getAnnoncesImportantes()
-    {
-        return DB::table('annonces_actives')
-            ->select(
-                'id',
-                'titre',
-                'contenu',
-                'type_annonce',
-                'niveau_priorite',
-                'date_evenement',
-                'lieu_evenement'
-            )
-            ->orderByRaw("
-                CASE niveau_priorite
-                    WHEN 'urgent' THEN 1
-                    WHEN 'important' THEN 2
-                    ELSE 3
-                END
-            ")
-            ->orderBy('publie_le', 'desc')
-            ->limit(5)
-            ->get();
-    }
-
-    /**
-     * Notifications et alertes
-     */
-    private function getNotifications()
-    {
-        $notifications = [];
-
-        // Vérifier les cultes nécessitant une action
-        $cultesAction = DB::table('cultes')
-            ->whereNull('deleted_at')
-            ->where('date_culte', '<=', Carbon::now()->addDays(7))
-            ->where('statut', 'planifie')
-            ->count();
-
-        if ($cultesAction > 0) {
-            $notifications[] = [
-                'type' => 'warning',
-                'titre' => 'Cultes à confirmer',
-                'message' => "{$cultesAction} culte(s) nécessitent une confirmation",
-                'action_url' => route('private.cultes.index')
-            ];
+            case 'semestrielle':
+                return [
+                    'start' => $now->copy()->subMonths(12)->startOfYear(),
+                    'end' => $now->copy()->endOfYear()
+                ];
+            case 'annuelle':
+                return [
+                    'start' => $now->copy()->subYears(4)->startOfYear(),
+                    'end' => $now->copy()->endOfYear()
+                ];
+            default:
+                return [
+                    'start' => $now->copy()->subMonths(11)->startOfMonth(),
+                    'end' => $now->copy()->endOfMonth()
+                ];
         }
-
-        // Vérifier les transactions en attente
-        $transactionsAttente = DB::table('fonds')
-            ->whereNull('deleted_at')
-            ->where('statut', 'en_attente')
-            ->where('created_at', '<=', Carbon::now()->subDays(3))
-            ->count();
-
-        if ($transactionsAttente > 0) {
-            $notifications[] = [
-                'type' => 'info',
-                'titre' => 'Transactions en attente',
-                'message' => "{$transactionsAttente} transaction(s) en attente de validation",
-                'action_url' => '/finances'
-            ];
-        }
-
-        // Vérifier les événements bientôt complets
-        $evenementsProchesComplets = DB::table('events')
-            ->whereNull('deleted_at')
-            ->whereNotNull('capacite_totale')
-            ->whereRaw('nombre_inscrits >= (capacite_totale * 0.9)')
-            ->where('date_debut', '>=', Carbon::now())
-            ->count();
-
-        if ($evenementsProchesComplets > 0) {
-            $notifications[] = [
-                'type' => 'success',
-                'titre' => 'Événements populaires',
-                'message' => "{$evenementsProchesComplets} événement(s) bientôt complets",
-                'action_url' => '/evenements'
-            ];
-        }
-
-        // Nouveaux visiteurs nécessitant un suivi
-        $nouveauxVisiteurs = DB::table('nouveaux_visiteurs_suivi')
-            ->where('demande_contact_pastoral', true)
-            ->count();
-
-        if ($nouveauxVisiteurs > 0) {
-            $notifications[] = [
-                'type' => 'info',
-                'titre' => 'Suivi pastoral',
-                'message' => "{$nouveauxVisiteurs} nouveau(x) visiteur(s) demandent un contact pastoral",
-                'action_url' => '/membres'
-            ];
-        }
-
-        return $notifications;
     }
 
     /**
-     * Médias récents
+     * Génération du GROUP BY selon la période - Version PostgreSQL
      */
-    private function getMultimediaRecents()
+    private function getGroupByPeriod($period, $dateField = 'created_at')
     {
-        return DB::table('multimedia')
-            ->select(
-                'id',
-                'titre',
-                'type_media',
-                'categorie',
-                'miniature',
-                'nombre_vues',
-                'created_at'
-            )
-            ->whereNull('deleted_at')
-            ->where('est_visible', true)
-            ->where('statut_moderation', 'approuve')
-            ->orderBy('created_at', 'desc')
-            ->limit(6)
-            ->get();
-    }
-
-    /**
-     * Performances mensuelles
-     */
-    private function getPerformancesMensuelles()
-    {
-        $moisActuel = Carbon::now();
-        $performances = [];
-
-        // Données des 6 derniers mois
-        for ($i = 5; $i >= 0; $i--) {
-            $mois = $moisActuel->copy()->subMonths($i);
-
-            $performances[] = [
-                'mois' => $mois->format('M Y'),
-                'cultes' => DB::table('cultes')
-                    ->whereNull('deleted_at')
-                    ->whereMonth('date_culte', $mois->month)
-                    ->whereYear('date_culte', $mois->year)
-                    ->count(),
-
-                'participants_moyens' => (int) DB::table('cultes')
-                    ->whereNull('deleted_at')
-                    ->whereMonth('date_culte', $mois->month)
-                    ->whereYear('date_culte', $mois->year)
-                    ->avg('nombre_participants'),
-
-                'offrandes' => (float) DB::table('fonds')
-                    ->whereNull('deleted_at')
-                    ->where('statut', 'validee')
-                    ->whereMonth('date_transaction', $mois->month)
-                    ->whereYear('date_transaction', $mois->year)
-                    ->sum('montant'),
-
-                'nouveaux_membres' => DB::table('users')
-                    ->whereNull('deleted_at')
-                    ->whereMonth('created_at', $mois->month)
-                    ->whereYear('created_at', $mois->year)
-                    ->count()
-            ];
+        switch ($period) {
+            case 'semaine':
+                return "DATE({$dateField})";
+            case 'mensuelle':
+                return "TO_CHAR({$dateField}, 'YYYY-MM')";
+            case 'trimestrielle':
+                return "CONCAT(EXTRACT(YEAR FROM {$dateField}), '-Q', EXTRACT(QUARTER FROM {$dateField}))";
+            case 'semestrielle':
+                return "CONCAT(EXTRACT(YEAR FROM {$dateField}), '-S', CASE WHEN EXTRACT(MONTH FROM {$dateField}) <= 6 THEN '1' ELSE '2' END)";
+            case 'annuelle':
+                return "EXTRACT(YEAR FROM {$dateField})";
+            default:
+                return "TO_CHAR({$dateField}, 'YYYY-MM')";
         }
-
-        return $performances;
     }
 
     /**
-     * Statistiques détaillées pour une période
+     * Formatage des labels de période - Version PostgreSQL
      */
-    public function getStatistiquesPeriode(Request $request)
+    private function formatPeriodLabel($period, $type)
     {
-        $debut = Carbon::parse($request->input('debut', Carbon::now()->startOfMonth()));
-        $fin = Carbon::parse($request->input('fin', Carbon::now()->endOfMonth()));
-
-        return response()->json([
-            'success' => true,
-            'data' => [
-                'periode' => [
-                    'debut' => $debut->format('Y-m-d'),
-                    'fin' => $fin->format('Y-m-d')
-                ],
-                'cultes' => $this->getStatistiquesCultesPeriode($debut, $fin),
-                'finances' => $this->getStatistiquesFinancesPeriode($debut, $fin),
-                'evenements' => $this->getStatistiquesEvenementsPeriode($debut, $fin),
-                'membres' => $this->getStatistiquesMembresPeriode($debut, $fin)
-            ]
-        ]);
+        switch ($type) {
+            case 'semaine':
+                return Carbon::parse($period)->format('d/m');
+            case 'mensuelle':
+                // Pour PostgreSQL, $period est au format 'YYYY-MM'
+                return Carbon::createFromFormat('Y-m', $period)->format('M Y');
+            case 'trimestrielle':
+                return $period; // Format 'YYYY-QX'
+            case 'semestrielle':
+                return $period; // Format 'YYYY-SX'
+            case 'annuelle':
+                return $period; // Format 'YYYY'
+            default:
+                return $period;
+        }
     }
 
-    private function getStatistiquesCultesPeriode($debut, $fin)
+    /**
+     * Calcul du début de période - Version PostgreSQL
+     */
+    private function getPeriodStart($period, $type)
     {
-        return [
-            'total_cultes' => DB::table('cultes')
-                ->whereNull('deleted_at')
-                ->whereBetween('date_culte', [$debut, $fin])
-                ->count(),
-
-            'total_participants' => DB::table('cultes')
-                ->whereNull('deleted_at')
-                ->whereBetween('date_culte', [$debut, $fin])
-                ->sum('nombre_participants'),
-
-            'total_conversions' => DB::table('cultes')
-                ->whereNull('deleted_at')
-                ->whereBetween('date_culte', [$debut, $fin])
-                ->sum('nombre_conversions')
-        ];
+        switch ($type) {
+            case 'semaine':
+                return Carbon::parse($period)->startOfDay();
+            case 'mensuelle':
+                // Pour PostgreSQL, $period est au format 'YYYY-MM'
+                return Carbon::createFromFormat('Y-m', $period)->startOfMonth();
+            case 'trimestrielle':
+                // Format 'YYYY-QX'
+                $parts = explode('-Q', $period);
+                $year = $parts[0];
+                $quarter = $parts[1];
+                return Carbon::create($year)->quarter($quarter)->startOfQuarter();
+            case 'semestrielle':
+                // Format 'YYYY-SX'
+                $parts = explode('-S', $period);
+                $year = $parts[0];
+                $semester = $parts[1];
+                $month = $semester == '1' ? 1 : 7;
+                return Carbon::create($year, $month)->startOfMonth();
+            case 'annuelle':
+                return Carbon::create($period)->startOfYear();
+            default:
+                return Carbon::createFromFormat('Y-m', $period)->startOfMonth();
+        }
     }
 
-    private function getStatistiquesFinancesPeriode($debut, $fin)
+    /**
+     * Calcul de la fin de période - Version PostgreSQL
+     */
+    private function getPeriodEnd($period, $type)
     {
-        return [
-            'total_offrandes' => DB::table('fonds')
-                ->whereNull('deleted_at')
-                ->where('statut', 'validee')
-                ->where('type_transaction', 'like', 'offrande_%')
-                ->whereBetween('date_transaction', [$debut, $fin])
-                ->sum('montant'),
-
-            'total_dimes' => DB::table('fonds')
-                ->whereNull('deleted_at')
-                ->where('statut', 'validee')
-                ->where('type_transaction', 'dime')
-                ->whereBetween('date_transaction', [$debut, $fin])
-                ->sum('montant'),
-
-            'nombre_transactions' => DB::table('fonds')
-                ->whereNull('deleted_at')
-                ->where('statut', 'validee')
-                ->whereBetween('date_transaction', [$debut, $fin])
-                ->count()
-        ];
+        switch ($type) {
+            case 'semaine':
+                return Carbon::parse($period)->endOfDay();
+            case 'mensuelle':
+                // Pour PostgreSQL, $period est au format 'YYYY-MM'
+                return Carbon::createFromFormat('Y-m', $period)->endOfMonth();
+            case 'trimestrielle':
+                // Format 'YYYY-QX'
+                $parts = explode('-Q', $period);
+                $year = $parts[0];
+                $quarter = $parts[1];
+                return Carbon::create($year)->quarter($quarter)->endOfQuarter();
+            case 'semestrielle':
+                // Format 'YYYY-SX'
+                $parts = explode('-S', $period);
+                $year = $parts[0];
+                $semester = $parts[1];
+                $month = $semester == '1' ? 6 : 12;
+                return Carbon::create($year, $month)->endOfMonth();
+            case 'annuelle':
+                return Carbon::create($period)->endOfYear();
+            default:
+                return Carbon::createFromFormat('Y-m', $period)->endOfMonth();
+        }
     }
 
-    private function getStatistiquesEvenementsPeriode($debut, $fin)
+    /**
+     * Export des données du dashboard
+     */
+    public function export(Request $request)
     {
-        return [
-            'total_evenements' => DB::table('events')
-                ->whereNull('deleted_at')
-                ->whereBetween('date_debut', [$debut, $fin])
-                ->count(),
+        try {
+            $period = $request->get('period', 'mensuelle');
+            $format = $request->get('format', 'excel'); // excel, csv, pdf
+            $startDate = $request->get('start_date');
+            $endDate = $request->get('end_date');
 
-            'total_participants' => DB::table('events')
-                ->whereNull('deleted_at')
-                ->whereBetween('date_debut', [$debut, $fin])
-                ->sum('nombre_participants')
-        ];
-    }
+            $dateRange = $this->calculateDateRange($period, $startDate, $endDate);
 
-    private function getStatistiquesMembresPeriode($debut, $fin)
-    {
-        return [
-            'nouveaux_membres' => DB::table('users')
-                ->whereNull('deleted_at')
-                ->whereBetween('created_at', [$debut, $fin])
-                ->count(),
+            // Récupération de toutes les données
+            $exportData = [
+                'members' => $this->getMembersEvolution($dateRange, $period),
+                'cultes' => $this->getCulteAttendance($dateRange, $period),
+                'offrandes' => $this->getOffrandesEvolution($dateRange, $period),
+                'fimecos' => $this->getFimecoEvolution($dateRange, $period),
+                'ratios' => $this->calculateRatios($dateRange),
+                'metadata' => [
+                    'period' => $period,
+                    'start_date' => $dateRange['start']->format('Y-m-d'),
+                    'end_date' => $dateRange['end']->format('Y-m-d'),
+                    'exported_at' => now()->format('Y-m-d H:i:s'),
+                    'exported_by' => Auth::user()->prenom . ' ' . Auth::user()->nom
+                ]
+            ];
 
-            'nouvelles_inscriptions_culte' => DB::table('participant_cultes pc')
-                ->join('cultes c', 'pc.culte_id', '=', 'c.id')
-                ->whereNull('pc.deleted_at')
-                ->whereNull('c.deleted_at')
-                ->whereBetween('c.date_culte', [$debut, $fin])
-                ->where('pc.premiere_visite', true)
-                ->count()
-        ];
+            return response()->json([
+                'success' => true,
+                'data' => $exportData,
+                'message' => 'Données exportées avec succès'
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Erreur Export Dashboard: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Erreur lors de l\'export des données'
+            ], 500);
+        }
     }
 }

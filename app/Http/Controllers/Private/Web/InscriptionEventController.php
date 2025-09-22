@@ -78,7 +78,7 @@ class InscriptionEventController extends Controller
             }
 
             // SECTION PAGINATION
-            $perPage = min($request->get('per_page', 15), 100); // Limite à 100 éléments par page maximum
+            $perPage = min($request->get('per_page', 10), 100); // Limite à 100 éléments par page maximum
             $inscriptions = $query->paginate($perPage); // Exécution de la requête avec pagination
 
             // SECTION STATISTIQUES

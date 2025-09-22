@@ -4,12 +4,27 @@
     <div class="space-y-8">
         <!-- En-tête de page -->
         <div class="mb-8">
-            <div class="flex items-center space-x-4 mb-4">
-                <a href="<?php echo e(route('private.classes.index')); ?>"
-                   class="inline-flex items-center text-slate-600 hover:text-slate-900 transition-colors">
-                    <i class="fas fa-arrow-left mr-2"></i>
-                    Retour à la liste
-                </a>
+
+            <div class="mb-8">
+                <h1 class="text-3xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent">
+                    <?php echo e($classe->nom); ?></h1>
+                <nav class="flex mt-2" aria-label="Breadcrumb">
+                    <ol class="inline-flex items-center space-x-1 md:space-x-3">
+                        <li class="inline-flex items-center">
+                            <a href="<?php echo e(route('private.classes.index')); ?>"
+                                class="inline-flex items-center text-sm font-medium text-slate-700 hover:text-blue-600 transition-colors">
+                                <i class="fas fa-users  mr-2"></i>
+                                Classes
+                            </a>
+                        </li>
+                        <li>
+                            <div class="flex items-center">
+                                <i class="fas fa-chevron-right text-slate-400 mx-2"></i>
+                                <span class="text-sm font-medium text-slate-500">Détail </span>
+                            </div>
+                        </li>
+                    </ol>
+                </nav>
             </div>
 
             <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
@@ -20,32 +35,32 @@
                             <img src="<?php echo e(asset('storage/' . $classe->image_classe)); ?>" alt="<?php echo e($classe->nom); ?>"
                                 class="w-24 h-24 object-cover rounded-2xl shadow-lg">
                         <?php else: ?>
-                            <div class="w-24 h-24 bg-gradient-to-br from-blue-400 to-purple-500 rounded-2xl flex items-center justify-center shadow-lg">
+                            <div
+                                class="w-24 h-24 bg-gradient-to-br from-blue-400 to-purple-500 rounded-2xl flex items-center justify-center shadow-lg">
                                 <i class="fas fa-chalkboard-teacher text-3xl text-white"></i>
                             </div>
                         <?php endif; ?>
                     </div>
 
                     <div>
-                        <h1 class="text-3xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent">
-                            <?php echo e($classe->nom); ?>
-
-                        </h1>
 
                         <div class="flex items-center space-x-4 mt-2">
                             <?php if($classe->tranche_age): ?>
-                                <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
+                                <span
+                                    class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
                                     <?php echo e($classe->tranche_age); ?>
 
                                 </span>
                             <?php endif; ?>
 
                             <?php if($classe->responsables && count($classe->responsables) > 0): ?>
-                                <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
+                                <span
+                                    class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
                                     <i class="fas fa-check mr-1"></i> Active
                                 </span>
                             <?php else: ?>
-                                <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-yellow-100 text-yellow-800">
+                                <span
+                                    class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-yellow-100 text-yellow-800">
                                     <i class="fas fa-clock mr-1"></i> En attente
                                 </span>
                             <?php endif; ?>
@@ -73,7 +88,8 @@
                                 <i class="fas fa-download mr-2"></i> Exporter
                                 <i class="fas fa-chevron-down ml-2"></i>
                             </button>
-                            <div id="exportMenu" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border border-slate-200 z-10">
+                            <div id="exportMenu"
+                                class="hidden absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border border-slate-200 z-10">
                                 <div class="py-2">
                                     <a href="<?php echo e(route('private.classes.export', ['classe' => $classe, 'format' => 'csv'])); ?>"
                                         class="block px-4 py-2 text-sm text-slate-700 hover:bg-slate-100 transition-colors">
@@ -107,10 +123,12 @@
 
         <!-- Statistiques rapides -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            <div class="bg-white/80 rounded-2xl shadow-lg p-6 border border-white/20 hover:shadow-xl transition-all duration-300">
+            <div
+                class="bg-white/80 rounded-2xl shadow-lg p-6 border border-white/20 hover:shadow-xl transition-all duration-300">
                 <div class="flex items-center">
                     <div class="flex-shrink-0">
-                        <div class="w-12 h-12 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-xl flex items-center justify-center shadow-lg">
+                        <div
+                            class="w-12 h-12 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-xl flex items-center justify-center shadow-lg">
                             <i class="fas fa-users text-white text-xl"></i>
                         </div>
                     </div>
@@ -121,10 +139,12 @@
                 </div>
             </div>
 
-            <div class="bg-white/80 rounded-2xl shadow-lg p-6 border border-white/20 hover:shadow-xl transition-all duration-300">
+            <div
+                class="bg-white/80 rounded-2xl shadow-lg p-6 border border-white/20 hover:shadow-xl transition-all duration-300">
                 <div class="flex items-center">
                     <div class="flex-shrink-0">
-                        <div class="w-12 h-12 bg-gradient-to-r from-green-500 to-emerald-500 rounded-xl flex items-center justify-center shadow-lg">
+                        <div
+                            class="w-12 h-12 bg-gradient-to-r from-green-500 to-emerald-500 rounded-xl flex items-center justify-center shadow-lg">
                             <i class="fas fa-user-tie text-white text-xl"></i>
                         </div>
                     </div>
@@ -135,10 +155,12 @@
                 </div>
             </div>
 
-            <div class="bg-white/80 rounded-2xl shadow-lg p-6 border border-white/20 hover:shadow-xl transition-all duration-300">
+            <div
+                class="bg-white/80 rounded-2xl shadow-lg p-6 border border-white/20 hover:shadow-xl transition-all duration-300">
                 <div class="flex items-center">
                     <div class="flex-shrink-0">
-                        <div class="w-12 h-12 bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl flex items-center justify-center shadow-lg">
+                        <div
+                            class="w-12 h-12 bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl flex items-center justify-center shadow-lg">
                             <i class="fas fa-calendar text-white text-xl"></i>
                         </div>
                     </div>
@@ -159,10 +181,12 @@
                 </div>
             </div>
 
-            <div class="bg-white/80 rounded-2xl shadow-lg p-6 border border-white/20 hover:shadow-xl transition-all duration-300">
+            <div
+                class="bg-white/80 rounded-2xl shadow-lg p-6 border border-white/20 hover:shadow-xl transition-all duration-300">
                 <div class="flex items-center">
                     <div class="flex-shrink-0">
-                        <div class="w-12 h-12 bg-gradient-to-r from-yellow-500 to-orange-500 rounded-xl flex items-center justify-center shadow-lg">
+                        <div
+                            class="w-12 h-12 bg-gradient-to-r from-yellow-500 to-orange-500 rounded-xl flex items-center justify-center shadow-lg">
                             <i class="fas fa-book text-white text-xl"></i>
                         </div>
                     </div>
@@ -200,12 +224,15 @@
                                 <?php $__currentLoopData = $classe->responsables_collection; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $responsable): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                     <div class="flex items-center justify-between p-4 bg-slate-50 rounded-xl">
                                         <div class="flex items-center space-x-4">
-                                            <div class="w-12 h-12 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full flex items-center justify-center text-white font-semibold">
+                                            <div
+                                                class="w-12 h-12 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full flex items-center justify-center text-white font-semibold">
                                                 <?php echo e(substr($responsable->prenom, 0, 1)); ?><?php echo e(substr($responsable->nom, 0, 1)); ?>
 
                                             </div>
                                             <div>
-                                                <h3 class="font-semibold text-slate-900"><?php echo e($responsable->prenom); ?> <?php echo e($responsable->nom); ?></h3>
+                                                <h3 class="font-semibold text-slate-900"><?php echo e($responsable->prenom); ?>
+
+                                                    <?php echo e($responsable->nom); ?></h3>
 
                                                 <div class="flex items-center space-x-3 text-sm">
 
@@ -213,12 +240,14 @@
 
 
 
-                                                    <span class="inline-flex items-center px-2 py-1 rounded-lg text-xs font-medium bg-blue-100 text-blue-800">
+                                                    <span
+                                                        class="inline-flex items-center px-2 py-1 rounded-lg text-xs font-medium bg-blue-100 text-blue-800">
                                                         <?php echo e(ucfirst($responsable->responsabilite)); ?>
 
                                                     </span>
                                                     <?php if($responsable->superieur): ?>
-                                                        <span class="inline-flex items-center px-2 py-1 rounded-lg text-xs font-medium bg-yellow-100 text-yellow-800">
+                                                        <span
+                                                            class="inline-flex items-center px-2 py-1 rounded-lg text-xs font-medium bg-yellow-100 text-yellow-800">
                                                             <i class="fas fa-crown mr-1"></i> Supérieur
                                                         </span>
                                                     <?php endif; ?>
@@ -277,13 +306,17 @@
                         <?php if($classe->membres->count() > 0): ?>
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <?php $__currentLoopData = $classe->membres->take(6); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $membre): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                                    <div class="flex items-center space-x-3 p-3 bg-slate-50 rounded-lg hover:bg-slate-100 transition-colors">
-                                        <div class="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white font-semibold text-sm">
+                                    <div
+                                        class="flex items-center space-x-3 p-3 bg-slate-50 rounded-lg hover:bg-slate-100 transition-colors">
+                                        <div
+                                            class="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white font-semibold text-sm">
                                             <?php echo e(substr($membre->prenom, 0, 1)); ?><?php echo e(substr($membre->nom, 0, 1)); ?>
 
                                         </div>
                                         <div class="flex-1 min-w-0">
-                                            <p class="font-medium text-slate-900 truncate"><?php echo e($membre->prenom); ?> <?php echo e($membre->nom); ?></p>
+                                            <p class="font-medium text-slate-900 truncate"><?php echo e($membre->prenom); ?> <?php echo e($membre->nom); ?>
+
+                                            </p>
                                             <p class="text-sm text-slate-500 truncate"><?php echo e($membre->email); ?></p>
                                         </div>
                                         <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('classes.manage-members')): ?>
@@ -336,7 +369,8 @@
                             <div class="space-y-3">
                                 <?php $__currentLoopData = $classe->programme; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $index => $element): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                     <div class="flex items-start space-x-3">
-                                        <span class="inline-flex items-center justify-center w-6 h-6 bg-purple-100 text-purple-600 rounded-full text-xs font-medium mt-0.5">
+                                        <span
+                                            class="inline-flex items-center justify-center w-6 h-6 bg-purple-100 text-purple-600 rounded-full text-xs font-medium mt-0.5">
                                             <?php echo e($index + 1); ?>
 
                                         </span>
@@ -397,11 +431,13 @@
                             <div class="flex justify-between mb-2">
                                 <span class="text-slate-600">Statut:</span>
                                 <?php if($classe->responsables && count($classe->responsables) > 0): ?>
-                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                    <span
+                                        class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
                                         <i class="fas fa-check mr-1"></i> Active
                                     </span>
                                 <?php else: ?>
-                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                    <span
+                                        class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
                                         <i class="fas fa-clock mr-1"></i> En attente
                                     </span>
                                 <?php endif; ?>
@@ -445,7 +481,8 @@
                             <form action="<?php echo e(route('private.classes.archive', $classe)); ?>" method="POST" class="block">
                                 <?php echo csrf_field(); ?>
                                 <?php echo method_field('PATCH'); ?>
-                                <button type="submit" onclick="return confirm('Êtes-vous sûr de vouloir archiver cette classe ?')"
+                                <button type="submit"
+                                    onclick="return confirm('Êtes-vous sûr de vouloir archiver cette classe ?')"
                                     class="w-full px-4 py-3 bg-amber-50 hover:bg-amber-100 text-amber-700 rounded-lg transition-colors">
                                     <i class="fas fa-archive mr-2"></i> Archiver la classe
                                 </button>
@@ -468,12 +505,14 @@
 
     <!-- Modals -->
     <!-- Modal de gestion des responsables -->
-    <div id="manageResponsablesModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center p-4">
+    <div id="manageResponsablesModal"
+        class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl shadow-xl max-w-2xl w-full max-h-[80vh] overflow-y-auto">
             <div class="p-6 border-b border-slate-200">
                 <div class="flex items-center justify-between">
                     <h3 class="text-lg font-semibold text-slate-900">Gérer les responsables</h3>
-                    <button type="button" onclick="closeManageResponsablesModal()" class="text-slate-400 hover:text-slate-600">
+                    <button type="button" onclick="closeManageResponsablesModal()"
+                        class="text-slate-400 hover:text-slate-600">
                         <i class="fas fa-times text-xl"></i>
                     </button>
                 </div>
@@ -502,7 +541,8 @@
     </div>
 
     <!-- Modal de liste des membres -->
-    <div id="membersListModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center p-4">
+    <div id="membersListModal"
+        class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl shadow-xl max-w-4xl w-full max-h-[80vh] overflow-y-auto">
             <div class="p-6 border-b border-slate-200">
                 <div class="flex items-center justify-between">
@@ -527,7 +567,7 @@
         }
 
         // Fermer le menu d'export si on clique ailleurs
-        document.addEventListener('click', function(e) {
+        document.addEventListener('click', function (e) {
             const menu = document.getElementById('exportMenu');
             const button = e.target.closest('button');
 
@@ -570,328 +610,317 @@
             document.body.classList.remove('overflow-hidden');
         }
 
-        // Chargement du contenu des modals
-        // function loadManageResponsablesContent() {
-        //     const content = document.getElementById('manageResponsablesContent');
-        //     content.innerHTML = `
-        //         <div class="text-center py-8">
-        //             <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
-        //             <p class="mt-2 text-slate-600">Chargement...</p>
-        //         </div>
-        //     `;
-        //     // Ici vous pourriez charger le contenu via AJAX
-        // }
 
         // Chargement du contenu des modals
-function loadManageResponsablesContent() {
-    const content = document.getElementById('manageResponsablesContent');
-    content.innerHTML = `
-        <div class="text-center py-8">
-            <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
-            <p class="mt-2 text-slate-600">Chargement des membres...</p>
-        </div>
-    `;
-
-    // Charger les membres pour la gestion des responsables
-    fetch(`<?php echo e(route('private.classes.getMembresForResponsables', $classe)); ?>`, {
-        headers: {
-            'Accept': 'application/json',
-            'X-Requested-With': 'XMLHttpRequest',
-            'X-CSRF-TOKEN': '<?php echo e(csrf_token()); ?>',
-        }
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            content.innerHTML = generateManageResponsablesContent(data.data);
-        } else {
+        function loadManageResponsablesContent() {
+            const content = document.getElementById('manageResponsablesContent');
             content.innerHTML = `
+            <div class="text-center py-8">
+                <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+                <p class="mt-2 text-slate-600">Chargement des membres...</p>
+            </div>
+        `;
+
+            // Charger les membres pour la gestion des responsables
+            fetch(`<?php echo e(route('private.classes.getMembresForResponsables', $classe)); ?>`, {
+                headers: {
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRF-TOKEN': '<?php echo e(csrf_token()); ?>',
+                }
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        content.innerHTML = generateManageResponsablesContent(data.data);
+                    } else {
+                        content.innerHTML = `
+                    <div class="text-center py-8">
+                        <i class="fas fa-exclamation-triangle text-3xl text-red-400 mb-3"></i>
+                        <p class="text-red-600">Erreur lors du chargement</p>
+                    </div>
+                `;
+                    }
+                })
+                .catch(error => {
+                    console.error('Erreur:', error);
+                    content.innerHTML = `
                 <div class="text-center py-8">
                     <i class="fas fa-exclamation-triangle text-3xl text-red-400 mb-3"></i>
                     <p class="text-red-600">Erreur lors du chargement</p>
                 </div>
             `;
+                });
         }
-    })
-    .catch(error => {
-        console.error('Erreur:', error);
-        content.innerHTML = `
-            <div class="text-center py-8">
-                <i class="fas fa-exclamation-triangle text-3xl text-red-400 mb-3"></i>
-                <p class="text-red-600">Erreur lors du chargement</p>
-            </div>
-        `;
-    });
-}
 
 
-// Générer le contenu pour la gestion des responsables
-function generateManageResponsablesContent(data) {
-    const { membres, types_responsabilite } = data;
-    const membersList = Array.isArray(membres) ? membres : membres.data;
+        // Générer le contenu pour la gestion des responsables
+        function generateManageResponsablesContent(data) {
+            const { membres, types_responsabilite } = data;
+            const membersList = Array.isArray(membres) ? membres : membres.data;
 
-    if (!membersList || membersList.length === 0) {
-        return `
-            <div class="text-center py-8">
-                <i class="fas fa-users text-3xl text-slate-400 mb-3"></i>
-                <p class="text-slate-500">Aucun membre dans cette classe</p>
-            </div>
-        `;
-    }
+            if (!membersList || membersList.length === 0) {
+                return `
+                <div class="text-center py-8">
+                    <i class="fas fa-users text-3xl text-slate-400 mb-3"></i>
+                    <p class="text-slate-500">Aucun membre dans cette classe</p>
+                </div>
+            `;
+            }
 
-    let html = `
-        <!-- Barre de recherche -->
-        <div class="mb-6">
-            <div class="relative">
-                <input type="text" id="searchMembres" placeholder="Rechercher un membre..." onkeyup="searchMembres()"
-                    class="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <i class="fas fa-search text-slate-400"></i>
+            let html = `
+            <!-- Barre de recherche -->
+            <div class="mb-6">
+                <div class="relative">
+                    <input type="text" id="searchMembres" placeholder="Rechercher un membre..." onkeyup="searchMembres()"
+                        class="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <i class="fas fa-search text-slate-400"></i>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Liste des membres -->
-        <div class="space-y-3 max-h-96 overflow-y-auto" id="membresList">
-    `;
+            <!-- Liste des membres -->
+            <div class="space-y-3 max-h-96 overflow-y-auto" id="membresList">
+        `;
 
-    membersList.forEach(membre => {
-        const typesOptions = types_responsabilite.map(type =>
-            `<option value="${type}" ${membre.responsabilite === type ? 'selected' : ''}>${type.charAt(0).toUpperCase() + type.slice(1)}</option>`
-        ).join('');
+            membersList.forEach(membre => {
+                const typesOptions = types_responsabilite.map(type =>
+                    `<option value="${type}" ${membre.responsabilite === type ? 'selected' : ''}>${type.charAt(0).toUpperCase() + type.slice(1)}</option>`
+                ).join('');
 
-        html += `
-            <div class="membre-item flex items-center justify-between p-4 bg-slate-50 rounded-xl hover:bg-slate-100 transition-colors" data-membre-nom="${membre.prenom.toLowerCase()} ${membre.nom.toLowerCase()}" data-membre-email="${membre?.email?.toLowerCase()}">
-                <div class="flex items-center space-x-3">
-                    <div class="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white font-semibold text-sm">
-                        ${membre.prenom.charAt(0)}${membre.nom.charAt(0)}
+                html += `
+                <div class="membre-item flex items-center justify-between p-4 bg-slate-50 rounded-xl hover:bg-slate-100 transition-colors" data-membre-nom="${membre.prenom.toLowerCase()} ${membre.nom.toLowerCase()}" data-membre-email="${membre?.email?.toLowerCase()}">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white font-semibold text-sm">
+                            ${membre.prenom.charAt(0)}${membre.nom.charAt(0)}
+                        </div>
+                        <div>
+                            <p class="font-semibold text-slate-900">${membre.prenom} ${membre.nom}</p>
+                            <p class="text-sm text-slate-500">${membre.email ?? 'Aucun email disponible'}</p>
+                            ${membre.is_responsable ? `
+                                <span class="inline-flex items-center px-2 py-1 rounded-lg text-xs font-medium bg-green-100 text-green-800 mt-1">
+                                    <i class="fas fa-user-tie mr-1"></i> ${membre.responsabilite}
+                                    ${membre.superieur ? ' (Supérieur)' : ''}
+                                </span>
+                            ` : ''}
+                        </div>
                     </div>
-                    <div>
-                        <p class="font-semibold text-slate-900">${membre.prenom} ${membre.nom}</p>
-                        <p class="text-sm text-slate-500">${membre.email ?? 'Aucun email disponible'}</p>
+
+                    <div class="flex items-center space-x-2">
                         ${membre.is_responsable ? `
-                            <span class="inline-flex items-center px-2 py-1 rounded-lg text-xs font-medium bg-green-100 text-green-800 mt-1">
-                                <i class="fas fa-user-tie mr-1"></i> ${membre.responsabilite}
-                                ${membre.superieur ? ' (Supérieur)' : ''}
-                            </span>
-                        ` : ''}
+                            <!-- Membre responsable : options de modification -->
+                            <select onchange="updateResponsabilite('${membre.id}', this.value, ${membre.superieur})"
+                                class="text-sm border border-slate-300 rounded-lg px-2 py-1 focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                ${typesOptions}
+                            </select>
+
+                            <label class="flex items-center">
+                                <input type="checkbox" ${membre.superieur ? 'checked' : ''}
+                                    onchange="toggleSuperieur('${membre.id}', '${membre.responsabilite}', this.checked)"
+                                    class="w-4 h-4 text-blue-600 bg-white border-gray-300 rounded focus:ring-blue-500 mr-2">
+                                <span class="text-xs text-slate-600">Supérieur</span>
+                            </label>
+
+                            <button onclick="removeResponsabilite('${membre.id}')"
+                                class="inline-flex items-center justify-center w-8 h-8 text-red-600 bg-red-100 rounded-lg hover:bg-red-200 transition-colors"
+                                title="Retirer la responsabilité">
+                                <i class="fas fa-times text-sm"></i>
+                            </button>
+                        ` : `
+                            <!-- Membre normal : option d'ajout -->
+                            <select id="responsabilite_${membre.id}"
+                                class="text-sm border border-slate-300 rounded-lg px-2 py-1 focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                <option value="">Choisir une responsabilité</option>
+                                ${types_responsabilite.map(type => `<option value="${type}">${type.charAt(0).toUpperCase() + type.slice(1)}</option>`).join('')}
+                            </select>
+
+                            <label class="flex items-center">
+                                <input type="checkbox" id="superieur_${membre.id}"
+                                    class="w-4 h-4 text-blue-600 bg-white border-gray-300 rounded focus:ring-blue-500 mr-2">
+                                <span class="text-xs text-slate-600">Supérieur</span>
+                            </label>
+
+                            <button onclick="addResponsabilite('${membre.id}')"
+                                class="inline-flex items-center justify-center w-8 h-8 text-green-600 bg-green-100 rounded-lg hover:bg-green-200 transition-colors"
+                                title="Ajouter une responsabilité">
+                                <i class="fas fa-plus text-sm"></i>
+                            </button>
+                        `}
                     </div>
                 </div>
+            `;
+            });
 
-                <div class="flex items-center space-x-2">
-                    ${membre.is_responsable ? `
-                        <!-- Membre responsable : options de modification -->
-                        <select onchange="updateResponsabilite('${membre.id}', this.value, ${membre.superieur})"
-                            class="text-sm border border-slate-300 rounded-lg px-2 py-1 focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                            ${typesOptions}
-                        </select>
+            html += '</div>';
 
-                        <label class="flex items-center">
-                            <input type="checkbox" ${membre.superieur ? 'checked' : ''}
-                                onchange="toggleSuperieur('${membre.id}', '${membre.responsabilite}', this.checked)"
-                                class="w-4 h-4 text-blue-600 bg-white border-gray-300 rounded focus:ring-blue-500 mr-2">
-                            <span class="text-xs text-slate-600">Supérieur</span>
-                        </label>
-
-                        <button onclick="removeResponsabilite('${membre.id}')"
-                            class="inline-flex items-center justify-center w-8 h-8 text-red-600 bg-red-100 rounded-lg hover:bg-red-200 transition-colors"
-                            title="Retirer la responsabilité">
-                            <i class="fas fa-times text-sm"></i>
-                        </button>
-                    ` : `
-                        <!-- Membre normal : option d'ajout -->
-                        <select id="responsabilite_${membre.id}"
-                            class="text-sm border border-slate-300 rounded-lg px-2 py-1 focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                            <option value="">Choisir une responsabilité</option>
-                            ${types_responsabilite.map(type => `<option value="${type}">${type.charAt(0).toUpperCase() + type.slice(1)}</option>`).join('')}
-                        </select>
-
-                        <label class="flex items-center">
-                            <input type="checkbox" id="superieur_${membre.id}"
-                                class="w-4 h-4 text-blue-600 bg-white border-gray-300 rounded focus:ring-blue-500 mr-2">
-                            <span class="text-xs text-slate-600">Supérieur</span>
-                        </label>
-
-                        <button onclick="addResponsabilite('${membre.id}')"
-                            class="inline-flex items-center justify-center w-8 h-8 text-green-600 bg-green-100 rounded-lg hover:bg-green-200 transition-colors"
-                            title="Ajouter une responsabilité">
-                            <i class="fas fa-plus text-sm"></i>
-                        </button>
-                    `}
+            // Ajouter la pagination si nécessaire
+            if (!Array.isArray(membres) && membres.links) {
+                html += `
+                <div class="mt-4 flex justify-center">
+                    <!-- Pagination sera ajoutée ici si nécessaire -->
                 </div>
-            </div>
-        `;
-    });
+            `;
+            }
 
-    html += '</div>';
-
-    // Ajouter la pagination si nécessaire
-    if (!Array.isArray(membres) && membres.links) {
-        html += `
-            <div class="mt-4 flex justify-center">
-                <!-- Pagination sera ajoutée ici si nécessaire -->
-            </div>
-        `;
-    }
-
-    return html;
-}
-
-
-
-// Fonction de recherche des membres
-function searchMembres() {
-    const searchTerm = document.getElementById('searchMembres').value.toLowerCase();
-    const membreItems = document.querySelectorAll('.membre-item');
-
-    membreItems.forEach(item => {
-        const membreNom = item.getAttribute('data-membre-nom');
-        const membreEmail = item.getAttribute('data-membre-email');
-
-        if (membreNom.includes(searchTerm) || membreEmail.includes(searchTerm)) {
-            item.style.display = 'flex';
-        } else {
-            item.style.display = 'none';
+            return html;
         }
-    });
-}
-
-// Ajouter une responsabilité
-function addResponsabilite(userId) {
-    const responsabiliteSelect = document.getElementById(`responsabilite_${userId}`);
-    const superieurCheckbox = document.getElementById(`superieur_${userId}`);
-
-    const responsabilite = responsabiliteSelect.value;
-    const superieur = superieurCheckbox.checked;
-
-    if (!responsabilite) {
-        showErrorMessage('Veuillez sélectionner une responsabilité');
-        return;
-    }
-
-    updateResponsabiliteApi(userId, 'add', responsabilite, superieur);
-}
 
 
-// Mettre à jour une responsabilité
-function updateResponsabilite(userId, responsabilite, superieur) {
-    updateResponsabiliteApi(userId, 'update', responsabilite, superieur);
-}
 
+        // Fonction de recherche des membres
+        function searchMembres() {
+            const searchTerm = document.getElementById('searchMembres').value.toLowerCase();
+            const membreItems = document.querySelectorAll('.membre-item');
 
-// Basculer le statut supérieur
-function toggleSuperieur(userId, responsabilite, superieur) {
-    updateResponsabiliteApi(userId, 'update', responsabilite, superieur);
-}
+            membreItems.forEach(item => {
+                const membreNom = item.getAttribute('data-membre-nom');
+                const membreEmail = item.getAttribute('data-membre-email');
 
-// Retirer une responsabilité
-function removeResponsabilite(userId) {
-    if (!confirm('Êtes-vous sûr de vouloir retirer cette responsabilité ?')) {
-        return;
-    }
-
-    updateResponsabiliteApi(userId, 'remove');
-}
-
-
-// API pour mettre à jour les responsabilités
-function updateResponsabiliteApi(userId, action, responsabilite = null, superieur = false) {
-    const payload = {
-        user_id: userId,
-        action: action
-    };
-
-    if (responsabilite) {
-        payload.responsabilite = responsabilite;
-    }
-
-    if (superieur !== undefined) {
-        payload.superieur = superieur;
-    }
-
-    fetch(`<?php echo e(route('private.classes.updateResponsabilite', $classe)); ?>`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json',
-            'X-CSRF-TOKEN': '<?php echo e(csrf_token()); ?>',
-            'X-Requested-With': 'XMLHttpRequest'
-        },
-        body: JSON.stringify(payload)
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            showSuccessMessage(data.message || 'Responsabilité mise à jour avec succès');
-            // Recharger le contenu de la modal
-            loadManageResponsablesContent();
-            // Optionnellement recharger la page après un délai
-            setTimeout(() => location.reload(), 1500);
-        } else {
-            showErrorMessage(data.message || 'Erreur lors de la mise à jour');
+                if (membreNom.includes(searchTerm) || membreEmail.includes(searchTerm)) {
+                    item.style.display = 'flex';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
         }
-    })
-    .catch(error => {
-        console.error('Erreur:', error);
-        showErrorMessage('Une erreur est survenue');
-    });
-}
 
+        // Ajouter une responsabilité
+        function addResponsabilite(userId) {
+            const responsabiliteSelect = document.getElementById(`responsabilite_${userId}`);
+            const superieurCheckbox = document.getElementById(`superieur_${userId}`);
 
-function loadAddMembersContent() {
-    const content = document.getElementById('addMembersContent');
-    content.innerHTML = `
-        <div class="text-center py-8">
-            <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
-            <p class="mt-2 text-slate-600">Chargement des utilisateurs disponibles...</p>
-        </div>
-    `;
+            const responsabilite = responsabiliteSelect.value;
+            const superieur = superieurCheckbox.checked;
 
-    // Charger les utilisateurs disponibles
-    fetch(`<?php echo e(route('private.classes.getUtilisateursDisponibles', $classe)); ?>`, {
-        headers: {
-            'Accept': 'application/json',
-            'X-Requested-With': 'XMLHttpRequest',
-            'X-CSRF-TOKEN': '<?php echo e(csrf_token()); ?>',
+            if (!responsabilite) {
+                showErrorMessage('Veuillez sélectionner une responsabilité');
+                return;
+            }
+
+            updateResponsabiliteApi(userId, 'add', responsabilite, superieur);
         }
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            content.innerHTML = generateAddMembersContent(data.data.utilisateurs);
-            // Initialiser le compteur après le chargement du contenu
-            setTimeout(() => {
-                updateSelectedCount();
-                updateSelectAllState();
-            }, 100);
-        } else {
+
+
+        // Mettre à jour une responsabilité
+        function updateResponsabilite(userId, responsabilite, superieur) {
+            updateResponsabiliteApi(userId, 'update', responsabilite, superieur);
+        }
+
+
+        // Basculer le statut supérieur
+        function toggleSuperieur(userId, responsabilite, superieur) {
+            updateResponsabiliteApi(userId, 'update', responsabilite, superieur);
+        }
+
+        // Retirer une responsabilité
+        function removeResponsabilite(userId) {
+            if (!confirm('Êtes-vous sûr de vouloir retirer cette responsabilité ?')) {
+                return;
+            }
+
+            updateResponsabiliteApi(userId, 'remove');
+        }
+
+
+        // API pour mettre à jour les responsabilités
+        function updateResponsabiliteApi(userId, action, responsabilite = null, superieur = false) {
+            const payload = {
+                user_id: userId,
+                action: action
+            };
+
+            if (responsabilite) {
+                payload.responsabilite = responsabilite;
+            }
+
+            if (superieur !== undefined) {
+                payload.superieur = superieur;
+            }
+
+            fetch(`<?php echo e(route('private.classes.updateResponsabilite', $classe)); ?>`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': '<?php echo e(csrf_token()); ?>',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: JSON.stringify(payload)
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showSuccessMessage(data.message || 'Responsabilité mise à jour avec succès');
+                        // Recharger le contenu de la modal
+                        loadManageResponsablesContent();
+                        // Optionnellement recharger la page après un délai
+                        setTimeout(() => location.reload(), 1500);
+                    } else {
+                        showErrorMessage(data.message || 'Erreur lors de la mise à jour');
+                    }
+                })
+                .catch(error => {
+                    console.error('Erreur:', error);
+                    showErrorMessage('Une erreur est survenue');
+                });
+        }
+
+
+        function loadAddMembersContent() {
+            const content = document.getElementById('addMembersContent');
             content.innerHTML = `
+            <div class="text-center py-8">
+                <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+                <p class="mt-2 text-slate-600">Chargement des utilisateurs disponibles...</p>
+            </div>
+        `;
+
+            // Charger les utilisateurs disponibles
+            fetch(`<?php echo e(route('private.classes.getUtilisateursDisponibles', $classe)); ?>`, {
+                headers: {
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRF-TOKEN': '<?php echo e(csrf_token()); ?>',
+                }
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        content.innerHTML = generateAddMembersContent(data.data.utilisateurs);
+                        // Initialiser le compteur après le chargement du contenu
+                        setTimeout(() => {
+                            updateSelectedCount();
+                            updateSelectAllState();
+                        }, 100);
+                    } else {
+                        content.innerHTML = `
+                    <div class="text-center py-8">
+                        <i class="fas fa-exclamation-triangle text-3xl text-red-400 mb-3"></i>
+                        <p class="text-red-600">Erreur lors du chargement</p>
+                    </div>
+                `;
+                    }
+                })
+                .catch(error => {
+                    console.error('Erreur:', error);
+                    content.innerHTML = `
                 <div class="text-center py-8">
                     <i class="fas fa-exclamation-triangle text-3xl text-red-400 mb-3"></i>
                     <p class="text-red-600">Erreur lors du chargement</p>
                 </div>
             `;
+                });
         }
-    })
-    .catch(error => {
-        console.error('Erreur:', error);
-        content.innerHTML = `
-            <div class="text-center py-8">
-                <i class="fas fa-exclamation-triangle text-3xl text-red-400 mb-3"></i>
-                <p class="text-red-600">Erreur lors du chargement</p>
-            </div>
-        `;
-    });
-}
 
         function loadMembersListContent() {
             const content = document.getElementById('membersListContent');
             content.innerHTML = `
-                <div class="text-center py-8">
-                    <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
-                    <p class="mt-2 text-slate-600">Chargement des membres...</p>
-                </div>
-            `;
+                    <div class="text-center py-8">
+                        <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+                        <p class="mt-2 text-slate-600">Chargement des membres...</p>
+                    </div>
+                `;
 
             // Charger la liste complète des membres
             fetch(`<?php echo e(route('private.classes.members', $classe)); ?>`, {
@@ -901,329 +930,260 @@ function loadAddMembersContent() {
                     'X-CSRF-TOKEN': '<?php echo e(csrf_token()); ?>',
                 }
             })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    content.innerHTML = generateMembersListContent(data.data.membres);
-                } else {
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        content.innerHTML = generateMembersListContent(data.data.membres);
+                    } else {
+                        content.innerHTML = `
+                            <div class="text-center py-8">
+                                <i class="fas fa-exclamation-triangle text-3xl text-red-400 mb-3"></i>
+                                <p class="text-red-600">Erreur lors du chargement</p>
+                            </div>
+                        `;
+                    }
+                })
+                .catch(error => {
+                    console.error('Erreur:', error);
                     content.innerHTML = `
                         <div class="text-center py-8">
                             <i class="fas fa-exclamation-triangle text-3xl text-red-400 mb-3"></i>
                             <p class="text-red-600">Erreur lors du chargement</p>
                         </div>
                     `;
-                }
-            })
-            .catch(error => {
-                console.error('Erreur:', error);
-                content.innerHTML = `
-                    <div class="text-center py-8">
-                        <i class="fas fa-exclamation-triangle text-3xl text-red-400 mb-3"></i>
-                        <p class="text-red-600">Erreur lors du chargement</p>
-                    </div>
-                `;
-            });
+                });
         }
 
-        // Générer le contenu pour l'ajout de membres
-        // function generateAddMembersContent(utilisateurs) {
-        //     if (!utilisateurs || (Array.isArray(utilisateurs) ? utilisateurs.length === 0 : utilisateurs.data.length === 0)) {
-        //         return `
-        //             <div class="text-center py-8">
-        //                 <i class="fas fa-users text-3xl text-slate-400 mb-3"></i>
-        //                 <p class="text-slate-500">Aucun utilisateur disponible pour inscription</p>
-        //             </div>
-        //         `;
-        //     }
-
-        //     const users = Array.isArray(utilisateurs) ? utilisateurs : utilisateurs.data;
-        //     let html = `
-        //         <form id="addMembersForm" onsubmit="submitAddMembers(event)">
-        //             <div class="mb-4">
-        //                 <label class="block text-sm font-medium text-slate-700 mb-2">
-        //                     Sélectionner les utilisateurs à ajouter:
-        //                 </label>
-        //                 <div class="max-h-60 overflow-y-auto border border-slate-200 rounded-lg">
-        //                     <div class="p-3 border-b border-slate-200 bg-slate-50">
-        //                         <label class="flex items-center">
-        //                             <input type="checkbox" id="selectAll" onchange="toggleSelectAll()"
-        //                                 class="w-4 h-4 text-blue-600 bg-white border-gray-300 rounded focus:ring-blue-500 mr-3">
-        //                             <span class="font-medium text-slate-700">Sélectionner tout</span>
-        //                         </label>
-        //                     </div>
-        //     `;
-
-        //     users.forEach(user => {
-        //         html += `
-        //             <div class="p-3 border-b border-slate-100 hover:bg-slate-50">
-        //                 <label class="flex items-center">
-        //                     <input type="checkbox" name="user_ids[]" value="${user.id}"
-        //                         class="w-4 h-4 text-blue-600 bg-white border-gray-300 rounded focus:ring-blue-500 mr-3 user-checkbox">
-        //                     <div class="flex items-center space-x-3 flex-1">
-        //                         <div class="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white font-semibold text-xs">
-        //                             ${user.prenom.charAt(0)}${user.nom.charAt(0)}
-        //                         </div>
-        //                         <div>
-        //                             <p class="font-medium text-slate-900">${user.prenom} ${user.nom}</p>
-        //                             <p class="text-sm text-slate-500">${user.email ?? 'Aucun email disponible'}</p>
-        //                             ${user.age ? `<p class="text-xs text-slate-400">${user.age} ans</p>` : ''}
-        //                         </div>
-        //                     </div>
-        //                     ${!user.age_compatible ? '<span class="text-xs text-amber-600 bg-amber-100 px-2 py-1 rounded">Âge incompatible</span>' : ''}
-        //                 </label>
-        //             </div>
-        //         `;
-        //     });
-
-        //     html += `
-        //                 </div>
-        //             </div>
-        //             <div class="flex items-center justify-between">
-        //                 <label class="flex items-center">
-        //                     <input type="checkbox" name="force_age_check" value="1"
-        //                         class="w-4 h-4 text-blue-600 bg-white border-gray-300 rounded focus:ring-blue-500 mr-2">
-        //                     <span class="text-sm text-slate-600">Forcer l'ajout même si l'âge est incompatible</span>
-        //                 </label>
-        //                 <button type="submit"
-        //                     class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
-        //                     Ajouter les membres sélectionnés
-        //                 </button>
-        //             </div>
-        //         </form>
-        //     `;
-
-        //     return html;
-        // }
 
         // Générer le contenu pour l'ajout de membres
-function generateAddMembersContent(utilisateurs) {
-    if (!utilisateurs || (Array.isArray(utilisateurs) ? utilisateurs.length === 0 : utilisateurs.data.length === 0)) {
-        return `
-            <div class="text-center py-8">
-                <i class="fas fa-users text-3xl text-slate-400 mb-3"></i>
-                <p class="text-slate-500">Aucun utilisateur disponible pour inscription</p>
-            </div>
-        `;
-    }
-
-    const users = Array.isArray(utilisateurs) ? utilisateurs : utilisateurs.data;
-    let html = `
-        <form id="addMembersForm" onsubmit="submitAddMembers(event)">
-            <!-- Barre de recherche -->
-            <div class="mb-4">
-                <div class="relative">
-                    <input type="text" id="searchUtilisateurs" placeholder="Rechercher un utilisateur..." onkeyup="searchUtilisateurs()"
-                        class="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <i class="fas fa-search text-slate-400"></i>
-                    </div>
+        function generateAddMembersContent(utilisateurs) {
+            if (!utilisateurs || (Array.isArray(utilisateurs) ? utilisateurs.length === 0 : utilisateurs.data.length === 0)) {
+                return `
+                <div class="text-center py-8">
+                    <i class="fas fa-users text-3xl text-slate-400 mb-3"></i>
+                    <p class="text-slate-500">Aucun utilisateur disponible pour inscription</p>
                 </div>
-            </div>
+            `;
+            }
 
-            <div class="mb-4">
-                <label class="block text-sm font-medium text-slate-700 mb-2">
-                    Sélectionner les utilisateurs à ajouter:
-                </label>
-                <div class="max-h-60 overflow-y-auto border border-slate-200 rounded-lg">
-                    <div class="p-3 border-b border-slate-200 bg-slate-50">
-                        <label class="flex items-center">
-                            <input type="checkbox" id="selectAll" onchange="toggleSelectAll()"
-                                class="w-4 h-4 text-blue-600 bg-white border-gray-300 rounded focus:ring-blue-500 mr-3">
-                            <span class="font-medium text-slate-700">Sélectionner tout</span>
-                        </label>
-                    </div>
-                    <div id="utilisateursList">
-    `;
-
-    users.forEach(user => {
-        html += `
-            <div class="utilisateur-item p-3 border-b border-slate-100 hover:bg-slate-50"
-                 data-user-nom="${user.prenom.toLowerCase()} ${user.nom.toLowerCase()}"
-                 data-user-email="${user?.email?.toLowerCase()}">
-                <label class="flex items-center">
-                    <input type="checkbox" name="user_ids[]" value="${user.id}"
-                        class="w-4 h-4 text-blue-600 bg-white border-gray-300 rounded focus:ring-blue-500 mr-3 user-checkbox">
-                    <div class="flex items-center space-x-3 flex-1">
-                        <div class="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white font-semibold text-xs">
-                            ${user.prenom.charAt(0)}${user.nom.charAt(0)}
-                        </div>
-                        <div>
-                            <p class="font-medium text-slate-900">${user.prenom} ${user.nom}</p>
-                            <p class="text-sm text-slate-500">${user.email?? 'Aucun email disponible'}</p>
-                            ${user.age ? `<p class="text-xs text-slate-400">${user.age} ans</p>` : ''}
+            const users = Array.isArray(utilisateurs) ? utilisateurs : utilisateurs.data;
+            let html = `
+            <form id="addMembersForm" onsubmit="submitAddMembers(event)">
+                <!-- Barre de recherche -->
+                <div class="mb-4">
+                    <div class="relative">
+                        <input type="text" id="searchUtilisateurs" placeholder="Rechercher un utilisateur..." onkeyup="searchUtilisateurs()"
+                            class="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i class="fas fa-search text-slate-400"></i>
                         </div>
                     </div>
-                    ${!user.age_compatible ? '<span class="text-xs text-amber-600 bg-amber-100 px-2 py-1 rounded">Âge incompatible</span>' : ''}
-                </label>
-            </div>
-        `;
-    });
-
-    html += `
-                    </div>
                 </div>
-            </div>
 
-            <!-- Filtres supplémentaires -->
-            <div class="mb-4 p-3 bg-slate-50 rounded-lg">
-                <div class="flex items-center justify-between text-sm">
-                    <label class="flex items-center">
-                        <input type="checkbox" id="filterAgeCompatible" onchange="filterByAgeCompatibility()"
-                            class="w-4 h-4 text-blue-600 bg-white border-gray-300 rounded focus:ring-blue-500 mr-2">
-                        <span class="text-slate-600">Afficher uniquement les âges compatibles</span>
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-slate-700 mb-2">
+                        Sélectionner les utilisateurs à ajouter:
                     </label>
-                    <span id="selectedCount" class="text-slate-500">0 sélectionné(s)</span>
+                    <div class="max-h-60 overflow-y-auto border border-slate-200 rounded-lg">
+                        <div class="p-3 border-b border-slate-200 bg-slate-50">
+                            <label class="flex items-center">
+                                <input type="checkbox" id="selectAll" onchange="toggleSelectAll()"
+                                    class="w-4 h-4 text-blue-600 bg-white border-gray-300 rounded focus:ring-blue-500 mr-3">
+                                <span class="font-medium text-slate-700">Sélectionner tout</span>
+                            </label>
+                        </div>
+                        <div id="utilisateursList">
+        `;
+
+            users.forEach(user => {
+                html += `
+                <div class="utilisateur-item p-3 border-b border-slate-100 hover:bg-slate-50"
+                     data-user-nom="${user.prenom.toLowerCase()} ${user.nom.toLowerCase()}"
+                     data-user-email="${user?.email?.toLowerCase()}">
+                    <label class="flex items-center">
+                        <input type="checkbox" name="user_ids[]" value="${user.id}"
+                            class="w-4 h-4 text-blue-600 bg-white border-gray-300 rounded focus:ring-blue-500 mr-3 user-checkbox">
+                        <div class="flex items-center space-x-3 flex-1">
+                            <div class="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white font-semibold text-xs">
+                                ${user.prenom.charAt(0)}${user.nom.charAt(0)}
+                            </div>
+                            <div>
+                                <p class="font-medium text-slate-900">${user.prenom} ${user.nom}</p>
+                                <p class="text-sm text-slate-500">${user.email ?? 'Aucun email disponible'}</p>
+                                ${user.age ? `<p class="text-xs text-slate-400">${user.age} ans</p>` : ''}
+                            </div>
+                        </div>
+                        ${!user.age_compatible ? '<span class="text-xs text-amber-600 bg-amber-100 px-2 py-1 rounded">Âge incompatible</span>' : ''}
+                    </label>
                 </div>
-            </div>
+            `;
+            });
 
-            <div class="flex items-center justify-between">
-                <label class="flex items-center">
-                    <input type="checkbox" name="force_age_check" value="1"
-                        class="w-4 h-4 text-blue-600 bg-white border-gray-300 rounded focus:ring-blue-500 mr-2">
-                    <span class="text-sm text-slate-600">Forcer l'ajout même si l'âge est incompatible</span>
-                </label>
-                <button type="submit"
-                    class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
-                    Ajouter les membres sélectionnés
-                </button>
-            </div>
-        </form>
-    `;
+            html += `
+                        </div>
+                    </div>
+                </div>
 
-    return html;
-}
+                <!-- Filtres supplémentaires -->
+                <div class="mb-4 p-3 bg-slate-50 rounded-lg">
+                    <div class="flex items-center justify-between text-sm">
+                        <label class="flex items-center">
+                            <input type="checkbox" id="filterAgeCompatible" onchange="filterByAgeCompatibility()"
+                                class="w-4 h-4 text-blue-600 bg-white border-gray-300 rounded focus:ring-blue-500 mr-2">
+                            <span class="text-slate-600">Afficher uniquement les âges compatibles</span>
+                        </label>
+                        <span id="selectedCount" class="text-slate-500">0 sélectionné(s)</span>
+                    </div>
+                </div>
 
+                <div class="flex items-center justify-between">
+                    <label class="flex items-center">
+                        <input type="checkbox" name="force_age_check" value="1"
+                            class="w-4 h-4 text-blue-600 bg-white border-gray-300 rounded focus:ring-blue-500 mr-2">
+                        <span class="text-sm text-slate-600">Forcer l'ajout même si l'âge est incompatible</span>
+                    </label>
+                    <button type="submit"
+                        class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                        Ajouter les membres sélectionnés
+                    </button>
+                </div>
+            </form>
+        `;
 
-
-// Fonction de recherche des utilisateurs
-function searchUtilisateurs() {
-    const searchTerm = document.getElementById('searchUtilisateurs').value.toLowerCase();
-    const utilisateurItems = document.querySelectorAll('.utilisateur-item');
-    let visibleCount = 0;
-
-    utilisateurItems.forEach(item => {
-        const userNom = item.getAttribute('data-user-nom');
-        const userEmail = item.getAttribute('data-user-email');
-
-        if (userNom.includes(searchTerm) || userEmail.includes(searchTerm)) {
-            item.style.display = 'block';
-            visibleCount++;
-        } else {
-            item.style.display = 'none';
-            // Désélectionner les éléments cachés
-            const checkbox = item.querySelector('.user-checkbox');
-            if (checkbox) {
-                checkbox.checked = false;
-            }
+            return html;
         }
-    });
 
-    // Mettre à jour le compteur
-    updateSelectedCount();
 
-    // Mettre à jour l'état du "Sélectionner tout"
-    updateSelectAllState();
-}
 
-// Filtrer par compatibilité d'âge
-function filterByAgeCompatibility() {
-    const filterCheckbox = document.getElementById('filterAgeCompatible');
-    const utilisateurItems = document.querySelectorAll('.utilisateur-item');
-
-    utilisateurItems.forEach(item => {
-        const ageIncompatibleBadge = item.querySelector('span.text-amber-600');
-        const hasAgeIncompatibility = ageIncompatibleBadge !== null;
-
-        if (filterCheckbox.checked) {
-            // Afficher seulement les âges compatibles
-            if (hasAgeIncompatibility) {
-                item.style.display = 'none';
-                // Désélectionner les éléments cachés
-                const checkbox = item.querySelector('.user-checkbox');
-                if (checkbox) {
-                    checkbox.checked = false;
-                }
-            } else {
-                item.style.display = 'block';
-            }
-        } else {
-            // Afficher tous les utilisateurs (mais respecter la recherche)
+        // Fonction de recherche des utilisateurs
+        function searchUtilisateurs() {
             const searchTerm = document.getElementById('searchUtilisateurs').value.toLowerCase();
-            const userNom = item.getAttribute('data-user-nom');
-            const userEmail = item.getAttribute('data-user-email');
+            const utilisateurItems = document.querySelectorAll('.utilisateur-item');
+            let visibleCount = 0;
 
-            if (userNom.includes(searchTerm) || userEmail.includes(searchTerm)) {
-                item.style.display = 'block';
+            utilisateurItems.forEach(item => {
+                const userNom = item.getAttribute('data-user-nom');
+                const userEmail = item.getAttribute('data-user-email');
+
+                if (userNom.includes(searchTerm) || userEmail.includes(searchTerm)) {
+                    item.style.display = 'block';
+                    visibleCount++;
+                } else {
+                    item.style.display = 'none';
+                    // Désélectionner les éléments cachés
+                    const checkbox = item.querySelector('.user-checkbox');
+                    if (checkbox) {
+                        checkbox.checked = false;
+                    }
+                }
+            });
+
+            // Mettre à jour le compteur
+            updateSelectedCount();
+
+            // Mettre à jour l'état du "Sélectionner tout"
+            updateSelectAllState();
+        }
+
+        // Filtrer par compatibilité d'âge
+        function filterByAgeCompatibility() {
+            const filterCheckbox = document.getElementById('filterAgeCompatible');
+            const utilisateurItems = document.querySelectorAll('.utilisateur-item');
+
+            utilisateurItems.forEach(item => {
+                const ageIncompatibleBadge = item.querySelector('span.text-amber-600');
+                const hasAgeIncompatibility = ageIncompatibleBadge !== null;
+
+                if (filterCheckbox.checked) {
+                    // Afficher seulement les âges compatibles
+                    if (hasAgeIncompatibility) {
+                        item.style.display = 'none';
+                        // Désélectionner les éléments cachés
+                        const checkbox = item.querySelector('.user-checkbox');
+                        if (checkbox) {
+                            checkbox.checked = false;
+                        }
+                    } else {
+                        item.style.display = 'block';
+                    }
+                } else {
+                    // Afficher tous les utilisateurs (mais respecter la recherche)
+                    const searchTerm = document.getElementById('searchUtilisateurs').value.toLowerCase();
+                    const userNom = item.getAttribute('data-user-nom');
+                    const userEmail = item.getAttribute('data-user-email');
+
+                    if (userNom.includes(searchTerm) || userEmail.includes(searchTerm)) {
+                        item.style.display = 'block';
+                    }
+                }
+            });
+
+            // Mettre à jour le compteur
+            updateSelectedCount();
+
+            // Mettre à jour l'état du "Sélectionner tout"
+            updateSelectAllState();
+        }
+
+
+        // Mettre à jour le compteur de sélection
+        function updateSelectedCount() {
+            const checkboxes = document.querySelectorAll('.user-checkbox');
+            const selectedCheckboxes = document.querySelectorAll('.user-checkbox:checked');
+            const countElement = document.getElementById('selectedCount');
+
+            if (countElement) {
+                countElement.textContent = `${selectedCheckboxes.length} sélectionné(s)`;
             }
         }
-    });
 
-    // Mettre à jour le compteur
-    updateSelectedCount();
+        // Mettre à jour l'état du bouton "Sélectionner tout"
+        function updateSelectAllState() {
+            const selectAllCheckbox = document.getElementById('selectAll');
+            const visibleCheckboxes = Array.from(document.querySelectorAll('.user-checkbox')).filter(cb => {
+                return cb.closest('.utilisateur-item').style.display !== 'none';
+            });
+            const visibleCheckedCheckboxes = visibleCheckboxes.filter(cb => cb.checked);
 
-    // Mettre à jour l'état du "Sélectionner tout"
-    updateSelectAllState();
-}
-
-
-// Mettre à jour le compteur de sélection
-function updateSelectedCount() {
-    const checkboxes = document.querySelectorAll('.user-checkbox');
-    const selectedCheckboxes = document.querySelectorAll('.user-checkbox:checked');
-    const countElement = document.getElementById('selectedCount');
-
-    if (countElement) {
-        countElement.textContent = `${selectedCheckboxes.length} sélectionné(s)`;
-    }
-}
-
-// Mettre à jour l'état du bouton "Sélectionner tout"
-function updateSelectAllState() {
-    const selectAllCheckbox = document.getElementById('selectAll');
-    const visibleCheckboxes = Array.from(document.querySelectorAll('.user-checkbox')).filter(cb => {
-        return cb.closest('.utilisateur-item').style.display !== 'none';
-    });
-    const visibleCheckedCheckboxes = visibleCheckboxes.filter(cb => cb.checked);
-
-    if (selectAllCheckbox) {
-        if (visibleCheckboxes.length === 0) {
-            selectAllCheckbox.checked = false;
-            selectAllCheckbox.indeterminate = false;
-        } else if (visibleCheckedCheckboxes.length === visibleCheckboxes.length) {
-            selectAllCheckbox.checked = true;
-            selectAllCheckbox.indeterminate = false;
-        } else if (visibleCheckedCheckboxes.length > 0) {
-            selectAllCheckbox.checked = false;
-            selectAllCheckbox.indeterminate = true;
-        } else {
-            selectAllCheckbox.checked = false;
-            selectAllCheckbox.indeterminate = false;
+            if (selectAllCheckbox) {
+                if (visibleCheckboxes.length === 0) {
+                    selectAllCheckbox.checked = false;
+                    selectAllCheckbox.indeterminate = false;
+                } else if (visibleCheckedCheckboxes.length === visibleCheckboxes.length) {
+                    selectAllCheckbox.checked = true;
+                    selectAllCheckbox.indeterminate = false;
+                } else if (visibleCheckedCheckboxes.length > 0) {
+                    selectAllCheckbox.checked = false;
+                    selectAllCheckbox.indeterminate = true;
+                } else {
+                    selectAllCheckbox.checked = false;
+                    selectAllCheckbox.indeterminate = false;
+                }
+            }
         }
-    }
-}
 
 
-// Mise à jour de la fonction toggleSelectAll existante
-function toggleSelectAll() {
-    const selectAll = document.getElementById('selectAll');
-    const visibleCheckboxes = Array.from(document.querySelectorAll('.user-checkbox')).filter(cb => {
-        return cb.closest('.utilisateur-item').style.display !== 'none';
-    });
+        // Mise à jour de la fonction toggleSelectAll existante
+        function toggleSelectAll() {
+            const selectAll = document.getElementById('selectAll');
+            const visibleCheckboxes = Array.from(document.querySelectorAll('.user-checkbox')).filter(cb => {
+                return cb.closest('.utilisateur-item').style.display !== 'none';
+            });
 
-    visibleCheckboxes.forEach(checkbox => {
-        checkbox.checked = selectAll.checked;
-    });
+            visibleCheckboxes.forEach(checkbox => {
+                checkbox.checked = selectAll.checked;
+            });
 
-    updateSelectedCount();
-}
+            updateSelectedCount();
+        }
 
-// Ajouter des écouteurs d'événements pour les checkboxes
-document.addEventListener('change', function(e) {
-    if (e.target.classList.contains('user-checkbox')) {
-        updateSelectedCount();
-        updateSelectAllState();
-    }
-});
+        // Ajouter des écouteurs d'événements pour les checkboxes
+        document.addEventListener('change', function (e) {
+            if (e.target.classList.contains('user-checkbox')) {
+                updateSelectedCount();
+                updateSelectAllState();
+            }
+        });
 
 
 
@@ -1233,36 +1193,36 @@ document.addEventListener('change', function(e) {
 
             if (!membersList || membersList.length === 0) {
                 return `
-                    <div class="text-center py-8">
-                        <i class="fas fa-users text-3xl text-slate-400 mb-3"></i>
-                        <p class="text-slate-500">Aucun membre inscrit dans cette classe</p>
-                    </div>
-                `;
+                        <div class="text-center py-8">
+                            <i class="fas fa-users text-3xl text-slate-400 mb-3"></i>
+                            <p class="text-slate-500">Aucun membre inscrit dans cette classe</p>
+                        </div>
+                    `;
             }
 
             let html = '<div class="space-y-3">';
             membersList.forEach(membre => {
                 html += `
-                    <div class="flex items-center justify-between p-4 bg-slate-50 rounded-xl hover:bg-slate-100 transition-colors">
-                        <div class="flex items-center space-x-3">
-                            <div class="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white font-semibold text-sm">
-                                ${membre.prenom.charAt(0)}${membre.nom.charAt(0)}
+                        <div class="flex items-center justify-between p-4 bg-slate-50 rounded-xl hover:bg-slate-100 transition-colors">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white font-semibold text-sm">
+                                    ${membre.prenom.charAt(0)}${membre.nom.charAt(0)}
+                                </div>
+                                <div>
+                                    <p class="font-semibold text-slate-900">${membre.prenom} ${membre.nom}</p>
+                                    <p class="text-sm text-slate-500">${membre.email ?? 'Aucun email disponible'}</p>
+                                    ${membre.telephone_1 ? `<p class="text-sm text-slate-400">${membre.telephone_1}</p>` : ''}
+                                </div>
                             </div>
-                            <div>
-                                <p class="font-semibold text-slate-900">${membre.prenom} ${membre.nom}</p>
-                                <p class="text-sm text-slate-500">${membre.email ?? 'Aucun email disponible'}</p>
-                                ${membre.telephone_1 ? `<p class="text-sm text-slate-400">${membre.telephone_1}</p>` : ''}
-                            </div>
+                            <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('classes.manage-members')): ?>
+                                <button onclick="removeMember('${membre.id}')"
+                                    class="inline-flex items-center justify-center w-8 h-8 text-red-600 bg-red-100 rounded-lg hover:bg-red-200 transition-colors"
+                                    title="Retirer de la classe">
+                                    <i class="fas fa-times text-sm"></i>
+                                </button>
+                            <?php endif; ?>
                         </div>
-                        <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('classes.manage-members')): ?>
-                            <button onclick="removeMember('${membre.id}')"
-                                class="inline-flex items-center justify-center w-8 h-8 text-red-600 bg-red-100 rounded-lg hover:bg-red-200 transition-colors"
-                                title="Retirer de la classe">
-                                <i class="fas fa-times text-sm"></i>
-                            </button>
-                        <?php endif; ?>
-                    </div>
-                `;
+                    `;
             });
             html += '</div>';
 
@@ -1300,25 +1260,25 @@ document.addEventListener('change', function(e) {
                 },
                 body: formData
             })
-            .then(response => response.json())
-            .then(data => {
-                submitButton.innerHTML = originalText;
-                submitButton.disabled = false;
+                .then(response => response.json())
+                .then(data => {
+                    submitButton.innerHTML = originalText;
+                    submitButton.disabled = false;
 
-                if (data.success) {
-                    showSuccessMessage(data.message || 'Membres ajoutés avec succès');
-                    closeAddMembersModal();
-                    setTimeout(() => location.reload(), 1500);
-                } else {
-                    showErrorMessage(data.message || 'Erreur lors de l\'ajout des membres');
-                }
-            })
-            .catch(error => {
-                console.error('Erreur:', error);
-                submitButton.innerHTML = originalText;
-                submitButton.disabled = false;
-                showErrorMessage('Une erreur est survenue lors de l\'ajout des membres');
-            });
+                    if (data.success) {
+                        showSuccessMessage(data.message || 'Membres ajoutés avec succès');
+                        closeAddMembersModal();
+                        setTimeout(() => location.reload(), 1500);
+                    } else {
+                        showErrorMessage(data.message || 'Erreur lors de l\'ajout des membres');
+                    }
+                })
+                .catch(error => {
+                    console.error('Erreur:', error);
+                    submitButton.innerHTML = originalText;
+                    submitButton.disabled = false;
+                    showErrorMessage('Une erreur est survenue lors de l\'ajout des membres');
+                });
         }
 
         // Retirer un membre
@@ -1339,19 +1299,19 @@ document.addEventListener('change', function(e) {
                     user_id: userId
                 })
             })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    showSuccessMessage(data.message || 'Membre retiré avec succès');
-                    setTimeout(() => location.reload(), 1500);
-                } else {
-                    showErrorMessage(data.message || 'Erreur lors de la suppression du membre');
-                }
-            })
-            .catch(error => {
-                console.error('Erreur:', error);
-                showErrorMessage('Une erreur est survenue');
-            });
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showSuccessMessage(data.message || 'Membre retiré avec succès');
+                        setTimeout(() => location.reload(), 1500);
+                    } else {
+                        showErrorMessage(data.message || 'Erreur lors de la suppression du membre');
+                    }
+                })
+                .catch(error => {
+                    console.error('Erreur:', error);
+                    showErrorMessage('Une erreur est survenue');
+                });
         }
 
         // Retirer un responsable
@@ -1372,56 +1332,56 @@ document.addEventListener('change', function(e) {
                     user_id: userId
                 })
             })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    showSuccessMessage(data.message || 'Responsable retiré avec succès');
-                    setTimeout(() => location.reload(), 1500);
-                } else {
-                    showErrorMessage(data.message || 'Erreur lors de la suppression du responsable');
-                }
-            })
-            .catch(error => {
-                console.error('Erreur:', error);
-                showErrorMessage('Une erreur est survenue');
-            });
-        }
-
-        // Supprimer la classe
-        <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('classes.delete')): ?>
-        function deleteClasse() {
-            if (confirm('Êtes-vous sûr de vouloir supprimer définitivement cette classe ? Cette action est irréversible.')) {
-                fetch(`<?php echo e(route('private.classes.destroy', $classe)); ?>`, {
-                    method: 'DELETE',
-                    headers: {
-                        'X-CSRF-TOKEN': '<?php echo e(csrf_token()); ?>',
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json'
-                    }
-                })
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        showSuccessMessage(data.message || 'Classe supprimée avec succès');
-                        setTimeout(() => {
-                            window.location.href = '<?php echo e(route("private.classes.index")); ?>';
-                        }, 1500);
+                        showSuccessMessage(data.message || 'Responsable retiré avec succès');
+                        setTimeout(() => location.reload(), 1500);
                     } else {
-                        showErrorMessage(data.message || 'Erreur lors de la suppression');
+                        showErrorMessage(data.message || 'Erreur lors de la suppression du responsable');
                     }
                 })
                 .catch(error => {
                     console.error('Erreur:', error);
-                    showErrorMessage('Une erreur est survenue lors de la suppression');
+                    showErrorMessage('Une erreur est survenue');
                 });
-            }
         }
+
+        // Supprimer la classe
+        <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('classes.delete')): ?>
+            function deleteClasse() {
+                if (confirm('Êtes-vous sûr de vouloir supprimer définitivement cette classe ? Cette action est irréversible.')) {
+                    fetch(`<?php echo e(route('private.classes.destroy', $classe)); ?>`, {
+                        method: 'DELETE',
+                        headers: {
+                            'X-CSRF-TOKEN': '<?php echo e(csrf_token()); ?>',
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json'
+                        }
+                    })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                showSuccessMessage(data.message || 'Classe supprimée avec succès');
+                                setTimeout(() => {
+                                    window.location.href = '<?php echo e(route("private.classes.index")); ?>';
+                                }, 1500);
+                            } else {
+                                showErrorMessage(data.message || 'Erreur lors de la suppression');
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Erreur:', error);
+                            showErrorMessage('Une erreur est survenue lors de la suppression');
+                        });
+                }
+            }
         <?php endif; ?>
 
-        // Fonctions d'affichage des messages
-        function showSuccessMessage(message) {
-            showMessage(message, 'success');
-        }
+            // Fonctions d'affichage des messages
+            function showSuccessMessage(message) {
+                showMessage(message, 'success');
+            }
 
         function showErrorMessage(message) {
             showMessage(message, 'error');
@@ -1434,11 +1394,11 @@ document.addEventListener('change', function(e) {
             const alertDiv = document.createElement('div');
             alertDiv.className = `fixed top-4 right-4 ${bgColor} text-white px-6 py-3 rounded-xl shadow-lg z-50 transform transition-all duration-300 translate-x-full`;
             alertDiv.innerHTML = `
-                <div class="flex items-center">
-                    <i class="fas ${icon} mr-2"></i>
-                    <span>${message}</span>
-                </div>
-            `;
+                    <div class="flex items-center">
+                        <i class="fas ${icon} mr-2"></i>
+                        <span>${message}</span>
+                    </div>
+                `;
 
             document.body.appendChild(alertDiv);
 
@@ -1457,26 +1417,26 @@ document.addEventListener('change', function(e) {
         }
 
         // Fermer les modals en cliquant à l'extérieur
-        document.getElementById('manageResponsablesModal').addEventListener('click', function(e) {
+        document.getElementById('manageResponsablesModal').addEventListener('click', function (e) {
             if (e.target === this) {
                 closeManageResponsablesModal();
             }
         });
 
-        document.getElementById('addMembersModal').addEventListener('click', function(e) {
+        document.getElementById('addMembersModal').addEventListener('click', function (e) {
             if (e.target === this) {
                 closeAddMembersModal();
             }
         });
 
-        document.getElementById('membersListModal').addEventListener('click', function(e) {
+        document.getElementById('membersListModal').addEventListener('click', function (e) {
             if (e.target === this) {
                 closeMembersListModal();
             }
         });
 
         // Fermer les modals avec la touche Escape
-        document.addEventListener('keydown', function(e) {
+        document.addEventListener('keydown', function (e) {
             if (e.key === 'Escape') {
                 closeManageResponsablesModal();
                 closeAddMembersModal();

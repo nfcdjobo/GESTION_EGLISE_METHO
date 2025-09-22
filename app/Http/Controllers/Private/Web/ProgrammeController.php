@@ -88,7 +88,7 @@ class ProgrammeController extends Controller
         $sortOrder = $request->get('order', 'desc');
         $query->orderBy($sortBy, $sortOrder);
 
-        $programmes = $query->paginate(15)->appends(request()->query());
+        $programmes = $query->paginate(10)->appends(request()->query());
 
         // Données pour les filtres
         $responsables = User::select('id', 'prenom', 'nom')->whereIn('id', Programme::pluck('responsable_principal_id'))->get();

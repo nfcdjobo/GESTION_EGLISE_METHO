@@ -768,7 +768,7 @@
             @endif
             @if($rapport->montant_collecte)
             <div class="stats-cell">
-                <div class="stat-number">{{ number_format($rapport->montant_collecte, 0) }}€</div>
+                <div class="stat-number">{{ number_format($rapport->montant_collecte, 0) }}FCFA</div>
                 <div class="stat-label">Montant Collecté</div>
             </div>
             @endif

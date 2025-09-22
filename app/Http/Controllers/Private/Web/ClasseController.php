@@ -63,7 +63,7 @@ class ClasseController extends Controller
             }
 
             // Pagination
-            $perPage = $request->get('per_page', 15);
+            $perPage = $request->get('per_page', 10);
 
             /** @var \Illuminate\Pagination\LengthAwarePaginator $classes */
             $classes = $query->paginate($perPage);
@@ -354,9 +354,141 @@ public function edit(Request $request, $id)
     /**
      * Met à jour une classe spécifique
      */
+    // public function update(Request $request, $id)
+    // {
+
+    //     // Filtrer les responsables vides et valider
+    //     if ($request->has('responsables')) {
+    //         $responsables = array_filter($request->responsables, function ($responsable) {
+    //             return !empty($responsable['id']) && !empty($responsable['responsabilite']);
+    //         });
+
+    //         // Vérifier qu'il n'y a pas de responsables incomplets
+    //         foreach ($request->responsables as $index => $responsable) {
+    //             if (
+    //                 (!empty($responsable['id']) && empty($responsable['responsabilite'])) ||
+    //                 (empty($responsable['id']) && !empty($responsable['responsabilite']))
+    //             ) {
+    //                 return back()->withErrors([
+    //                     'responsables' => "Le responsable à la position " . ($index + 1) . " est incomplet. Veuillez remplir tous les champs ou le supprimer."
+    //                 ])->withInput();
+    //             }
+    //         }
+
+    //         $request->merge(['responsables' => empty($responsables) ? null : array_values($responsables)]);
+    //     }
+
+
+    //     $validator = Validator::make($request->all(), [
+    //         'nom' => [
+    //             'required',
+    //             'string',
+    //             'max:255',
+    //             Rule::unique('classes', 'nom')->ignore($id)
+    //         ],
+    //         'description' => 'nullable|string',
+    //         'tranche_age' => 'nullable|string|max:255',
+    //         'age_minimum' => 'nullable|integer|min:0|max:120',
+    //         'age_maximum' => 'nullable|integer|min:0|max:120|gte:age_minimum',
+    //         'responsables' => 'nullable|array',
+    //         'responsables.*.id' => 'required_with:responsables.*|nullable|uuid|exists:users,id',
+    //         'responsables.*.responsabilite' => 'required_with:responsables.*.id|nullable|string',
+    //         'responsables.*.superieur' => 'boolean',
+    //         'programme' => 'nullable|array',
+    //         'image_classe' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048'
+    //     ]);
+
+    //     if ($validator->fails()) {
+
+    //         if ($this->isApiRequest($request)) {
+    //             return response()->json([
+    //                 'success' => false,
+    //                 'message' => 'Erreurs de validation',
+    //                 'errors' => $validator->errors()
+    //             ], 422);
+    //         }
+
+    //         return back()->withErrors($validator)->withInput();
+    //     }
+
+    //     try {
+    //         $classe = Classe::findOrFail($id);
+
+    //         DB::beginTransaction();
+
+    //         $data = $request->except(['image_classe', '_method', '_token']);
+
+    //         // Gestion de l'upload d'image
+    //         if ($request->hasFile('image_classe')) {
+    //             // Supprimer l'ancienne image si elle existe
+    //             if ($classe->image_classe) {
+    //                 Storage::disk('public')->delete($classe->image_classe);
+    //             }
+
+    //             $imagePath = $request->file('image_classe')->store('classes', 'public');
+    //             $data['image_classe'] = $imagePath;
+    //         }
+
+    //         $classe->update($data);
+
+    //         if ($classe->responsables && $request->has('responsables')) {
+    //             foreach ($classe->responsables as $responsable) {
+    //                 $user = User::find($responsable['id']);
+    //                 $user->classe_id = $classe->id;
+    //                 $user->save();
+    //             }
+    //         }
+
+    //         DB::commit();
+
+    //         // Charger les responsables pour la réponse
+    //         $classe->responsables_collection = $classe->responsables();
+    //         $classe->statistiques = $classe->getStatistiques();
+
+    //         if ($this->isApiRequest($request)) {
+    //             return response()->json([
+    //                 'success' => true,
+    //                 'data' => $classe,
+    //                 'message' => 'Classe mise à jour avec succès'
+    //             ]);
+    //         }
+
+    //         return redirect()->route('private.classes.show', $classe->id)
+    //             ->with('success', 'Classe mise à jour avec succès');
+
+    //     } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+    //         DB::rollBack();
+
+    //         if ($this->isApiRequest($request)) {
+    //             return response()->json([
+    //                 'success' => false,
+    //                 'message' => 'Classe non trouvée'
+    //             ], 404);
+    //         }
+
+    //         return redirect()->route('private.classes.index')
+    //             ->withErrors(['error' => 'Classe non trouvée']);
+    //     } catch (\Exception $e) {
+    //         DB::rollBack();
+
+    //         if ($this->isApiRequest($request)) {
+    //             return response()->json([
+    //                 'success' => false,
+    //                 'message' => 'Erreur lors de la mise à jour de la classe',
+    //                 'error' => $e->getMessage()
+    //             ], 500);
+    //         }
+
+    //         return back()->withErrors(['error' => 'Erreur lors de la mise à jour de la classe'])
+    //             ->withInput();
+    //     }
+    // }
+
+    /**
+     * Met à jour une classe spécifique
+     */
     public function update(Request $request, $id)
     {
-
         // Filtrer les responsables vides et valider
         if ($request->has('responsables')) {
             $responsables = array_filter($request->responsables, function ($responsable) {
@@ -378,7 +510,6 @@ public function edit(Request $request, $id)
             $request->merge(['responsables' => empty($responsables) ? null : array_values($responsables)]);
         }
 
-
         $validator = Validator::make($request->all(), [
             'nom' => [
                 'required',
@@ -399,7 +530,6 @@ public function edit(Request $request, $id)
         ]);
 
         if ($validator->fails()) {
-
             if ($this->isApiRequest($request)) {
                 return response()->json([
                     'success' => false,
@@ -416,6 +546,9 @@ public function edit(Request $request, $id)
 
             DB::beginTransaction();
 
+            // Récupérer les anciens responsables avant la mise à jour
+            $anciensResponsables = collect($classe->responsables ?? [])->pluck('id')->toArray();
+
             $data = $request->except(['image_classe', '_method', '_token']);
 
             // Gestion de l'upload d'image
@@ -431,13 +564,8 @@ public function edit(Request $request, $id)
 
             $classe->update($data);
 
-            if ($classe->responsables && $request->has('responsables')) {
-                foreach ($classe->responsables as $responsable) {
-                    $user = User::find($responsable['id']);
-                    $user->classe_id = $classe->id;
-                    $user->save();
-                }
-            }
+            // Gérer les changements de responsables
+            $this->gererChangementsResponsables($classe, $anciensResponsables);
 
             DB::commit();
 
@@ -482,6 +610,60 @@ public function edit(Request $request, $id)
             return back()->withErrors(['error' => 'Erreur lors de la mise à jour de la classe'])
                 ->withInput();
         }
+    }
+
+
+    /**
+     * Gérer les changements de responsables lors de la mise à jour
+     */
+    private function gererChangementsResponsables($classe, $anciensResponsables)
+    {
+        $nouveauxResponsables = collect($classe->responsables ?? [])->pluck('id')->toArray();
+
+        // Calculer les différences
+        $responsablesARetirer = array_diff($anciensResponsables, $nouveauxResponsables);
+        $responsablesAAjouter = array_diff($nouveauxResponsables, $anciensResponsables);
+
+        // Retirer les anciens responsables qui ne sont plus responsables
+        foreach ($responsablesARetirer as $userId) {
+            $user = User::find($userId);
+            if ($user && $user->classe_id === $classe->id) {
+                // Vérifier s'il est aussi membre normal (pas seulement responsable)
+                $estMembreNormal = $this->verifierSiMembreNormal($user, $classe);
+
+                if (!$estMembreNormal) {
+                    $user->update(['classe_id' => null]);
+                    $classe->decrementerInscrits();
+                }
+            }
+        }
+
+        // Ajouter les nouveaux responsables
+        foreach ($responsablesAAjouter as $userId) {
+            $user = User::find($userId);
+            if ($user) {
+                // Si l'utilisateur n'était pas déjà membre, l'ajouter
+                if (!$user->classe_id) {
+                    $user->update(['classe_id' => $classe->id]);
+                    $classe->incrementerInscrits();
+                } elseif ($user->classe_id !== $classe->id) {
+                    // L'utilisateur est dans une autre classe, erreur
+                    throw new \Exception("L'utilisateur {$user->nom_complet} est déjà membre d'une autre classe");
+                }
+                // Si déjà membre de cette classe, ne rien faire (juste ajout de responsabilité)
+            }
+        }
+    }
+
+
+    /**
+     * Vérifier si un utilisateur est membre normal (pas seulement responsable)
+     */
+    private function verifierSiMembreNormal($user, $classe)
+    {
+        // Logique pour déterminer si l'utilisateur était membre avant d'être responsable
+        // Pour simplifier, on considère que s'il a un statut_membre actif, il reste membre
+        return $user->statut_membre === 'actif';
     }
 
     /**
@@ -1028,6 +1210,7 @@ public function edit(Request $request, $id)
             $perPage = $request->get('per_page', 20);
             $utilisateurs = $query->paginate($perPage);
 
+            // dd($classe);
             // Ajouter l'âge et la compatibilité
             $utilisateurs->through(function ($user) use ($classe) {
                 if ($user->date_naissance) {
@@ -1683,6 +1866,156 @@ public function edit(Request $request, $id)
     /**
      * Mettre à jour les responsabilités d'un membre
      */
+    // public function updateResponsabilite(Request $request, $classeId)
+    // {
+    //     $validator = Validator::make($request->all(), [
+    //         'user_id' => 'required|uuid|exists:users,id',
+    //         'action' => 'required|in:add,remove,update',
+    //         'responsabilite' => 'required_if:action,add,update|nullable|string',
+    //         'superieur' => 'nullable|boolean'
+    //     ]);
+
+    //     if ($validator->fails()) {
+    //         if ($this->isApiRequest($request)) {
+    //             return response()->json([
+    //                 'success' => false,
+    //                 'message' => 'Erreurs de validation',
+    //                 'errors' => $validator->errors()
+    //             ], 422);
+    //         }
+
+    //         return back()->withErrors($validator);
+    //     }
+
+    //     try {
+    //         $classe = Classe::findOrFail($classeId);
+    //         $user = User::findOrFail($request->user_id);
+    //         $currentUser = Auth::user();
+
+    //         // Vérifier si l'utilisateur est membre de la classe
+    //         if ($user->classe_id !== $classe->id) {
+    //             $message = 'L\'utilisateur n\'est pas membre de cette classe';
+
+    //             if ($this->isApiRequest($request)) {
+    //                 return response()->json([
+    //                     'success' => false,
+    //                     'message' => $message
+    //                 ], 400);
+    //             }
+
+    //             return back()->withErrors(['error' => $message]);
+    //         }
+
+    //         // Vérifier les permissions
+    //         if (!$classe->peutGererResponsables($currentUser->id) && !$currentUser->can('classes.update')) {
+    //             $message = 'Vous n\'avez pas les permissions pour gérer les responsables de cette classe';
+
+    //             if ($this->isApiRequest($request)) {
+    //                 return response()->json([
+    //                     'success' => false,
+    //                     'message' => $message
+    //                 ], 403);
+    //             }
+
+    //             return back()->withErrors(['error' => $message]);
+    //         }
+
+    //         DB::beginTransaction();
+
+    //         $responsables = $classe->responsables ?? [];
+    //         $userIndex = null;
+
+    //         // Trouver l'utilisateur dans la liste des responsables
+    //         foreach ($responsables as $index => $responsable) {
+    //             if ($responsable['id'] === $request->user_id) {
+    //                 $userIndex = $index;
+    //                 break;
+    //             }
+    //         }
+
+    //         switch ($request->action) {
+    //             case 'add':
+    //                 if ($userIndex === null) {
+    //                     // Vérifier s'il y a déjà un supérieur si on veut en ajouter un
+    //                     if ($request->get('superieur', false)) {
+    //                         foreach ($responsables as &$responsable) {
+    //                             $responsable['superieur'] = false;
+    //                         }
+    //                     }
+
+    //                     $responsables[] = [
+    //                         'id' => $request->user_id,
+    //                         'responsabilite' => $request->responsabilite,
+    //                         'superieur' => $request->get('superieur', false)
+    //                     ];
+    //                     $message = 'Responsabilité ajoutée avec succès';
+    //                 } else {
+    //                     $message = 'L\'utilisateur est déjà responsable';
+    //                 }
+    //                 break;
+
+    //             case 'update':
+    //                 if ($userIndex !== null) {
+    //                     // Vérifier s'il y a déjà un supérieur si on veut en ajouter un
+    //                     if ($request->get('superieur', false)) {
+    //                         foreach ($responsables as &$responsable) {
+    //                             $responsable['superieur'] = false;
+    //                         }
+    //                     }
+
+    //                     $responsables[$userIndex] = [
+    //                         'id' => $request->user_id,
+    //                         'responsabilite' => $request->responsabilite,
+    //                         'superieur' => $request->get('superieur', false)
+    //                     ];
+    //                     $message = 'Responsabilité mise à jour avec succès';
+    //                 } else {
+    //                     $message = 'L\'utilisateur n\'est pas responsable';
+    //                 }
+    //                 break;
+
+    //             case 'remove':
+    //                 if ($userIndex !== null) {
+    //                     unset($responsables[$userIndex]);
+    //                     $responsables = array_values($responsables); // Réindexer
+    //                     $message = 'Responsabilité retirée avec succès';
+    //                 } else {
+    //                     $message = 'L\'utilisateur n\'est pas responsable';
+    //                 }
+    //                 break;
+    //         }
+
+    //         $classe->update(['responsables' => $responsables]);
+
+    //         DB::commit();
+
+    //         if ($this->isApiRequest($request)) {
+    //             return response()->json([
+    //                 'success' => true,
+    //                 'message' => $message
+    //             ]);
+    //         }
+
+    //         return back()->with('success', $message);
+
+    //     } catch (\Exception $e) {
+    //         DB::rollBack();
+
+    //         if ($this->isApiRequest($request)) {
+    //             return response()->json([
+    //                 'success' => false,
+    //                 'message' => 'Erreur lors de la mise à jour',
+    //                 'error' => $e->getMessage()
+    //             ], 500);
+    //         }
+
+    //         return back()->withErrors(['error' => 'Erreur lors de la mise à jour']);
+    //     }
+    // }
+
+     /**
+     * Mettre à jour les responsabilités d'un membre (version corrigée)
+     */
     public function updateResponsabilite(Request $request, $classeId)
     {
         $validator = Validator::make($request->all(), [
@@ -1741,11 +2074,13 @@ public function edit(Request $request, $id)
 
             $responsables = $classe->responsables ?? [];
             $userIndex = null;
+            $etaitResponsable = false;
 
             // Trouver l'utilisateur dans la liste des responsables
             foreach ($responsables as $index => $responsable) {
                 if ($responsable['id'] === $request->user_id) {
                     $userIndex = $index;
+                    $etaitResponsable = true;
                     break;
                 }
             }
@@ -1765,7 +2100,10 @@ public function edit(Request $request, $id)
                             'responsabilite' => $request->responsabilite,
                             'superieur' => $request->get('superieur', false)
                         ];
+
                         $message = 'Responsabilité ajoutée avec succès';
+
+                        // Note: L'utilisateur est déjà membre, donc pas besoin d'incrémenter
                     } else {
                         $message = 'L\'utilisateur est déjà responsable';
                     }
@@ -1796,6 +2134,12 @@ public function edit(Request $request, $id)
                         unset($responsables[$userIndex]);
                         $responsables = array_values($responsables); // Réindexer
                         $message = 'Responsabilité retirée avec succès';
+
+                        // Vérifier s'il faut retirer l'utilisateur de la classe
+                        if (!$this->verifierSiMembreNormal($user, $classe)) {
+                            $user->update(['classe_id' => null]);
+                            $classe->decrementerInscrits();
+                        }
                     } else {
                         $message = 'L\'utilisateur n\'est pas responsable';
                     }
@@ -1833,16 +2177,299 @@ public function edit(Request $request, $id)
 
 
 
+    // private function exportToExcel($classe)
+    // {
+
+    // }
+
+    // private function exportToPdf($classe)
+    // {
+
+    // }
+
+    /**
+     * Export Excel avec mise en forme professionnelle
+     */
     private function exportToExcel($classe)
     {
-        // Implémentation avec PhpSpreadsheet ou Laravel Excel
-        // return Excel::download(new ClasseExport($classe), 'classe-' . $classe->nom . '.xlsx');
+        // Vérifier que PhpSpreadsheet est installé
+        if (!class_exists('\PhpOffice\PhpSpreadsheet\Spreadsheet')) {
+            throw new \Exception('PhpSpreadsheet n\'est pas installé. Installez-le avec: composer require phpoffice/phpspreadsheet');
+        }
+
+        $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+
+        // Configuration de la page
+        $sheet->getPageSetup()
+            ->setOrientation(\PhpOffice\PhpSpreadsheet\Worksheet\PageSetup::ORIENTATION_LANDSCAPE)
+            ->setPaperSize(\PhpOffice\PhpSpreadsheet\Worksheet\PageSetup::PAPERSIZE_A4);
+
+        // Marges
+        $sheet->getPageMargins()
+            ->setTop(0.75)
+            ->setRight(0.7)
+            ->setBottom(0.75)
+            ->setLeft(0.7);
+
+        // Préparer les données
+        $responsables = $classe->responsables();
+        $membres = $classe->membres()->orderBy('prenom')->orderBy('nom')->get();
+
+        // Générer le contenu Excel
+        $this->generateExcelContent($sheet, $classe, $responsables, $membres);
+
+        // Configuration pour l'export
+        $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
+
+        $filename = 'classe-' . \Str::slug($classe->nom) . '-' . now()->format('Y-m-d') . '.xlsx';
+
+        $headers = [
+            'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+            'Cache-Control' => 'max-age=0',
+        ];
+
+        return response()->streamDownload(function() use ($writer) {
+            $writer->save('php://output');
+        }, $filename, $headers);
     }
 
+    /**
+     * Export PDF avec mise en forme professionnelle
+     */
     private function exportToPdf($classe)
     {
-        // Implémentation avec DomPDF ou similar
-        // $pdf = PDF::loadView('exports.classe-pdf', compact('classe'));
-        // return $pdf->download('classe-' . $classe->nom . '.pdf');
+        // Vérifier que DomPDF est installé
+        if (!class_exists('\Barryvdh\DomPDF\Facade\Pdf')) {
+            throw new \Exception('DomPDF n\'est pas installé. Installez-le avec: composer require barryvdh/laravel-dompdf');
+        }
+
+        $responsables = $classe->responsables();
+        $membres = $classe->membres()->orderBy('prenom')->orderBy('nom')->get();
+
+        // Préparer les données pour la vue
+        $data = [
+            'classe' => $classe,
+            'responsables' => $responsables,
+            'membres' => $membres,
+            'dateGeneration' => now()->format('d/m/Y à H:i'),
+            'stats' => [
+                'total_membres' => $classe->nombre_inscrits,
+                'total_responsables' => $responsables->count(),
+                'membres_simples' => $membres->count() - $responsables->count(),
+                'ages_couverts' => ($classe->age_minimum && $classe->age_maximum)
+                    ? ($classe->age_maximum - $classe->age_minimum) . ' ans'
+                    : 'Libre'
+            ]
+        ];
+
+        // Générer le PDF à partir de la vue
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('exports.classes.classe-pdf', $data);
+        $pdf->setPaper('A4', 'landscape');
+
+        $filename = 'classe-' . \Str::slug($classe->nom) . '-' . now()->format('Y-m-d') . '.pdf';
+
+        return $pdf->download($filename);
     }
+
+    /**
+     * Génère le contenu Excel
+     */
+    private function generateExcelContent($sheet, $classe, $responsables, $membres)
+    {
+        $currentRow = 1;
+
+        // En-tête du document
+        $sheet->setCellValue('A1', 'ÉGLISE - GESTION DES CLASSES');
+        $sheet->mergeCells('A1:H1');
+        $sheet->getStyle('A1')->applyFromArray([
+            'font' => [
+                'bold' => true,
+                'size' => 18,
+                'color' => ['rgb' => 'FFFFFF']
+            ],
+            'alignment' => [
+                'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
+                'vertical' => \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER
+            ],
+            'fill' => [
+                'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
+                'color' => ['rgb' => '2563EB']
+            ]
+        ]);
+        $sheet->getRowDimension(1)->setRowHeight(35);
+
+        // Informations de la classe
+        $currentRow = 3;
+        $this->addClasseInfo($sheet, $classe, $currentRow);
+
+        // Responsables
+        $currentRow += 10;
+        $this->addResponsables($sheet, $classe, $responsables, $currentRow);
+
+        // Membres
+        $currentRow += $responsables->count() + 5;
+        $this->addMembres($sheet, $membres, $currentRow);
+
+        // Ajuster la largeur des colonnes
+        foreach (range('A', 'H') as $col) {
+            $sheet->getColumnDimension($col)->setAutoSize(true);
+        }
+
+        // Bordures pour toutes les cellules utilisées
+        $lastRow = $currentRow + $membres->count() + 5;
+        $sheet->getStyle('A1:H' . $lastRow)->applyFromArray([
+            'borders' => [
+                'allBorders' => [
+                    'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
+                    'color' => ['rgb' => 'D1D5DB']
+                ]
+            ]
+        ]);
+    }
+
+    /**
+     * Ajoute les informations de la classe dans Excel
+     */
+    private function addClasseInfo($sheet, $classe, &$currentRow)
+    {
+        $sheet->setCellValue('A' . $currentRow, 'DÉTAILS DE LA CLASSE');
+        $sheet->mergeCells('A' . $currentRow . ':H' . $currentRow);
+        $sheet->getStyle('A' . $currentRow)->applyFromArray([
+            'font' => ['bold' => true, 'size' => 14, 'color' => ['rgb' => '1F2937']],
+            'fill' => ['fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID, 'color' => ['rgb' => 'E5E7EB']],
+            'alignment' => ['horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER]
+        ]);
+
+        $currentRow += 2;
+        $classeDetails = [
+            ['Nom de la classe:', $classe->nom],
+            ['Description:', $classe->description ?: 'Aucune description'],
+            ['Tranche d\'âge:', $classe->tranche_age ?: 'Non spécifiée'],
+            ['Âge minimum:', $classe->age_minimum ? $classe->age_minimum . ' ans' : 'Non spécifié'],
+            ['Âge maximum:', $classe->age_maximum ? $classe->age_maximum . ' ans' : 'Non spécifié'],
+            ['Nombre total de membres:', $classe->nombre_inscrits],
+            ['Date de création:', $classe->created_at->format('d/m/Y H:i')]
+        ];
+
+        foreach ($classeDetails as $detail) {
+            $sheet->setCellValue('A' . $currentRow, $detail[0]);
+            $sheet->setCellValue('C' . $currentRow, $detail[1]);
+            $sheet->getStyle('A' . $currentRow)->getFont()->setBold(true);
+            $currentRow++;
+        }
+    }
+
+    /**
+     * Ajoute les responsables dans Excel
+     */
+    private function addResponsables($sheet, $classe, $responsables, &$currentRow)
+    {
+        $sheet->setCellValue('A' . $currentRow, 'RESPONSABLES DE LA CLASSE');
+        $sheet->mergeCells('A' . $currentRow . ':H' . $currentRow);
+        $sheet->getStyle('A' . $currentRow)->applyFromArray([
+            'font' => ['bold' => true, 'size' => 12, 'color' => ['rgb' => 'FFFFFF']],
+            'fill' => ['fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID, 'color' => ['rgb' => '059669']],
+            'alignment' => ['horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER]
+        ]);
+
+        $currentRow++;
+
+        if ($responsables->count() > 0) {
+            // En-têtes
+            $headers = ['Nom Complet', 'Responsabilité', 'Supérieur', 'Email', 'Téléphone', 'Téléphone 2', 'Ville'];
+            $col = 'A';
+            foreach ($headers as $header) {
+                $sheet->setCellValue($col . $currentRow, $header);
+                $sheet->getStyle($col . $currentRow)->applyFromArray([
+                    'font' => ['bold' => true, 'color' => ['rgb' => 'FFFFFF']],
+                    'fill' => ['fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID, 'color' => ['rgb' => '047857']],
+                    'alignment' => ['horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER]
+                ]);
+                $col++;
+            }
+
+            $currentRow++;
+            foreach ($responsables as $responsable) {
+                $responsableData = collect($classe->responsables)->firstWhere('id', $responsable->id);
+                $sheet->setCellValue('A' . $currentRow, $responsable->nom_complet);
+                $sheet->setCellValue('B' . $currentRow, ucfirst($responsableData['responsabilite'] ?? ''));
+                $sheet->setCellValue('C' . $currentRow, ($responsableData['superieur'] ?? false) ? 'Oui' : 'Non');
+                $sheet->setCellValue('D' . $currentRow, $responsable->email ?: 'Non renseigné');
+                $sheet->setCellValue('E' . $currentRow, $responsable->telephone_1 ?: 'Non renseigné');
+                $sheet->setCellValue('F' . $currentRow, $responsable->telephone_2 ?: 'Non renseigné');
+                $sheet->setCellValue('G' . $currentRow, $responsable->ville ?: 'Non renseignée');
+
+                if ($currentRow % 2 == 0) {
+                    $sheet->getStyle('A' . $currentRow . ':G' . $currentRow)->applyFromArray([
+                        'fill' => ['fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID, 'color' => ['rgb' => 'F9FAFB']]
+                    ]);
+                }
+                $currentRow++;
+            }
+        } else {
+            $currentRow++;
+            $sheet->setCellValue('A' . $currentRow, 'Aucun responsable assigné');
+            $sheet->mergeCells('A' . $currentRow . ':G' . $currentRow);
+        }
+    }
+
+    /**
+     * Ajoute les membres dans Excel
+     */
+    private function addMembres($sheet, $membres, &$currentRow)
+    {
+        $sheet->setCellValue('A' . $currentRow, 'MEMBRES DE LA CLASSE');
+        $sheet->mergeCells('A' . $currentRow . ':H' . $currentRow);
+        $sheet->getStyle('A' . $currentRow)->applyFromArray([
+            'font' => ['bold' => true, 'size' => 12, 'color' => ['rgb' => 'FFFFFF']],
+            'fill' => ['fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID, 'color' => ['rgb' => 'DC2626']],
+            'alignment' => ['horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER]
+        ]);
+
+        $currentRow++;
+
+        if ($membres->count() > 0) {
+            // En-têtes
+            $headers = ['Nom Complet', 'Statut', 'Email', 'Téléphone 1', 'Téléphone 2', 'Ville', 'Âge', 'Sexe'];
+            $col = 'A';
+            foreach ($headers as $header) {
+                $sheet->setCellValue($col . $currentRow, $header);
+                $sheet->getStyle($col . $currentRow)->applyFromArray([
+                    'font' => ['bold' => true, 'color' => ['rgb' => 'FFFFFF']],
+                    'fill' => ['fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID, 'color' => ['rgb' => 'B91C1C']],
+                    'alignment' => ['horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER]
+                ]);
+                $col++;
+            }
+
+            $currentRow++;
+            foreach ($membres as $membre) {
+                $age = $membre->date_naissance ? $membre->date_naissance->diffInYears(now()) . ' ans' : 'Non renseigné';
+
+                $sheet->setCellValue('A' . $currentRow, $membre->nom_complet);
+                $sheet->setCellValue('B' . $currentRow, ucfirst($membre->statut_membre));
+                $sheet->setCellValue('C' . $currentRow, $membre->email ?: 'Non renseigné');
+                $sheet->setCellValue('D' . $currentRow, $membre->telephone_1 ?: 'Non renseigné');
+                $sheet->setCellValue('E' . $currentRow, $membre->telephone_2 ?: 'Non renseigné');
+                $sheet->setCellValue('F' . $currentRow, $membre->ville ?: 'Non renseignée');
+                $sheet->setCellValue('G' . $currentRow, $age);
+                $sheet->setCellValue('H' . $currentRow, ucfirst($membre->sexe ?? 'N/A'));
+
+                if ($currentRow % 2 == 0) {
+                    $sheet->getStyle('A' . $currentRow . ':H' . $currentRow)->applyFromArray([
+                        'fill' => ['fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID, 'color' => ['rgb' => 'FEF2F2']]
+                    ]);
+                }
+                $currentRow++;
+            }
+        } else {
+            $currentRow++;
+            $sheet->setCellValue('A' . $currentRow, 'Aucun membre inscrit');
+            $sheet->mergeCells('A' . $currentRow . ':H' . $currentRow);
+        }
+    }
+
+
 }

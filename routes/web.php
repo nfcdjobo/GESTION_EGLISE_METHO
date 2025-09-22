@@ -54,6 +54,7 @@ require __DIR__.'/private/web/multimedia.php';
 require __DIR__.'/private/web/fimecos.php';
 require __DIR__.'/private/web/moissons.php';
 require __DIR__.'/private/web/assiduite-faible.php';
+require __DIR__.'/private/web/parametres.php';
 
 require __DIR__.'/auth/index.php';
 
@@ -68,6 +69,10 @@ Route::get('/donate', function () {
 
 Route::prefix('dashboard')->name('private.')->middleware(['auth', 'verified', 'user.status'])->group(function () {
     Route::get('', [DashboardController::class, 'index'])->name('dashboard');
+
+    Route::post('/export', [DashboardController::class, 'exporte'])->name('dashboard.exporte');
+
+     Route::get('/export', [DashboardController::class, 'exporte'])->name('dashboard.exporte');
 
     Route::get('/periode', [DashboardController::class, 'getStatistiquesPeriode'])->name('getStatistiquesPeriode');
 });

@@ -583,7 +583,7 @@ function loadUsers() {
     fetch("{{route('private.users.search')}}", {
         headers: {
             'Accept': 'application/json',
-            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            'X-CSRF-TOKEN': '{{ csrf_token() }}',
         }
     })
     .then(response => response.json())

@@ -220,7 +220,7 @@
 
                             <!-- Montant offrande min -->
                             <div>
-                                <label class="block text-sm font-medium text-slate-700 mb-2">Offrande min (€)</label>
+                                <label class="block text-sm font-medium text-slate-700 mb-2">Offrande min (FCFA)</label>
                                 <input type="number" name="offrande_min" value="{{ request('offrande_min') }}" min="0" step="0.01"
                                     class="w-full px-3 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
                             </div>

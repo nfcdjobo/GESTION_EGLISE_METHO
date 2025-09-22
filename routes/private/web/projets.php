@@ -74,6 +74,29 @@ Route::prefix('dashboard/projets')->name('private.projets.')->middleware(['auth'
     // Restauration d'un projet supprimé
     Route::post('/{id}/restore', [ProjetController::class, 'restore'])->name('restore')->withTrashed();
 
+
+
+
+    // NOUVELLES ROUTES pour corriger le workflow
+
+    // Route pour forcer la mise en attente (bypass financement)
+    Route::post('/{projet}/forcer-attente', [ProjetController::class, 'forcerMiseEnAttente'])->name('forcer-attente');
+
+    // Route générique pour exécuter n'importe quelle action du workflow
+    Route::post('/{projet}/action/{action}', [ProjetController::class, 'executerAction'])->name('executer-action');
+
+    // Route pour obtenir le statut détaillé et le workflow possible
+    Route::get('/{projet}/statut', [ProjetController::class, 'getStatutDetaille'])->name('statut-detaille');
+
+    // Route pour valider le workflow (existante - améliorée)
+    Route::get('/{projet}/workflow', [ProjetController::class, 'validerWorkflow'])->name('workflow');
+
+    // Autres routes existantes
+    Route::post('/{projet}/progression', [ProjetController::class, 'mettreAJourProgression'])->name('progression');
+    Route::post('/{projet}/dupliquer', [ProjetController::class, 'dupliquer'])->name('dupliquer');
+    Route::post('/{projet}/upload-image', [ProjetController::class, 'uploadImage'])->name('upload.image');
+    Route::post('/{id}/restore', [ProjetController::class, 'restore'])->name('restore')->withTrashed();
+
 });
 
 

@@ -91,7 +91,7 @@ class ContactController extends Controller
             }
 
             // Pagination
-            $perPage = $request->get('per_page', 20);
+            $perPage = $request->get('per_page', 10);
             $contacts = $query->with(['responsableContact:id,nom,prenom', 'createur:id,nom,prenom', 'modificateur:id,nom,prenom'])
                              ->paginate($perPage)
                              ->withQueryString();

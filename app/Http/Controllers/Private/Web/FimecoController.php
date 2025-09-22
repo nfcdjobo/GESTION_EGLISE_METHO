@@ -36,7 +36,7 @@ class FimecoController extends Controller
             $this->applySorting($query, $request);
 
             // Pagination
-            $perPage = min($request->get('per_page', 15), 100);
+            $perPage = min($request->get('per_page', 10), 100);
             $fimecos = $query->paginate($perPage);
 
             // Enrichissement des données
@@ -604,14 +604,15 @@ class FimecoController extends Controller
     /**
      * Génère un rapport détaillé du FIMECO
      */
-    public function rapport(string $id, Request $request): JsonResponse
+    public function rapport(Request $request, $fimeco)
     {
+
         try {
             $fimeco = Fimeco::with([
                 'responsable',
                 'subscriptions.souscripteur',
                 'subscriptions.payments'
-            ])->findOrFail($id);
+            ])->findOrFail($fimeco);
 
             $format = $request->get('format', 'json'); // json, pdf, excel
 
@@ -656,10 +657,12 @@ class FimecoController extends Controller
 
             // Selon le format demandé
             if ($format === 'pdf') {
+
                 // Génération PDF (nécessite une librairie comme DomPDF)
                 return $this->generatePdfReport($rapport, $fimeco);
             } elseif ($format === 'excel') {
                 // Génération Excel (nécessite Laravel Excel)
+
                 return $this->generateExcelReport($rapport, $fimeco);
             }
 
@@ -669,6 +672,7 @@ class FimecoController extends Controller
             ]);
 
         } catch (Exception $e) {
+            dd(45);
             return response()->json([
                 'success' => false,
                 'message' => 'Erreur lors de la génération du rapport',
@@ -1144,7 +1148,6 @@ class FimecoController extends Controller
             ], 500);
         }
 
-        dd($rapport);
         try {
             $pdf = Pdf::loadView('exports.fimecos.reports-pdf', compact('rapport', 'fimeco'));
 
@@ -1156,6 +1159,7 @@ class FimecoController extends Controller
                 'Content-Type' => 'application/pdf',
             ]);
         } catch (Exception $e) {
+            // dd($e->getMessage());
             return response()->json([
                 'success' => false,
                 'message' => 'Erreur lors de la génération du PDF',
@@ -1217,6 +1221,7 @@ class FimecoController extends Controller
 
     private function generateExcelExport(array $data, string $filename)
     {
+
         // Simple export Excel sans package externe
         return response()->streamDownload(function () use ($data) {
             $handle = fopen('php://output', 'w');

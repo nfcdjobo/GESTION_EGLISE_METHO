@@ -50,7 +50,7 @@ class RapportReunionController extends Controller
         $this->applyFilters($query, $request);
 
         // Pagination
-        $perPage = $request->get('per_page', 15);
+        $perPage = $request->get('per_page', default: 10);
         $rapports = $query->paginate($perPage);
 
         // Statistiques pour le tableau de bord

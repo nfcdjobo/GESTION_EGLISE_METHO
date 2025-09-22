@@ -4,10 +4,27 @@
 @section('content')
 <div class="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 py-8">
     <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
-        <!-- Page Title -->
+       
+
+        <!-- Page Title & Breadcrumb -->
         <div class="mb-8">
             <h1 class="text-3xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent">Profil Membres</h1>
-            <p class="text-slate-500 mt-1">Informations détaillées de {{ $user->nom_complet }} - {{ \Carbon\Carbon::now()->format('l d F Y') }}</p>
+            <nav class="flex mt-2" aria-label="Breadcrumb">
+                <ol class="inline-flex items-center space-x-1 md:space-x-3">
+                    <li class="inline-flex items-center">
+                        <a href="{{ route('private.users.index') }}" class="inline-flex items-center text-sm font-medium text-slate-700 hover:text-blue-600 transition-colors">
+                            <i class="fas fa-credit-card mr-2"></i>
+                            Membres
+                        </a>
+                    </li>
+                    <li>
+                        <div class="flex items-center">
+                            <i class="fas fa-chevron-right text-slate-400 mx-2"></i>
+                            <span class="text-sm font-users text-slate-500">Informations détaillées de {{ $user->nom_complet }} - {{ \Carbon\Carbon::now()->format('l d F Y') }}</span>
+                        </div>
+                    </li>
+                </ol>
+            </nav>
         </div>
 
         <!-- En-tête du profil -->
@@ -613,11 +630,11 @@ document.addEventListener('DOMContentLoaded', function() {
     const cards = document.querySelectorAll('.bg-white\\/80');
     cards.forEach((card, index) => {
         card.style.opacity = '0';
-        card.style.transform = 'translateY(20px)';
+        // card.style.transform = 'translateY(20px)';
         setTimeout(() => {
             card.style.transition = 'all 0.5s ease';
             card.style.opacity = '1';
-            card.style.transform = 'translateY(0)';
+            // card.style.transform = 'translateY(0)';
         }, index * 100);
     });
 });

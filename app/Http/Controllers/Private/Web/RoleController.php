@@ -78,7 +78,7 @@ class RoleController extends Controller
 
 
 
-        $roles = $query->paginate(15)->withQueryString();
+        $roles = $query->paginate(10)->withQueryString();
 
 
 
@@ -201,7 +201,7 @@ class RoleController extends Controller
             ->get()
             ->groupBy('category');
 
-        $rolePermissions = $role->permissions->pluck('id')->toArray();
+        $rolePermissions = $role->permissions;
 
         return view('components.private.roles.edit', compact('role', 'permissions', 'rolePermissions'));
     }

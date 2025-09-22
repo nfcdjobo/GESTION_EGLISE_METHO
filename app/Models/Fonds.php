@@ -364,7 +364,7 @@ class Fonds extends Model
 
     public function peutEtreAnnulee(): bool
     {
-        return in_array($this->statut, ['en_attente', 'validee']);
+    return in_array($this->statut, ['en_attente' /*, 'validee'*/]);
     }
 
     public function peutEtreModifiee(): bool
@@ -374,10 +374,7 @@ class Fonds extends Model
 
     public function peutGenererRecu(): bool
     {
-        return $this->statut === 'validee'
-               && $this->recu_demande
-               && !$this->recu_emis
-               && $this->deductible_impots;
+        return $this->statut === 'validee' && $this->recu_demande /*&& !$this->recu_emis*/ && $this->deductible_impots;
     }
 
     public function valider($validateurId = null, $notes = null): bool

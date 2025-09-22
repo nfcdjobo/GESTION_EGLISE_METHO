@@ -351,7 +351,7 @@
                 setTimeout(() => {
                     form.style.transition = 'all 0.5s ease';
                     form.style.opacity = '1';
-                    form.style.transform = 'translateY(0)';
+                    // form.style.transform = 'translateY(0)';
                 }, 100);
             });
         </script>

@@ -82,9 +82,9 @@
 
                     <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('fonds.generate-receipt')): ?>
                         <?php if($fonds->peutGenererRecu()): ?>
-                            <button type="button" onclick="generateReceipt()" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-amber-600 to-orange-600 text-white text-sm font-medium rounded-xl hover:from-amber-700 hover:to-orange-700 transition-all duration-200 shadow-md hover:shadow-lg">
+                            <a href="<?php echo e(route('private.fonds.receipt.download', $fonds)); ?>"  class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-amber-600 to-orange-600 text-white text-sm font-medium rounded-xl hover:from-amber-700 hover:to-orange-700 transition-all duration-200 shadow-md hover:shadow-lg">
                                 <i class="fas fa-receipt mr-2"></i> Générer Reçu
-                            </button>
+                            </a>
                         <?php endif; ?>
                     <?php endif; ?>
 

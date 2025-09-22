@@ -19,14 +19,14 @@ use Illuminate\Validation\ValidationException;
 class ProjetController extends Controller
 {
     public function __construct()
-{
-    $this->middleware('auth');
-    $this->middleware('permission:projets.read')->only(['index', 'show', 'statistiques', 'projetsPublics', 'options', 'validerWorkflow']);
-    $this->middleware('permission:projets.create')->only(['create', 'store', 'dupliquer']);
-    $this->middleware('permission:projets.update')->only(['edit', 'update', 'mettreAJourProgression', 'uploadImage', 'planifier', 'rechercherFinancement', 'mettreEnAttente', 'demarrer', 'suspendre', 'reprendre', 'terminer', 'annuler', 'executerAction']);
-    $this->middleware('permission:projets.delete')->only(['destroy']);
-    $this->middleware('permission:projets.approve')->only(['approuver']);
-}
+    {
+        $this->middleware('auth');
+        $this->middleware('permission:projets.read')->only(['index', 'show', 'statistiques', 'projetsPublics', 'options', 'validerWorkflow']);
+        $this->middleware('permission:projets.create')->only(['create', 'store', 'dupliquer']);
+        $this->middleware('permission:projets.update')->only(['edit', 'update', 'mettreAJourProgression', 'uploadImage', 'planifier', 'rechercherFinancement', 'mettreEnAttente', 'demarrer', 'suspendre', 'reprendre', 'terminer', 'annuler', 'executerAction']);
+        $this->middleware('permission:projets.delete')->only(['destroy']);
+        $this->middleware('permission:projets.approve')->only(['approuver']);
+    }
 
     /**
      * Affiche la liste des projets avec filtrage et pagination
@@ -70,9 +70,9 @@ class ProjetController extends Controller
                 $search = $request->search;
                 $query->where(function ($q) use ($search) {
                     $q->where('nom_projet', 'ILIKE', '%' . $search . '%')
-                      ->orWhere('code_projet', 'ILIKE', '%' . $search . '%')
-                      ->orWhere('description', 'ILIKE', '%' . $search . '%')
-                      ->orWhere('objectif', 'ILIKE', '%' . $search . '%');
+                        ->orWhere('code_projet', 'ILIKE', '%' . $search . '%')
+                        ->orWhere('description', 'ILIKE', '%' . $search . '%')
+                        ->orWhere('objectif', 'ILIKE', '%' . $search . '%');
                 });
             }
 
@@ -116,9 +116,17 @@ class ProjetController extends Controller
             $sortDirection = $request->get('sort_direction', 'desc');
 
             $allowedSorts = [
-                'nom_projet', 'code_projet', 'date_creation', 'date_debut',
-                'date_fin_prevue', 'budget_prevu', 'budget_collecte',
-                'pourcentage_completion', 'priorite', 'statut', 'created_at'
+                'nom_projet',
+                'code_projet',
+                'date_creation',
+                'date_debut',
+                'date_fin_prevue',
+                'budget_prevu',
+                'budget_collecte',
+                'pourcentage_completion',
+                'priorite',
+                'statut',
+                'created_at'
             ];
 
             if (in_array($sortBy, $allowedSorts)) {
@@ -126,7 +134,7 @@ class ProjetController extends Controller
             }
 
             // Pagination
-            $perPage = min($request->get('per_page', 15), 100);
+            $perPage = min($request->get('per_page', 10), 100);
             $projets = $query->paginate($perPage);
 
             // Retour conditionnel
@@ -155,8 +163,8 @@ class ProjetController extends Controller
             }
 
             return redirect()->back()
-                           ->with('error', 'Erreur lors de la récupération des projets')
-                           ->withInput();
+                ->with('error', 'Erreur lors de la récupération des projets')
+                ->withInput();
         }
     }
 
@@ -213,7 +221,7 @@ class ProjetController extends Controller
                     'message' => 'Projet récupéré avec succès'
                 ]);
             }
-            // dd($projet);
+            // dd($projet->budget_collecte);
             return view('components.private.projets.show', compact('projet', 'statistiquesFinancieres'));
 
         } catch (\Exception $e) {
@@ -228,7 +236,7 @@ class ProjetController extends Controller
             }
 
             return redirect()->route('private.projets.index')
-                           ->with('error', 'Projet non trouvé');
+                ->with('error', 'Projet non trouvé');
         }
     }
 
@@ -254,7 +262,7 @@ class ProjetController extends Controller
             Log::error('Erreur lors de la récupération du projet pour édition: ' . $e->getMessage());
 
             return redirect()->route('private.projets.index')
-                           ->with('error', 'Projet non trouvé');
+                ->with('error', 'Projet non trouvé');
         }
     }
 
@@ -311,8 +319,8 @@ class ProjetController extends Controller
                 }
 
                 return redirect()->back()
-                               ->withErrors($validator)
-                               ->withInput();
+                    ->withErrors($validator)
+                    ->withInput();
             }
 
             DB::beginTransaction();
@@ -336,8 +344,8 @@ class ProjetController extends Controller
                 }
 
                 return redirect()->back()
-                               ->with('error', 'Erreurs de validation: ' . implode(', ', $erreurs))
-                               ->withInput();
+                    ->with('error', 'Erreurs de validation: ' . implode(', ', $erreurs))
+                    ->withInput();
             }
 
             DB::commit();
@@ -351,7 +359,7 @@ class ProjetController extends Controller
             }
 
             return redirect()->route('private.projets.show', $projet->id)
-                           ->with('success', 'Projet créé avec succès');
+                ->with('success', 'Projet créé avec succès');
 
         } catch (\Exception $e) {
             DB::rollBack();
@@ -366,8 +374,8 @@ class ProjetController extends Controller
             }
 
             return redirect()->back()
-                           ->with('error', 'Erreur lors de la création du projet')
-                           ->withInput();
+                ->with('error', 'Erreur lors de la création du projet')
+                ->withInput();
         }
     }
 
@@ -418,8 +426,8 @@ class ProjetController extends Controller
                 }
 
                 return redirect()->back()
-                               ->withErrors($validator)
-                               ->withInput();
+                    ->withErrors($validator)
+                    ->withInput();
             }
 
             DB::beginTransaction();
@@ -440,8 +448,8 @@ class ProjetController extends Controller
                 }
 
                 return redirect()->back()
-                               ->with('error', 'Erreurs de validation: ' . implode(', ', $erreurs))
-                               ->withInput();
+                    ->with('error', 'Erreurs de validation: ' . implode(', ', $erreurs))
+                    ->withInput();
             }
 
             DB::commit();
@@ -455,7 +463,7 @@ class ProjetController extends Controller
             }
 
             return redirect()->route('private.projets.show', $projet->id)
-                           ->with('success', 'Projet mis à jour avec succès');
+                ->with('success', 'Projet mis à jour avec succès');
 
         } catch (\Exception $e) {
             DB::rollBack();
@@ -470,8 +478,8 @@ class ProjetController extends Controller
             }
 
             return redirect()->back()
-                           ->with('error', 'Erreur lors de la mise à jour du projet')
-                           ->withInput();
+                ->with('error', 'Erreur lors de la mise à jour du projet')
+                ->withInput();
         }
     }
 
@@ -493,7 +501,7 @@ class ProjetController extends Controller
                 }
 
                 return redirect()->back()
-                               ->with('error', 'Impossible de supprimer un projet en cours ou suspendu');
+                    ->with('error', 'Impossible de supprimer un projet en cours ou suspendu');
             }
 
             $projet->delete();
@@ -506,7 +514,7 @@ class ProjetController extends Controller
             }
 
             return redirect()->route('private.projets.index')
-                           ->with('success', 'Projet supprimé avec succès');
+                ->with('success', 'Projet supprimé avec succès');
 
         } catch (\Exception $e) {
             Log::error('Erreur lors de la suppression du projet: ' . $e->getMessage());
@@ -520,7 +528,7 @@ class ProjetController extends Controller
             }
 
             return redirect()->back()
-                           ->with('error', 'Erreur lors de la suppression du projet');
+                ->with('error', 'Erreur lors de la suppression du projet');
         }
     }
 
@@ -541,7 +549,7 @@ class ProjetController extends Controller
                 }
 
                 return redirect()->back()
-                               ->with('error', 'Ce projet ne peut pas être approuvé dans son état actuel');
+                    ->with('error', 'Ce projet ne peut pas être approuvé dans son état actuel');
             }
 
             $validator = Validator::make($request->all(), [
@@ -558,7 +566,7 @@ class ProjetController extends Controller
                 }
 
                 return redirect()->back()
-                               ->withErrors($validator);
+                    ->withErrors($validator);
             }
 
             $success = $projet->approuver(auth()->id(), $request->commentaires_approbation);
@@ -573,7 +581,7 @@ class ProjetController extends Controller
                 }
 
                 return redirect()->route('private.projets.show', $projet->id)
-                               ->with('success', 'Projet approuvé avec succès');
+                    ->with('success', 'Projet approuvé avec succès');
             } else {
                 if ($request->expectsJson()) {
                     return response()->json([
@@ -583,7 +591,7 @@ class ProjetController extends Controller
                 }
 
                 return redirect()->back()
-                               ->with('error', 'Erreur lors de l\'approbation du projet');
+                    ->with('error', 'Erreur lors de l\'approbation du projet');
             }
 
         } catch (\Exception $e) {
@@ -598,101 +606,101 @@ class ProjetController extends Controller
             }
 
             return redirect()->back()
-                           ->with('error', 'Erreur lors de l\'approbation du projet');
+                ->with('error', 'Erreur lors de l\'approbation du projet');
         }
     }
 
     /**
      * Démarre un projet
      */
-public function demarrer(Request $request, string $id)
-{
-    try {
-        $projet = Projet::findOrFail($id);
+    public function demarrer(Request $request, string $id)
+    {
+        try {
+            $projet = Projet::findOrFail($id);
 
-        // Vérification stricte du workflow cohérent
-        if (!$projet->peutEtreDemarre()) {
-            $message = 'Ce projet ne peut pas être démarré. ';
+            // Vérification stricte du workflow cohérent
+            if (!$projet->peutEtreDemarre()) {
+                $message = 'Ce projet ne peut pas être démarré. ';
 
-            // Messages d'aide contextuelle
-            if ($projet->statut === 'conception') {
-                $message .= 'Il doit d\'abord être approuvé puis planifié.';
-            } elseif ($projet->statut === 'planification') {
-                $message .= 'Il doit d\'abord passer par les étapes de financement ou être mis en attente.';
-            } elseif ($projet->statut === 'recherche_financement') {
-                $message .= 'Le financement minimum requis n\'est pas encore atteint.';
+                // Messages d'aide contextuelle
+                if ($projet->statut === 'conception') {
+                    $message .= 'Il doit d\'abord être approuvé puis planifié.';
+                } elseif ($projet->statut === 'planification') {
+                    $message .= 'Il doit d\'abord passer par les étapes de financement ou être mis en attente.';
+                } elseif ($projet->statut === 'recherche_financement') {
+                    $message .= 'Le financement minimum requis n\'est pas encore atteint.';
+                } else {
+                    $message .= 'Statut actuel : ' . $projet->statut_libelle;
+                }
+
+                if ($request->expectsJson()) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => $message
+                    ], 400);
+                }
+
+                return redirect()->back()
+                    ->with('error', $message);
+            }
+
+            $validator = Validator::make($request->all(), [
+                'date_debut' => 'nullable|date'
+            ]);
+
+            if ($validator->fails()) {
+                if ($request->expectsJson()) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Date invalide',
+                        'errors' => $validator->errors()
+                    ], 422);
+                }
+
+                return redirect()->back()
+                    ->withErrors($validator);
+            }
+
+            $success = $projet->demarrer($request->date_debut);
+
+            if ($success) {
+                if ($request->expectsJson()) {
+                    return response()->json([
+                        'success' => true,
+                        'data' => $projet->refresh(),
+                        'message' => 'Projet démarré avec succès'
+                    ]);
+                }
+
+                return redirect()->route('private.projets.show', $projet->id)
+                    ->with('success', 'Projet démarré avec succès');
             } else {
-                $message .= 'Statut actuel : ' . $projet->statut_libelle;
+                if ($request->expectsJson()) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Erreur lors du démarrage du projet'
+                    ], 500);
+                }
+
+                return redirect()->back()
+                    ->with('error', 'Erreur lors du démarrage du projet');
             }
+
+        } catch (\Exception $e) {
+            Log::error('Erreur lors du démarrage du projet: ' . $e->getMessage());
 
             if ($request->expectsJson()) {
                 return response()->json([
                     'success' => false,
-                    'message' => $message
-                ], 400);
-            }
-
-            return redirect()->back()
-                           ->with('error', $message);
-        }
-
-        $validator = Validator::make($request->all(), [
-            'date_debut' => 'nullable|date'
-        ]);
-
-        if ($validator->fails()) {
-            if ($request->expectsJson()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Date invalide',
-                    'errors' => $validator->errors()
-                ], 422);
-            }
-
-            return redirect()->back()
-                           ->withErrors($validator);
-        }
-
-        $success = $projet->demarrer($request->date_debut);
-
-        if ($success) {
-            if ($request->expectsJson()) {
-                return response()->json([
-                    'success' => true,
-                    'data' => $projet->refresh(),
-                    'message' => 'Projet démarré avec succès'
-                ]);
-            }
-
-            return redirect()->route('private.projets.show', $projet->id)
-                           ->with('success', 'Projet démarré avec succès');
-        } else {
-            if ($request->expectsJson()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Erreur lors du démarrage du projet'
+                    'message' => 'Erreur lors du démarrage du projet',
+                    'error' => $e->getMessage()
                 ], 500);
             }
 
             return redirect()->back()
-                           ->with('error', 'Erreur lors du démarrage du projet');
+                ->with('error', 'Erreur lors du démarrage du projet');
         }
-
-    } catch (\Exception $e) {
-        Log::error('Erreur lors du démarrage du projet: ' . $e->getMessage());
-
-        if ($request->expectsJson()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Erreur lors du démarrage du projet',
-                'error' => $e->getMessage()
-            ], 500);
-        }
-
-        return redirect()->back()
-                       ->with('error', 'Erreur lors du démarrage du projet');
     }
-}
 
     /**
      * Suspend un projet
@@ -711,7 +719,7 @@ public function demarrer(Request $request, string $id)
                 }
 
                 return redirect()->back()
-                               ->with('error', 'Ce projet ne peut pas être suspendu');
+                    ->with('error', 'Ce projet ne peut pas être suspendu');
             }
 
             $validator = Validator::make($request->all(), [
@@ -728,7 +736,7 @@ public function demarrer(Request $request, string $id)
                 }
 
                 return redirect()->back()
-                               ->withErrors($validator);
+                    ->withErrors($validator);
             }
 
             $success = $projet->suspendre($request->motif);
@@ -743,7 +751,7 @@ public function demarrer(Request $request, string $id)
                 }
 
                 return redirect()->route('private.projets.show', $projet->id)
-                               ->with('success', 'Projet suspendu avec succès');
+                    ->with('success', 'Projet suspendu avec succès');
             } else {
                 if ($request->expectsJson()) {
                     return response()->json([
@@ -753,7 +761,7 @@ public function demarrer(Request $request, string $id)
                 }
 
                 return redirect()->back()
-                               ->with('error', 'Erreur lors de la suspension du projet');
+                    ->with('error', 'Erreur lors de la suspension du projet');
             }
 
         } catch (\Exception $e) {
@@ -768,7 +776,7 @@ public function demarrer(Request $request, string $id)
             }
 
             return redirect()->back()
-                           ->with('error', 'Erreur lors de la suspension du projet');
+                ->with('error', 'Erreur lors de la suspension du projet');
         }
     }
 
@@ -789,7 +797,7 @@ public function demarrer(Request $request, string $id)
                 }
 
                 return redirect()->back()
-                               ->with('error', 'Ce projet ne peut pas être repris');
+                    ->with('error', 'Ce projet ne peut pas être repris');
             }
 
             $success = $projet->reprendre();
@@ -804,7 +812,7 @@ public function demarrer(Request $request, string $id)
                 }
 
                 return redirect()->route('private.projets.show', $projet->id)
-                               ->with('success', 'Projet repris avec succès');
+                    ->with('success', 'Projet repris avec succès');
             } else {
                 if ($request->expectsJson()) {
                     return response()->json([
@@ -814,7 +822,7 @@ public function demarrer(Request $request, string $id)
                 }
 
                 return redirect()->back()
-                               ->with('error', 'Erreur lors de la reprise du projet');
+                    ->with('error', 'Erreur lors de la reprise du projet');
             }
 
         } catch (\Exception $e) {
@@ -829,7 +837,7 @@ public function demarrer(Request $request, string $id)
             }
 
             return redirect()->back()
-                           ->with('error', 'Erreur lors de la reprise du projet');
+                ->with('error', 'Erreur lors de la reprise du projet');
         }
     }
 
@@ -850,7 +858,7 @@ public function demarrer(Request $request, string $id)
                 }
 
                 return redirect()->back()
-                               ->with('error', 'Ce projet ne peut pas être terminé');
+                    ->with('error', 'Ce projet ne peut pas être terminé');
             }
 
             $validator = Validator::make($request->all(), [
@@ -872,7 +880,7 @@ public function demarrer(Request $request, string $id)
                 }
 
                 return redirect()->back()
-                               ->withErrors($validator);
+                    ->withErrors($validator);
             }
 
             DB::beginTransaction();
@@ -882,8 +890,10 @@ public function demarrer(Request $request, string $id)
             if ($success) {
                 // Mettre à jour les champs supplémentaires
                 $projet->update($request->only([
-                    'note_satisfaction', 'impact_communaute',
-                    'lecons_apprises', 'recommandations'
+                    'note_satisfaction',
+                    'impact_communaute',
+                    'lecons_apprises',
+                    'recommandations'
                 ]));
 
                 DB::commit();
@@ -897,7 +907,7 @@ public function demarrer(Request $request, string $id)
                 }
 
                 return redirect()->route('private.projets.show', $projet->id)
-                               ->with('success', 'Projet terminé avec succès');
+                    ->with('success', 'Projet terminé avec succès');
             } else {
                 DB::rollBack();
 
@@ -909,7 +919,7 @@ public function demarrer(Request $request, string $id)
                 }
 
                 return redirect()->back()
-                               ->with('error', 'Erreur lors de la finalisation du projet');
+                    ->with('error', 'Erreur lors de la finalisation du projet');
             }
 
         } catch (\Exception $e) {
@@ -925,7 +935,7 @@ public function demarrer(Request $request, string $id)
             }
 
             return redirect()->back()
-                           ->with('error', 'Erreur lors de la finalisation du projet');
+                ->with('error', 'Erreur lors de la finalisation du projet');
         }
     }
 
@@ -946,7 +956,7 @@ public function demarrer(Request $request, string $id)
                 }
 
                 return redirect()->back()
-                               ->with('error', 'Ce projet ne peut pas être annulé');
+                    ->with('error', 'Ce projet ne peut pas être annulé');
             }
 
             $validator = Validator::make($request->all(), [
@@ -963,7 +973,7 @@ public function demarrer(Request $request, string $id)
                 }
 
                 return redirect()->back()
-                               ->withErrors($validator);
+                    ->withErrors($validator);
             }
 
             $success = $projet->annuler($request->motif);
@@ -978,7 +988,7 @@ public function demarrer(Request $request, string $id)
                 }
 
                 return redirect()->route('private.projets.show', $projet->id)
-                               ->with('success', 'Projet annulé avec succès');
+                    ->with('success', 'Projet annulé avec succès');
             } else {
                 if ($request->expectsJson()) {
                     return response()->json([
@@ -988,7 +998,7 @@ public function demarrer(Request $request, string $id)
                 }
 
                 return redirect()->back()
-                               ->with('error', 'Erreur lors de l\'annulation du projet');
+                    ->with('error', 'Erreur lors de l\'annulation du projet');
             }
 
         } catch (\Exception $e) {
@@ -1003,136 +1013,136 @@ public function demarrer(Request $request, string $id)
             }
 
             return redirect()->back()
-                           ->with('error', 'Erreur lors de l\'annulation du projet');
+                ->with('error', 'Erreur lors de l\'annulation du projet');
         }
     }
 
 
 
-/**
- * Planifie un projet (passage de conception à planification)
- */
-public function planifier(string $id, Request $request)
-{
-    try {
-        $projet = Projet::findOrFail($id);
+    /**
+     * Planifie un projet (passage de conception à planification)
+     */
+    public function planifier(string $id, Request $request)
+    {
+        try {
+            $projet = Projet::findOrFail($id);
 
-        if (!$projet->peutEtrePlanifie()) {
+            if (!$projet->peutEtrePlanifie()) {
+                if ($request->expectsJson()) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Ce projet ne peut pas être planifié dans son état actuel'
+                    ], 400);
+                }
+
+                return redirect()->back()
+                    ->with('error', 'Ce projet ne peut pas être planifié dans son état actuel');
+            }
+
+            $success = $projet->planifier();
+
+            if ($success) {
+                if ($request->expectsJson()) {
+                    return response()->json([
+                        'success' => true,
+                        'data' => $projet->refresh(),
+                        'message' => 'Projet planifié avec succès'
+                    ]);
+                }
+
+                return redirect()->route('private.projets.show', $projet->id)
+                    ->with('success', 'Projet planifié avec succès');
+            } else {
+                if ($request->expectsJson()) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Erreur lors de la planification du projet'
+                    ], 500);
+                }
+
+                return redirect()->back()
+                    ->with('error', 'Erreur lors de la planification du projet');
+            }
+
+        } catch (\Exception $e) {
+            Log::error('Erreur lors de la planification du projet: ' . $e->getMessage());
+
             if ($request->expectsJson()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Ce projet ne peut pas être planifié dans son état actuel'
-                ], 400);
-            }
-
-            return redirect()->back()
-                           ->with('error', 'Ce projet ne peut pas être planifié dans son état actuel');
-        }
-
-        $success = $projet->planifier();
-
-        if ($success) {
-            if ($request->expectsJson()) {
-                return response()->json([
-                    'success' => true,
-                    'data' => $projet->refresh(),
-                    'message' => 'Projet planifié avec succès'
-                ]);
-            }
-
-            return redirect()->route('private.projets.show', $projet->id)
-                           ->with('success', 'Projet planifié avec succès');
-        } else {
-            if ($request->expectsJson()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Erreur lors de la planification du projet'
+                    'message' => 'Erreur lors de la planification du projet',
+                    'error' => $e->getMessage()
                 ], 500);
             }
 
             return redirect()->back()
-                           ->with('error', 'Erreur lors de la planification du projet');
+                ->with('error', 'Erreur lors de la planification du projet');
         }
-
-    } catch (\Exception $e) {
-        Log::error('Erreur lors de la planification du projet: ' . $e->getMessage());
-
-        if ($request->expectsJson()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Erreur lors de la planification du projet',
-                'error' => $e->getMessage()
-            ], 500);
-        }
-
-        return redirect()->back()
-                       ->with('error', 'Erreur lors de la planification du projet');
     }
-}
 
 
 
 
-/**
- * Met un projet en recherche de financement
- */
-public function rechercherFinancement(string $id, Request $request)
-{
-    try {
-        $projet = Projet::findOrFail($id);
+    /**
+     * Met un projet en recherche de financement
+     */
+    public function rechercherFinancement(string $id, Request $request)
+    {
+        try {
+            $projet = Projet::findOrFail($id);
 
-        if (!$projet->peutEtreEnRechercheFinancement()) {
+            if (!$projet->peutEtreEnRechercheFinancement()) {
+                if ($request->expectsJson()) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Ce projet ne peut pas être mis en recherche de financement dans son état actuel'
+                    ], 400);
+                }
+
+                return redirect()->back()
+                    ->with('error', 'Ce projet ne peut pas être mis en recherche de financement dans son état actuel');
+            }
+
+            $success = $projet->mettreEnRechercheFinancement();
+
+            if ($success) {
+                if ($request->expectsJson()) {
+                    return response()->json([
+                        'success' => true,
+                        'data' => $projet->refresh(),
+                        'message' => 'Projet mis en recherche de financement avec succès'
+                    ]);
+                }
+
+                return redirect()->route('private.projets.show', $projet->id)
+                    ->with('success', 'Projet mis en recherche de financement avec succès');
+            } else {
+                if ($request->expectsJson()) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Erreur lors de la mise en recherche de financement'
+                    ], 500);
+                }
+
+                return redirect()->back()
+                    ->with('error', 'Erreur lors de la mise en recherche de financement');
+            }
+
+        } catch (\Exception $e) {
+            Log::error('Erreur lors de la mise en recherche de financement: ' . $e->getMessage());
+
             if ($request->expectsJson()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Ce projet ne peut pas être mis en recherche de financement dans son état actuel'
-                ], 400);
-            }
-
-            return redirect()->back()
-                           ->with('error', 'Ce projet ne peut pas être mis en recherche de financement dans son état actuel');
-        }
-
-        $success = $projet->mettreEnRechercheFinancement();
-
-        if ($success) {
-            if ($request->expectsJson()) {
-                return response()->json([
-                    'success' => true,
-                    'data' => $projet->refresh(),
-                    'message' => 'Projet mis en recherche de financement avec succès'
-                ]);
-            }
-
-            return redirect()->route('private.projets.show', $projet->id)
-                           ->with('success', 'Projet mis en recherche de financement avec succès');
-        } else {
-            if ($request->expectsJson()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Erreur lors de la mise en recherche de financement'
+                    'message' => 'Erreur lors de la mise en recherche de financement',
+                    'error' => $e->getMessage()
                 ], 500);
             }
 
             return redirect()->back()
-                           ->with('error', 'Erreur lors de la mise en recherche de financement');
+                ->with('error', 'Erreur lors de la mise en recherche de financement');
         }
-
-    } catch (\Exception $e) {
-        Log::error('Erreur lors de la mise en recherche de financement: ' . $e->getMessage());
-
-        if ($request->expectsJson()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Erreur lors de la mise en recherche de financement',
-                'error' => $e->getMessage()
-            ], 500);
-        }
-
-        return redirect()->back()
-                       ->with('error', 'Erreur lors de la mise en recherche de financement');
     }
-}
 
 
     /**
@@ -1158,7 +1168,7 @@ public function rechercherFinancement(string $id, Request $request)
                 }
 
                 return redirect()->back()
-                               ->withErrors($validator);
+                    ->withErrors($validator);
             }
 
             $success = $projet->mettreAJourProgression(
@@ -1176,7 +1186,7 @@ public function rechercherFinancement(string $id, Request $request)
                 }
 
                 return redirect()->route('private.projets.show', $projet->id)
-                               ->with('success', 'Progression mise à jour avec succès');
+                    ->with('success', 'Progression mise à jour avec succès');
             } else {
                 if ($request->expectsJson()) {
                     return response()->json([
@@ -1186,7 +1196,7 @@ public function rechercherFinancement(string $id, Request $request)
                 }
 
                 return redirect()->back()
-                               ->with('error', 'Impossible de mettre à jour la progression pour ce projet');
+                    ->with('error', 'Impossible de mettre à jour la progression pour ce projet');
             }
 
         } catch (\Exception $e) {
@@ -1201,7 +1211,7 @@ public function rechercherFinancement(string $id, Request $request)
             }
 
             return redirect()->back()
-                           ->with('error', 'Erreur lors de la mise à jour de progression');
+                ->with('error', 'Erreur lors de la mise à jour de progression');
         }
     }
 
@@ -1228,7 +1238,7 @@ public function rechercherFinancement(string $id, Request $request)
                 }
 
                 return redirect()->back()
-                               ->withErrors($validator);
+                    ->withErrors($validator);
             }
 
             DB::beginTransaction();
@@ -1246,7 +1256,7 @@ public function rechercherFinancement(string $id, Request $request)
             }
 
             return redirect()->route('private.projets.show', $nouveauProjet->id)
-                           ->with('success', 'Projet dupliqué avec succès');
+                ->with('success', 'Projet dupliqué avec succès');
 
         } catch (\Exception $e) {
             DB::rollBack();
@@ -1261,7 +1271,7 @@ public function rechercherFinancement(string $id, Request $request)
             }
 
             return redirect()->back()
-                           ->with('error', 'Erreur lors de la duplication du projet');
+                ->with('error', 'Erreur lors de la duplication du projet');
         }
     }
 
@@ -1271,7 +1281,7 @@ public function rechercherFinancement(string $id, Request $request)
     public function statistiques(Request $request)
     {
         try {
-            // Statistiques par statut
+            // Statistiques par statutc
             $statsStatut = Projet::statistiquesParStatut();
 
             // Statistiques par type
@@ -1330,8 +1340,8 @@ public function rechercherFinancement(string $id, Request $request)
                     'projets_crees' => Projet::whereBetween('created_at', [$dateDebut, $dateFin])->count(),
                     'projets_demarres' => Projet::whereBetween('date_debut', [$dateDebut, $dateFin])->count(),
                     'projets_termines' => Projet::where('statut', 'termine')
-                                               ->whereBetween('date_fin_reelle', [$dateDebut, $dateFin])
-                                               ->count()
+                        ->whereBetween('date_fin_reelle', [$dateDebut, $dateFin])
+                        ->count()
                 ];
             }
 
@@ -1357,7 +1367,7 @@ public function rechercherFinancement(string $id, Request $request)
             }
 
             return redirect()->back()
-                           ->with('error', 'Erreur lors de la récupération des statistiques');
+                ->with('error', 'Erreur lors de la récupération des statistiques');
         }
     }
 
@@ -1368,8 +1378,8 @@ public function rechercherFinancement(string $id, Request $request)
     {
         try {
             $query = Projet::visiblesPublic()
-                          ->ouvertsAuxDons()
-                          ->with(['responsable']);
+                ->ouvertsAuxDons()
+                ->with(['responsable']);
 
             // Filtres optionnels
             if ($request->has('type_projet')) {
@@ -1386,7 +1396,7 @@ public function rechercherFinancement(string $id, Request $request)
 
             // Tri par défaut : priorité puis pourcentage de financement
             $query->orderBy('priorite', 'desc')
-                  ->orderBy('pourcentage_completion', 'asc');
+                ->orderBy('pourcentage_completion', 'asc');
 
             $projets = $query->get();
 
@@ -1412,7 +1422,7 @@ public function rechercherFinancement(string $id, Request $request)
             }
 
             return redirect()->back()
-                           ->with('error', 'Erreur lors de la récupération des projets publics');
+                ->with('error', 'Erreur lors de la récupération des projets publics');
         }
     }
 
@@ -1511,7 +1521,7 @@ public function rechercherFinancement(string $id, Request $request)
             }
 
             return redirect()->back()
-                           ->with('error', 'Erreur lors de la récupération des options');
+                ->with('error', 'Erreur lors de la récupération des options');
         }
     }
 
@@ -1563,15 +1573,15 @@ public function rechercherFinancement(string $id, Request $request)
                 'critique' => 'Critique'
             ],
             'responsables' => User::actifs()
-                                 ->select('id', 'prenom', 'nom')
-                                 ->orderBy('nom')
-                                 ->get()
-                                 ->map(function ($user) {
-                                     return [
-                                         'id' => $user->id,
-                                         'nom_complet' => $user->nom_complet
-                                     ];
-                                 }),
+                ->select('id', 'prenom', 'nom')
+                ->orderBy('nom')
+                ->get()
+                ->map(function ($user) {
+                    return [
+                        'id' => $user->id,
+                        'nom_complet' => $user->nom_complet
+                    ];
+                }),
             'frequences_recurrence' => [
                 'annuelle' => 'Annuelle',
                 'semestrielle' => 'Semestrielle',
@@ -1584,115 +1594,231 @@ public function rechercherFinancement(string $id, Request $request)
 
 
     /**
- * Met un projet en attente (prêt à démarrer)
- */
-public function mettreEnAttente(string $id, Request $request)
-{
-    try {
-        $projet = Projet::findOrFail($id);
+     * Met un projet en attente (prêt à démarrer)
+     */
+    public function mettreEnAttente(string $id, Request $request)
+    {
+        try {
+            $projet = Projet::findOrFail($id);
 
-        if (!$projet->peutEtreEnAttente()) {
+            if (!$projet->peutEtreEnAttente()) {
+                if ($request->expectsJson()) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Ce projet ne peut pas être mis en attente dans son état actuel'
+                    ], 400);
+                }
+
+                return redirect()->back()
+                    ->with('error', 'Ce projet ne peut pas être mis en attente dans son état actuel');
+            }
+
+            $success = $projet->mettreEnAttente();
+
+            if ($success) {
+                if ($request->expectsJson()) {
+                    return response()->json([
+                        'success' => true,
+                        'data' => $projet->refresh(),
+                        'message' => 'Projet mis en attente avec succès'
+                    ]);
+                }
+
+                return redirect()->route('private.projets.show', $projet->id)
+                    ->with('success', 'Projet mis en attente avec succès');
+            } else {
+                if ($request->expectsJson()) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Erreur lors de la mise en attente du projet'
+                    ], 500);
+                }
+
+                return redirect()->back()
+                    ->with('error', 'Erreur lors de la mise en attente du projet');
+            }
+
+        } catch (\Exception $e) {
+            Log::error('Erreur lors de la mise en attente du projet: ' . $e->getMessage());
+
             if ($request->expectsJson()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Ce projet ne peut pas être mis en attente dans son état actuel'
-                ], 400);
-            }
-
-            return redirect()->back()
-                           ->with('error', 'Ce projet ne peut pas être mis en attente dans son état actuel');
-        }
-
-        $success = $projet->mettreEnAttente();
-
-        if ($success) {
-            if ($request->expectsJson()) {
-                return response()->json([
-                    'success' => true,
-                    'data' => $projet->refresh(),
-                    'message' => 'Projet mis en attente avec succès'
-                ]);
-            }
-
-            return redirect()->route('private.projets.show', $projet->id)
-                           ->with('success', 'Projet mis en attente avec succès');
-        } else {
-            if ($request->expectsJson()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Erreur lors de la mise en attente du projet'
+                    'message' => 'Erreur lors de la mise en attente du projet',
+                    'error' => $e->getMessage()
                 ], 500);
             }
 
             return redirect()->back()
-                           ->with('error', 'Erreur lors de la mise en attente du projet');
+                ->with('error', 'Erreur lors de la mise en attente du projet');
         }
-
-    } catch (\Exception $e) {
-        Log::error('Erreur lors de la mise en attente du projet: ' . $e->getMessage());
-
-        if ($request->expectsJson()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Erreur lors de la mise en attente du projet',
-                'error' => $e->getMessage()
-            ], 500);
-        }
-
-        return redirect()->back()
-                       ->with('error', 'Erreur lors de la mise en attente du projet');
     }
-}
 
 
-/**
- * Valide le workflow d'un projet et suggère la prochaine action
- */
-public function validerWorkflow(string $id, Request $request)
-{
-    try {
-        $projet = Projet::findOrFail($id);
+    /**
+     * Valide le workflow d'un projet et suggère la prochaine action
+     */
+    public function validerWorkflow(string $id, Request $request)
+    {
+        try {
+            $projet = Projet::findOrFail($id);
 
-        $workflow = [
-            'statut_actuel' => $projet->statut,
-            'statut_libelle' => $projet->statut_libelle,
-            'est_approuve' => $projet->est_approuve,
-            'necessiteAction' => $projet->necessiteAction(),
-            'prochaine_action' => $projet->getProchainePossibleAction(),
-            'actions_possibles' => $projet->getWorkflowPossible(),
-            'erreurs_validation' => $projet->validate(),
-        ];
+            $workflow = [
+                'statut_actuel' => $projet->statut,
+                'statut_libelle' => $projet->statut_libelle,
+                'est_approuve' => $projet->est_approuve,
+                'necessiteAction' => $projet->necessiteAction(),
+                'prochaine_action' => $projet->getProchainePossibleAction(),
+                'actions_possibles' => $projet->getWorkflowPossible(),
+                'erreurs_validation' => $projet->validate(),
+            ];
 
-        if ($request->expectsJson()) {
-            return response()->json([
-                'success' => true,
-                'data' => $workflow,
-                'message' => 'Workflow validé avec succès'
-            ]);
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'data' => $workflow,
+                    'message' => 'Workflow validé avec succès'
+                ]);
+            }
+
+            return view('components.private.projets.workflow', compact('projet', 'workflow'));
+
+        } catch (\Exception $e) {
+            Log::error('Erreur lors de la validation du workflow: ' . $e->getMessage());
+
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Erreur lors de la validation du workflow',
+                    'error' => $e->getMessage()
+                ], 500);
+            }
+
+            return redirect()->back()
+                ->with('error', 'Erreur lors de la validation du workflow');
         }
-
-        return view('components.private.projets.workflow', compact('projet', 'workflow'));
-
-    } catch (\Exception $e) {
-        Log::error('Erreur lors de la validation du workflow: ' . $e->getMessage());
-
-        if ($request->expectsJson()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Erreur lors de la validation du workflow',
-                'error' => $e->getMessage()
-            ], 500);
-        }
-
-        return redirect()->back()
-                       ->with('error', 'Erreur lors de la validation du workflow');
     }
-}
 
 
 
-/**
- * AMÉLIORATION : Méthode générique pour exécuter n'importe quelle action du workflow
+    /**
+     *  Méthode générique pour exécuter n'importe quelle action du workflow
+     */
+    // public function executerAction(string $id, string $action, Request $request)
+    // {
+    //     try {
+    //         $projet = Projet::findOrFail($id);
+
+    //         $actionsPermises = $projet->getWorkflowPossible();
+
+    //         if (!in_array($action, $actionsPermises)) {
+    //             if ($request->expectsJson()) {
+    //                 return response()->json([
+    //                     'success' => false,
+    //                     'message' => 'Cette action n\'est pas permise pour le statut actuel du projet',
+    //                     'actions_disponibles' => $actionsPermises
+    //                 ], 400);
+    //             }
+
+    //             return redirect()->back()
+    //                 ->with('error', 'Cette action n\'est pas permise pour le statut actuel du projet');
+    //         }
+
+    //         $success = false;
+    //         $message = '';
+
+    //         // Exécuter l'action correspondante
+    //         switch ($action) {
+    //             case 'approuver':
+    //                 $success = $projet->approuver(auth()->id(), $request->commentaires_approbation);
+    //                 $message = 'Projet approuvé avec succès';
+    //                 break;
+
+    //             case 'planifier':
+    //                 $success = $projet->planifier();
+    //                 $message = 'Projet planifié avec succès';
+    //                 break;
+
+    //             case 'rechercher_financement':
+    //                 $success = $projet->mettreEnRechercheFinancement();
+    //                 $message = 'Projet mis en recherche de financement avec succès';
+    //                 break;
+
+    //             case 'mettre_en_attente':
+    //                 $success = $projet->mettreEnAttente();
+    //                 $message = 'Projet mis en attente avec succès';
+    //                 break;
+
+    //             case 'demarrer':
+    //                 $success = $projet->demarrer($request->date_debut);
+    //                 $message = 'Projet démarré avec succès';
+    //                 break;
+
+    //             case 'suspendre':
+    //                 $success = $projet->suspendre($request->motif);
+    //                 $message = 'Projet suspendu avec succès';
+    //                 break;
+
+    //             case 'reprendre':
+    //                 $success = $projet->reprendre();
+    //                 $message = 'Projet repris avec succès';
+    //                 break;
+
+    //             case 'terminer':
+    //                 $success = $projet->terminer($request->date_fin_reelle, $request->resultats_obtenus);
+    //                 $message = 'Projet terminé avec succès';
+    //                 break;
+
+    //             case 'annuler':
+    //                 $success = $projet->annuler($request->motif);
+    //                 $message = 'Projet annulé avec succès';
+    //                 break;
+
+    //             default:
+    //                 throw new \InvalidArgumentException('Action non reconnue: ' . $action);
+    //         }
+
+    //         if ($success) {
+    //             if ($request->expectsJson()) {
+    //                 return response()->json([
+    //                     'success' => true,
+    //                     'data' => $projet->refresh(),
+    //                     'message' => $message
+    //                 ]);
+    //             }
+
+    //             return redirect()->route('private.projets.show', $projet->id)
+    //                 ->with('success', $message);
+    //         } else {
+    //             if ($request->expectsJson()) {
+    //                 return response()->json([
+    //                     'success' => false,
+    //                     'message' => 'Erreur lors de l\'exécution de l\'action'
+    //                 ], 500);
+    //             }
+
+    //             return redirect()->back()
+    //                 ->with('error', 'Erreur lors de l\'exécution de l\'action');
+    //         }
+
+    //     } catch (\Exception $e) {
+    //         Log::error('Erreur lors de l\'exécution de l\'action ' . $action . ': ' . $e->getMessage());
+
+    //         if ($request->expectsJson()) {
+    //             return response()->json([
+    //                 'success' => false,
+    //                 'message' => 'Erreur lors de l\'exécution de l\'action',
+    //                 'error' => $e->getMessage()
+    //             ], 500);
+    //         }
+
+    //         return redirect()->back()
+    //             ->with('error', 'Erreur lors de l\'exécution de l\'action');
+    //     }
+    // }
+
+    /**
+ * AMÉLIORATION : Méthode executerAction mise à jour
  */
 public function executerAction(string $id, string $action, Request $request)
 {
@@ -1706,7 +1832,9 @@ public function executerAction(string $id, string $action, Request $request)
                 return response()->json([
                     'success' => false,
                     'message' => 'Cette action n\'est pas permise pour le statut actuel du projet',
-                    'actions_disponibles' => $actionsPermises
+                    'actions_disponibles' => $actionsPermises,
+                    'statut_actuel' => $projet->statut,
+                    'financement' => $projet->getStatutFinancement() // NOUVEAU
                 ], 400);
             }
 
@@ -1739,6 +1867,26 @@ public function executerAction(string $id, string $action, Request $request)
                 $message = 'Projet mis en attente avec succès';
                 break;
 
+            case 'forcer_attente': // NOUVEAU
+                $validator = Validator::make($request->all(), [
+                    'justification' => 'required|string|min:10'
+                ]);
+
+                if ($validator->fails()) {
+                    if ($request->expectsJson()) {
+                        return response()->json([
+                            'success' => false,
+                            'message' => 'Justification requise',
+                            'errors' => $validator->errors()
+                        ], 422);
+                    }
+                    return redirect()->back()->withErrors($validator);
+                }
+
+                $success = $projet->forcerMiseEnAttente($request->justification);
+                $message = 'Projet forcé en attente avec succès (financement incomplet)';
+                break;
+
             case 'demarrer':
                 $success = $projet->demarrer($request->date_debut);
                 $message = 'Projet démarré avec succès';
@@ -1769,12 +1917,17 @@ public function executerAction(string $id, string $action, Request $request)
         }
 
         if ($success) {
+            // NOUVEAU : Ajouter des informations contextuelles
+            $responseData = [
+                'success' => true,
+                'data' => $projet->refresh(),
+                'message' => $message,
+                'workflow_suivant' => $projet->getWorkflowPossible(),
+                'statut_financement' => $projet->getStatutFinancement()
+            ];
+
             if ($request->expectsJson()) {
-                return response()->json([
-                    'success' => true,
-                    'data' => $projet->refresh(),
-                    'message' => $message
-                ]);
+                return response()->json($responseData);
             }
 
             return redirect()->route('private.projets.show', $projet->id)
@@ -1806,5 +1959,139 @@ public function executerAction(string $id, string $action, Request $request)
                        ->with('error', 'Erreur lors de l\'exécution de l\'action');
     }
 }
+
+
+
+
+/**
+ *  Obtenir le statut détaillé d'un projet
+ */
+public function getStatutDetaille(string $id, Request $request)
+{
+    try {
+        $projet = Projet::findOrFail($id);
+
+        $statut = [
+            'statut_actuel' => $projet->statut,
+            'statut_libelle' => $projet->statut_libelle,
+            'workflow_possible' => $projet->getWorkflowPossible(),
+            'prochaine_action' => $projet->getProchainePossibleAction(),
+            'financement' => $projet->getStatutFinancement(),
+            'validations' => $projet->validate(),
+            'coherence' => $projet->verifierCoherence(),
+            'necessite_action' => $projet->necessiteAction()
+        ];
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'success' => true,
+                'data' => $statut,
+                'message' => 'Statut détaillé récupéré avec succès'
+            ]);
+        }
+
+        return view('components.private.projets.statut-detaille', compact('projet', 'statut'));
+
+    } catch (\Exception $e) {
+        Log::error('Erreur lors de la récupération du statut détaillé: ' . $e->getMessage());
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Erreur lors de la récupération du statut',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+
+        return redirect()->back()
+                       ->with('error', 'Erreur lors de la récupération du statut');
+    }
+}
+
+
+
+    /**
+ *  Forcer la mise en attente d'un projet
+ */
+public function forcerMiseEnAttente(string $id, Request $request)
+{
+    try {
+        $projet = Projet::findOrFail($id);
+
+        if ($projet->statut !== 'recherche_financement') {
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Cette action n\'est disponible que pour les projets en recherche de financement'
+                ], 400);
+            }
+
+            return redirect()->back()
+                           ->with('error', 'Cette action n\'est disponible que pour les projets en recherche de financement');
+        }
+
+        $validator = Validator::make($request->all(), [
+            'justification' => 'required|string|min:10',
+            'confirmation' => 'required|accepted'
+        ]);
+
+        if ($validator->fails()) {
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Justification requise',
+                    'errors' => $validator->errors()
+                ], 422);
+            }
+
+            return redirect()->back()
+                           ->withErrors($validator);
+        }
+
+        $success = $projet->forcerMiseEnAttente($request->justification);
+
+        if ($success) {
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'data' => $projet->refresh(),
+                    'message' => 'Projet forcé en attente avec succès'
+                ]);
+            }
+
+            return redirect()->route('private.projets.show', $projet->id)
+                           ->with('success', 'Projet forcé en attente avec succès')
+                           ->with('warning', 'Le financement n\'est pas encore complet');
+        } else {
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Erreur lors du forçage en attente'
+                ], 500);
+            }
+
+            return redirect()->back()
+                           ->with('error', 'Erreur lors du forçage en attente');
+        }
+
+    } catch (\Exception $e) {
+        Log::error('Erreur lors du forçage en attente: ' . $e->getMessage());
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Erreur lors du forçage en attente',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+
+        return redirect()->back()
+                       ->with('error', 'Erreur lors du forçage en attente');
+    }
+}
+
+
+
+
 
 }

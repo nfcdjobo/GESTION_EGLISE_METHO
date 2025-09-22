@@ -13,6 +13,8 @@ use App\Http\Controllers\Private\Web\ParticipantCulteController;
 |
 */
 
+
+
 Route::prefix('dashboard/participants-cultes')->name('private.participantscultes.')->middleware(['auth', 'verified', 'user.status'])->group(function () {
 
     // Routes CRUD de base

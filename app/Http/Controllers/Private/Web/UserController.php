@@ -225,6 +225,7 @@ class UserController extends Controller
         ]);
 
         if ($validator->fails()) {
+            dd($validator->errors());
             if ($request->expectsJson()) {
                 return response()->json([
                     'success' => false,
@@ -334,7 +335,7 @@ class UserController extends Controller
             if (isset($path) && Storage::disk('public')->exists($path)) {
                 Storage::disk('public')->delete($path);
             }
-
+dd($e->getMessage());
             // Log l'erreur pour le debugging
             Log::error('Erreur lors de la création d\'un membres', [
                 'error' => $e->getMessage(),
@@ -443,12 +444,10 @@ class UserController extends Controller
             'roles.permissions',
             'permissions',
             'classe',
-            'classesResponsables',
-            'classesEnseignant',
             'cultesPasteur',
             'cultesPredicateur',
         ]);
-
+// dd(75);
         // Statistiques de l'membres
         $stats = [
             'roles_count' => $user->roles()->wherePivot('actif', true)->count(),

@@ -71,11 +71,20 @@
                             ];
 
                             $etapesOrdered = array_keys($etapes);
-                            $currentIndex = array_search($projet->statut, $etapesOrdered);
 
-                            // Gestion spéciale : si le projet est suspendu ou annulé, on garde l'index courant
+                            // CORRIGÉ : Logique du workflow visuel
                             if (in_array($projet->statut, ['suspendu', 'annule'])) {
-                                $currentIndex = array_search($projet->statut_precedent ?? 'conception', $etapesOrdered);
+                                // Pour les projets suspendus/annulés, utiliser le statut précédent
+                                $statutActuel = $projet->statut_precedent ?? 'conception';
+                                $currentIndex = array_search($statutActuel, $etapesOrdered);
+                            } else {
+                                // Pour les autres, utiliser le statut actuel
+                                $currentIndex = array_search($projet->statut, $etapesOrdered);
+                            }
+
+                            // Si le statut n'est pas trouvé, défaut à 0
+                            if ($currentIndex === false) {
+                                $currentIndex = 0;
                             }
                         @endphp
 
@@ -84,7 +93,7 @@
                                 $index = array_search($statutKey, $etapesOrdered);
                                 $isActive = $projet->statut === $statutKey;
                                 $isCompleted = $index < $currentIndex;
-                                $isDisabled = $projet->statut === 'suspendu' || $projet->statut === 'annule';
+                                $isDisabled = in_array($projet->statut, ['suspendu', 'annule']);
                             @endphp
 
                             <div class="flex flex-col items-center relative">
@@ -133,6 +142,7 @@
                 <!-- Actions de progression -->
                 <div class="mt-6 p-4 bg-slate-50 rounded-xl">
                     <h3 class="text-sm font-semibold text-slate-700 mb-3">Actions disponibles</h3>
+
                     {{-- Messages d'aide contextuelle --}}
                     @if (!$projet->necessiteAction())
                         <div class="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
@@ -153,7 +163,6 @@
                         </div>
                     @endif
 
-
                     {{-- Messages d'aide pour les étapes suivantes --}}
                     @if ($projet->statut === 'conception' && !$projet->est_approuve)
                         <div class="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
@@ -170,19 +179,16 @@
                                 <i class="fas fa-search-dollar text-orange-500 mt-0.5 mr-2"></i>
                                 <div class="text-orange-800 text-sm">
                                     <strong>Financement requis:</strong>
-                                    {{ number_format($projet->budget_minimum ?? $projet->budget_prevu, 0, ',', ' ') }}
+                                    {{ number_format($statistiquesFinancieres['seuil_financement'] ?? $projet->budget_prevu ?? 0, 0, ',', ' ') }}
                                     {{ $projet->devise }}
                                     <br>
                                     <strong>Actuellement collecté:</strong>
-                                    {{ number_format($projet->budget_collecte, 0, ',', ' ') }} {{ $projet->devise }}
-                                    ({{ $projet->pourcentage_financement }}%)
+                                    {{ number_format($statistiquesFinancieres['total_collecte'] ?? 0, 0, ',', ' ') }} {{ $projet->devise }}
+                                    ({{ $statistiquesFinancieres['pourcentage_financement'] ?? 0 }}%)
                                 </div>
                             </div>
                         </div>
                     @endif
-
-
-
 
                     <div class="flex flex-wrap gap-2">
                         {{-- APPROBATION --}}
@@ -236,21 +242,24 @@
                         @endcan
 
                         {{-- METTRE À JOUR PROGRESSION --}}
-
-                        @if ($projet->statut === 'en_cours')
-                            <button type="button" onclick="openProgressModal()"
-                                class="inline-flex items-center px-4 py-2 bg-purple-600 text-white text-sm font-medium rounded-lg hover:bg-purple-700 transition-colors shadow-sm">
-                                <i class="fas fa-chart-line mr-2"></i> Mettre à jour progression
-                            </button>
-                        @endif
+                        @can('projets.update-progress')
+                            @if ($projet->statut === 'en_cours')
+                                <button type="button" onclick="openProgressModal()"
+                                    class="inline-flex items-center px-4 py-2 bg-purple-600 text-white text-sm font-medium rounded-lg hover:bg-purple-700 transition-colors shadow-sm">
+                                    <i class="fas fa-chart-line mr-2"></i> Mettre à jour progression
+                                </button>
+                            @endif
+                        @endcan
 
                         {{-- TERMINER --}}
-                        @if ($projet->peutEtreTermine())
-                            <button type="button" onclick="openCompleteModal()"
-                                class="inline-flex items-center px-4 py-2 bg-emerald-600 text-white text-sm font-medium rounded-lg hover:bg-emerald-700 transition-colors shadow-sm">
-                                <i class="fas fa-flag-checkered mr-2"></i> Terminer
-                            </button>
-                        @endif
+                        @can('projets.complete')
+                            @if ($projet->peutEtreTermine())
+                                <button type="button" onclick="openCompleteModal()"
+                                    class="inline-flex items-center px-4 py-2 bg-emerald-600 text-white text-sm font-medium rounded-lg hover:bg-emerald-700 transition-colors shadow-sm">
+                                    <i class="fas fa-flag-checkered mr-2"></i> Terminer
+                                </button>
+                            @endif
+                        @endcan
 
                         {{-- SUSPENDRE --}}
                         @can('projets.suspend')
@@ -263,7 +272,7 @@
                         @endcan
 
                         {{-- REPRENDRE --}}
-                        @can('projets.update-progress')
+                        @can('projets.resume')
                             @if ($projet->peutEtreRepris())
                                 <button type="button" onclick="resumeProject()"
                                     class="inline-flex items-center px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700 transition-colors shadow-sm">
@@ -286,6 +295,7 @@
                                 <i class="fas fa-copy mr-2"></i> Dupliquer
                             </button>
                         @endcan
+
                         {{-- ANNULER (si possible) --}}
                         @can('projets.cancel')
                             @if ($projet->peutEtreAnnule())
@@ -297,7 +307,6 @@
                         @endcan
                     </div>
 
-
                     {{-- Workflow suggéré --}}
                     @php $prochaineAction = $projet->getProchainePossibleAction(); @endphp
                     @if ($prochaineAction)
@@ -308,110 +317,27 @@
                                 @case('approuver')
                                     Approuver le projet
                                 @break
-
                                 @case('planifier')
                                     Planifier le projet
                                 @break
-
                                 @case('rechercher_financement')
                                     Rechercher le financement
                                 @break
-
                                 @case('mettre_en_attente')
                                     Mettre en attente
                                 @break
-
                                 @case('demarrer')
                                     Démarrer le projet
                                 @break
-
                                 @case('terminer')
                                     Terminer le projet
                                 @break
-
                                 @default
                                     {{ ucfirst($prochaineAction) }}
                                 @break
                             @endswitch
                         </div>
                     @endif
-
-
-
-
-
-
-                    {{-- <div class="flex flex-wrap gap-2">
-                        @if ($projet->peutEtreApprouve())
-                            <button type="button" onclick="approveProject()"
-                                class="inline-flex items-center px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700 transition-colors shadow-sm">
-                                <i class="fas fa-check mr-2"></i> Approuver
-                            </button>
-                        @endif
-
-                        @if ($projet->peutEtrePlanifie())
-                            <button type="button" onclick="planifyProject()"
-                                class="inline-flex items-center px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 transition-colors shadow-sm">
-                                <i class="fas fa-calendar-check mr-2"></i> Planifier
-                            </button>
-                        @endif
-
-                        @if ($projet->peutEtreEnRechercheFinancement())
-                            <button type="button" onclick="searchFunding()"
-                                class="inline-flex items-center px-4 py-2 bg-yellow-600 text-white text-sm font-medium rounded-lg hover:bg-yellow-700 transition-colors shadow-sm">
-                                <i class="fas fa-search-dollar mr-2"></i> Rechercher financement
-                            </button>
-                        @endif
-
-
-
-                        @if ($projet->peutEtreDemarre())
-                            <button type="button" onclick="startProject()"
-                                class="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors shadow-sm">
-                                <i class="fas fa-play mr-2"></i> Démarrer
-                            </button>
-                        @endif
-
-                        @if ($projet->statut === 'en_cours')
-                            <button type="button" onclick="openProgressModal()"
-                                class="inline-flex items-center px-4 py-2 bg-purple-600 text-white text-sm font-medium rounded-lg hover:bg-purple-700 transition-colors shadow-sm">
-                                <i class="fas fa-chart-line mr-2"></i> Mettre à jour progression
-                            </button>
-                        @endif
-
-                        @if ($projet->peutEtreTermine())
-                            <button type="button" onclick="openCompleteModal()"
-                                class="inline-flex items-center px-4 py-2 bg-emerald-600 text-white text-sm font-medium rounded-lg hover:bg-emerald-700 transition-colors shadow-sm">
-                                <i class="fas fa-flag-checkered mr-2"></i> Terminer
-                            </button>
-                        @endif
-
-                        @if ($projet->peutEtreSuspendu())
-                            <button type="button" onclick="suspendProject()"
-                                class="inline-flex items-center px-4 py-2 bg-orange-600 text-white text-sm font-medium rounded-lg hover:bg-orange-700 transition-colors shadow-sm">
-                                <i class="fas fa-pause mr-2"></i> Suspendre
-                            </button>
-                        @endif
-
-                        @if ($projet->peutEtreRepris())
-                            <button type="button" onclick="resumeProject()"
-                                class="inline-flex items-center px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700 transition-colors shadow-sm">
-                                <i class="fas fa-play mr-2"></i> Reprendre
-                            </button>
-                        @endif
-
-                        @can('projets.update')
-                            <a href="{{ route('private.projets.edit', $projet) }}"
-                                class="inline-flex items-center px-4 py-2 bg-slate-600 text-white text-sm font-medium rounded-lg hover:bg-slate-700 transition-colors shadow-sm">
-                                <i class="fas fa-edit mr-2"></i> Modifier
-                            </a>
-                        @endcan
-
-                        <button type="button" onclick="openDuplicateModal()"
-                            class="inline-flex items-center px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 transition-colors shadow-sm">
-                            <i class="fas fa-copy mr-2"></i> Dupliquer
-                        </button>
-                    </div> --}}
                 </div>
             </div>
         </div>
@@ -510,6 +436,70 @@
                         @endif
                     </div>
                 </div>
+
+                <!-- Budget et financement - SECTION CORRIGÉE -->
+                @if ($projet->budget_prevu)
+                    <div class="bg-white/80 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
+                        <div class="p-6 border-b border-slate-200">
+                            <h2 class="text-xl font-bold text-slate-800 flex items-center">
+                                <i class="fas fa-wallet text-green-600 mr-2"></i>
+                                Budget et Financement
+                            </h2>
+                        </div>
+                        <div class="p-6 space-y-4">
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <div class="text-center p-4 bg-green-50 rounded-xl">
+                                    <div class="text-2xl font-bold text-green-600">{{ $projet->budget_format }}</div>
+                                    <div class="text-sm text-slate-500">Budget prévu</div>
+                                </div>
+
+                                <div class="text-center p-4 bg-blue-50 rounded-xl">
+                                    <div class="text-2xl font-bold text-blue-600">
+                                        {{ number_format($statistiquesFinancieres['total_collecte'] ?? 0, 0, ',', ' ') }} {{ $projet->devise }}
+                                    </div>
+                                    <div class="text-sm text-slate-500">Collecté</div>
+                                </div>
+
+                                <div class="text-center p-4 bg-orange-50 rounded-xl">
+                                    <div class="text-2xl font-bold text-orange-600">
+                                        {{ number_format($statistiquesFinancieres['montant_restant'] ?? 0, 0, ',', ' ') }} {{ $projet->devise }}
+                                    </div>
+                                    <div class="text-sm text-slate-500">Restant</div>
+                                </div>
+                            </div>
+
+                            @if (isset($statistiquesFinancieres['total_collecte']) && $statistiquesFinancieres['total_collecte'] > 0)
+                                <div class="space-y-2">
+                                    <div class="flex justify-between text-sm">
+                                        <span class="text-slate-600">Progression du financement</span>
+                                        <span class="font-medium text-blue-600">
+                                            {{ $statistiquesFinancieres['pourcentage_financement'] ?? 0 }}%
+                                        </span>
+                                    </div>
+                                    <div class="w-full bg-slate-200 rounded-full h-3">
+                                        <div class="bg-gradient-to-r from-green-400 to-green-600 h-3 rounded-full transition-all duration-500"
+                                            style="width: {{ min($statistiquesFinancieres['pourcentage_financement'] ?? 0, 100) }}%">
+                                        </div>
+                                    </div>
+                                </div>
+                            @endif
+
+                            @if (isset($statistiquesFinancieres['nombre_donations']) && $statistiquesFinancieres['nombre_donations'] > 0)
+                                <div class="pt-4 border-t border-slate-200 text-center">
+                                    <div class="text-lg font-bold text-purple-600">
+                                        {{ $statistiquesFinancieres['nombre_donations'] }}
+                                    </div>
+                                    <div class="text-sm text-slate-500">donations reçues</div>
+                                    @if (isset($statistiquesFinancieres['derniere_donation']))
+                                        <div class="text-xs text-slate-400 mt-1">
+                                            Dernière: {{ \Carbon\Carbon::parse($statistiquesFinancieres['derniere_donation'])->format('d/m/Y') }}
+                                        </div>
+                                    @endif
+                                </div>
+                            @endif
+                        </div>
+                    </div>
+                @endif
 
                 <!-- Objectifs et contexte -->
                 @if ($projet->objectif || $projet->contexte)
@@ -678,7 +668,7 @@
                 @endif
 
                 <!-- Historique des fonds -->
-                @if ($projet->fonds->count() > 0)
+                @if ($projet->fonds && $projet->fonds->count() > 0)
                     <div
                         class="bg-white/80 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
                         <div class="p-6 border-b border-slate-200">
@@ -722,7 +712,7 @@
                 @endif
 
                 <!-- Projets liés -->
-                @if ($projet->projetsEnfants->count() > 0)
+                @if ($projet->projetsEnfants && $projet->projetsEnfants->count() > 0)
                     <div
                         class="bg-white/80 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
                         <div class="p-6 border-b border-slate-200">
@@ -809,69 +799,6 @@
                         @endif
                     </div>
                 </div>
-
-                <!-- Budget et financement -->
-                @if ($projet->budget_prevu)
-                    <div
-                        class="bg-white/80 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
-                        <div class="p-6 border-b border-slate-200">
-                            <h2 class="text-xl font-bold text-slate-800 flex items-center">
-                                <i class="fas fa-wallet text-green-600 mr-2"></i>
-                                Budget
-                            </h2>
-                        </div>
-                        <div class="p-6 space-y-4">
-                            <div class="text-center">
-                                <div class="text-3xl font-bold text-green-600">{{ $projet->budget_format }}</div>
-                                <div class="text-sm text-slate-500">Budget prévu</div>
-                            </div>
-
-                            @if ($statistiquesFinancieres['total_collecte'] > 0)
-                                <div class="space-y-2">
-                                    <div class="flex justify-between text-sm">
-                                        <span class="text-slate-600">Collecté</span>
-                                        <span
-                                            class="font-medium text-green-600">{{ number_format($statistiquesFinancieres['total_collecte'], 0, ',', ' ') }}
-                                            {{ $projet->devise }}</span>
-                                    </div>
-                                    <div class="flex justify-between text-sm">
-                                        <span class="text-slate-600">Progression</span>
-                                        <span
-                                            class="font-medium text-blue-600">{{ $statistiquesFinancieres['pourcentage_financement'] }}%</span>
-                                    </div>
-                                    <div class="w-full bg-slate-200 rounded-full h-2">
-                                        <div class="bg-gradient-to-r from-green-400 to-green-600 h-2 rounded-full"
-                                            style="width: {{ min($statistiquesFinancieres['pourcentage_financement'], 100) }}%">
-                                        </div>
-                                    </div>
-                                    @if ($statistiquesFinancieres['montant_restant'] > 0)
-                                        <div class="text-center text-sm text-slate-600">
-                                            Reste:
-                                            {{ number_format($statistiquesFinancieres['montant_restant'], 0, ',', ' ') }}
-                                            {{ $projet->devise }}
-                                        </div>
-                                    @endif
-                                </div>
-                            @endif
-
-                            @if ($statistiquesFinancieres['nombre_donations'] > 0)
-                                <div class="pt-4 border-t border-slate-200">
-                                    <div class="text-center">
-                                        <div class="text-xl font-bold text-blue-600">
-                                            {{ $statistiquesFinancieres['nombre_donations'] }}</div>
-                                        <div class="text-sm text-slate-500">donations reçues</div>
-                                    </div>
-                                    @if ($statistiquesFinancieres['derniere_donation'])
-                                        <div class="text-center text-xs text-slate-400 mt-2">
-                                            Dernière:
-                                            {{ \Carbon\Carbon::parse($statistiquesFinancieres['derniere_donation'])->format('d/m/Y') }}
-                                        </div>
-                                    @endif
-                                </div>
-                            @endif
-                        </div>
-                    </div>
-                @endif
 
                 <!-- Équipe -->
                 <div
@@ -992,7 +919,33 @@
                 @endif
             </div>
         </div>
+
+
+
+
+
+
+
+
     </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     <!-- Modal mise à jour progression -->
     <div id="progressModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center p-4">
@@ -1083,7 +1036,7 @@
         </div>
     </div>
 
-    <!-- Modal duplication -->
+<!-- Modal duplication -->
     <div id="duplicateModal"
         class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl shadow-xl max-w-md w-full">
@@ -1102,7 +1055,7 @@
                             <label class="block text-sm font-medium text-slate-700 mb-2">Nouveau code</label>
                             <input type="text" name="nouveau_code" id="nouveau_code"
                                 class="w-full px-3 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                                placeholder="Laisser vide for génération automatique">
+                                placeholder="Laisser vide pour génération automatique">
                         </div>
                     </div>
                 </form>
@@ -1119,6 +1072,11 @@
             </div>
         </div>
     </div>
+
+    {{-- @push('scripts')
+        <!-- Le JavaScript reste inchangé -->
+    @endpush --}}
+
 
     @push('scripts')
         <script>
@@ -1212,6 +1170,109 @@
                             } else {
                                 alert(data.message || 'Une erreur est survenue');
                             }
+                        });
+                }
+            }
+
+            function planifyProject() {
+                if (confirm(
+                        'Êtes-vous sûr de vouloir planifier ce projet ? Il passera du statut "conception" à "planification".'
+                    )) {
+                    fetch(`{{ route('private.projets.planifier', $projet) }}`, {
+                            method: 'POST',
+                            headers: {
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                'Accept': 'application/json'
+                            }
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                location.reload();
+                            } else {
+                                alert(data.message || 'Une erreur est survenue');
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Erreur:', error);
+                            alert('Une erreur est survenue');
+                        });
+                }
+            }
+
+            function searchFunding() {
+                if (confirm('Êtes-vous sûr de vouloir mettre ce projet en recherche de financement ?')) {
+                    fetch(`{{ route('private.projets.rechercher-financement', $projet) }}`, {
+                            method: 'POST',
+                            headers: {
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                'Accept': 'application/json'
+                            }
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                location.reload();
+                            } else {
+                                alert(data.message || 'Une erreur est survenue');
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Erreur:', error);
+                            alert('Une erreur est survenue');
+                        });
+                }
+            }
+
+            function putOnHold() {
+                if (confirm('Êtes-vous sûr de vouloir mettre ce projet en attente ? Il sera prêt à être démarré.')) {
+                    fetch(`{{ route('private.projets.mettre-en-attente', $projet) }}`, {
+                            method: 'POST',
+                            headers: {
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                'Accept': 'application/json'
+                            }
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                location.reload();
+                            } else {
+                                alert(data.message || 'Une erreur est survenue');
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Erreur:', error);
+                            alert('Une erreur est survenue');
+                        });
+                }
+            }
+
+            function cancelProject() {
+                const motif = prompt('Motif d\'annulation (obligatoire):');
+                if (motif && motif.trim()) {
+                    fetch(`{{ route('private.projets.annuler', $projet) }}`, {
+                            method: 'POST',
+                            headers: {
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                'Accept': 'application/json',
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                motif: motif.trim()
+                            })
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                location.reload();
+                            } else {
+                                alert(data.message || 'Une erreur est survenue');
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Erreur:', error);
+                            alert('Une erreur est survenue');
                         });
                 }
             }
@@ -1311,114 +1372,6 @@
                     });
             }
 
-
-            function planifyProject() {
-                if (confirm(
-                        'Êtes-vous sûr de vouloir planifier ce projet ? Il passera du statut "conception" à "planification".'
-                    )) {
-                    fetch(`{{ route('private.projets.planifier', $projet) }}`, {
-                            method: 'POST',
-                            headers: {
-                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                                'Accept': 'application/json'
-                            }
-                        })
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.success) {
-                                location.reload();
-                            } else {
-                                alert(data.message || 'Une erreur est survenue');
-                            }
-                        })
-                        .catch(error => {
-                            console.error('Erreur:', error);
-                            alert('Une erreur est survenue');
-                        });
-                }
-            }
-
-
-            function searchFunding() {
-                if (confirm('Êtes-vous sûr de vouloir mettre ce projet en recherche de financement ?')) {
-                    fetch(`{{ route('private.projets.rechercher-financement', $projet) }}`, {
-                            method: 'POST',
-                            headers: {
-                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                                'Accept': 'application/json'
-                            }
-                        })
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.success) {
-                                location.reload();
-                            } else {
-                                alert(data.message || 'Une erreur est survenue');
-                            }
-                        })
-                        .catch(error => {
-                            console.error('Erreur:', error);
-                            alert('Une erreur est survenue');
-                        });
-                }
-            }
-
-
-            function putOnHold() {
-                if (confirm('Êtes-vous sûr de vouloir mettre ce projet en attente ? Il sera prêt à être démarré.')) {
-                    fetch(`{{ route('private.projets.mettre-en-attente', $projet) }}`, {
-                            method: 'POST',
-                            headers: {
-                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                                'Accept': 'application/json'
-                            }
-                        })
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.success) {
-                                location.reload();
-                            } else {
-                                alert(data.message || 'Une erreur est survenue');
-                            }
-                        })
-                        .catch(error => {
-                            console.error('Erreur:', error);
-                            alert('Une erreur est survenue');
-                        });
-                }
-            }
-
-            // Nouvelle fonction pour annuler un projet
-            function cancelProject() {
-                const motif = prompt('Motif d\'annulation (obligatoire):');
-                if (motif && motif.trim()) {
-                    fetch(`{{ route('private.projets.annuler', $projet) }}`, {
-                            method: 'POST',
-                            headers: {
-                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                                'Accept': 'application/json',
-                                'Content-Type': 'application/json'
-                            },
-                            body: JSON.stringify({
-                                motif: motif.trim()
-                            })
-                        })
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.success) {
-                                location.reload();
-                            } else {
-                                alert(data.message || 'Une erreur est survenue');
-                            }
-                        })
-                        .catch(error => {
-                            console.error('Erreur:', error);
-                            alert('Une erreur est survenue');
-                        });
-                }
-            }
-
-
             // Fermer les modals en cliquant à l'extérieur
             document.getElementById('progressModal').addEventListener('click', function(e) {
                 if (e.target === this) closeProgressModal();
@@ -1436,10 +1389,40 @@
             document.getElementById('pourcentage_completion')?.addEventListener('input', function(e) {
                 const value = e.target.value;
                 if (value >= 0 && value <= 100) {
-                    // Optionnel: prévisualiser la progression en temps réel
                     console.log('Progression:', value + '%');
                 }
             });
+
+
+
+            document.addEventListener('DOMContentLoaded', function() {
+    // Validation automatique du formulaire de forçage
+    const justificationField = document.getElementById('justification');
+    const confirmationCheck = document.getElementById('confirmation');
+    const forceButton = document.querySelector('#modalForcerAttente button[type="submit"]');
+
+    if (justificationField && confirmationCheck && forceButton) {
+        function validateForceForm() {
+            const isValid = justificationField.value.trim().length >= 10 && confirmationCheck.checked;
+            forceButton.disabled = !isValid;
+        }
+
+        justificationField.addEventListener('input', validateForceForm);
+        confirmationCheck.addEventListener('change', validateForceForm);
+        validateForceForm(); // Initial check
+    }
+
+    // Auto-refresh du statut après une action
+    if (window.location.hash === '#action-success') {
+        setTimeout(() => {
+            window.location.reload();
+        }, 2000);
+    }
+});
+
+
+
         </script>
     @endpush
 @endsection
+

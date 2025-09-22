@@ -139,7 +139,7 @@ class SubscriptionPayment extends Model
      */
     public function getMontantFormatteAttribute(): string
     {
-        return number_format($this->montant, 2, ',', ' ') . ' €';
+        return number_format($this->montant, 2, ',', ' ') . ' FCFA';
     }
 
     /**
@@ -357,8 +357,8 @@ public function peutEtreValide(): bool
             'statut' => $this->getStatutLibelle(),
             'souscripteur' => $this->subscription->souscripteur->nom,
             'fimeco' => $this->subscription->fimeco->nom,
-            'ancien_reste' => number_format($this->ancien_reste, 2, ',', ' ') . ' €',
-            'nouveau_reste' => number_format($this->nouveau_reste, 2, ',', ' ') . ' €',
+            'ancien_reste' => number_format($this->ancien_reste, 2, ',', ' ') . ' FCFA',
+            'nouveau_reste' => number_format($this->nouveau_reste, 2, ',', ' ') . ' FCFA',
         ];
     }
 

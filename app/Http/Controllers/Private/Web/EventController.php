@@ -112,7 +112,7 @@ class EventController extends Controller
         }
 
         // Pagination
-        $perPage = min($request->get('per_page', 15), 100);
+        $perPage = min($request->get('per_page', 10), 100);
         $events = $query->paginate($perPage);
 
         // Réponse selon le type de requête

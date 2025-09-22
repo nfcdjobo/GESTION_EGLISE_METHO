@@ -63,7 +63,7 @@ class EngagementMoissonsController extends Controller
             $query->orderBy($sortField, $sortDirection);
         }
 
-        $engagements = $query->paginate($request->input('per_page', 15));
+        $engagements = $query->paginate($request->input('per_page', 10));
 
         // Statistiques pour le tableau de bord
         $statistiques = [

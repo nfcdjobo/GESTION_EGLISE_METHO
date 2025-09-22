@@ -286,7 +286,7 @@
                                         <div class="flex items-center space-x-6">
                                             <!-- Statistiques -->
                                             <div class="text-center">
-                                                <div class="text-2xl font-bold text-slate-900">{{ $classe->nombre_inscrits }}</div>
+                                                <div class="text-2xl font-bold text-slate-900">{{ $classe->nombre_inscrits + $classe->responsables_collection->count() }}</div>
                                                 <div class="text-xs text-slate-500">Inscrits</div>
                                                 <div class="text-xs text-green-600 font-medium mt-1">Capacité illimitée</div>
                                             </div>

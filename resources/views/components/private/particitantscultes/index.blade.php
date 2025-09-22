@@ -596,40 +596,38 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-// Confirmer présence
-function confirmerPresence(participantId, culteId) {
-    if (confirm('Confirmer la présence de ce participant ?')) {
-        fetch(`{{ route('private.participantscultes.confirmer-presence', [':participant', ':culte']) }}`.replace(
-                            ':participant', participantId).replace(':culte', culteId), {
-                method: 'PATCH',
-                headers: {
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                    'Accept': 'application/json'
+            // Confirmer présence
+            function confirmerPresence(participantId, culteId) {
+                if (confirm('Confirmer la présence de ce participant ?')) {
+                    fetch(`{{ route('private.participantscultes.confirmer-presence', [':participant', ':culte']) }}`.replace(':participant', participantId).replace(':culte', culteId), {
+                            method: 'PATCH',
+                            headers: {
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                'Accept': 'application/json'
+                            }
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                location.reload();
+                            } else {
+                                alert(data.message || 'Une erreur est survenue');
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Erreur:', error);
+                            alert('Une erreur est survenue');
+                        });
                 }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    location.reload();
-                } else {
-                    alert(data.message || 'Une erreur est survenue');
-                }
-            })
-            .catch(error => {
-                console.error('Erreur:', error);
-                alert('Une erreur est survenue');
-            });
-    }
-}
+            }
 
             // Supprimer participation
             function deleteParticipation(participantId, culteId) {
                 if (confirm('Êtes-vous sûr de vouloir supprimer cette participation ?')) {
-                    fetch(`{{ route('private.participantscultes.destroy', [':participant', ':culte']) }}`.replace(
-                                        ':participant', participantId).replace(':culte', culteId), {
+                    fetch(`{{ route('private.participantscultes.destroy', [':participant', ':culte']) }}`.replace(':participant', participantId).replace(':culte', culteId), {
                             method: 'DELETE',
                             headers: {
-                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
                                 'Accept': 'application/json'
                             }
                         })
@@ -652,7 +650,7 @@ function confirmerPresence(participantId, culteId) {
                 // Redirection vers la page de modification ou ouverture d'un modal
                 alert("En cours d'implementation");
                 return;
-                window.location.href = `/private/participants-cultes/${participantId}/${culteId}`;
+                window.location.href = `{{route('private.participantscultes.update', [':participant', ':culte'])}}`.replace(':participant', participantId).replace(':culte', culteId);
             }
 </script>
     @endpush

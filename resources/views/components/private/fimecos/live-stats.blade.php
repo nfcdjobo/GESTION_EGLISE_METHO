@@ -405,11 +405,11 @@
                 const stats = document.querySelectorAll('[data-stat]');
                 stats.forEach((stat, index) => {
                     stat.style.opacity = '0';
-                    stat.style.transform = 'translateY(20px)';
+                    // stat.style.transform = 'translateY(20px)';
                     setTimeout(() => {
                         stat.style.transition = 'all 0.5s ease';
                         stat.style.opacity = '1';
-                        stat.style.transform = 'translateY(0)';
+                        // stat.style.transform = 'translateY(0)';
                     }, index * 100);
                 });
             });

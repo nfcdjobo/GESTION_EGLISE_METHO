@@ -602,7 +602,7 @@
                     fetch(`/api/membres/${currentMembreId}/contact/call`, {
                         method: 'POST',
                         headers: {
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                            'X-CSRF-TOKEN': '<?php echo e(csrf_token()); ?>',
                             'Accept': 'application/json',
                             'Content-Type': 'application/json'
                         }
@@ -627,7 +627,7 @@
                         fetch(`/api/membres/${currentMembreId}/contact/sms`, {
                             method: 'POST',
                             headers: {
-                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                                'X-CSRF-TOKEN': '<?php echo e(csrf_token()); ?>',
                                 'Accept': 'application/json',
                                 'Content-Type': 'application/json'
                             },
@@ -758,7 +758,7 @@
                     fetch('/api/visites-pastorales', {
                         method: 'POST',
                         headers: {
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                            'X-CSRF-TOKEN': '<?php echo e(csrf_token()); ?>',
                             'Accept': 'application/json',
                             'Content-Type': 'application/json'
                         },
@@ -900,7 +900,7 @@
                     fetch('/api/notes-pastorales', {
                         method: 'POST',
                         headers: {
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                            'X-CSRF-TOKEN': '<?php echo e(csrf_token()); ?>',
                             'Accept': 'application/json',
                             'Content-Type': 'application/json'
                         },
@@ -927,7 +927,7 @@
                     fetch(`/api/membres/${membreId}/marquer-suivi`, {
                         method: 'POST',
                         headers: {
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                            'X-CSRF-TOKEN': '<?php echo e(csrf_token()); ?>',
                             'Accept': 'application/json',
                             'Content-Type': 'application/json'
                         },
@@ -1026,7 +1026,7 @@
                     fetch('/api/alertes/envoyer-rappels', {
                         method: 'POST',
                         headers: {
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                            'X-CSRF-TOKEN': '<?php echo e(csrf_token()); ?>',
                             'Accept': 'application/json',
                             'Content-Type': 'application/json'
                         },
@@ -1129,11 +1129,9 @@
                     const statsCards = document.querySelectorAll('.bg-white\\/80');
                     statsCards.forEach((card, index) => {
                         card.style.opacity = '0';
-                        // card.style.transform = 'translateY(20px)';
                         setTimeout(() => {
                             card.style.transition = 'all 0.5s ease';
                             card.style.opacity = '1';
-                            // card.style.transform = 'translateY(0)';
                         }, index * 100);
                     });
 

@@ -11,6 +11,14 @@ return [
     | in dompdf_config.inc.php. You can also override the entire config file.
     |
     */
+
+    'defines' => [
+        'DOMPDF_ENABLE_REMOTE' => true,
+        'DOMPDF_ENABLE_CSS_FLOAT' => true,
+        'DOMPDF_ENABLE_HTML5PARSER' => true,
+    ],
+
+
     'show_warnings' => false,   // Throw an Exception on warnings from dompdf
 
     'public_path' => null,  // Override the public path if needed

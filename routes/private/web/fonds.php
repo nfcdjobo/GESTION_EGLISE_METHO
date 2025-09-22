@@ -22,7 +22,6 @@ Route::prefix('dashboard/fonds')->name('private.fonds.')->middleware(['auth', 'v
     Route::post('/', [FondsController::class, 'store'])->name('store');
 
 
-
     // Pages spécialisées
     Route::get('/dashboard', [FondsController::class, 'dashboard'])->name('dashboard');
 
@@ -74,9 +73,28 @@ Route::prefix('dashboard/fonds')->name('private.fonds.')->middleware(['auth', 'v
         ->name('cancel.strict')
         ->where('fonds', '[0-9a-f-]{36}');
 
-    Route::post('/{fonds}/receipt', [FondsController::class, 'generateReceipt'])
-        ->name('receipt.strict')
-        ->where('fonds', '[0-9a-f-]{36}');
+    Route::post('/{fonds}/receipt', [FondsController::class, 'generateReceipt'])->name('receipt.strict')->where('fonds', '[0-9a-f-]{36}');
+
+    // Dans routes/web.php
+    // Route::get('/{fonds}/receipt/form', [FondsController::class, 'showReceiptForm'])
+    //      ->name('receipt.form');
+    // Route::get('/{fonds}/receipt', [FondsController::class, 'generateReceipt'])
+    //      ->name('receipt.strict');
+    // Route::get('/{fonds}/receipt/preview', [FondsController::class, 'previewReceipt'])
+    //      ->name('receipt.preview');
+    // Route::post('/{fonds}/receipt/email', [FondsController::class, 'sendReceiptByEmail'])
+    //      ->name('receipt.email');
+
+
+    Route::get('/{fonds}/receipt/form', [FondsController::class, 'showReceiptForm'])
+         ->name('receipt.form');
+    Route::get('/{fonds}/receipt/download', [FondsController::class, 'generateReceipt'])
+         ->name('receipt.download');
+    Route::get('/{fonds}/receipt/preview', [FondsController::class, 'previewReceipt'])
+         ->name('receipt.preview');
+    Route::post('/{fonds}/receipt/email', [FondsController::class, 'sendReceiptByEmail'])
+         ->name('receipt.email');
+
 
 });
 

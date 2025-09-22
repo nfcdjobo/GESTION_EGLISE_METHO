@@ -202,17 +202,17 @@
                 </button>
                 <div id="user-menu"
                     class="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border border-slate-200 opacity-0 invisible transform scale-95 transition-all duration-200 z-50">
-                    <a href="profile.html"
+                    <a href="#"
                         class="flex items-center px-4 py-3 text-sm text-slate-700 hover:bg-slate-50 rounded-t-xl transition-colors">
                         <i class="fas fa-user mr-3 text-slate-400"></i>
                         Mon profil
                     </a>
-                    <a href="settings.html"
+                    <a href="<?php echo e(route('private.parametres.index')); ?>"
                         class="flex items-center px-4 py-3 text-sm text-slate-700 hover:bg-slate-50 transition-colors">
                         <i class="fas fa-cog mr-3 text-slate-400"></i>
                         Paramètres
                     </a>
-                    <a href="help.html"
+                    <a href="#"
                         class="flex items-center px-4 py-3 text-sm text-slate-700 hover:bg-slate-50 transition-colors">
                         <i class="fas fa-question-circle mr-3 text-slate-400"></i>
                         Aides
