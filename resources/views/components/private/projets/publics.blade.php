@@ -8,7 +8,7 @@
         <h1 class="text-3xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent">Projets Publics</h1>
         <p class="text-slate-500 mt-1">Projets ouverts aux dons et visibles au public</p>
     </div>
-
+ 
     <!-- Filtres -->
     <div class="bg-white/80 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
         <div class="p-6 border-b border-slate-200">

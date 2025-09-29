@@ -15,7 +15,7 @@
                             Membres
                         </a>
                     </li>
-                    <li>
+                    <li> 
                         <div class="flex items-center">
                             <i class="fas fa-chevron-right text-slate-400 mx-2"></i>
                             <span class="text-sm font-users text-slate-500">Ajouter un nouveau membre à votre communauté - {{ \Carbon\Carbon::now()->format('l d F Y') }}</span>

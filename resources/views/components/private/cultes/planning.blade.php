@@ -23,7 +23,7 @@
                         </div>
                     </li>
                 </ol>
-            </nav>
+            </nav> 
         </div>
 
         <!-- Contrôles de navigation et filtres -->
