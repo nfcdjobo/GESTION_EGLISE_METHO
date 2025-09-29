@@ -15,40 +15,33 @@ use App\Http\Controllers\Private\Web\ParticipantCulteController;
 
 
 
-Route::prefix('dashboard/participants-cultes')->name('private.participantscultes.')->middleware(['auth', 'verified', 'user.status'])->group(function () {
+Route::prefix('participants-cultes')->name('private.participantscultes.')->middleware(['auth', 'verified', 'user.status'])->group(function () {
 
     // Routes CRUD de base
-    Route::get('/', [ParticipantCulteController::class, 'index'])->name('index');
+    Route::get('/', [ParticipantCulteController::class, 'index'])->middleware('permission:participant_cultes.read')->name('index');
 
-    Route::get('/nouveaux-visiteurs', [ParticipantCulteController::class, 'nouveauxVisiteurs'])->name('nouveaux-visiteurs');
+    Route::get('/nouveaux-visiteurs', [ParticipantCulteController::class, 'nouveauxVisiteurs'])->middleware('permission:participant_cultes.read')->name('nouveaux-visiteurs');
 
     // Routes pour statistiques et rapports
-    Route::get('/statistiques', [ParticipantCulteController::class, 'statistiques'])->name('statistiques');
+    Route::get('/statistiques', [ParticipantCulteController::class, 'statistiques'])->middleware('permission:participant_cultes.statistics')->name('statistiques');
 
-     Route::get('/{culte}/search', [ParticipantCulteController::class, 'searchParticipants'])->name('search')->where('culte', '[0-9a-f-]{36}');
+    Route::get('/{culte}/search', [ParticipantCulteController::class, 'searchParticipants'])->middleware('permission:participant_cultes.read')->name('search')->where('culte', '[0-9a-f-]{36}');
+    Route::get('/{participantId}/detail/{culteId}', [ParticipantCulteController::class, 'show'])->middleware('permission:participant_cultes.read')->name('show')->where(['participantId' => '[0-9a-f-]{36}', 'culteId' => '[0-9a-f-]{36}']);
 
-    Route::post('/{culte}/participants/ajouter', [ParticipantCulteController::class, 'ajouterParticipant'])
-        ->name('private.cultes.participants.ajouter')
-        ->where('culte', '[0-9a-f-]{36}');
+    Route::post('/', [ParticipantCulteController::class, 'store'])->middleware('permission:participant_cultes.create')->name('store');
+    Route::post('/{culte}/participants/ajouter', [ParticipantCulteController::class, 'ajouterParticipant'])->middleware('permission:participant_cultes.update')->name('private.cultes.participants.ajouter')->where('culte', '[0-9a-f-]{36}');
 
-    Route::post('/', [ParticipantCulteController::class, 'store'])->name('store');
-    Route::get('/{participantId}/detail/{culteId}', [ParticipantCulteController::class, 'show'])->name('show')->where(['participantId' => '[0-9a-f-]{36}', 'culteId' => '[0-9a-f-]{36}']);
+    Route::put('/{participantId}/{culteId}', [ParticipantCulteController::class, 'update'])->middleware('permission:participant_cultes.update')->name('update')->where(['participantId' => '[0-9a-f-]{36}', 'culteId' => '[0-9a-f-]{36}']);
 
-    Route::put('/{participantId}/{culteId}', [ParticipantCulteController::class, 'update'])->name('update')->where(['participantId' => '[0-9a-f-]{36}', 'culteId' => '[0-9a-f-]{36}']);
-
-    Route::delete('/{participantId}/{culteId}', [ParticipantCulteController::class, 'destroy'])->name('destroy')->where(['participantId' => '[0-9a-f-]{36}', 'culteId' => '[0-9a-f-]{36}']);
+    Route::delete('/{participantId}/{culteId}', [ParticipantCulteController::class, 'destroy'])->middleware('permission:participant_cultes.delete')->name('destroy')->where(['participantId' => '[0-9a-f-]{36}', 'culteId' => '[0-9a-f-]{36}']);
 
     // Routes spécialisées pour création avec membres
-    Route::post('/with-user-creation', [ParticipantCulteController::class, 'storeWithUserCreation'])->name('store-with-user-creation')->where('culteId', '[0-9a-f-]{36}');
+    Route::post('/with-user-creation', [ParticipantCulteController::class, 'storeWithUserCreation'])->middleware('permission:participant_cultes.create')->name('store-with-user-creation')->where('culteId', '[0-9a-f-]{36}');
 
-    Route::post('/bulk-with-user-creation', [ParticipantCulteController::class, 'storeBulkWithUserCreation'])->where('culteId', '[0-9a-f-]{36}');
+    Route::post('/bulk-with-user-creation', [ParticipantCulteController::class, 'storeBulkWithUserCreation'])->middleware('permission:participant_cultes.create')->where('culteId', '[0-9a-f-]{36}');
 
     // Route pour confirmation de présence
-    Route::patch('/{participantId}/{culteId}/confirmer', [ParticipantCulteController::class, 'confirmerPresence'])->name('confirmer-presence')->where(['participantId' => '[0-9a-f-]{36}', 'culteId' => '[0-9a-f-]{36}']);
-
-
-
-
+    Route::patch('/{participantId}/{culteId}/confirmer', [ParticipantCulteController::class, 'confirmerPresence'])->middleware('permission:participant_cultes.update')->name('confirmer-presence')->where(['participantId' => '[0-9a-f-]{36}', 'culteId' => '[0-9a-f-]{36}']);
 
 });
 

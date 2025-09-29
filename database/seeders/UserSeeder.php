@@ -12,40 +12,39 @@ class UserSeeder extends Seeder
 {
     /**
      * Run the database seeds.
-     */
+     */ 
     public function run(): void
     {
         // Créer l'membres Super Admin
         $superAdmin = User::updateOrCreate(
-            ['email' => 'nfcdjobo@gmail.com'],
+            ['email' => env('SUPER_ADMIN_ACCESS_EMAIL', 'nfcdjobo@gmail.com')],
             [
                 'id' => Str::uuid(),
-                'prenom' => 'Carêm',
-                'nom' => 'DJOBO',
-                'date_naissance' => '1980-01-01',
+                'prenom' => env('SUPER_ADMIN_ACCESS_PRENOM', 'N’DRI FRANÇOIS'),
+                'nom' => env('SUPER_ADMIN_ACCESS_NOM', 'DJOBO'),
                 'sexe' => 'masculin',
-                'telephone_1' => '+225 27 22 00 00 00',
+                'telephone_1' => env('SUPER_ADMIN_ACCESS_PHONE', '+2250575554499'),
                 'email_verified_at' => now(),
-                'adresse_ligne_1' => 'Cocody Riviera',
-                'ville' => 'Abidjan',
-                'region' => 'Abidjan',
-                'pays' => 'CI',
-                'statut_matrimonial' => 'marie',
-                'nombre_enfants' => 2,
-                'profession' => 'Administrateur Système',
-                'date_adhesion' => '2020-01-01',
-                'statut_membre' => 'actif',
-                'statut_bapteme' => 'confirme',
-                'date_bapteme' => '2000-01-01',
-                'password' => Hash::make('Admin@2025!'), // Mot de passe sécurisé
+                'adresse_ligne_1' => env('SUPER_ADMIN_ACCESS_ADDRESS', 'Cocody, Paris Village'),
+                'ville' => env('SUPER_ADMIN_ACCESS_VILLE', 'Abidjan'),
+                'region' => env('SUPER_ADMIN_ACCESS_REGION', 'District autonome d’Abidjan'),
+                'pays' => env('SUPER_ADMIN_ACCESS_PAYS', 'CÔTE D’IVOIRE'),
+                'statut_matrimonial' => env('SUPER_ADMIN_ACCESS_STATUS_MATRIMONIAL', 'celibataire'),
+                'nombre_enfants' => env('SUPER_ADMIN_ACCESS_NOMBRE_ENFANT', 0),
+                'profession' => env('SUPER_ADMIN_ACCESS_PROFESSION', null),
+                'date_adhesion' => env('SUPER_ADMIN_ACCESS_DATE_ADHESION', null),
+                'statut_membre' => env('SUPER_ADMIN_ACCESS_DATE_STATUS_MEMBRE', 'actif'),
+                'statut_bapteme' => env('SUPER_ADMIN_ACCESS_DATE_STATUS_BAPTEME', 'non_baptise'),
+                'date_bapteme' => env('SUPER_ADMIN_ACCESS_DATE_DATE_BAPTEME', null),
+                'password' => Hash::make(env('SUPER_ADMIN_ACCESS_PASSWORD', 'nfcDJ0B0@CanaanBelleVille@07078315M@')), // Mot de passe sécurisé
                 'actif' => true,
                 'notes_admin' => 'Super administrateur du système - Accès complet',
-                'dons_spirituels' => 'Administration, Leadership',
+                'dons_spirituels' => null,
             ]
         );
 
         // Attribuer le rôle Sécrétaire
-        $superAdminRole = Role::where('slug', 'secretaire')->first();
+        $superAdminRole = Role::where('slug', 'super-admin')->first();
         if ($superAdminRole) {
             $superAdmin->roles()->syncWithoutDetaching([$superAdminRole->id => [
                 'attribue_par' => $superAdmin->id,

@@ -7,7 +7,9 @@
 
             <div class="mb-8">
                 <h1 class="text-3xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent">
-                    <?php echo e($classe->nom); ?></h1>
+                    <?php echo e($classe->nom); ?>
+
+                </h1>
                 <nav class="flex mt-2" aria-label="Breadcrumb">
                     <ol class="inline-flex items-center space-x-1 md:space-x-3">
                         <li class="inline-flex items-center">
@@ -73,13 +75,18 @@
                 </div>
 
                 <!-- Actions -->
+
                 <div class="flex flex-wrap gap-3">
-                    <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('classes.update')): ?>
-                        <a href="<?php echo e(route('private.classes.edit', $classe)); ?>"
-                            class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-yellow-500 to-orange-500 text-white text-sm font-medium rounded-xl hover:from-yellow-600 hover:to-orange-600 transition-all duration-200 shadow-md hover:shadow-lg">
-                            <i class="fas fa-edit mr-2"></i> Modifier
-                        </a>
+                    
+                    <?php if(($classe->responsableSuperieur()?->id === Auth::user()->id) || auth()->user()->hasAnyRole(['super-admin', 'secretaire']) ): ?>
+                        <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('classes.update')): ?>
+                            <a href="<?php echo e(route('private.classes.edit', $classe)); ?>"
+                                class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-yellow-500 to-orange-500 text-white text-sm font-medium rounded-xl hover:from-yellow-600 hover:to-orange-600 transition-all duration-200 shadow-md hover:shadow-lg">
+                                <i class="fas fa-edit mr-2"></i> Modifier
+                            </a>
+                        <?php endif; ?>
                     <?php endif; ?>
+
 
                     <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('classes.export')): ?>
                         <div class="relative">
@@ -209,11 +216,15 @@
                                 <i class="fas fa-user-tie text-green-600 mr-2"></i>
                                 Responsables de la classe
                             </h2>
-                            <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('classes.update')): ?>
-                                <button onclick="showManageResponsablesModal()"
-                                    class="inline-flex items-center px-3 py-2 bg-green-100 text-green-700 rounded-lg hover:bg-green-200 transition-colors text-sm">
-                                    <i class="fas fa-plus mr-2"></i> Gérer
-                                </button>
+
+
+                            <?php if(($classe->responsableSuperieur()?->id === Auth::user()->id) || auth()->user()->hasAnyRole(['super-admin', 'secretaire']) ): ?>
+                                <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('classes.manage-members')): ?>
+                                    <button onclick="showManageResponsablesModal()"
+                                        class="inline-flex items-center px-3 py-2 bg-green-100 text-green-700 rounded-lg hover:bg-green-200 transition-colors text-sm">
+                                        <i class="fas fa-plus mr-2"></i> Gérer
+                                    </button>
+                                <?php endif; ?>
                             <?php endif; ?>
                         </div>
                     </div>
@@ -232,7 +243,9 @@
                                             <div>
                                                 <h3 class="font-semibold text-slate-900"><?php echo e($responsable->prenom); ?>
 
-                                                    <?php echo e($responsable->nom); ?></h3>
+                                                    <?php echo e($responsable->nom); ?>
+
+                                                </h3>
 
                                                 <div class="flex items-center space-x-3 text-sm">
 
@@ -255,11 +268,14 @@
                                                 <p class="text-sm text-slate-500"><?php echo e($responsable->email); ?></p>
                                             </div>
                                         </div>
-                                        <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('classes.update')): ?>
-                                            <button onclick="removeResponsable('<?php echo e($responsable->id); ?>')"
-                                                class="text-red-600 hover:text-red-800 p-2">
-                                                <i class="fas fa-times"></i>
-                                            </button>
+
+                                        <?php if(($classe->responsableSuperieur()?->id === Auth::user()->id) || auth()->user()->hasAnyRole(['super-admin', 'secretaire']) ): ?>
+                                            <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('classes.manage-members')): ?>
+                                                <button onclick="removeResponsable('<?php echo e($responsable->id); ?>')"
+                                                    class="text-red-600 hover:text-red-800 p-2">
+                                                    <i class="fas fa-trash text-sm"></i>
+                                                </button>
+                                            <?php endif; ?>
                                         <?php endif; ?>
                                     </div>
                                 <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
@@ -268,11 +284,12 @@
                             <div class="text-center py-8">
                                 <i class="fas fa-user-tie text-3xl text-slate-400 mb-3"></i>
                                 <p class="text-slate-500">Aucun responsable assigné à cette classe</p>
-                                <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('classes.update')): ?>
-                                    <button onclick="showManageResponsablesModal()"
-                                        class="mt-3 inline-flex items-center px-4 py-2 bg-green-100 text-green-700 rounded-lg hover:bg-green-200 transition-colors">
-                                        <i class="fas fa-plus mr-2"></i> Ajouter un responsable
-                                    </button>
+                                <?php if(($classe->responsableSuperieur()?->id === Auth::user()->id) || auth()->user()->hasAnyRole(['super-admin', 'secretaire']) ): ?>
+                                    <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('classes.manage-members')): ?>
+                                        <button onclick="showManageResponsablesModal()" class="mt-3 inline-flex items-center px-4 py-2 bg-green-100 text-green-700 rounded-lg hover:bg-green-200 transition-colors">
+                                            <i class="fas fa-plus mr-2"></i> Ajouter un responsable
+                                        </button>
+                                    <?php endif; ?>
                                 <?php endif; ?>
                             </div>
                         <?php endif; ?>
@@ -287,18 +304,22 @@
                                 <i class="fas fa-users text-blue-600 mr-2"></i>
                                 Membres de la classe (<?php echo e($classe->nombre_inscrits); ?>)
                             </h2>
-                            <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('classes.manage-members')): ?>
+
                                 <div class="flex items-center space-x-2">
-                                    <button onclick="showAddMembersModal()"
-                                        class="inline-flex items-center px-3 py-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition-colors text-sm">
-                                        <i class="fas fa-user-plus mr-2"></i> Ajouter
-                                    </button>
-                                    <button onclick="showMembersListModal()"
-                                        class="inline-flex items-center px-3 py-2 bg-purple-100 text-purple-700 rounded-lg hover:bg-purple-200 transition-colors text-sm">
-                                        <i class="fas fa-list mr-2"></i> Voir tout
-                                    </button>
+                                    <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('classes.manage-members')): ?>
+                                        <?php if(($classe->responsableSuperieur()?->id === Auth::user()->id) || auth()->user()->hasAnyRole(['super-admin', 'secretaire']) ): ?>
+                                                <button onclick="showAddMembersModal()" class="inline-flex items-center px-3 py-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition-colors text-sm">
+                                                    <i class="fas fa-user-plus mr-2"></i> Ajouter
+                                                </button>
+                                        <?php endif; ?>
+                                    <?php endif; ?>
+                                    <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('classes.members')): ?>
+                                        <button onclick="showMembersListModal()" class="inline-flex items-center px-3 py-2 bg-purple-100 text-purple-700 rounded-lg hover:bg-purple-200 transition-colors text-sm">
+                                            <i class="fas fa-list mr-2"></i> Voir tout
+                                        </button>
+                                    <?php endif; ?>
                                 </div>
-                            <?php endif; ?>
+
                         </div>
                     </div>
 
@@ -306,8 +327,7 @@
                         <?php if($classe->membres->count() > 0): ?>
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <?php $__currentLoopData = $classe->membres->take(6); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $membre): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                                    <div
-                                        class="flex items-center space-x-3 p-3 bg-slate-50 rounded-lg hover:bg-slate-100 transition-colors">
+                                    <div class="flex items-center space-x-3 p-3 bg-slate-50 rounded-lg hover:bg-slate-100 transition-colors">
                                         <div
                                             class="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white font-semibold text-sm">
                                             <?php echo e(substr($membre->prenom, 0, 1)); ?><?php echo e(substr($membre->nom, 0, 1)); ?>
@@ -319,11 +339,12 @@
                                             </p>
                                             <p class="text-sm text-slate-500 truncate"><?php echo e($membre->email); ?></p>
                                         </div>
-                                        <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('classes.manage-members')): ?>
-                                            <button onclick="removeMember('<?php echo e($membre->id); ?>')"
-                                                class="text-red-600 hover:text-red-800 p-1">
-                                                <i class="fas fa-times text-sm"></i>
-                                            </button>
+                                        <?php if(($classe->responsableSuperieur()?->id === Auth::user()->id) || auth()->user()->hasAnyRole(['super-admin', 'secretaire']) ): ?>
+                                            <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('classes.manage-members')): ?>
+                                                <button onclick="removeMember('<?php echo e($membre->id); ?>')" class="text-red-600 hover:text-red-800 p-1">
+                                                    <i class="fas fa-trash text-sm"></i>
+                                                </button>
+                                            <?php endif; ?>
                                         <?php endif; ?>
                                     </div>
                                 <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
@@ -341,11 +362,13 @@
                             <div class="text-center py-8">
                                 <i class="fas fa-users text-3xl text-slate-400 mb-3"></i>
                                 <p class="text-slate-500 mb-4">Aucun membre inscrit dans cette classe</p>
-                                <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('classes.manage-members')): ?>
-                                    <button onclick="showAddMembersModal()"
-                                        class="inline-flex items-center px-4 py-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition-colors">
-                                        <i class="fas fa-user-plus mr-2"></i> Ajouter des membres
-                                    </button>
+                                <?php if(($classe->responsableSuperieur()?->id === Auth::user()->id) || auth()->user()->hasAnyRole(['super-admin', 'secretaire']) ): ?>
+                                    <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('classes.manage-members')): ?>
+                                        <button onclick="showAddMembersModal()"
+                                            class="inline-flex items-center px-4 py-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition-colors">
+                                            <i class="fas fa-user-plus mr-2"></i> Ajouter des membres
+                                        </button>
+                                    <?php endif; ?>
                                 <?php endif; ?>
                             </div>
                         <?php endif; ?>
@@ -462,12 +485,13 @@
                                 <i class="fas fa-edit mr-2"></i> Modifier la classe
                             </a>
                         <?php endif; ?>
-
+                         <?php if(($classe->responsableSuperieur()?->id === Auth::user()->id) || auth()->user()->hasAnyRole(['super-admin', 'secretaire']) ): ?>
                         <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('classes.manage-members')): ?>
                             <button onclick="showAddMembersModal()"
                                 class="block w-full px-4 py-3 bg-green-50 hover:bg-green-100 text-green-700 rounded-lg transition-colors">
                                 <i class="fas fa-user-plus mr-2"></i> Ajouter des membres
                             </button>
+                        <?php endif; ?>
                         <?php endif; ?>
 
                         <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('classes.export')): ?>
@@ -610,16 +634,46 @@
             document.body.classList.remove('overflow-hidden');
         }
 
+        // Fonction de recherche des utilisateurs
+        function searchUtilisateurs() {
+        //    alert()
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const utilisateurItems = document.querySelectorAll('.utilisateur-item');
+            let visibleCount = 0;
+
+            utilisateurItems.forEach(item => {
+                const userNom = item.getAttribute('data-user-nom');
+                const userEmail = item.getAttribute('data-user-email');
+
+                if (userNom.includes(searchTerm) || userEmail.includes(searchTerm)) {
+                    item.style.display = 'block';
+                    visibleCount++;
+                } else {
+                    item.style.display = 'none';
+                    // Désélectionner les éléments cachés
+                    const checkbox = item.querySelector('.user-checkbox');
+                    if (checkbox) {
+                        checkbox.checked = false;
+                    }
+                }
+            });
+
+            // Mettre à jour le compteur
+            updateSelectedCount();
+
+            // Mettre à jour l'état du "Sélectionner tout"
+            updateSelectAllState();
+        }
 
         // Chargement du contenu des modals
         function loadManageResponsablesContent() {
             const content = document.getElementById('manageResponsablesContent');
             content.innerHTML = `
-            <div class="text-center py-8">
-                <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
-                <p class="mt-2 text-slate-600">Chargement des membres...</p>
-            </div>
-        `;
+                <div class="text-center py-8">
+                    <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+                    <p class="mt-2 text-slate-600">Chargement des membres...</p>
+                </div>
+            `;
 
             // Charger les membres pour la gestion des responsables
             fetch(`<?php echo e(route('private.classes.getMembresForResponsables', $classe)); ?>`, {
@@ -635,21 +689,21 @@
                         content.innerHTML = generateManageResponsablesContent(data.data);
                     } else {
                         content.innerHTML = `
-                    <div class="text-center py-8">
-                        <i class="fas fa-exclamation-triangle text-3xl text-red-400 mb-3"></i>
-                        <p class="text-red-600">Erreur lors du chargement</p>
-                    </div>
-                `;
+                        <div class="text-center py-8">
+                            <i class="fas fa-exclamation-triangle text-3xl text-red-400 mb-3"></i>
+                            <p class="text-red-600">Erreur lors du chargement</p>
+                        </div>
+                    `;
                     }
                 })
                 .catch(error => {
                     console.error('Erreur:', error);
                     content.innerHTML = `
-                <div class="text-center py-8">
-                    <i class="fas fa-exclamation-triangle text-3xl text-red-400 mb-3"></i>
-                    <p class="text-red-600">Erreur lors du chargement</p>
-                </div>
-            `;
+                    <div class="text-center py-8">
+                        <i class="fas fa-exclamation-triangle text-3xl text-red-400 mb-3"></i>
+                        <p class="text-red-600">Erreur lors du chargement</p>
+                    </div>
+                `;
                 });
         }
 
@@ -661,28 +715,28 @@
 
             if (!membersList || membersList.length === 0) {
                 return `
-                <div class="text-center py-8">
-                    <i class="fas fa-users text-3xl text-slate-400 mb-3"></i>
-                    <p class="text-slate-500">Aucun membre dans cette classe</p>
-                </div>
-            `;
+                    <div class="text-center py-8">
+                        <i class="fas fa-users text-3xl text-slate-400 mb-3"></i>
+                        <p class="text-slate-500">Aucun membre dans cette classe</p>
+                    </div>
+                `;
             }
 
             let html = `
-            <!-- Barre de recherche -->
-            <div class="mb-6">
-                <div class="relative">
-                    <input type="text" id="searchMembres" placeholder="Rechercher un membre..." onkeyup="searchMembres()"
-                        class="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <i class="fas fa-search text-slate-400"></i>
+                <!-- Barre de recherche -->
+                <div class="mb-6">
+                    <div class="relative">
+                        <input type="text" id="searchMembres" placeholder="Rechercher un membre..." onkeyup="searchMembres()"
+                            class="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i class="fas fa-search text-slate-400"></i>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- Liste des membres -->
-            <div class="space-y-3 max-h-96 overflow-y-auto" id="membresList">
-        `;
+                <!-- Liste des membres -->
+                <div class="space-y-3 max-h-96 overflow-y-auto" id="membresList">
+            `;
 
             membersList.forEach(membre => {
                 const typesOptions = types_responsabilite.map(type =>
@@ -690,66 +744,73 @@
                 ).join('');
 
                 html += `
-                <div class="membre-item flex items-center justify-between p-4 bg-slate-50 rounded-xl hover:bg-slate-100 transition-colors" data-membre-nom="${membre.prenom.toLowerCase()} ${membre.nom.toLowerCase()}" data-membre-email="${membre?.email?.toLowerCase()}">
-                    <div class="flex items-center space-x-3">
-                        <div class="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white font-semibold text-sm">
-                            ${membre.prenom.charAt(0)}${membre.nom.charAt(0)}
+                    <div class="membre-item flex items-center justify-between p-4 bg-slate-50 rounded-xl hover:bg-slate-100 transition-colors" data-membre-nom="${membre.prenom.toLowerCase()} ${membre.nom.toLowerCase()}" data-membre-email="${membre?.email?.toLowerCase()}">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white font-semibold text-sm">
+                                ${membre.prenom.charAt(0)}${membre.nom.charAt(0)}
+                            </div>
+                            <div>
+                                <p class="font-semibold text-slate-900">${membre.prenom} ${membre.nom}</p>
+                                <p class="text-sm text-slate-500">${membre.email ?? 'Aucun email disponible'}</p>
+                                ${membre.is_responsable ? `
+                                    <span class="inline-flex items-center px-2 py-1 rounded-lg text-xs font-medium bg-green-100 text-green-800 mt-1">
+                                        <i class="fas fa-user-tie mr-1"></i> ${membre.responsabilite}
+                                        ${membre.superieur ? ' (Supérieur)' : ''}
+                                    </span>
+                                ` : ''}
+                            </div>
                         </div>
-                        <div>
-                            <p class="font-semibold text-slate-900">${membre.prenom} ${membre.nom}</p>
-                            <p class="text-sm text-slate-500">${membre.email ?? 'Aucun email disponible'}</p>
+
+                        <div class="flex items-center space-x-2">
                             ${membre.is_responsable ? `
-                                <span class="inline-flex items-center px-2 py-1 rounded-lg text-xs font-medium bg-green-100 text-green-800 mt-1">
-                                    <i class="fas fa-user-tie mr-1"></i> ${membre.responsabilite}
-                                    ${membre.superieur ? ' (Supérieur)' : ''}
-                                </span>
-                            ` : ''}
+                                <!-- Membre responsable : options de modification -->
+                                <select onchange="updateResponsabilite('${membre.id}', this.value, ${membre.superieur})"
+                                    class="text-sm border border-slate-300 rounded-lg px-2 py-1 focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                    ${typesOptions}
+                                </select>
+
+                                <label class="flex items-center">
+                                    <?php if(auth()->user()->hasAnyRole(['super-admin', 'secretaire'])): ?>
+                                        <input type="checkbox" ${membre.superieur ? 'checked' : ''}
+                                            onchange="toggleSuperieur('${membre.id}', '${membre.responsabilite}', this.checked)"
+                                            class="w-4 h-4 text-blue-600 bg-white border-gray-300 rounded focus:ring-blue-500 mr-2">
+                                        <span class="text-xs text-slate-600">Supérieur</span>
+                                     <?php endif; ?>
+                                </label>
+
+
+
+
+
+                                <button onclick="removeResponsabilite('${membre.id}')"
+                                    class="inline-flex items-center justify-center w-8 h-8 text-red-600 bg-red-100 rounded-lg hover:bg-red-200 transition-colors"
+                                    title="Retirer la responsabilité">
+                                    <i class="fas fa-trash text-sm"></i>
+                                </button>
+
+                            ` : `
+                                <!-- Membre normal : option d'ajout -->
+                                <select id="responsabilite_${membre.id}"
+                                    class="text-sm border border-slate-300 rounded-lg px-2 py-1 focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                    <option value="">Choisir une responsabilité</option>
+                                    ${types_responsabilite.map(type => `<option value="${type}">${type.charAt(0).toUpperCase() + type.slice(1)}</option>`).join('')}
+                                </select>
+
+                                <label class="flex items-center">
+                                    <input type="checkbox" id="superieur_${membre.id}"
+                                        class="w-4 h-4 text-blue-600 bg-white border-gray-300 rounded focus:ring-blue-500 mr-2">
+                                    <span class="text-xs text-slate-600">Supérieur</span>
+                                </label>
+
+                                <button onclick="addResponsabilite('${membre.id}')"
+                                    class="inline-flex items-center justify-center w-8 h-8 text-green-600 bg-green-100 rounded-lg hover:bg-green-200 transition-colors"
+                                    title="Ajouter une responsabilité">
+                                    <i class="fas fa-plus text-sm"></i>
+                                </button>
+                            `}
                         </div>
                     </div>
-
-                    <div class="flex items-center space-x-2">
-                        ${membre.is_responsable ? `
-                            <!-- Membre responsable : options de modification -->
-                            <select onchange="updateResponsabilite('${membre.id}', this.value, ${membre.superieur})"
-                                class="text-sm border border-slate-300 rounded-lg px-2 py-1 focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                                ${typesOptions}
-                            </select>
-
-                            <label class="flex items-center">
-                                <input type="checkbox" ${membre.superieur ? 'checked' : ''}
-                                    onchange="toggleSuperieur('${membre.id}', '${membre.responsabilite}', this.checked)"
-                                    class="w-4 h-4 text-blue-600 bg-white border-gray-300 rounded focus:ring-blue-500 mr-2">
-                                <span class="text-xs text-slate-600">Supérieur</span>
-                            </label>
-
-                            <button onclick="removeResponsabilite('${membre.id}')"
-                                class="inline-flex items-center justify-center w-8 h-8 text-red-600 bg-red-100 rounded-lg hover:bg-red-200 transition-colors"
-                                title="Retirer la responsabilité">
-                                <i class="fas fa-times text-sm"></i>
-                            </button>
-                        ` : `
-                            <!-- Membre normal : option d'ajout -->
-                            <select id="responsabilite_${membre.id}"
-                                class="text-sm border border-slate-300 rounded-lg px-2 py-1 focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                                <option value="">Choisir une responsabilité</option>
-                                ${types_responsabilite.map(type => `<option value="${type}">${type.charAt(0).toUpperCase() + type.slice(1)}</option>`).join('')}
-                            </select>
-
-                            <label class="flex items-center">
-                                <input type="checkbox" id="superieur_${membre.id}"
-                                    class="w-4 h-4 text-blue-600 bg-white border-gray-300 rounded focus:ring-blue-500 mr-2">
-                                <span class="text-xs text-slate-600">Supérieur</span>
-                            </label>
-
-                            <button onclick="addResponsabilite('${membre.id}')"
-                                class="inline-flex items-center justify-center w-8 h-8 text-green-600 bg-green-100 rounded-lg hover:bg-green-200 transition-colors"
-                                title="Ajouter une responsabilité">
-                                <i class="fas fa-plus text-sm"></i>
-                            </button>
-                        `}
-                    </div>
-                </div>
-            `;
+                `;
             });
 
             html += '</div>';
@@ -757,10 +818,10 @@
             // Ajouter la pagination si nécessaire
             if (!Array.isArray(membres) && membres.links) {
                 html += `
-                <div class="mt-4 flex justify-center">
-                    <!-- Pagination sera ajoutée ici si nécessaire -->
-                </div>
-            `;
+                    <div class="mt-4 flex justify-center">
+                        <!-- Pagination sera ajoutée ici si nécessaire -->
+                    </div>
+                `;
             }
 
             return html;
@@ -870,11 +931,11 @@
         function loadAddMembersContent() {
             const content = document.getElementById('addMembersContent');
             content.innerHTML = `
-            <div class="text-center py-8">
-                <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
-                <p class="mt-2 text-slate-600">Chargement des utilisateurs disponibles...</p>
-            </div>
-        `;
+                <div class="text-center py-8">
+                    <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+                    <p class="mt-2 text-slate-600">Chargement des utilisateurs disponibles...</p>
+                </div>
+            `;
 
             // Charger les utilisateurs disponibles
             fetch(`<?php echo e(route('private.classes.getUtilisateursDisponibles', $classe)); ?>`, {
@@ -895,32 +956,32 @@
                         }, 100);
                     } else {
                         content.innerHTML = `
-                    <div class="text-center py-8">
-                        <i class="fas fa-exclamation-triangle text-3xl text-red-400 mb-3"></i>
-                        <p class="text-red-600">Erreur lors du chargement</p>
-                    </div>
-                `;
+                        <div class="text-center py-8">
+                            <i class="fas fa-exclamation-triangle text-3xl text-red-400 mb-3"></i>
+                            <p class="text-red-600">Erreur lors du chargement</p>
+                        </div>
+                    `;
                     }
                 })
                 .catch(error => {
                     console.error('Erreur:', error);
                     content.innerHTML = `
-                <div class="text-center py-8">
-                    <i class="fas fa-exclamation-triangle text-3xl text-red-400 mb-3"></i>
-                    <p class="text-red-600">Erreur lors du chargement</p>
-                </div>
-            `;
+                    <div class="text-center py-8">
+                        <i class="fas fa-exclamation-triangle text-3xl text-red-400 mb-3"></i>
+                        <p class="text-red-600">Erreur lors du chargement</p>
+                    </div>
+                `;
                 });
         }
 
         function loadMembersListContent() {
             const content = document.getElementById('membersListContent');
             content.innerHTML = `
-                    <div class="text-center py-8">
-                        <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
-                        <p class="mt-2 text-slate-600">Chargement des membres...</p>
-                    </div>
-                `;
+                        <div class="text-center py-8">
+                            <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+                            <p class="mt-2 text-slate-600">Chargement des membres...</p>
+                        </div>
+                    `;
 
             // Charger la liste complète des membres
             fetch(`<?php echo e(route('private.classes.members', $classe)); ?>`, {
@@ -936,21 +997,21 @@
                         content.innerHTML = generateMembersListContent(data.data.membres);
                     } else {
                         content.innerHTML = `
-                            <div class="text-center py-8">
-                                <i class="fas fa-exclamation-triangle text-3xl text-red-400 mb-3"></i>
-                                <p class="text-red-600">Erreur lors du chargement</p>
-                            </div>
-                        `;
+                                <div class="text-center py-8">
+                                    <i class="fas fa-exclamation-triangle text-3xl text-red-400 mb-3"></i>
+                                    <p class="text-red-600">Erreur lors du chargement</p>
+                                </div>
+                            `;
                     }
                 })
                 .catch(error => {
                     console.error('Erreur:', error);
                     content.innerHTML = `
-                        <div class="text-center py-8">
-                            <i class="fas fa-exclamation-triangle text-3xl text-red-400 mb-3"></i>
-                            <p class="text-red-600">Erreur lors du chargement</p>
-                        </div>
-                    `;
+                            <div class="text-center py-8">
+                                <i class="fas fa-exclamation-triangle text-3xl text-red-400 mb-3"></i>
+                                <p class="text-red-600">Erreur lors du chargement</p>
+                            </div>
+                        `;
                 });
         }
 
@@ -959,131 +1020,103 @@
         function generateAddMembersContent(utilisateurs) {
             if (!utilisateurs || (Array.isArray(utilisateurs) ? utilisateurs.length === 0 : utilisateurs.data.length === 0)) {
                 return `
-                <div class="text-center py-8">
-                    <i class="fas fa-users text-3xl text-slate-400 mb-3"></i>
-                    <p class="text-slate-500">Aucun utilisateur disponible pour inscription</p>
-                </div>
-            `;
+                    <div class="text-center py-8">
+                        <i class="fas fa-users text-3xl text-slate-400 mb-3"></i>
+                        <p class="text-slate-500">Aucun utilisateur disponible pour inscription</p>
+                    </div>
+                `;
             }
 
             const users = Array.isArray(utilisateurs) ? utilisateurs : utilisateurs.data;
             let html = `
-            <form id="addMembersForm" onsubmit="submitAddMembers(event)">
-                <!-- Barre de recherche -->
-                <div class="mb-4">
-                    <div class="relative">
-                        <input type="text" id="searchUtilisateurs" placeholder="Rechercher un utilisateur..." onkeyup="searchUtilisateurs()"
-                            class="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <i class="fas fa-search text-slate-400"></i>
+                <form id="addMembersForm" onsubmit="submitAddMembers(event)">
+                    <!-- Barre de recherche -->
+                    <div class="mb-4">
+                        <div class="relative">
+                            <input type="text" id="searchInput" placeholder="Rechercher un utilisateur..." onkeyup="searchUtilisateurs()"
+                                class="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="fas fa-search text-slate-400"></i>
+                            </div>
                         </div>
                     </div>
-                </div>
 
-                <div class="mb-4">
-                    <label class="block text-sm font-medium text-slate-700 mb-2">
-                        Sélectionner les utilisateurs à ajouter:
-                    </label>
-                    <div class="max-h-60 overflow-y-auto border border-slate-200 rounded-lg">
-                        <div class="p-3 border-b border-slate-200 bg-slate-50">
-                            <label class="flex items-center">
-                                <input type="checkbox" id="selectAll" onchange="toggleSelectAll()"
-                                    class="w-4 h-4 text-blue-600 bg-white border-gray-300 rounded focus:ring-blue-500 mr-3">
-                                <span class="font-medium text-slate-700">Sélectionner tout</span>
-                            </label>
-                        </div>
-                        <div id="utilisateursList">
-        `;
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-slate-700 mb-2">
+                            Sélectionner les utilisateurs à ajouter:
+                        </label>
+                        <div class="max-h-60 overflow-y-auto border border-slate-200 rounded-lg">
+                            <div class="p-3 border-b border-slate-200 bg-slate-50">
+                                <label class="flex items-center">
+                                    <input type="checkbox" id="selectAll" onchange="toggleSelectAll()"
+                                        class="w-4 h-4 text-blue-600 bg-white border-gray-300 rounded focus:ring-blue-500 mr-3">
+                                    <span class="font-medium text-slate-700">Sélectionner tout</span>
+                                </label>
+                            </div>
+                            <div id="utilisateursList">
+            `;
 
             users.forEach(user => {
                 html += `
-                <div class="utilisateur-item p-3 border-b border-slate-100 hover:bg-slate-50"
-                     data-user-nom="${user.prenom.toLowerCase()} ${user.nom.toLowerCase()}"
-                     data-user-email="${user?.email?.toLowerCase()}">
-                    <label class="flex items-center">
-                        <input type="checkbox" name="user_ids[]" value="${user.id}"
-                            class="w-4 h-4 text-blue-600 bg-white border-gray-300 rounded focus:ring-blue-500 mr-3 user-checkbox">
-                        <div class="flex items-center space-x-3 flex-1">
-                            <div class="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white font-semibold text-xs">
-                                ${user.prenom.charAt(0)}${user.nom.charAt(0)}
+                    <div class="utilisateur-item p-3 border-b border-slate-100 hover:bg-slate-50"
+                         data-user-nom="${user.prenom.toLowerCase()} ${user.nom.toLowerCase()}"
+                         data-user-email="${user?.email?.toLowerCase()}">
+                        <label class="flex items-center">
+                            <input type="checkbox" name="user_ids[]" value="${user.id}"
+                                class="w-4 h-4 text-blue-600 bg-white border-gray-300 rounded focus:ring-blue-500 mr-3 user-checkbox">
+                            <div class="flex items-center space-x-3 flex-1">
+                                <div class="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white font-semibold text-xs">
+                                    ${user.prenom.charAt(0)}${user.nom.charAt(0)}
+                                </div>
+                                <div>
+                                    <p class="font-medium text-slate-900">${user.prenom} ${user.nom}</p>
+                                    <p class="text-sm text-slate-500">${user.email ?? 'Aucun email disponible'}</p>
+                                    ${user.age ? `<p class="text-xs text-slate-400">${user.age} ans</p>` : ''}
+                                </div>
                             </div>
-                            <div>
-                                <p class="font-medium text-slate-900">${user.prenom} ${user.nom}</p>
-                                <p class="text-sm text-slate-500">${user.email ?? 'Aucun email disponible'}</p>
-                                ${user.age ? `<p class="text-xs text-slate-400">${user.age} ans</p>` : ''}
-                            </div>
-                        </div>
-                        ${!user.age_compatible ? '<span class="text-xs text-amber-600 bg-amber-100 px-2 py-1 rounded">Âge incompatible</span>' : ''}
-                    </label>
-                </div>
-            `;
+                            ${!user.age_compatible ? '<span class="text-xs text-amber-600 bg-amber-100 px-2 py-1 rounded">Âge incompatible</span>' : ''}
+                        </label>
+                    </div>
+                `;
             });
 
             html += `
+                            </div>
                         </div>
                     </div>
-                </div>
 
-                <!-- Filtres supplémentaires -->
-                <div class="mb-4 p-3 bg-slate-50 rounded-lg">
-                    <div class="flex items-center justify-between text-sm">
-                        <label class="flex items-center">
-                            <input type="checkbox" id="filterAgeCompatible" onchange="filterByAgeCompatibility()"
-                                class="w-4 h-4 text-blue-600 bg-white border-gray-300 rounded focus:ring-blue-500 mr-2">
-                            <span class="text-slate-600">Afficher uniquement les âges compatibles</span>
-                        </label>
-                        <span id="selectedCount" class="text-slate-500">0 sélectionné(s)</span>
+                    <!-- Filtres supplémentaires -->
+                    <div class="mb-4 p-3 bg-slate-50 rounded-lg">
+                        <div class="flex items-center justify-between text-sm">
+                            <label class="flex items-center">
+                                <input type="checkbox" id="filterAgeCompatible" onchange="filterByAgeCompatibility()"
+                                    class="w-4 h-4 text-blue-600 bg-white border-gray-300 rounded focus:ring-blue-500 mr-2">
+                                <span class="text-slate-600">Afficher uniquement les âges compatibles</span>
+                            </label>
+                            <span id="selectedCount" class="text-slate-500">0 sélectionné(s)</span>
+                        </div>
                     </div>
-                </div>
 
-                <div class="flex items-center justify-between">
-                    <label class="flex items-center">
-                        <input type="checkbox" name="force_age_check" value="1"
-                            class="w-4 h-4 text-blue-600 bg-white border-gray-300 rounded focus:ring-blue-500 mr-2">
-                        <span class="text-sm text-slate-600">Forcer l'ajout même si l'âge est incompatible</span>
-                    </label>
-                    <button type="submit"
-                        class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
-                        Ajouter les membres sélectionnés
-                    </button>
-                </div>
-            </form>
-        `;
+                    <div class="flex items-center justify-between">
+                        <label class="flex items-center">
+                            <input type="checkbox" name="force_age_check" value="1"
+                                class="w-4 h-4 text-blue-600 bg-white border-gray-300 rounded focus:ring-blue-500 mr-2">
+                            <span class="text-sm text-slate-600">Forcer l'ajout même si l'âge est incompatible</span>
+                        </label>
+                        <button type="submit"
+                            class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                            Ajouter les membres sélectionnés
+                        </button>
+                    </div>
+                </form>
+            `;
 
             return html;
         }
 
 
 
-        // Fonction de recherche des utilisateurs
-        function searchUtilisateurs() {
-            const searchTerm = document.getElementById('searchUtilisateurs').value.toLowerCase();
-            const utilisateurItems = document.querySelectorAll('.utilisateur-item');
-            let visibleCount = 0;
 
-            utilisateurItems.forEach(item => {
-                const userNom = item.getAttribute('data-user-nom');
-                const userEmail = item.getAttribute('data-user-email');
-
-                if (userNom.includes(searchTerm) || userEmail.includes(searchTerm)) {
-                    item.style.display = 'block';
-                    visibleCount++;
-                } else {
-                    item.style.display = 'none';
-                    // Désélectionner les éléments cachés
-                    const checkbox = item.querySelector('.user-checkbox');
-                    if (checkbox) {
-                        checkbox.checked = false;
-                    }
-                }
-            });
-
-            // Mettre à jour le compteur
-            updateSelectedCount();
-
-            // Mettre à jour l'état du "Sélectionner tout"
-            updateSelectAllState();
-        }
 
         // Filtrer par compatibilité d'âge
         function filterByAgeCompatibility() {
@@ -1193,36 +1226,36 @@
 
             if (!membersList || membersList.length === 0) {
                 return `
-                        <div class="text-center py-8">
-                            <i class="fas fa-users text-3xl text-slate-400 mb-3"></i>
-                            <p class="text-slate-500">Aucun membre inscrit dans cette classe</p>
-                        </div>
-                    `;
+                            <div class="text-center py-8">
+                                <i class="fas fa-users text-3xl text-slate-400 mb-3"></i>
+                                <p class="text-slate-500">Aucun membre inscrit dans cette classe</p>
+                            </div>
+                        `;
             }
 
             let html = '<div class="space-y-3">';
             membersList.forEach(membre => {
                 html += `
-                        <div class="flex items-center justify-between p-4 bg-slate-50 rounded-xl hover:bg-slate-100 transition-colors">
-                            <div class="flex items-center space-x-3">
-                                <div class="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white font-semibold text-sm">
-                                    ${membre.prenom.charAt(0)}${membre.nom.charAt(0)}
+                            <div class="flex items-center justify-between p-4 bg-slate-50 rounded-xl hover:bg-slate-100 transition-colors">
+                                <div class="flex items-center space-x-3">
+                                    <div class="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white font-semibold text-sm">
+                                        ${membre.prenom.charAt(0)}${membre.nom.charAt(0)}
+                                    </div>
+                                    <div>
+                                        <p class="font-semibold text-slate-900">${membre.prenom} ${membre.nom}</p>
+                                        <p class="text-sm text-slate-500">${membre.email ?? 'Aucun email disponible'}</p>
+                                        ${membre.telephone_1 ? `<p class="text-sm text-slate-400">${membre.telephone_1}</p>` : ''}
+                                    </div>
                                 </div>
-                                <div>
-                                    <p class="font-semibold text-slate-900">${membre.prenom} ${membre.nom}</p>
-                                    <p class="text-sm text-slate-500">${membre.email ?? 'Aucun email disponible'}</p>
-                                    ${membre.telephone_1 ? `<p class="text-sm text-slate-400">${membre.telephone_1}</p>` : ''}
-                                </div>
+                                <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('classes.manage-members')): ?>
+                                    <button onclick="removeMember('${membre.id}')"
+                                        class="inline-flex items-center justify-center w-8 h-8 text-red-600 bg-red-100 rounded-lg hover:bg-red-200 transition-colors"
+                                        title="Retirer de la classe">
+                                        <i class="fas fa-times text-sm"></i>
+                                    </button>
+                                <?php endif; ?>
                             </div>
-                            <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('classes.manage-members')): ?>
-                                <button onclick="removeMember('${membre.id}')"
-                                    class="inline-flex items-center justify-center w-8 h-8 text-red-600 bg-red-100 rounded-lg hover:bg-red-200 transition-colors"
-                                    title="Retirer de la classe">
-                                    <i class="fas fa-times text-sm"></i>
-                                </button>
-                            <?php endif; ?>
-                        </div>
-                    `;
+                        `;
             });
             html += '</div>';
 
@@ -1394,11 +1427,11 @@
             const alertDiv = document.createElement('div');
             alertDiv.className = `fixed top-4 right-4 ${bgColor} text-white px-6 py-3 rounded-xl shadow-lg z-50 transform transition-all duration-300 translate-x-full`;
             alertDiv.innerHTML = `
-                    <div class="flex items-center">
-                        <i class="fas ${icon} mr-2"></i>
-                        <span>${message}</span>
-                    </div>
-                `;
+                        <div class="flex items-center">
+                            <i class="fas ${icon} mr-2"></i>
+                            <span>${message}</span>
+                        </div>
+                    `;
 
             document.body.appendChild(alertDiv);
 

@@ -20,32 +20,32 @@ use App\Http\Controllers\Private\Web\MultimediaController;
 |
 */
 
-Route::prefix('dashboard/multimedia')->name('private.multimedia.')->middleware(['auth', 'verified', 'user.status'])->group(function () {
+Route::prefix('multimedia')->name('private.multimedia.')->middleware(['auth', 'verified', 'user.status'])->group(function () {
 
     // Routes de base CRUD
-    Route::get('/', [MultimediaController::class, 'index'])->name('index');
-    Route::get('create', [MultimediaController::class, 'create'])->name('create');
-        // Galerie et vues spéciales
-    Route::get('/publique', [MultimediaController::class, 'galerie'])->name('galerie');
-    Route::get('/statistiques', [MultimediaController::class, 'statistiques'])->name('statistiques');
+    Route::get('/', [MultimediaController::class, 'index'])->middleware('permission:multimedia.read')->name('index');
+    Route::get('create', [MultimediaController::class, 'create'])->middleware('permission:multimedia.create')->name('create');
+    // Galerie et vues spéciales
+    Route::get('/publique', [MultimediaController::class, 'galerie'])->middleware('permission:multimedia.read')->name('galerie');
+    Route::get('/statistiques', [MultimediaController::class, 'statistiques'])->middleware('permission:multimedia.statistics')->name('statistiques');
 
-    Route::post('/', [MultimediaController::class, 'store'])->name('store');
-    Route::get('{multimedia}', [MultimediaController::class, 'show'])->name('show');
-    Route::get('{multimedia}/edit', [MultimediaController::class, 'edit'])->name('edit');
-    Route::put('{multimedia}', [MultimediaController::class, 'update'])->name('update');
-    Route::patch('{multimedia}', [MultimediaController::class, 'update'])->name('update.patch');
-    Route::delete('{multimedia}', [MultimediaController::class, 'destroy'])->name('destroy');
+    Route::post('/', [MultimediaController::class, 'store'])->middleware('permission:multimedia.create')->name('store');
+    Route::get('{multimedia}', [MultimediaController::class, 'show'])->middleware('permission:multimedia.read')->name('show');
+    Route::get('{multimedia}/edit', [MultimediaController::class, 'edit'])->middleware('permission:multimedia.update')->name('edit');
+    Route::put('{multimedia}', [MultimediaController::class, 'update'])->middleware('permission:multimedia.update')->name('update');
+    Route::patch('{multimedia}', [MultimediaController::class, 'update'])->middleware('permission:multimedia.update')->name('update.patch');
+    Route::delete('{multimedia}', [MultimediaController::class, 'destroy'])->middleware('permission:multimedia.delete')->name('destroy');
 
     // Routes spécifiques aux médias
-    Route::get('{multimedia}/download', [MultimediaController::class, 'download'])->name('download');
-    Route::patch('{multimedia}/approve', [MultimediaController::class, 'approve'])->name('approve');
-    Route::patch('{multimedia}/reject', [MultimediaController::class, 'reject'])->name('reject');
-    Route::patch('{multimedia}/toggle-featured', [MultimediaController::class, 'toggleFeatured'])->name('toggle-featured');
+    Route::get('{multimedia}/download', [MultimediaController::class, 'download'])->middleware('permission:multimedia.download')->name('download');
+    Route::patch('{multimedia}/approve', [MultimediaController::class, 'approve'])->middleware('permission:multimedia.approve')->name('approve');
+    Route::patch('{multimedia}/reject', [MultimediaController::class, 'reject'])->middleware('permission:multimedia.reject')->name('reject');
+    Route::patch('{multimedia}/toggle-featured', [MultimediaController::class, 'toggleFeatured'])->middleware('permission:multimedia.toggle-featured')->name('toggle-featured');
 
 
 
     // Modération en lot
-    Route::post('moderation/bulk', [MultimediaController::class, 'bulkModerate'])->name('bulk-moderate');
+    Route::post('moderation/bulk', [MultimediaController::class, 'bulkModerate'])->middleware('permission:multimedia.update')->name('bulk-moderate');
 
 });
 
@@ -86,7 +86,7 @@ Route::prefix('galerie')->name('public.multimedia.')->group(function () {
 */
 
 // Routes de modération (réservées aux modérateurs)
-Route::prefix('dashboard/multimedia')->name('private.multimedia.')->middleware(['auth', 'permission:moderate_media'])->group(function () {
+Route::prefix('multimedia')->name('private.multimedia.')->middleware(['auth', 'permission:moderate_media'])->group(function () {
 
     Route::get('moderation/queue', function (Request $request) {
         $request->merge(['statut_moderation' => 'en_attente']);
@@ -101,7 +101,7 @@ Route::prefix('dashboard/multimedia')->name('private.multimedia.')->middleware([
 });
 
 // Routes de gestion avancée (administrateurs)
-Route::prefix('dashboard/multimedia/admin')->name('private.multimedia.admin.')->middleware(['auth', 'permission:manage_media'])->group(function () {
+Route::prefix('multimedia/admin')->name('private.multimedia.admin.')->middleware(['auth', 'permission:manage_media'])->group(function () {
 
     Route::get('dashboard', [MultimediaController::class, 'statistiques'])->name('dashboard');
 
@@ -141,163 +141,8 @@ Route::prefix('api/v1/multimedia')->name('api.multimedia.')->middleware(['auth:a
 
 });
 
-/*
-|--------------------------------------------------------------------------
-| Routes pour l'upload via AJAX/API
-|--------------------------------------------------------------------------
-*/
 
-Route::prefix('dashboard/multimedia/upload')->name('private.multimedia.upload.')->middleware(['auth'])->group(function () {
 
-    // Upload simple
-    Route::post('single', [MultimediaController::class, 'store'])->name('single');
-
-    // Upload multiple (chunk par chunk)
-    Route::post('chunk', function (Request $request) {
-        // Logique pour l'upload par chunks
-        return response()->json(['success' => true, 'chunk_uploaded' => true]);
-    })->name('chunk');
-
-    // Finaliser upload multiple
-    Route::post('finalize', function (Request $request) {
-        // Logique pour finaliser l'upload multiple
-        return response()->json(['success' => true, 'files_processed' => $request->file_count]);
-    })->name('finalize');
-
-});
-
-/*
-|--------------------------------------------------------------------------
-| Routes pour les événements spécifiques
-|--------------------------------------------------------------------------
-*/
-
-// Routes pour associer des médias à des événements
-Route::prefix('dashboard')->middleware(['auth'])->group(function () {
-
-    // Médias d'un culte
-    Route::get('cultes/{culte}/multimedia', function (Request $request, $culteId) {
-        $request->merge(['culte_id' => $culteId]);
-        return app(MultimediaController::class)->index($request);
-    })->name('private.cultes.multimedia');
-
-    // Médias d'un événement
-    Route::get('events/{event}/multimedia', function (Request $request, $eventId) {
-        $request->merge(['event_id' => $eventId]);
-        return app(MultimediaController::class)->index($request);
-    })->name('private.events.multimedia');
-
-    // Médias d'une intervention
-    Route::get('interventions/{intervention}/multimedia', function (Request $request, $interventionId) {
-        $request->merge(['intervention_id' => $interventionId]);
-        return app(MultimediaController::class)->index($request);
-    })->name('private.interventions.multimedia');
-
-    // Médias d'une réunion
-    Route::get('reunions/{reunion}/multimedia', function (Request $request, $reunionId) {
-        $request->merge(['reunion_id' => $reunionId]);
-        return app(MultimediaController::class)->index($request);
-    })->name('private.reunions.multimedia');
-
-});
-
-/*
-|--------------------------------------------------------------------------
-| Routes pour les flux RSS et sitemaps
-|--------------------------------------------------------------------------
-*/
-
-Route::prefix('feeds')->group(function () {
-
-    // RSS des derniers médias
-    Route::get('multimedia/rss', function (Request $request) {
-        $medias = DB::table('galerie_publique')
-                    ->orderBy('created_at', 'desc')
-                    ->limit(20)
-                    ->get();
-
-        return response()->view('feeds.multimedia-rss', compact('medias'))
-                       ->header('Content-Type', 'application/rss+xml');
-    })->name('multimedia.rss');
-
-    // Sitemap des médias
-    Route::get('multimedia/sitemap.xml', function (Request $request) {
-        $medias = DB::table('galerie_publique')
-                    ->select('slug', 'updated_at')
-                    ->get();
-
-        return response()->view('feeds.multimedia-sitemap', compact('medias'))
-                       ->header('Content-Type', 'application/xml');
-    })->name('multimedia.sitemap');
-
-});
-
-/*
-|--------------------------------------------------------------------------
-| Routes de recherche avancée
-|--------------------------------------------------------------------------
-*/
-
-Route::prefix('dashboard/multimedia/search')->name('private.multimedia.search.')->middleware(['auth'])->group(function () {
-
-    // Recherche par tags
-    Route::get('tags/{tag}', function (Request $request, $tag) {
-        $request->merge(['search' => $tag]);
-        return app(MultimediaController::class)->index($request);
-    })->name('tag');
-
-    // Recherche par photographe
-    Route::get('photographer/{photographer}', function (Request $request, $photographer) {
-        $request->merge(['photographe' => $photographer]);
-        return app(MultimediaController::class)->index($request);
-    })->name('photographer');
-
-    // Recherche par date
-    Route::get('date/{date}', function (Request $request, $date) {
-        // Logique de recherche par date
-        return app(MultimediaController::class)->index($request);
-    })->name('date');
-
-});
-
-/*
-|--------------------------------------------------------------------------
-| Routes pour les widgets et intégrations
-|--------------------------------------------------------------------------
-*/
-
-Route::prefix('widgets/multimedia')->name('widgets.multimedia.')->group(function () {
-
-    // Widget derniers médias
-    Route::get('recent', function (Request $request) {
-        $medias = DB::table('medias_recents')->limit(6)->get();
-        return response()->json(['medias' => $medias]);
-    })->name('recent');
-
-    // Widget médias populaires
-    Route::get('popular', function (Request $request) {
-        $medias = Multimedia::visible()
-                           ->approuve()
-                           ->public()
-                           ->popular()
-                           ->limit(6)
-                           ->get();
-        return response()->json(['medias' => $medias]);
-    })->name('popular');
-
-    // Widget slideshow
-    Route::get('slideshow', function (Request $request) {
-        $medias = Multimedia::featured()
-                           ->visible()
-                           ->approuve()
-                           ->public()
-                           ->ofType('image')
-                           ->limit(5)
-                           ->get();
-        return response()->json(['medias' => $medias]);
-    })->name('slideshow');
-
-});
 
 /*
 |--------------------------------------------------------------------------
@@ -311,59 +156,3 @@ Route::pattern('culte', '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f
 Route::pattern('event', '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}');
 Route::pattern('intervention', '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}');
 Route::pattern('reunion', '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}');
-
-/*
-|--------------------------------------------------------------------------
-| Routes de maintenance et utilitaires
-|--------------------------------------------------------------------------
-*/
-
-Route::prefix('dashboard/multimedia/maintenance')->name('private.multimedia.maintenance.')->middleware(['auth', 'role:admin'])->group(function () {
-
-    // Régénérer les miniatures
-    Route::post('regenerate-thumbnails', function (Request $request) {
-        // Logique pour régénérer toutes les miniatures
-        return response()->json(['success' => true, 'message' => 'Miniatures régénérées']);
-    })->name('regenerate.thumbnails');
-
-    // Recalculer les hash des fichiers
-    Route::post('recalculate-hashes', function (Request $request) {
-        // Logique pour recalculer les hash
-        return response()->json(['success' => true, 'message' => 'Hash recalculés']);
-    })->name('recalculate.hashes');
-
-    // Migration de stockage
-    Route::post('migrate-storage', function (Request $request) {
-        // Logique pour migrer le stockage
-        return response()->json(['success' => true, 'message' => 'Migration effectuée']);
-    })->name('migrate.storage');
-
-});
-
-/*
-|--------------------------------------------------------------------------
-| Routes de debug et développement (uniquement en mode debug)
-|--------------------------------------------------------------------------
-*/
-
-if (config('app.debug')) {
-    Route::prefix('debug/multimedia')->name('debug.multimedia.')->middleware(['auth', 'role:admin'])->group(function () {
-
-        // Informations de debug sur un média
-        Route::get('{multimedia}/debug', function ($multimediaId) {
-            $multimedia = Multimedia::with(['culte', 'event', 'intervention', 'reunion'])->findOrFail($multimediaId);
-            return response()->json([
-                'multimedia' => $multimedia,
-                'file_exists' => Storage::disk('public')->exists($multimedia->chemin_fichier),
-                'file_size_disk' => Storage::disk('public')->size($multimedia->chemin_fichier),
-                'metadata' => $multimedia->metadonnees_exif
-            ]);
-        })->name('debug');
-
-        // Test upload
-        Route::get('test-upload', function () {
-            return view('debug.multimedia-upload-test');
-        })->name('test.upload');
-
-    });
-}

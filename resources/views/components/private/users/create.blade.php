@@ -43,7 +43,7 @@
             </div>
         </div>
 
-        <form action="{{ route('private.users.store') }}" method="POST" enctype="multipart/form-data" class="space-y-8">
+        <form action="{{ route('private.users.store') }}" method="POST" enctype="multipart/form-data" class="space-y-8" id="member-form">
             @csrf
 
             <!-- Section : Informations personnelles -->
@@ -370,8 +370,33 @@
                 </div>
             </div>
 
-            <!-- Section : Compte et rôles -->
+            <!-- Question pour création de compte -->
             <div class="bg-white/80 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
+                <div class="p-6">
+                    <div class="flex items-center space-x-4">
+                        <div class="w-10 h-10 bg-gradient-to-r from-yellow-500 to-orange-500 rounded-xl flex items-center justify-center shadow-lg">
+                            <i class="fas fa-question text-white"></i>
+                        </div>
+                        <div class="flex-1">
+                            <h3 class="text-lg font-bold text-slate-800 mb-2">Création de compte utilisateur</h3>
+                            <p class="text-slate-600 mb-4">Souhaitez-vous créer un compte utilisateur pour ce membre afin qu'il puisse se connecter à la plateforme ?</p>
+                            <div class="flex space-x-4">
+                                <label class="flex items-center cursor-pointer">
+                                    <input type="radio" name="create_account" value="yes" id="create_account_yes" class="text-indigo-600 focus:ring-indigo-500">
+                                    <span class="ml-2 text-sm font-medium text-slate-700">Oui, créer un compte</span>
+                                </label>
+                                <label class="flex items-center cursor-pointer">
+                                    <input type="radio" name="create_account" value="no" id="create_account_no" checked class="text-indigo-600 focus:ring-indigo-500">
+                                    <span class="ml-2 text-sm font-medium text-slate-700">Non, pas de compte</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section : Compte et rôles (cachée par défaut) -->
+            <div id="account-section" class="bg-white/80 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300" style="display: none;">
                 <div class="p-6 border-b border-slate-200">
                     <h3 class="text-lg font-bold text-slate-800 flex items-center">
                         <div class="w-10 h-10 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-xl flex items-center justify-center mr-3 shadow-lg">
@@ -382,16 +407,34 @@
                 </div>
                 <div class="p-6">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div class="md:col-span-2 space-y-2">
-                            <label for="password" class="block text-sm font-medium text-slate-700">Mot de passe </label>
-                            <input type="password" name="password" id="password"
-                                   class="w-full px-4 py-3 border-2 border-slate-200 rounded-xl focus:border-indigo-500 focus:ring-0 transition-all duration-200 hover:border-slate-300 @error('password') border-red-300 @enderror">
+                        <div class="space-y-2">
+                            <label for="password" class="block text-sm font-medium text-slate-700">Mot de passe *</label>
+                            <div class="relative">
+                                <input type="password" name="password" id="password"
+                                       class="w-full px-4 py-3 pr-12 border-2 border-slate-200 rounded-xl focus:border-indigo-500 focus:ring-0 transition-all duration-200 hover:border-slate-300 @error('password') border-red-300 @enderror">
+                                <button type="button" id="toggle-password" class="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400 hover:text-slate-600 transition-colors">
+                                    <i class="fas fa-eye" id="password-eye-icon"></i>
+                                </button>
+                            </div>
                             <p class="mt-1 text-sm text-slate-500">
                                 Le mot de passe doit contenir au moins 8 caractères, incluant des majuscules, minuscules et chiffres.
                             </p>
                             @error('password')
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                             @enderror
+                        </div>
+
+                        <div class="space-y-2">
+                            <label for="password_confirmation" class="block text-sm font-medium text-slate-700">Confirmer le mot de passe *</label>
+                            <div class="relative">
+                                <input type="password" name="password_confirmation" id="password_confirmation"
+                                       class="w-full px-4 py-3 pr-12 border-2 border-slate-200 rounded-xl focus:border-indigo-500 focus:ring-0 transition-all duration-200 hover:border-slate-300">
+                                <button type="button" id="toggle-password-confirmation" class="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400 hover:text-slate-600 transition-colors">
+                                    <i class="fas fa-eye" id="password-confirmation-eye-icon"></i>
+                                </button>
+                            </div>
+                            <p class="mt-1 text-sm text-slate-500">Retapez le mot de passe pour confirmation.</p>
+                            <div id="password-match-indicator" class="mt-2 text-sm hidden"></div>
                         </div>
 
                         <div class="md:col-span-2">
@@ -417,13 +460,42 @@
                 </div>
             </div>
 
+            <!-- Section CAPTCHA -->
+            <div class="bg-white/80 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
+                <div class="p-6 border-b border-slate-200">
+                    <h3 class="text-lg font-bold text-slate-800 flex items-center">
+                        <div class="w-10 h-10 bg-gradient-to-r from-green-500 to-teal-500 rounded-xl flex items-center justify-center mr-3 shadow-lg">
+                            <i class="fas fa-shield-alt text-white"></i>
+                        </div>
+                        Vérification de sécurité
+                    </h3>
+                </div>
+                <div class="p-6">
+                    <div class="flex items-center justify-center">
+                        <div class="bg-slate-100 border-2 border-slate-300 rounded-xl p-6 text-center">
+                            <!-- Captcha simple mathématique -->
+                            <div id="captcha-question" class="text-lg font-bold text-slate-700 mb-4"></div>
+                            <input type="number" id="captcha-answer" name="captcha_answer"
+                                   class="w-32 px-4 py-2 border-2 border-slate-300 rounded-lg text-center focus:border-indigo-500 focus:ring-0"
+                                   placeholder="Réponse" required>
+                            <input type="hidden" id="captcha-result" name="captcha_result">
+                            <button type="button" id="refresh-captcha" class="ml-3 px-3 py-2 bg-slate-600 text-white rounded-lg hover:bg-slate-700 transition-colors">
+                                <i class="fas fa-refresh"></i>
+                            </button>
+                            <p class="text-sm text-slate-500 mt-2">Résolvez cette opération pour confirmer que vous n'êtes pas un robot</p>
+                            <div id="captcha-error" class="text-red-600 text-sm mt-2 hidden">La réponse du captcha est incorrecte</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Boutons d'action -->
             <div class="flex justify-end space-x-4 pt-6">
                 <a href="{{ route('private.users.index') }}" class="inline-flex items-center px-6 py-3 bg-slate-600 text-white font-medium rounded-xl hover:bg-slate-700 transition-colors">
                     <i class="fas fa-times mr-2"></i>Annuler
                 </a>
-                <button type="submit" class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-medium rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-200 shadow-md hover:shadow-lg">
-                    <i class="fas fa-save mr-2"></i>Créer l'membres
+                <button type="submit" id="submit-btn" class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-medium rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-200 shadow-md hover:shadow-lg">
+                    <i class="fas fa-save mr-2"></i>Créer le membre
                 </button>
             </div>
         </form>
@@ -433,55 +505,310 @@
 @push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    // Sélection des éléments DOM
     const statutBapteme = document.getElementById('statut_bapteme');
     const dateBaptemeContainer = document.getElementById('date_bapteme_container');
+    const createAccountYes = document.getElementById('create_account_yes');
+    const createAccountNo = document.getElementById('create_account_no');
+    const accountSection = document.getElementById('account-section');
+    const passwordInput = document.getElementById('password');
+    const passwordConfirmInput = document.getElementById('password_confirmation');
+    const passwordMatchIndicator = document.getElementById('password-match-indicator');
+    const submitBtn = document.getElementById('submit-btn');
+    const memberForm = document.getElementById('member-form');
 
+    // Variables pour le captcha
+    let captchaResult = 0;
+
+    // Fonction pour gérer l'affichage de la date de baptême
     function toggleDateBapteme() {
+        if (!statutBapteme || !dateBaptemeContainer) return;
+
         const value = statutBapteme.value;
         if (value === 'baptise' || value === 'confirme') {
             dateBaptemeContainer.style.display = 'block';
             dateBaptemeContainer.classList.add('animate-fade-in');
-            document.getElementById('date_bapteme').required = true;
+            const dateBaptemeInput = document.getElementById('date_bapteme');
+            if (dateBaptemeInput) dateBaptemeInput.required = true;
         } else {
             dateBaptemeContainer.style.display = 'none';
             dateBaptemeContainer.classList.remove('animate-fade-in');
-            document.getElementById('date_bapteme').required = false;
+            const dateBaptemeInput = document.getElementById('date_bapteme');
+            if (dateBaptemeInput) dateBaptemeInput.required = false;
         }
     }
 
-    statutBapteme.addEventListener('change', toggleDateBapteme);
-    toggleDateBapteme(); // Check initial state
+    // Fonction pour gérer l'affichage de la section compte
+    function toggleAccountSection() {
+        if (!createAccountYes || !accountSection) return;
+
+        if (createAccountYes.checked) {
+            accountSection.style.display = 'block';
+            accountSection.classList.add('animate-fade-in');
+
+            // Rendre les champs requis
+            if (passwordInput) passwordInput.required = true;
+            if (passwordConfirmInput) passwordConfirmInput.required = true;
+
+            // Configurer les boutons d'affichage/masquage des mots de passe
+            setupPasswordToggleListeners();
+        } else {
+            accountSection.style.display = 'none';
+            accountSection.classList.remove('animate-fade-in');
+
+            // Rendre les champs non requis et les vider
+            if (passwordInput) {
+                passwordInput.required = false;
+                passwordInput.value = '';
+            }
+            if (passwordConfirmInput) {
+                passwordConfirmInput.required = false;
+                passwordConfirmInput.value = '';
+            }
+        }
+    }
+
+    // Fonction pour basculer l'affichage des mots de passe
+    function togglePasswordVisibility(inputField, eyeIcon) {
+        if (!inputField || !eyeIcon) return;
+
+        if (inputField.type === 'password') {
+            inputField.type = 'text';
+            eyeIcon.classList.remove('fa-eye');
+            eyeIcon.classList.add('fa-eye-slash');
+        } else {
+            inputField.type = 'password';
+            eyeIcon.classList.remove('fa-eye-slash');
+            eyeIcon.classList.add('fa-eye');
+        }
+    }
+
+    // Configuration des event listeners pour les boutons de mot de passe
+    function setupPasswordToggleListeners() {
+        const togglePasswordBtn = document.getElementById('toggle-password');
+        const togglePasswordConfirmBtn = document.getElementById('toggle-password-confirmation');
+        const passwordEyeIcon = document.getElementById('password-eye-icon');
+        const passwordConfirmEyeIcon = document.getElementById('password-confirmation-eye-icon');
+
+        // Bouton mot de passe principal
+        if (togglePasswordBtn && passwordEyeIcon && passwordInput) {
+            // Supprimer les anciens listeners s'ils existent
+            togglePasswordBtn.replaceWith(togglePasswordBtn.cloneNode(true));
+            const newTogglePasswordBtn = document.getElementById('toggle-password');
+
+            newTogglePasswordBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                togglePasswordVisibility(passwordInput, passwordEyeIcon);
+            });
+        }
+
+        // Bouton confirmation mot de passe
+        if (togglePasswordConfirmBtn && passwordConfirmEyeIcon && passwordConfirmInput) {
+            // Supprimer les anciens listeners s'ils existent
+            togglePasswordConfirmBtn.replaceWith(togglePasswordConfirmBtn.cloneNode(true));
+            const newTogglePasswordConfirmBtn = document.getElementById('toggle-password-confirmation');
+
+            newTogglePasswordConfirmBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                togglePasswordVisibility(passwordConfirmInput, passwordConfirmEyeIcon);
+            });
+        }
+    }
+
+    // Fonction pour vérifier la correspondance des mots de passe
+    function checkPasswordMatch() {
+        if (!passwordInput || !passwordConfirmInput || !passwordMatchIndicator) return;
+
+        const password = passwordInput.value;
+        const confirmPassword = passwordConfirmInput.value;
+
+        if (confirmPassword.length > 0) {
+            if (password === confirmPassword) {
+                passwordMatchIndicator.textContent = '✓ Les mots de passe correspondent';
+                passwordMatchIndicator.className = 'mt-2 text-sm text-green-600';
+                passwordMatchIndicator.classList.remove('hidden');
+            } else {
+                passwordMatchIndicator.textContent = '✗ Les mots de passe ne correspondent pas';
+                passwordMatchIndicator.className = 'mt-2 text-sm text-red-600';
+                passwordMatchIndicator.classList.remove('hidden');
+            }
+        } else {
+            passwordMatchIndicator.classList.add('hidden');
+        }
+    }
+
+    // Fonction pour générer un nouveau captcha
+    function generateCaptcha() {
+        const num1 = Math.floor(Math.random() * 20) + 1;
+        const num2 = Math.floor(Math.random() * 20) + 1;
+        const operations = ['+', '-', '*'];
+        const operation = operations[Math.floor(Math.random() * operations.length)];
+
+        let question, result;
+
+        switch(operation) {
+            case '+':
+                question = `${num1} + ${num2} = ?`;
+                result = num1 + num2;
+                break;
+            case '-':
+                question = `${num1} - ${num2} = ?`;
+                result = num1 - num2;
+                break;
+            case '*':
+                question = `${num1} × ${num2} = ?`;
+                result = num1 * num2;
+                break;
+        }
+
+        const captchaQuestion = document.getElementById('captcha-question');
+        const captchaResultInput = document.getElementById('captcha-result');
+        const captchaAnswer = document.getElementById('captcha-answer');
+        const captchaError = document.getElementById('captcha-error');
+
+        if (captchaQuestion) captchaQuestion.textContent = question;
+        if (captchaResultInput) captchaResultInput.value = result;
+        if (captchaAnswer) captchaAnswer.value = '';
+        if (captchaError) captchaError.classList.add('hidden');
+
+        captchaResult = result;
+    }
+
+    // Fonction pour valider le captcha
+    function validateCaptcha() {
+        const captchaAnswer = document.getElementById('captcha-answer');
+        const captchaResultInput = document.getElementById('captcha-result');
+        const captchaError = document.getElementById('captcha-error');
+
+        if (!captchaAnswer || !captchaResultInput) return false;
+
+        const userAnswer = parseInt(captchaAnswer.value);
+        const correctAnswer = parseInt(captchaResultInput.value);
+
+        if (userAnswer === correctAnswer) {
+            if (captchaError) captchaError.classList.add('hidden');
+            return true;
+        } else {
+            if (captchaError) captchaError.classList.remove('hidden');
+            return false;
+        }
+    }
+
+    // Event listeners principaux
+    if (statutBapteme) {
+        statutBapteme.addEventListener('change', toggleDateBapteme);
+    }
+
+    if (createAccountYes) {
+        createAccountYes.addEventListener('change', toggleAccountSection);
+    }
+
+    if (createAccountNo) {
+        createAccountNo.addEventListener('change', toggleAccountSection);
+    }
+
+    if (passwordInput) {
+        passwordInput.addEventListener('input', checkPasswordMatch);
+    }
+
+    if (passwordConfirmInput) {
+        passwordConfirmInput.addEventListener('input', checkPasswordMatch);
+    }
+
+    // Event listener pour le refresh du captcha
+    const refreshCaptchaBtn = document.getElementById('refresh-captcha');
+    if (refreshCaptchaBtn) {
+        refreshCaptchaBtn.addEventListener('click', generateCaptcha);
+    }
+
+    // Event listener pour la soumission du formulaire
+    if (memberForm) {
+        memberForm.addEventListener('submit', function(e) {
+            let isValid = true;
+
+            // Vérification du captcha
+            if (!validateCaptcha()) {
+                isValid = false;
+                e.preventDefault();
+            }
+
+            // Vérification des mots de passe si compte créé
+            if (createAccountYes && createAccountYes.checked && passwordInput && passwordConfirmInput) {
+                const password = passwordInput.value;
+                const confirmPassword = passwordConfirmInput.value;
+
+                if (password !== confirmPassword) {
+                    isValid = false;
+                    e.preventDefault();
+                    alert('Les mots de passe ne correspondent pas.');
+                }
+
+                if (password.length < 8) {
+                    isValid = false;
+                    e.preventDefault();
+                    alert('Le mot de passe doit contenir au moins 8 caractères.');
+                }
+            }
+
+            // Gestion du bouton de soumission
+            if (submitBtn) {
+                if (!isValid) {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = '<i class="fas fa-save mr-2"></i>Créer le membre';
+                } else {
+                    submitBtn.disabled = true;
+                    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Création en cours...';
+                }
+            }
+        });
+    }
+
+    // Initialisation
+    toggleDateBapteme();
+    toggleAccountSection();
+    generateCaptcha();
 
     // Animation des cartes au chargement
     const cards = document.querySelectorAll('.bg-white\\/80');
-    cards.forEach((card, index) => {
-        card.style.opacity = '0';
-        card.style.transform = 'translateY(20px)';
-        setTimeout(() => {
-            card.style.transition = 'all 0.5s ease';
-            card.style.opacity = '1';
-            card.style.transform = 'translateY(0)';
-        }, index * 100);
-    });
+    if (cards.length > 0) {
+        cards.forEach((card, index) => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(20px)';
+            setTimeout(() => {
+                card.style.transition = 'all 0.5s ease';
+                card.style.opacity = '1';
+                card.style.transform = 'translateY(0)';
+            }, index * 100);
+        });
+    }
 
     // Animation de focus sur les champs
     const inputs = document.querySelectorAll('input, select, textarea');
-    inputs.forEach(input => {
-        input.addEventListener('focus', function() {
-            this.closest('.space-y-2').classList.add('scale-102');
-        });
+    if (inputs.length > 0) {
+        inputs.forEach(input => {
+            input.addEventListener('focus', function() {
+                const parent = this.closest('.space-y-2');
+                if (parent) {
+                    parent.classList.add('scale-102');
+                }
+            });
 
-        input.addEventListener('blur', function() {
-            this.closest('.space-y-2').classList.remove('scale-102');
+            input.addEventListener('blur', function() {
+                const parent = this.closest('.space-y-2');
+                if (parent) {
+                    parent.classList.remove('scale-102');
+                }
+            });
         });
-    });
+    }
 
     // Validation en temps réel pour le mot de passe
-    const passwordInput = document.getElementById('password');
     if (passwordInput) {
         passwordInput.addEventListener('input', function() {
             const value = this.value;
             const parent = this.closest('.space-y-2');
+            if (!parent) return;
+
             let strengthIndicator = parent.querySelector('.password-strength');
 
             if (!strengthIndicator && value.length > 0) {
@@ -517,7 +844,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-// Style CSS inline pour les animations
+// Styles CSS pour les animations
 const style = document.createElement('style');
 style.textContent = `
     @keyframes fade-in {
@@ -530,6 +857,9 @@ style.textContent = `
     .scale-102 {
         transform: scale(1.02);
         transition: transform 0.2s ease;
+    }
+    .space-y-2 > * + * {
+        margin-top: 0.5rem;
     }
 `;
 document.head.appendChild(style);

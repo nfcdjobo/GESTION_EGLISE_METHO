@@ -561,9 +561,11 @@
             <button type="button" onclick="closeValidationModal()" class="px-4 py-2 text-slate-700 bg-slate-100 rounded-xl hover:bg-slate-200 transition-colors">
                 Annuler
             </button>
+            @can('rapports-reunions.validate')
             <button type="button" onclick="validerRapport()" class="px-4 py-2 bg-green-600 text-white rounded-xl hover:bg-green-700 transition-colors">
                 Valider
             </button>
+            @endcan
         </div>
     </div>
 </div>

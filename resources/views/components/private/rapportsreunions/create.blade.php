@@ -47,7 +47,7 @@
                                 class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors @error('reunion_id') border-red-500 focus:ring-red-500 focus:border-red-500 @enderror">
                                 <option value="">Sélectionner une réunion</option>
                                 @foreach($reunions as $reunion)
-                                    <option value="{{ $reunion->id }}" {{ old('reunion_id') == $reunion->id ? 'selected' : '' }}>
+                                    <option value="{{ $reunion->id }}" {{ in_array($reunion->id, [old('reunion_id'), $reunion_id])  ? 'selected' : '' }}>
                                         {{ $reunion->titre }} - {{ \Carbon\Carbon::parse($reunion->date_reunion)->format('d/m/Y') }}
                                     </option>
                                 @endforeach
@@ -94,7 +94,7 @@
                             </div>
                         </div>
 
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        {{-- <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
                                 <label for="redacteur_id" class="block text-sm font-medium text-slate-700 mb-2">Rédacteur</label>
                                 <select id="redacteur_id" name="redacteur_id"
@@ -127,7 +127,7 @@
                                     <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
                                 @enderror
                             </div>
-                        </div>
+                        </div> --}}
 
                         <div>
                             <label for="resume" class="block text-sm font-medium text-slate-700 mb-2">Résumé</label>
@@ -400,8 +400,8 @@ function updatePreview() {
     const type = typeSelect.options[typeSelect.selectedIndex]?.text || '-';
     const reunionSelect = document.getElementById('reunion_id');
     const reunion = reunionSelect.options[reunionSelect.selectedIndex]?.text || '-';
-    const redacteurSelect = document.getElementById('redacteur_id');
-    const redacteur = redacteurSelect.options[redacteurSelect.selectedIndex]?.text || '{{ auth()->user()->nom }} {{ auth()->user()->prenom }}';
+
+    const redacteur =  '{{ auth()->user()->nom }} {{ auth()->user()->prenom }}';
     const presents = document.getElementById('nombre_presents').value || '0';
 
     document.getElementById('preview-titre').textContent = titre;

@@ -30,7 +30,7 @@
                         <i class="fas fa-check mr-2"></i> À Valider
                     </a>
                     <a href="{{ route('private.rapports-reunions.mes-rapports') }}" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white text-sm font-medium rounded-xl hover:from-green-700 hover:to-emerald-700 transition-all duration-200 shadow-md hover:shadow-lg">
-                        <i class="fas fa-user mr-2"></i> Mes Rapports
+                        <i class="fas fa-user mr-2"></i> Rapports
                     </a>
 
                     <button type="button" onclick="exporterSelection()" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-red-600 to-pink-600 text-white text-sm font-medium rounded-xl hover:from-red-700 hover:to-pink-700 transition-all duration-200 shadow-md hover:shadow-lg">
@@ -258,7 +258,7 @@
                             <!-- Actions -->
                             <div class="flex items-center justify-between pt-4 border-t border-slate-200">
                                 <div class="flex items-center space-x-2">
-                                    @can('view', $rapport)
+                                    @can('rapports-reunions.read')
                                         <a href="{{ route('private.rapports-reunions.show', $rapport) }}" class="inline-flex items-center justify-center w-8 h-8 text-cyan-600 bg-cyan-100 rounded-lg hover:bg-cyan-200 transition-colors" title="Voir">
                                             <i class="fas fa-eye text-sm"></i>
                                         </a>
@@ -278,11 +278,14 @@
                                     @endif
                                     @endcan
 
+                                    @can('rapports-reunions.validate')
                                     @if($rapport->statut === 'en_revision')
                                         <button type="button" onclick="openValidationModal('{{ $rapport->id }}')" class="inline-flex items-center justify-center w-8 h-8 text-green-600 bg-green-100 rounded-lg hover:bg-green-200 transition-colors" title="Valider">
                                             <i class="fas fa-check text-sm"></i>
                                         </button>
                                     @endif
+                                    @endcan
+
                                     @can('rapports-reunions.publish')
                                     @if($rapport->statut === 'valide')
                                         <button type="button" onclick="changerStatut('{{ $rapport->id }}', 'publie')" class="inline-flex items-center justify-center w-8 h-8 text-purple-600 bg-purple-100 rounded-lg hover:bg-purple-200 transition-colors" title="Publier">
@@ -324,7 +327,9 @@
                         @if(request()->hasAny(['search', 'statut', 'type', 'redacteur_id']))
                             Aucun rapport ne correspond à vos critères de recherche.
                         @else
+                            @can('rapports-reunions.create')
                             Commencez par créer votre premier rapport de réunion.
+                            @endcan
                         @endif
                     </p>
                     @can('rapports-reunions.create')

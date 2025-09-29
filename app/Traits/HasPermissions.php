@@ -321,7 +321,9 @@ trait HasPermissions
      */
     public function isSuperAdmin(): bool
     {
-        return $this->hasRole('secretaire');
+
+        return $this->hasAnyRole(['super-admin']);
+        // return $this->hasAnyRole(['secretaire', 'super-admin']);
     }
 
     /**
@@ -329,7 +331,8 @@ trait HasPermissions
      */
     public function isAdmin(): bool
     {
-        return $this->hasAnyRole(['pasteur', 'president-laique']);
+        return $this->hasAnyRole(['secretaire']);
+        // return $this->hasAnyRole(['pasteur', 'president-laique']);
     }
 
     /**
@@ -348,7 +351,6 @@ trait HasPermissions
         if ($roles->isEmpty()) {
             return null;
         }
-
         return $roles->max('level');
     }
 
@@ -358,7 +360,7 @@ trait HasPermissions
     public function canManageUser(User $targetUser): bool
     {
         // Super admin peut tout gérer
-        if ($this->isSuperAdmin()) {
+        if ($this->isSuperAdmin() || $this->isAdmin()) {
             return true;
         }
 

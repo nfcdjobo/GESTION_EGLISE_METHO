@@ -399,7 +399,7 @@
                 @can('rapports-reunions.manage')
                 <a href="{{ route('private.rapports-reunions.mes-rapports') }}" class="flex items-center justify-center p-4 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-xl hover:from-green-700 hover:to-emerald-700 transition-all duration-200 shadow-md hover:shadow-lg">
                     <i class="fas fa-user mr-2"></i>
-                    <span class="font-medium">Mes Rapports</span>
+                    <span class="font-medium">Rapports</span>
                 </a>
                 @endcan
 

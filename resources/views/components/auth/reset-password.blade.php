@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Réinitialisation du mot de passe - Plateforme de l'Église</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="icon" href="https://www.cevaa.org/la-communaute/fiches-deglises/afrique-occidentale-centrafrique/logo-emci.png/image_preview" type="image/png" />
+    <link rel="icon" href="{{$AppParametres->logo ? Storage::url($AppParametres->logo) :  ''}}" type="image/png" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body class="bg-gradient-to-br from-blue-50 via-white to-purple-50 min-h-screen flex items-center justify-center p-4">
@@ -14,7 +14,7 @@
         <!-- Logo et Titre -->
         <div class="text-center mb-8">
             <a href="{{route('public.accueil')}}" class="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-orange-600 to-red-600 rounded-full mb-4 shadow-lg">
-                <img class="aspect-square w-[80px] rounded-full object-cover ring-2 ring-blue-500" src="https://www.cevaa.org/la-communaute/fiches-deglises/afrique-occidentale-centrafrique/logo-emci.png/image_preview" alt="Logo église" />
+                <img class="aspect-square w-[80px] rounded-full object-cover ring-2 ring-blue-500" src="{{$AppParametres->logo ? Storage::url($AppParametres->logo) :  ''}}" alt="Logo église" />
             </a>
             <h1 class="text-3xl font-bold text-gray-800 mb-2">Nouveau mot de passe</h1>
             <p class="text-gray-600">Créez votre nouveau mot de passe</p>

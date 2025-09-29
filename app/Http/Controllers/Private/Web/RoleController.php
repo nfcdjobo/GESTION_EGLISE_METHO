@@ -38,6 +38,11 @@ class RoleController extends Controller
 
         $query = Role::withCount(['users', 'permissions']);
 
+        // Vérifier si l'utilisateur connecté est super admin
+        if (!Auth::user()->hasRole('super-admin')) {
+            $query->where('slug', '!=', 'super-admin');
+        }
+
         // Recherche
         if ($request->filled('search')) {
             $search = $request->search;

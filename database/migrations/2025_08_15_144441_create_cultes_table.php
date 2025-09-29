@@ -62,12 +62,8 @@ return new class extends Migration
             $table->text('adresse_lieu')->nullable()->comment('Adresse complète si lieu externe');
             $table->integer('capacite_prevue')->nullable()->unsigned()->comment('Capacité prévue de participants');
 
-            // Responsables et intervenants
-            $table->uuid('pasteur_principal_id')->nullable()->comment('Pasteur principal du culte');
-            $table->uuid('predicateur_id')->nullable()->comment('Prédicateur/Orateur principal');
-            $table->uuid('responsable_culte_id')->nullable()->comment('Responsable de l\'organisation');
-            $table->uuid('dirigeant_louange_id')->nullable()->comment('Dirigeant de louange');
-            $table->json('equipe_culte')->nullable()->comment('Équipe du culte (JSON: rôles et personnes)');
+            // Officiants du culte (remplace le bloc responsables et intervenants)
+            $table->json('officiants')->nullable()->comment('Liste des officiants du culte (JSON: [{user_id, titre, provenance}, ...])');
 
             // Message et prédication
             $table->string('titre_message', 300)->nullable()->comment('Titre du message/prédication');
@@ -153,10 +149,6 @@ return new class extends Migration
 
             // Contraintes foreign key avec protection CASCADE
             $table->foreign('programme_id')->references('id')->on('programmes')->onDelete('restrict');
-            $table->foreign('pasteur_principal_id')->references('id')->on('users')->onDelete('set null');
-            $table->foreign('predicateur_id')->references('id')->on('users')->onDelete('set null');
-            $table->foreign('responsable_culte_id')->references('id')->on('users')->onDelete('set null');
-            $table->foreign('dirigeant_louange_id')->references('id')->on('users')->onDelete('set null');
             $table->foreign('responsable_finances_id')->references('id')->on('users')->onDelete('set null');
             $table->foreign('cree_par')->references('id')->on('users')->onDelete('set null');
             $table->foreign('modifie_par')->references('id')->on('users')->onDelete('set null');
@@ -164,8 +156,6 @@ return new class extends Migration
             // Index pour les performances et sécurité
             $table->index(['date_culte', 'type_culte'], 'idx_cultes_date_type');
             $table->index(['statut', 'date_culte'], 'idx_cultes_statut_date');
-            $table->index(['pasteur_principal_id', 'date_culte'], 'idx_cultes_pasteur_date');
-            $table->index(['predicateur_id', 'date_culte'], 'idx_cultes_predicateur_date');
             $table->index(['type_culte', 'categorie'], 'idx_cultes_type_categorie');
             $table->index('date_culte', 'idx_cultes_date');
             $table->index(['est_public', 'statut'], 'idx_cultes_public_statut');
@@ -182,6 +172,9 @@ return new class extends Migration
                 'nombre_participants',
                 'nombre_conversions'
             ], 'idx_cultes_statistiques');
+
+            // Index pour les officiants (pour les recherches dans le JSON)
+            $table->index('officiants', 'idx_cultes_officiants');
         });
 
         // Commentaire sur la table
@@ -305,6 +298,15 @@ return new class extends Migration
                  ABS(COALESCE(offrande_totale, 0) - calculate_offrande_totale(detail_offrandes::jsonb)) < 0.01)
             )
         ");
+
+        // Contrainte de validation du JSON des officiants
+        DB::statement("
+            ALTER TABLE cultes ADD CONSTRAINT chk_officiants_valide
+            CHECK (
+                officiants IS NULL OR
+                validate_officiants_json(officiants::jsonb)
+            )
+        ");
     }
 
     /**
@@ -312,7 +314,7 @@ return new class extends Migration
      */
     private function createSecureViews(): void
     {
-        // Vue pour les cultes à venir (sécurisée)
+        // Vue pour les cultes à venir (sécurisée avec officiants)
         DB::statement("
             CREATE OR REPLACE VIEW cultes_a_venir AS
             SELECT
@@ -332,18 +334,12 @@ return new class extends Migration
                 c.diffusion_en_ligne,
                 c.lien_diffusion_live,
                 c.statut,
-                COALESCE(pp.prenom || ' ' || pp.nom, 'Non assigné') AS nom_pasteur_principal,
-                COALESCE(pred.prenom || ' ' || pred.nom, 'Non assigné') AS nom_predicateur,
-                COALESCE(resp.prenom || ' ' || resp.nom, 'Non assigné') AS nom_responsable,
-                COALESCE(dl.prenom || ' ' || dl.nom, 'Non assigné') AS nom_dirigeant_louange,
+                c.officiants,
+                get_officiants_summary(c.officiants::jsonb) AS resume_officiants,
                 (c.date_culte - CURRENT_DATE) AS jours_restants,
                 c.created_at,
                 c.updated_at
             FROM cultes c
-            LEFT JOIN users pp ON c.pasteur_principal_id = pp.id AND pp.deleted_at IS NULL
-            LEFT JOIN users pred ON c.predicateur_id = pred.id AND pred.deleted_at IS NULL
-            LEFT JOIN users resp ON c.responsable_culte_id = resp.id AND resp.deleted_at IS NULL
-            LEFT JOIN users dl ON c.dirigeant_louange_id = dl.id AND dl.deleted_at IS NULL
             WHERE c.date_culte >= CURRENT_DATE
               AND c.statut IN ('planifie', 'en_preparation')
               AND c.deleted_at IS NULL
@@ -390,13 +386,15 @@ return new class extends Migration
         DB::statement("DROP FUNCTION IF EXISTS trigger_calculate_offrande_totale()");
         DB::statement("DROP FUNCTION IF EXISTS calculate_offrande_totale(JSONB)");
         DB::statement("DROP FUNCTION IF EXISTS validate_detail_offrandes(JSONB)");
+        DB::statement("DROP FUNCTION IF EXISTS validate_officiants_json(JSONB)");
+        DB::statement("DROP FUNCTION IF EXISTS get_officiants_summary(JSONB)");
 
         // Suppression de la table (les contraintes sont supprimées automatiquement)
         Schema::dropIfExists('cultes');
     }
 
     /**
-     * Créer les fonctions de validation des offrandes (sans trigger)
+     * Créer les fonctions de validation des offrandes et des officiants
      */
     private function createValidationFunctions(): void
     {
@@ -469,6 +467,113 @@ return new class extends Migration
                 RETURN TRUE;
             END;
             \$function\$ LANGUAGE plpgsql;
+        ");
+
+        // Function pour valider la structure JSON des officiants
+        DB::unprepared("
+            CREATE OR REPLACE FUNCTION validate_officiants_json(officiants_json JSONB)
+            RETURNS BOOLEAN AS \$validate_officiants\$
+            DECLARE
+                officiant JSONB;
+                user_exists BOOLEAN;
+            BEGIN
+                -- Si le JSON est null, c'est valide
+                IF officiants_json IS NULL THEN
+                    RETURN TRUE;
+                END IF;
+
+                -- Le JSON doit être un array
+                IF jsonb_typeof(officiants_json) != 'array' THEN
+                    RETURN FALSE;
+                END IF;
+
+                -- Valider chaque officiant
+                FOR officiant IN SELECT jsonb_array_elements(officiants_json)
+                LOOP
+                    -- Chaque officiant doit avoir user_id, titre et provenance
+                    IF NOT (officiant ? 'user_id' AND officiant ? 'titre' AND officiant ? 'provenance') THEN
+                        RETURN FALSE;
+                    END IF;
+
+                    -- Vérifier que user_id est un UUID valide
+                    IF jsonb_typeof(officiant->'user_id') != 'string' OR
+                       LENGTH(officiant->>'user_id') != 36 OR
+                       POSITION('-' IN (officiant->>'user_id')) = 0 THEN
+                        RETURN FALSE;
+                    END IF;
+
+                    -- Vérifier que l'utilisateur existe
+                    SELECT EXISTS(
+                        SELECT 1 FROM users
+                        WHERE id::text = (officiant->>'user_id')
+                        AND deleted_at IS NULL
+                    ) INTO user_exists;
+
+                    IF NOT user_exists THEN
+                        RETURN FALSE;
+                    END IF;
+
+                    -- Vérifier que titre n'est pas vide
+                    IF jsonb_typeof(officiant->'titre') != 'string' OR
+                       LENGTH(TRIM(officiant->>'titre')) = 0 THEN
+                        RETURN FALSE;
+                    END IF;
+
+                    -- Vérifier que provenance n'est pas vide
+                    IF jsonb_typeof(officiant->'provenance') != 'string' OR
+                       LENGTH(TRIM(officiant->>'provenance')) = 0 THEN
+                        RETURN FALSE;
+                    END IF;
+                END LOOP;
+
+                RETURN TRUE;
+            END;
+            \$validate_officiants\$ LANGUAGE plpgsql;
+        ");
+
+        // Function pour obtenir un résumé des officiants
+        DB::unprepared("
+            CREATE OR REPLACE FUNCTION get_officiants_summary(officiants_json JSONB)
+            RETURNS TEXT AS \$get_summary\$
+            DECLARE
+                officiant JSONB;
+                user_name TEXT;
+                summary_parts TEXT[] := '{}';
+                final_summary TEXT;
+            BEGIN
+                -- Si pas d'officiants, retourner message par défaut
+                IF officiants_json IS NULL OR jsonb_array_length(officiants_json) = 0 THEN
+                    RETURN 'Aucun officiant assigné';
+                END IF;
+
+                -- Construire le résumé
+                FOR officiant IN SELECT jsonb_array_elements(officiants_json)
+                LOOP
+                    -- Récupérer le nom de l'utilisateur
+                    SELECT COALESCE(prenom || ' ' || nom, email) INTO user_name
+                    FROM users
+                    WHERE id::text = (officiant->>'user_id')
+                    AND deleted_at IS NULL;
+
+                    -- Ajouter à la liste
+                    summary_parts := summary_parts || (
+                        (officiant->>'titre') || ': ' ||
+                        COALESCE(user_name, 'Utilisateur introuvable') ||
+                        ' (' || (officiant->>'provenance') || ')'
+                    );
+                END LOOP;
+
+                -- Joindre tous les éléments
+                final_summary := array_to_string(summary_parts, ', ');
+
+                -- Limiter la longueur si nécessaire
+                IF LENGTH(final_summary) > 200 THEN
+                    final_summary := LEFT(final_summary, 197) || '...';
+                END IF;
+
+                RETURN final_summary;
+            END;
+            \$get_summary\$ LANGUAGE plpgsql;
         ");
 
         // Function pour calculer le total des offrandes à partir du JSON

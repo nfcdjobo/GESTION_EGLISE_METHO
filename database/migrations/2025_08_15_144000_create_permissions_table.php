@@ -38,6 +38,8 @@ return new class extends Migration
                 'manage',    // Gestion complète
                 'download',  // Télécharger
                 'moderate',  // Modérer
+                'duplicate' // Dupliquer
+                
             ])->comment('Action autorisée sur la ressource');
 
             // Métadonnées de sécurité et groupement

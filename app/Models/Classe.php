@@ -87,6 +87,7 @@ class Classe extends Model
         }
 
         $superieur = collect($this->responsables)->firstWhere('superieur', true);
+        // dd(User::find($superieur['id']));
         return $superieur ? User::find($superieur['id']) : null;
     }
 

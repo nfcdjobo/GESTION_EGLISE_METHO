@@ -38,7 +38,7 @@ class Parametres extends Model
         'youtube_url',
         'twitter_url',
         'website_url',
-        'horaires_cultes',
+        'programmes', // Remplace horaires_cultes
         'date_fondation',
         'nombre_membres',
         'histoire_eglise',
@@ -51,7 +51,7 @@ class Parametres extends Model
 
     protected $casts = [
         'images_hero' => 'array',
-        'horaires_cultes' => 'array',
+        'programmes' => 'array', // Remplace horaires_cultes
         'actif' => 'boolean',
         'singleton' => 'boolean',
         'date_fondation' => 'date',
@@ -101,17 +101,17 @@ class Parametres extends Model
         if (!$parametres) {
             // Créer l'enregistrement par défaut s'il n'existe pas
             $parametres = static::create([
-                'nom_eglise' => 'Nom de votre église',
+                'nom_eglise' => 'CANAAN Belle Ville',
                 'telephone_1' => '',
                 'email_principal' => 'contact@eglise.com',
-                'adresse' => '',
-                'ville' => '',
-                'pays' => 'France',
+                'adresse' => 'Abobo belle ville après...',
+                'ville' => 'Abidjan',
+                'pays' => 'Côte d\'Ivoire',
                 'verset_biblique' => 'Car Dieu a tant aimé le monde qu\'il a donné son Fils unique, afin que quiconque croit en lui ne périsse point, mais qu\'il ait la vie éternelle.',
                 'reference_verset' => 'Jean 3:16',
-                'devise' => 'EUR',
+                'devise' => 'FCFA',
                 'langue' => 'fr',
-                'fuseau_horaire' => 'Europe/Paris',
+                'fuseau_horaire' => 'Afrique/Abidjan',
                 'actif' => true,
             ]);
         }
@@ -158,20 +158,15 @@ class Parametres extends Model
     }
 
     /**
-     * Mutator pour s'assurer que les horaires sont au bon format
+     * Mutator pour s'assurer que les programmes sont au bon format
      */
-    public function setHorairesCultesAttribute($value)
+    public function setProgrammesAttribute($value)
     {
-
         if (is_string($value)) {
-            // dd($value);
-            $this->attributes['horaires_cultes'] = json_encode($value, true);
+            $this->attributes['programmes'] = $value;
         } else {
-
-            $this->attributes['horaires_cultes'] = json_encode($value, true);;
+            $this->attributes['programmes'] = json_encode($value, JSON_UNESCAPED_UNICODE);
         }
-
-
     }
 
     /**
@@ -179,13 +174,11 @@ class Parametres extends Model
      */
     public function setImagesHeroAttribute($value)
     {
-dd($value);
         if (is_string($value)) {
-            $this->attributes['images_hero'] = json_decode($value, true);
-        } else {
             $this->attributes['images_hero'] = $value;
+        } else {
+            $this->attributes['images_hero'] = json_encode($value, JSON_UNESCAPED_UNICODE);
         }
-
     }
 
     /**
@@ -195,6 +188,9 @@ dd($value);
     {
         return $query->where('actif', true);
     }
+
+
+
 
     /**
      * Méthode pour mettre à jour les paramètres de manière sécurisée
@@ -210,6 +206,132 @@ dd($value);
         unset($allowedFields['singleton']);
 
         return $parametres->update($allowedFields);
+    }
+
+    /**
+     * Récupérer tous les programmes
+     */
+    public function getProgrammes()
+    {
+        return $this->programmes ?? [];
+    }
+
+    /**
+     * Récupérer les programmes publics et actifs
+     */
+    public function getProgrammesPublics()
+    {
+        $programmes = $this->getProgrammes();
+
+        return collect($programmes)
+            ->filter(function ($programme) {
+                return ($programme['est_public'] ?? false) && ($programme['est_actif'] ?? false);
+            })
+            ->sortBy('ordre')
+            ->values()
+            ->all();
+    }
+
+    /**
+     * Récupérer un programme par son UUID
+     */
+    public function getProgrammeById($id)
+    {
+        $programmes = $this->getProgrammes();
+
+        return collect($programmes)->firstWhere('id', $id);
+    }
+
+    /**
+     * Ajouter un nouveau programme
+     */
+    public function ajouterProgramme(array $programmeData)
+    {
+        $programmes = $this->getProgrammes();
+
+        // Générer un UUID pour le nouveau programme
+        $programmeData['id'] = Str::uuid()->toString();
+
+        // Définir l'ordre si non spécifié
+        if (!isset($programmeData['ordre'])) {
+            $maxOrdre = collect($programmes)->max('ordre') ?? 0;
+            $programmeData['ordre'] = $maxOrdre + 1;
+        }
+
+        // Valeurs par défaut
+        $programmeData = array_merge([
+            'est_public' => true,
+            'est_actif' => true,
+            'type_horaire' => 'regulier',
+        ], $programmeData);
+
+        $programmes[] = $programmeData;
+
+        $this->programmes = $programmes;
+        $this->save();
+
+        return $programmeData['id'];
+    }
+
+    /**
+     * Mettre à jour un programme existant
+     */
+    public function mettreAJourProgramme($id, array $updateData)
+    {
+        $programmes = $this->getProgrammes();
+
+        $programmes = collect($programmes)->map(function ($programme) use ($id, $updateData) {
+            if ($programme['id'] === $id) {
+                return array_merge($programme, $updateData);
+            }
+            return $programme;
+        })->all();
+
+        $this->programmes = $programmes;
+        $this->save();
+
+        return $this->getProgrammeById($id);
+    }
+
+    /**
+     * Supprimer un programme
+     */
+    public function supprimerProgramme($id)
+    {
+        $programmes = $this->getProgrammes();
+
+        $programmes = collect($programmes)->reject(function ($programme) use ($id) {
+            return $programme['id'] === $id;
+        })->values()->all();
+
+        $this->programmes = $programmes;
+        $this->save();
+
+        return true;
+    }
+
+    /**
+     * Réorganiser l'ordre des programmes
+     */
+    public function reordonnerProgrammes(array $ordreIds)
+    {
+        $programmes = $this->getProgrammes();
+        $programmesCollection = collect($programmes);
+
+        $programmesReordonnes = [];
+
+        foreach ($ordreIds as $index => $id) {
+            $programme = $programmesCollection->firstWhere('id', $id);
+            if ($programme) {
+                $programme['ordre'] = $index + 1;
+                $programmesReordonnes[] = $programme;
+            }
+        }
+
+        $this->programmes = $programmesReordonnes;
+        $this->save();
+
+        return $this->getProgrammes();
     }
 
     /**
@@ -249,7 +371,7 @@ dd($value);
                 'logo_url' => $this->logo_url,
                 'images_hero_urls' => $this->images_hero_urls,
             ],
-            'horaires' => $this->horaires_cultes,
+            'programmes' => $this->getProgrammesPublics(), // Remplace horaires
             'parametres' => [
                 'devise' => $this->devise,
                 'langue' => $this->langue,
@@ -279,4 +401,93 @@ dd($value);
 
         return $adresse;
     }
+
+
+
+
+
+
+
+
+
+
+
+    /**
+ * Récupérer les programmes publics avec pagination
+ */
+public function getProgrammesPublicsPaginated($perPage = 6, $currentPage = 1)
+{
+    $programmes = $this->getProgrammesPublics();
+
+    if (empty($programmes)) {
+        return [
+            'data' => [],
+            'current_page' => 1,
+            'per_page' => $perPage,
+            'total' => 0,
+            'total_pages' => 0,
+            'from' => 0,
+            'to' => 0
+        ];
+    }
+
+    $total = count($programmes);
+    $totalPages = ceil($total / $perPage);
+    $offset = ($currentPage - 1) * $perPage;
+    $data = array_slice($programmes, $offset, $perPage);
+
+    return [
+        'data' => $data,
+        'current_page' => $currentPage,
+        'per_page' => $perPage,
+        'total' => $total,
+        'total_pages' => $totalPages,
+        'from' => $offset + 1,
+        'to' => min($offset + $perPage, $total)
+    ];
+}
+
+/**
+ * Récupérer les programmes publics actifs seulement
+ */
+public function getProgrammesPublicsActifs()
+{
+    $programmes = $this->getProgrammes();
+
+    if (!$programmes) {
+        return [];
+    }
+
+    return array_filter($programmes, function($programme) {
+        return ($programme['est_public'] ?? false) && ($programme['est_actif'] ?? false);
+    });
+}
+
+/**
+ * Compter les programmes publics
+ */
+public function countProgrammesPublics()
+{
+    return count($this->getProgrammesPublics());
+}
+
+// /**
+//  * Récupérer un programme par son ID
+//  */
+// public function getProgrammeById($id)
+// {
+//     $programmes = $this->getProgrammes();
+
+//     if (!$programmes) {
+//         return null;
+//     }
+
+//     foreach ($programmes as $programme) {
+//         if (($programme['id'] ?? null) == $id) {
+//             return $programme;
+//         }
+//     }
+
+//     return null;
+// }
 }

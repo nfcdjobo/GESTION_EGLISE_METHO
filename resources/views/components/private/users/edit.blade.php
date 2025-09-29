@@ -4,7 +4,7 @@
 @section('content')
 <div class="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 py-8">
     <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-       
+
         <!-- Page Title & Breadcrumb -->
         <div class="mb-8">
             <h1 class="text-3xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent">Modifier un Membres</h1>

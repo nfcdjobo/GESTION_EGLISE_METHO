@@ -636,7 +636,7 @@
                 }
 
                 function sendEmail() {
-                    window.location.href = `/private/membres/${currentMembreId}/send-email?context=assiduite_alerte`;
+                    window.location.href = `/membres/${currentMembreId}/send-email?context=assiduite_alerte`;
                     closeModal('contactModal');
                 }
 
@@ -1003,7 +1003,7 @@
                     showNotification('Export en cours...', 'info');
                     const params = new URLSearchParams(window.location.search);
                     params.set('format', format);
-                    window.location.href = `/private/alertes/export?${params.toString()}`;
+                    window.location.href = `/alertes/export?${params.toString()}`;
                     closeModal('exportModal');
                 }
 

@@ -6,7 +6,7 @@ use Illuminate\Support\Facades\Request;
 
 
 // ========== ROUTES WEB PROTÉGÉES ==========
-Route::middleware(['auth', 'user.status'])->prefix('dashboard/classes')->name('private.classes.')->group(function () {
+Route::middleware(['auth', 'user.status'])->prefix('classes')->name('private.classes.')->group(function () {
 
     // Liste des classes
     Route::get('', [ClasseController::class, 'index'])->middleware('permission:classes.read')->name('index');
@@ -22,8 +22,11 @@ Route::middleware(['auth', 'user.status'])->prefix('dashboard/classes')->name('p
 
     // Afficher une classe spécifique
     Route::get('/{classe}', [ClasseController::class, 'show'])->middleware('permission:classes.read')->name('show');
+
     Route::get('/{classe}/get-membres-disponibles', [ClasseController::class, 'getUtilisateursDisponibles'])->middleware('permission:classes.read')->name('getUtilisateursDisponibles');
+
     Route::get('/{classe}/get-membres-desinscrir', [ClasseController::class, 'desinscrireUtilisateur'])->middleware('permission:classes.read')->name('desinscrireUtilisateur');
+
     Route::post('/{classe}/retirer-responsable', [ClasseController::class, 'retirerResponsable'])->middleware('permission:classes.update')->name('retirerResponsable');
 
     // Afficher le formulaire d'édition
@@ -62,9 +65,9 @@ Route::middleware(['auth', 'user.status'])->prefix('dashboard/classes')->name('p
     Route::post('/{classe}/ajouter-membres', [ClasseController::class, 'ajouterNouveauxMembres'])->middleware('permission:classes.manage-members')->name('ajouter-membres');
 
 
-    Route::get('/{classe}/membres-responsables', [ClasseController::class, 'getMembresForResponsables'])->name('getMembresForResponsables');
+    Route::get('/{classe}/membres-responsables', [ClasseController::class, 'getMembresForResponsables'])->middleware('permission:classes.read')->name('getMembresForResponsables');
 
-    Route::post('/{classe}/update-responsabilite', [ClasseController::class, 'updateResponsabilite'])->name('updateResponsabilite');
+    Route::post('/{classe}/update-responsabilite', [ClasseController::class, 'updateResponsabilite'])->middleware('permission:classes.update')->name('updateResponsabilite');
 
 
     // ========== ROUTES API POUR LA GESTION DES MEMBRES ==========
@@ -78,10 +81,7 @@ Route::middleware(['auth', 'user.status'])->prefix('dashboard/classes')->name('p
 
 });
 
-// Redirection pour l'ancien système (si migration depuis un autre système)
-Route::redirect('/groups', '/private/classes')->name('groups.redirect');
-Route::redirect('/admin/classes', '/private/classes')->name('admin.classes.redirect');
-Route::redirect('/education/classes', '/private/classes')->name('education.classes.redirect');
+
 
 // ========== DÉFINITION DES CONTRAINTES DE ROUTES ==========
 

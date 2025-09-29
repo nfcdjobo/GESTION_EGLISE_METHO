@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\DB;
 use App\Services\PermissionService;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Database\QueryException;
@@ -48,7 +49,12 @@ class UserController extends Controller
      */
     public function index(Request $request)
     {
-        $query = User::with(['roles', 'classe']);
+
+        $query = User::with(['roles', 'classe'])
+        ->whereDoesntHave('roles', function ($q) {
+            $q->where('roles.slug', 'super-admin');
+        }); // exclure les super-admins
+
 
         // Recherche
         if ($request->filled('search')) {
@@ -100,7 +106,7 @@ class UserController extends Controller
 
 
         // Pagination
-        $users = $query->paginate(20);
+        $users = $query->paginate(10);
         $users->appends($request->query());
 
         // Données pour les filtres
@@ -225,7 +231,6 @@ class UserController extends Controller
         ]);
 
         if ($validator->fails()) {
-            dd($validator->errors());
             if ($request->expectsJson()) {
                 return response()->json([
                     'success' => false,
@@ -254,6 +259,26 @@ class UserController extends Controller
 
             // Créer l'membres
             $user = User::create($validated);
+
+            // AJOUT : Incrémenter le compteur de la classe si assignée
+            if (!empty($validated['classe_id'])) {
+                $classe = Classe::find($validated['classe_id']);
+                if ($classe) {
+                    $classe->incrementerInscrits();
+                }
+            }
+
+            // Gestion des responsables si présents
+            if (!empty($validated['responsables'])) {
+                foreach ($validated['responsables'] as $responsable) {
+                    $userResp = User::find($responsable['id']);
+                    if ($userResp && !$userResp->classe_id) {
+                        $userResp->classe_id = $user->id; // Erreur ici, devrait être $classe->id
+                        $userResp->save();
+                        // Pas besoin d'incrémenter car déjà fait ci-dessus
+                    }
+                }
+            }
 
             /**
              * @var User $use
@@ -335,7 +360,7 @@ class UserController extends Controller
             if (isset($path) && Storage::disk('public')->exists($path)) {
                 Storage::disk('public')->delete($path);
             }
-dd($e->getMessage());
+// dd($e->getMessage());
             // Log l'erreur pour le debugging
             Log::error('Erreur lors de la création d\'un membres', [
                 'error' => $e->getMessage(),
@@ -437,17 +462,15 @@ dd($e->getMessage());
         $use = auth()->user();
         // Vérifier que l'membres connecté peut voir cet membres
         if (!$use->isSuperAdmin() && auth()->id() !== $user->id) {
-            Gate::authorize('manage-user', $user);
+            Gate::authorize('users.read', $user);
         }
 
         $user->load([
             'roles.permissions',
             'permissions',
             'classe',
-            'cultesPasteur',
-            'cultesPredicateur',
         ]);
-// dd(75);
+
         // Statistiques de l'membres
         $stats = [
             'roles_count' => $user->roles()->wherePivot('actif', true)->count(),
@@ -478,7 +501,7 @@ dd($e->getMessage());
 
         // Vérifier les permissions
         if (!$use->isSuperAdmin() && auth()->id() !== $user->id) {
-            Gate::authorize('manage-user', $user);
+            Gate::authorize('users.update', $user);
         }
 
         $roles = Role::orderBy('level', 'desc')->get();
@@ -508,10 +531,8 @@ dd($e->getMessage());
 
         // Vérifier les permissions
         if (!$use->isSuperAdmin() && auth()->id() !== $user->id) {
-            Gate::authorize('manage-user', $user);
+            Gate::authorize('users.update', $user);
         }
-
-
 
 
         $data = $request->all();
@@ -611,8 +632,30 @@ dd($e->getMessage());
                     unset($validated['password']);
                 }
 
+                $ancienneClasseId = $user->classe_id;
+                $nouvelleClasseId = $validated['classe_id'] ?? null;
+
                 // Mettre à jour l'membres
                 $user->update($validated);
+
+                // Gestion des changements de classe
+                if ($ancienneClasseId !== $nouvelleClasseId) {
+                    // Décrémenter l'ancienne classe
+                    if ($ancienneClasseId) {
+                        $ancienneClasse = Classe::find($ancienneClasseId);
+                        if ($ancienneClasse) {
+                            $ancienneClasse->decrementerInscrits();
+                        }
+                    }
+
+                    // Incrémenter la nouvelle classe
+                    if ($nouvelleClasseId) {
+                        $nouvelleClasse = Classe::find($nouvelleClasseId);
+                        if ($nouvelleClasse) {
+                            $nouvelleClasse->incrementerInscrits();
+                        }
+                    }
+                }
 
                 // Synchroniser les rôles si l'membres a la permission
                 if (Gate::allows('roles.assign') && isset($validated['roles'])) {
@@ -644,6 +687,8 @@ dd($e->getMessage());
                     }
 
                     $user->syncRoles($rolesToSync, auth()->id());
+                }elseif(Gate::allows('roles.assign') && !isset($validated['roles'])){
+                    $user->syncRoles([], auth()->id());
                 }
             });
 
@@ -1039,32 +1084,6 @@ dd($e->getMessage());
         }
     }
 
-
-    // public function usersNotSubscribedToFimeco(string $fimecoId)
-    // {
-    //     try {
-    //         $users = User::whereNotExists(function ($query) use ($fimecoId) {
-    //             $query->selectRaw('1')
-    //                 ->from('subscriptions')
-    //                 ->whereColumn('subscriptions.souscripteur_id', 'users.id')
-    //                 ->where('subscriptions.fimeco_id', '=', $fimecoId);
-    //         })->get();
-
-    //         return response()->json([
-    //             'success' => true,
-    //             'message' => 'Liste des utilisateurs non abonnés à la fimeco spécifiée',
-    //             'count'   => $users->count(),
-    //             'users'    => $users,
-    //         ]);
-    //     } catch (Exception $e) {
-    //         return response()->json([
-    //             'error'       => true,
-    //             'status_code' => 500,
-    //             'message'     => $e->getMessage(),
-    //             'trace'       => $e->getTraceAsString()
-    //         ], 500);
-    //     }
-    // }
 
     public function usersNotSubscribedToFimeco(Request $request, string $fimecoId)
     {

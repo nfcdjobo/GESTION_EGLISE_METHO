@@ -95,11 +95,32 @@ return new class extends Migration
 
         DB::statement('ALTER TABLE subscription_payments ADD CONSTRAINT chk_payments_montant_positif CHECK (montant > 0)');
         DB::statement('ALTER TABLE subscription_payments ADD CONSTRAINT chk_payments_restes_positifs CHECK (ancien_reste >= 0 AND nouveau_reste >= 0)');
-        // DB::statement('ALTER TABLE subscription_payments ADD CONSTRAINT chk_payments_coherence_calcul CHECK (ancien_reste - nouveau_reste = montant)');
-        DB::statement('ALTER TABLE subscription_payments ADD CONSTRAINT chk_payments_coherence_calcul CHECK (
-            (montant <= ancien_reste AND ancien_reste - nouveau_reste = montant) OR
-            (montant > ancien_reste AND nouveau_reste = 0 AND ancien_reste > 0)
+        // DB::statement('ALTER TABLE subscription_payments ADD CONSTRAINT chk_payments_coherence_calcul CHECK (
+        //     (montant <= ancien_reste AND ancien_reste - nouveau_reste = montant) OR
+        //     (montant > ancien_reste AND nouveau_reste = 0 AND ancien_reste > 0)
+        // )');
+
+        // DB::statement('ALTER TABLE subscription_payments
+        //     ADD CONSTRAINT chk_payments_coherence_calcul CHECK (
+        //         statut = \'rejete\' OR
+        //         (
+        //             (montant <= ancien_reste AND ancien_reste - nouveau_reste = montant)
+        //             OR
+        //             (montant > ancien_reste AND nouveau_reste = 0 AND ancien_reste > 0)
+        //         )
+        //     )');
+
+        DB::statement('ALTER TABLE subscription_payments
+        ADD CONSTRAINT chk_payments_coherence_calcul CHECK (
+            statut = \'rejete\' OR
+            (
+                (montant <= ancien_reste AND ancien_reste - nouveau_reste = montant)
+                OR
+                (montant > ancien_reste AND nouveau_reste = 0)
+            )
         )');
+
+
         DB::statement('ALTER TABLE subscription_payments ADD CONSTRAINT chk_payments_version_positive CHECK (subscription_version_at_payment > 0)');
         DB::statement('ALTER TABLE subscription_payments ADD CONSTRAINT chk_payments_reference_obligatoire CHECK (
             (type_paiement IN (\'cheque\', \'virement\', \'carte\') AND reference_paiement IS NOT NULL AND length(trim(reference_paiement)) > 0) OR

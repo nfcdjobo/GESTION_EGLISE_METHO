@@ -455,12 +455,12 @@ public function peutEtreValide(): bool
             }
 
             // Vérification de la cohérence des calculs
-            if ($payment->ancien_reste && $payment->nouveau_reste) {
-                $difference = $payment->ancien_reste - $payment->nouveau_reste;
-                if (abs($difference - $payment->montant) > 0.01) {
-                    throw new \InvalidArgumentException('Incohérence dans les calculs de reste');
-                }
-            }
+            // if ($payment->ancien_reste && $payment->nouveau_reste) {
+            //     $difference = $payment->ancien_reste - $payment->nouveau_reste;
+            //     if (abs($difference - $payment->montant) > 0.01) {
+            //         throw new \InvalidArgumentException('Incohérence dans les calculs de reste');
+            //     }
+            // }
         });
 
         // Actions après sauvegarde

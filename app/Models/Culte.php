@@ -6,8 +6,10 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use App\Traits\HasCKEditorFields;
+use Illuminate\Support\Collection;
 
 class Culte extends Model
 {
@@ -32,11 +34,7 @@ class Culte extends Model
         'lieu',
         'adresse_lieu',
         'capacite_prevue',
-        'pasteur_principal_id',
-        'predicateur_id',
-        'responsable_culte_id',
-        'dirigeant_louange_id',
-        'equipe_culte',
+        'officiants', // Nouvelle structure JSON
         'titre_message',
         'resume_message',
         'passage_biblique',
@@ -108,7 +106,7 @@ class Culte extends Model
         'nombre_nouveaux' => 'integer',
         'nombre_conversions' => 'integer',
         'nombre_baptemes' => 'integer',
-        'equipe_culte' => 'array',
+        'officiants' => 'array', // Nouvelle structure JSON
         'versets_cles' => 'array',
         'ordre_service' => 'array',
         'cantiques_chantes' => 'array',
@@ -189,38 +187,6 @@ class Culte extends Model
     }
 
     /**
-     * Relation avec le pasteur principal
-     */
-    public function pasteurPrincipal(): BelongsTo
-    {
-        return $this->belongsTo(User::class, 'pasteur_principal_id');
-    }
-
-    /**
-     * Relation avec le prédicateur
-     */
-    public function predicateur(): BelongsTo
-    {
-        return $this->belongsTo(User::class, 'predicateur_id');
-    }
-
-    /**
-     * Relation avec le responsable du culte
-     */
-    public function responsableCulte(): BelongsTo
-    {
-        return $this->belongsTo(User::class, 'responsable_culte_id');
-    }
-
-    /**
-     * Relation avec le dirigeant de louange
-     */
-    public function dirigeantLouange(): BelongsTo
-    {
-        return $this->belongsTo(User::class, 'dirigeant_louange_id');
-    }
-
-    /**
      * Relation avec le responsable des finances
      */
     public function responsableFinances(): BelongsTo
@@ -229,7 +195,7 @@ class Culte extends Model
     }
 
     /**
-     * Relation avec l'membres créateur
+     * Relation avec l'utilisateur créateur
      */
     public function createur(): BelongsTo
     {
@@ -237,11 +203,22 @@ class Culte extends Model
     }
 
     /**
-     * Relation avec l'membres modificateur
+     * Relation avec l'utilisateur modificateur
      */
     public function modificateur(): BelongsTo
     {
         return $this->belongsTo(User::class, 'modifie_par');
+    }
+
+    /**
+     * Relation many-to-many avec les utilisateurs officiants
+     * (via la colonne JSON officiants)
+     */
+    public function officiantsUsers(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'culte_officiants')
+                    ->withPivot('titre', 'provenance')
+                    ->withTimestamps();
     }
 
     /**
@@ -262,6 +239,31 @@ class Culte extends Model
     public function setModifieParAttribute($value)
     {
         $this->attributes['modifie_par'] = $value ?? auth()->id();
+    }
+
+    /**
+     * Mutateur pour les officiants - valider la structure
+     */
+    public function setOfficiantsAttribute($value)
+    {
+        if (is_array($value)) {
+            // Valider chaque officiant
+            $validatedOfficiants = [];
+            foreach ($value as $officiant) {
+                if (isset($officiant['user_id'], $officiant['titre'], $officiant['provenance'])) {
+                    $validatedOfficiants[] = [
+                        'user_id' => $officiant['user_id'],
+                        'titre' => trim($officiant['titre']),
+                        'provenance' => trim($officiant['provenance'])
+                    ];
+                }
+            }
+            $this->attributes['officiants'] = json_encode($validatedOfficiants);
+        } elseif (is_string($value)) {
+            $this->attributes['officiants'] = $value;
+        } else {
+            $this->attributes['officiants'] = null;
+        }
     }
 
     /**
@@ -298,6 +300,166 @@ class Culte extends Model
     public function getAtmosphereLibelleAttribute(): ?string
     {
         return $this->atmosphere ? (self::ATMOSPHERE[$this->atmosphere] ?? $this->atmosphere) : null;
+    }
+
+    /**
+     * Accesseur pour obtenir la liste des officiants avec leurs informations
+     */
+    public function getOfficiantsDetailAttribute(): Collection
+    {
+        if (empty($this->officiants)) {
+            return collect([]);
+        }
+
+        return collect($this->officiants)->map(function ($officiant) {
+            $user = User::find($officiant['user_id']);
+            return [
+                'user_id' => $officiant['user_id'],
+                'titre' => $officiant['titre'],
+                'provenance' => $officiant['provenance'],
+                'user' => $user,
+                'nom_complet' => $user ? $user->nom_complet : 'Utilisateur introuvable'
+            ];
+        });
+    }
+
+    /**
+     * Accesseur pour obtenir le pasteur principal
+     */
+    public function getPasteurPrincipalAttribute(): ?array
+    {
+        return $this->getOfficiantByTitre(['pasteur principal', 'pasteur']);
+    }
+
+    /**
+     * Accesseur pour obtenir le prédicateur
+     */
+    public function getPredicateurAttribute(): ?array
+    {
+        return $this->getOfficiantByTitre(['prédicateur', 'predicateur']);
+    }
+
+    /**
+     * Accesseur pour obtenir le dirigeant de louange
+     */
+    public function getDirigeantLouangeAttribute(): ?array
+    {
+        return $this->getOfficiantByTitre(['dirigeant de louange', 'responsable louange']);
+    }
+
+    /**
+     * Accesseur pour obtenir le responsable d'organisation
+     */
+    public function getResponsableOrganisationAttribute(): ?array
+    {
+        return $this->getOfficiantByTitre(['responsable organisation', 'organisateur']);
+    }
+
+    /**
+     * Méthode helper pour trouver un officiant par titre
+     */
+    private function getOfficiantByTitre(array $titres): ?array
+    {
+        if (empty($this->officiants)) {
+            return null;
+        }
+
+        foreach ($this->officiants as $officiant) {
+            foreach ($titres as $titre) {
+                if (stripos($officiant['titre'], $titre) !== false) {
+                    $user = User::find($officiant['user_id']);
+                    return [
+                        'user_id' => $officiant['user_id'],
+                        'titre' => $officiant['titre'],
+                        'provenance' => $officiant['provenance'],
+                        'user' => $user,
+                        'nom_complet' => $user ? $user->nom_complet : 'Utilisateur introuvable'
+                    ];
+                }
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Accesseur pour obtenir tous les officiants d'un type donné
+     */
+    public function getOfficiantsByTitre(string $titreRecherche): Collection
+    {
+        if (empty($this->officiants)) {
+            return collect([]);
+        }
+
+        return collect($this->officiants)->filter(function ($officiant) use ($titreRecherche) {
+            return stripos($officiant['titre'], $titreRecherche) !== false;
+        })->map(function ($officiant) {
+            $user = User::find($officiant['user_id']);
+            return [
+                'user_id' => $officiant['user_id'],
+                'titre' => $officiant['titre'],
+                'provenance' => $officiant['provenance'],
+                'user' => $user,
+                'nom_complet' => $user ? $user->nom_complet : 'Utilisateur introuvable'
+            ];
+        });
+    }
+
+    /**
+     * Ajouter un officiant
+     */
+    public function ajouterOfficiant(string $userId, string $titre, string $provenance = 'Église Locale'): void
+    {
+        $officiants = $this->officiants ?? [];
+
+        // Vérifier si l'utilisateur n'est pas déjà officiant
+        foreach ($officiants as $officiant) {
+            if ($officiant['user_id'] === $userId) {
+                return; // Déjà présent
+            }
+        }
+
+        $officiants[] = [
+            'user_id' => $userId,
+            'titre' => $titre,
+            'provenance' => $provenance
+        ];
+
+        $this->officiants = $officiants;
+    }
+
+    /**
+     * Supprimer un officiant
+     */
+    public function supprimerOfficiant(string $userId): void
+    {
+        if (empty($this->officiants)) {
+            return;
+        }
+
+        $officiants = collect($this->officiants)->reject(function ($officiant) use ($userId) {
+            return $officiant['user_id'] === $userId;
+        })->values()->all();
+
+        $this->officiants = $officiants;
+    }
+
+    /**
+     * Vérifier si un utilisateur est officiant
+     */
+    public function estOfficiant(string $userId): bool
+    {
+        if (empty($this->officiants)) {
+            return false;
+        }
+
+        foreach ($this->officiants as $officiant) {
+            if ($officiant['user_id'] === $userId) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
@@ -391,6 +553,22 @@ class Culte extends Model
     }
 
     /**
+     * Scope pour filtrer par officiant
+     */
+    public function scopeAvecOfficiant($query, string $userId)
+    {
+        return $query->whereJsonContains('officiants', [['user_id' => $userId]]);
+    }
+
+    /**
+     * Scope pour filtrer par titre d'officiant
+     */
+    public function scopeAvecOfficiantTitre($query, string $titre)
+    {
+        return $query->where('officiants', 'like', '%"titre":"' . $titre . '"%');
+    }
+
+    /**
      * Boot du modèle
      */
     protected static function boot()
@@ -410,9 +588,7 @@ class Culte extends Model
         });
     }
 
-
-
-    // Nouveaux accessors pour CKEditor
+    // Accessors pour CKEditor (inchangés)
     public function getDescriptionFormattedAttribute()
     {
         return $this->getFormattedContent('description');
@@ -449,7 +625,7 @@ class Culte extends Model
         return $this->getFormattedContent('temoignages');
     }
 
-    // Méthodes utilitaires
+    // Méthodes utilitaires (inchangées)
     public function getMessageWordCount()
     {
         return $this->getWordCount('resume_message') + $this->getWordCount('plan_message');
@@ -472,7 +648,7 @@ class Culte extends Model
         return false;
     }
 
-    // Scopes
+    // Scopes pour CKEditor (inchangés)
     public function scopeWithContent($query)
     {
         return $query->where(function ($q) {

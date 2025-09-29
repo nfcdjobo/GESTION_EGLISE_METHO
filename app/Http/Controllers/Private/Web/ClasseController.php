@@ -34,6 +34,10 @@ class ClasseController extends Controller
         try {
             $query = Classe::query();
 
+            if (Auth::user()->hasAnyRole(['conducteur'])) {
+                $query->where('id', Auth::user()->classe_id);
+            }
+
             // Filtres
             if ($request->has('tranche_age')) {
                 $query->parTrancheAge($request->tranche_age);
@@ -52,15 +56,7 @@ class ClasseController extends Controller
                 });
             }
 
-            // Filtrage par utilisateur connecté si rôle "regisseur"
-            $user = Auth::user();
-            $roles = $user->roles;
-            $role = $roles->where('slug', 'regisseur')->first();
-
-            if ($role) {
-                // Filtrer les classes où l'utilisateur est responsable
-                $query->whereJsonContains('responsables', ['id' => $user->id]);
-            }
+            
 
             // Pagination
             $perPage = $request->get('per_page', 10);
@@ -223,6 +219,9 @@ class ClasseController extends Controller
                 }
             }
 
+            // Gérer les changements de responsables
+            // $this->gererChangementsResponsables($classe, $anciensResponsables);
+
 
             DB::commit();
 
@@ -351,138 +350,7 @@ public function edit(Request $request, $id)
     }
 }
 
-    /**
-     * Met à jour une classe spécifique
-     */
-    // public function update(Request $request, $id)
-    // {
 
-    //     // Filtrer les responsables vides et valider
-    //     if ($request->has('responsables')) {
-    //         $responsables = array_filter($request->responsables, function ($responsable) {
-    //             return !empty($responsable['id']) && !empty($responsable['responsabilite']);
-    //         });
-
-    //         // Vérifier qu'il n'y a pas de responsables incomplets
-    //         foreach ($request->responsables as $index => $responsable) {
-    //             if (
-    //                 (!empty($responsable['id']) && empty($responsable['responsabilite'])) ||
-    //                 (empty($responsable['id']) && !empty($responsable['responsabilite']))
-    //             ) {
-    //                 return back()->withErrors([
-    //                     'responsables' => "Le responsable à la position " . ($index + 1) . " est incomplet. Veuillez remplir tous les champs ou le supprimer."
-    //                 ])->withInput();
-    //             }
-    //         }
-
-    //         $request->merge(['responsables' => empty($responsables) ? null : array_values($responsables)]);
-    //     }
-
-
-    //     $validator = Validator::make($request->all(), [
-    //         'nom' => [
-    //             'required',
-    //             'string',
-    //             'max:255',
-    //             Rule::unique('classes', 'nom')->ignore($id)
-    //         ],
-    //         'description' => 'nullable|string',
-    //         'tranche_age' => 'nullable|string|max:255',
-    //         'age_minimum' => 'nullable|integer|min:0|max:120',
-    //         'age_maximum' => 'nullable|integer|min:0|max:120|gte:age_minimum',
-    //         'responsables' => 'nullable|array',
-    //         'responsables.*.id' => 'required_with:responsables.*|nullable|uuid|exists:users,id',
-    //         'responsables.*.responsabilite' => 'required_with:responsables.*.id|nullable|string',
-    //         'responsables.*.superieur' => 'boolean',
-    //         'programme' => 'nullable|array',
-    //         'image_classe' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048'
-    //     ]);
-
-    //     if ($validator->fails()) {
-
-    //         if ($this->isApiRequest($request)) {
-    //             return response()->json([
-    //                 'success' => false,
-    //                 'message' => 'Erreurs de validation',
-    //                 'errors' => $validator->errors()
-    //             ], 422);
-    //         }
-
-    //         return back()->withErrors($validator)->withInput();
-    //     }
-
-    //     try {
-    //         $classe = Classe::findOrFail($id);
-
-    //         DB::beginTransaction();
-
-    //         $data = $request->except(['image_classe', '_method', '_token']);
-
-    //         // Gestion de l'upload d'image
-    //         if ($request->hasFile('image_classe')) {
-    //             // Supprimer l'ancienne image si elle existe
-    //             if ($classe->image_classe) {
-    //                 Storage::disk('public')->delete($classe->image_classe);
-    //             }
-
-    //             $imagePath = $request->file('image_classe')->store('classes', 'public');
-    //             $data['image_classe'] = $imagePath;
-    //         }
-
-    //         $classe->update($data);
-
-    //         if ($classe->responsables && $request->has('responsables')) {
-    //             foreach ($classe->responsables as $responsable) {
-    //                 $user = User::find($responsable['id']);
-    //                 $user->classe_id = $classe->id;
-    //                 $user->save();
-    //             }
-    //         }
-
-    //         DB::commit();
-
-    //         // Charger les responsables pour la réponse
-    //         $classe->responsables_collection = $classe->responsables();
-    //         $classe->statistiques = $classe->getStatistiques();
-
-    //         if ($this->isApiRequest($request)) {
-    //             return response()->json([
-    //                 'success' => true,
-    //                 'data' => $classe,
-    //                 'message' => 'Classe mise à jour avec succès'
-    //             ]);
-    //         }
-
-    //         return redirect()->route('private.classes.show', $classe->id)
-    //             ->with('success', 'Classe mise à jour avec succès');
-
-    //     } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
-    //         DB::rollBack();
-
-    //         if ($this->isApiRequest($request)) {
-    //             return response()->json([
-    //                 'success' => false,
-    //                 'message' => 'Classe non trouvée'
-    //             ], 404);
-    //         }
-
-    //         return redirect()->route('private.classes.index')
-    //             ->withErrors(['error' => 'Classe non trouvée']);
-    //     } catch (\Exception $e) {
-    //         DB::rollBack();
-
-    //         if ($this->isApiRequest($request)) {
-    //             return response()->json([
-    //                 'success' => false,
-    //                 'message' => 'Erreur lors de la mise à jour de la classe',
-    //                 'error' => $e->getMessage()
-    //             ], 500);
-    //         }
-
-    //         return back()->withErrors(['error' => 'Erreur lors de la mise à jour de la classe'])
-    //             ->withInput();
-    //     }
-    // }
 
     /**
      * Met à jour une classe spécifique

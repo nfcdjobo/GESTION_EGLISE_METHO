@@ -23,6 +23,7 @@
             </ol>
         </nav>
     </div>
+    
     @can('cultes.create')
     <form action="{{ route('private.cultes.store') }}" method="POST" enctype="multipart/form-data" id="culteForm" class="space-y-8">
         @csrf
@@ -208,80 +209,63 @@
                     </div>
                 </div>
 
-                <!-- Responsables -->
+                <!-- Officiants et Responsables -->
                 <div class="bg-white/80 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
                     <div class="p-6 border-b border-slate-200">
-                        <h2 class="text-xl font-bold text-slate-800 flex items-center">
-                            <i class="fas fa-users text-purple-600 mr-2"></i>
-                            Responsables et Intervenants
-                        </h2>
+                        <div class="flex items-center justify-between">
+                            <h2 class="text-xl font-bold text-slate-800 flex items-center">
+                                <i class="fas fa-users text-purple-600 mr-2"></i>
+                                Officiants et Responsables
+                            </h2>
+                            <button type="button" id="addOfficiantBtn" 
+                                class="inline-flex items-center px-3 py-2 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700 transition-colors">
+                                <i class="fas fa-plus mr-2"></i>Ajouter un officiant
+                            </button>
+                        </div>
                     </div>
                     <div class="p-6 space-y-6">
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div>
-                                <label for="pasteur_principal_id" class="block text-sm font-medium text-slate-700 mb-2">Pasteur principal</label>
-                                <select id="pasteur_principal_id" name="pasteur_principal_id"
-                                    class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors @error('pasteur_principal_id') border-red-500 focus:ring-red-500 focus:border-red-500 @enderror">
-                                    <option value="">Sélectionner un pasteur</option>
-                                    @foreach($pasteurs as $pasteur)
-                                        <option value="{{ $pasteur->id }}" {{ old('pasteur_principal_id') == $pasteur->id ? 'selected' : '' }}>
-                                            {{ $pasteur->nom }} {{ $pasteur->prenom }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                                @error('pasteur_principal_id')
-                                    <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
-                                @enderror
+                        <!-- Liste des officiants -->
+                        <div id="officiants-container">
+                            <div class="space-y-4" id="officiants-list">
+                                <!-- Les officiants seront ajoutés dynamiquement ici -->
                             </div>
-
-                            <div>
-                                <label for="predicateur_id" class="block text-sm font-medium text-slate-700 mb-2">Prédicateur</label>
-                                <select id="predicateur_id" name="predicateur_id"
-                                    class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors @error('predicateur_id') border-red-500 focus:ring-red-500 focus:border-red-500 @enderror">
-                                    <option value="">Sélectionner un prédicateur</option>
-                                    @foreach($users as $user)
-                                        <option value="{{ $user->id }}" {{ old('predicateur_id') == $user->id ? 'selected' : '' }}>
-                                            {{ $user->nom }} {{ $user->prenom }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                                @error('predicateur_id')
-                                    <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
-                                @enderror
+                            <div id="no-officiants" class="text-center py-8 text-slate-500">
+                                <i class="fas fa-user-plus text-3xl mb-2"></i>
+                                <p>Aucun officiant ajouté. Cliquez sur "Ajouter un officiant" pour commencer.</p>
                             </div>
                         </div>
-
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div>
-                                <label for="responsable_culte_id" class="block text-sm font-medium text-slate-700 mb-2">Responsable du culte</label>
-                                <select id="responsable_culte_id" name="responsable_culte_id"
-                                    class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors @error('responsable_culte_id') border-red-500 focus:ring-red-500 focus:border-red-500 @enderror">
-                                    <option value="">Sélectionner un responsable</option>
-                                    @foreach($users as $user)
-                                        <option value="{{ $user->id }}" {{ old('responsable_culte_id') == $user->id ? 'selected' : '' }}>
-                                            {{ $user->nom }} {{ $user->prenom }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                                @error('responsable_culte_id')
-                                    <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
-                                @enderror
-                            </div>
-
-                            <div>
-                                <label for="dirigeant_louange_id" class="block text-sm font-medium text-slate-700 mb-2">Dirigeant de louange</label>
-                                <select id="dirigeant_louange_id" name="dirigeant_louange_id"
-                                    class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors @error('dirigeant_louange_id') border-red-500 focus:ring-red-500 focus:border-red-500 @enderror">
-                                    <option value="">Sélectionner un dirigeant</option>
-                                    @foreach($users as $user)
-                                        <option value="{{ $user->id }}" {{ old('dirigeant_louange_id') == $user->id ? 'selected' : '' }}>
-                                            {{ $user->nom }} {{ $user->prenom }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                                @error('dirigeant_louange_id')
-                                    <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
-                                @enderror
+                        
+                        <!-- Template d'officiant (caché) -->
+                        <div id="officiant-template" class="hidden">
+                            <div class="bg-slate-50 rounded-lg p-4 border border-slate-200 officiant-item">
+                                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+                                    <div>
+                                        <label class="block text-sm font-medium text-slate-700 mb-2">Utilisateur</label>
+                                        <div class="relative">
+                                            <input type="text" class="officiant-user-search w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" 
+                                                   placeholder="Rechercher un utilisateur..." autocomplete="off">
+                                            <input type="hidden" class="officiant-user" >
+                                            <div class="officiant-user-dropdown absolute z-10 w-full mt-1 bg-white border border-slate-300 rounded-lg shadow-lg max-h-60 overflow-y-auto hidden">
+                                                <!-- Les résultats de recherche apparaîtront ici -->
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-slate-700 mb-2">Titre/Rôle</label>
+                                        <input type="text" class="officiant-titre w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" 
+                                               placeholder="Ex: Pasteur Principal" >
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-slate-700 mb-2">Provenance</label>
+                                        <input type="text" class="officiant-provenance w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" 
+                                               placeholder="Église Locale" value="Église Locale">
+                                    </div>
+                                    <div class="flex justify-end">
+                                        <button type="button" class="remove-officiant inline-flex items-center px-3 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 transition-colors">
+                                            <i class="fas fa-trash mr-1"></i>Supprimer
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -421,6 +405,12 @@
                             <span class="text-sm font-medium text-slate-700">Statut:</span>
                             <span id="preview-statut" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">-</span>
                         </div>
+                        <div class="border-t border-slate-200 pt-4">
+                            <div class="text-sm font-medium text-slate-700 mb-2">Officiants:</div>
+                            <div id="preview-officiants" class="text-sm text-slate-600">
+                                <span class="italic">Aucun officiant</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -443,6 +433,27 @@
                         <div><strong>Baptême:</strong> Cérémonie de baptême</div>
                     </div>
                 </div>
+
+                <!-- Guide des rôles d'officiants -->
+                <div class="bg-white/80 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
+                    <div class="p-6 border-b border-slate-200">
+                        <h2 class="text-xl font-bold text-slate-800 flex items-center">
+                            <i class="fas fa-user-tie text-indigo-600 mr-2"></i>
+                            Exemples de Rôles
+                        </h2>
+                    </div>
+                    <div class="p-6 space-y-3 text-sm">
+                        <div><strong>Pasteur Principal:</strong> Officiant principal</div>
+                        <div><strong>Prédicateur:</strong> Orateur du message</div>
+                        <div><strong>Dirigeant de Louange:</strong> Responsable de la louange</div>
+                        <div><strong>Responsable Organisation:</strong> Coordination logistique</div>
+                        <div><strong>Maître de Cérémonie:</strong> Animation du culte</div>
+                        <div><strong>Interprète:</strong> Traduction simultanée</div>
+                        <div class="text-xs text-slate-500 italic mt-2">
+                            Vous pouvez personnaliser les titres selon vos besoins
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -462,12 +473,196 @@
     </form>
     @endcan
 </div>
-
+{{-- {{dd($users)}} --}}
 {{-- Inclure les ressources CKEditor --}}
 @include('partials.ckeditor-resources')
 
 @push('scripts')
 <script>
+// Données des utilisateurs pour la recherche
+const usersData = [
+        @foreach($users as $user)
+            {
+                id: "{{ $user->id }}",
+                nom: "{{ $user->nom }}",
+                prenom: "{{ $user->prenom }}",
+                nom_complet: "{{ $user->nom }} {{ $user->prenom }}",
+                email: "{{ $user->email ?? '' }}"
+            }@if(!$loop->last),@endif
+        @endforeach
+    ];
+
+
+
+// Gestion des officiants
+let officiantIndex = 0;
+
+// Configuration de la recherche d'utilisateur pour un élément officiant
+function setupUserSearch(container) {
+    const searchInput = container.querySelector('.officiant-user-search');
+    const hiddenInput = container.querySelector('.officiant-user');
+    const dropdown = container.querySelector('.officiant-user-dropdown');
+    
+    if (!searchInput || !hiddenInput || !dropdown) return;
+    
+    // Fonction de recherche
+    function performSearch(query) {
+        const lowerQuery = query.toLowerCase().trim();
+        
+        if (lowerQuery.length < 2) {
+            dropdown.classList.add('hidden');
+            return;
+        }
+        
+        const results = usersData.filter(user => {
+            return user.nom_complet.toLowerCase().includes(lowerQuery) ||
+                   user.nom.toLowerCase().includes(lowerQuery) ||
+                   user.prenom.toLowerCase().includes(lowerQuery) ||
+                   (user.email && user.email.toLowerCase().includes(lowerQuery));
+        }).slice(0, 10); // Limiter à 10 résultats
+        
+        if (results.length > 0) {
+            displayResults(results);
+            dropdown.classList.remove('hidden');
+        } else {
+            dropdown.innerHTML = '<div class="p-3 text-sm text-slate-500 text-center">Aucun utilisateur trouvé</div>';
+            dropdown.classList.remove('hidden');
+        }
+    }
+    
+    // Afficher les résultats
+    function displayResults(results) {
+        dropdown.innerHTML = results.map(user => `
+            <div class="user-result p-3 hover:bg-blue-50 cursor-pointer border-b border-slate-100 last:border-b-0 transition-colors" 
+                 data-user-id="${user.id}" 
+                 data-user-name="${user.nom_complet}">
+                <div class="font-medium text-slate-900">${user.nom_complet}</div>
+                ${user.email ? `<div class="text-xs text-slate-500">${user.email}</div>` : ''}
+            </div>
+        `).join('');
+        
+        // Ajouter les événements de clic sur les résultats
+        dropdown.querySelectorAll('.user-result').forEach(result => {
+            result.addEventListener('click', function() {
+                const userId = this.dataset.userId;
+                const userName = this.dataset.userName;
+                
+                searchInput.value = userName;
+                hiddenInput.value = userId;
+                dropdown.classList.add('hidden');
+                
+                updatePreviewOfficiants();
+            });
+        });
+    }
+    
+    // Événement de saisie
+    searchInput.addEventListener('input', function() {
+        performSearch(this.value);
+    });
+    
+    // Événement de focus
+    searchInput.addEventListener('focus', function() {
+        if (this.value.length >= 2) {
+            performSearch(this.value);
+        }
+    });
+    
+    // Fermer le dropdown en cliquant ailleurs
+    document.addEventListener('click', function(e) {
+        if (!container.contains(e.target)) {
+            dropdown.classList.add('hidden');
+        }
+    });
+    
+    // Effacer la sélection si on modifie manuellement
+    searchInput.addEventListener('keydown', function(e) {
+        if (e.key !== 'Tab' && e.key !== 'Enter') {
+            hiddenInput.value = '';
+        }
+    });
+}
+
+// Ajouter un officiant
+document.getElementById('addOfficiantBtn').addEventListener('click', function() {
+    const template = document.getElementById('officiant-template');
+    const clone = template.cloneNode(true);
+    clone.id = '';
+    clone.classList.remove('hidden');
+    
+    // Mettre à jour les noms des champs
+    const searchInput = clone.querySelector('.officiant-user-search');
+    const hiddenInput = clone.querySelector('.officiant-user');
+    const titreInput = clone.querySelector('.officiant-titre');
+    const provenanceInput = clone.querySelector('.officiant-provenance');
+    
+    hiddenInput.name = `officiants[${officiantIndex}][user_id]`;
+    titreInput.name = `officiants[${officiantIndex}][titre]`;
+    provenanceInput.name = `officiants[${officiantIndex}][provenance]`;
+    
+    // Configurer la recherche pour ce nouvel élément
+    setupUserSearch(clone);
+    
+    // Ajouter l'événement de suppression
+    clone.querySelector('.remove-officiant').addEventListener('click', function() {
+        clone.remove();
+        updatePreviewOfficiants();
+        checkNoOfficiants();
+    });
+    
+    // Ajouter événement pour mise à jour de l'aperçu
+    titreInput.addEventListener('input', updatePreviewOfficiants);
+    provenanceInput.addEventListener('input', updatePreviewOfficiants);
+    
+    document.getElementById('officiants-list').appendChild(clone);
+    document.getElementById('no-officiants').classList.add('hidden');
+    
+    // Focus sur le champ de recherche
+    searchInput.focus();
+    
+    officiantIndex++;
+    updatePreviewOfficiants();
+});
+
+// Vérifier si aucun officiant
+function checkNoOfficiants() {
+    const officiants = document.querySelectorAll('.officiant-item:not(#officiant-template)');
+    if (officiants.length === 0) {
+        document.getElementById('no-officiants').classList.remove('hidden');
+    }
+}
+
+// Mise à jour de l'aperçu des officiants
+function updatePreviewOfficiants() {
+    const officiants = document.querySelectorAll('.officiant-item:not(#officiant-template)');
+    const previewContainer = document.getElementById('preview-officiants');
+    
+    if (officiants.length === 0) {
+        previewContainer.innerHTML = '<span class="italic">Aucun officiant</span>';
+        return;
+    }
+    
+    let html = '<div class="space-y-1">';
+    officiants.forEach(officiant => {
+        const searchInput = officiant.querySelector('.officiant-user-search');
+        const hiddenInput = officiant.querySelector('.officiant-user');
+        const titre = officiant.querySelector('.officiant-titre').value;
+        const provenance = officiant.querySelector('.officiant-provenance').value;
+        const userName = searchInput.value;
+        
+        if (hiddenInput.value && userName) {
+            html += `<div class="text-xs">
+                <span class="font-medium">${titre || 'Sans titre'}:</span> ${userName}
+                ${provenance && provenance !== 'Église Locale' ? `<span class="text-slate-500">(${provenance})</span>` : ''}
+            </div>`;
+        }
+    });
+    html += '</div>';
+    
+    previewContainer.innerHTML = html;
+}
+
+// Reste du code JavaScript inchangé...
 // Mise à jour de l'aperçu en temps réel
 function updatePreview() {
     const titre = document.getElementById('titre').value || '-';
@@ -560,12 +755,35 @@ document.getElementById('culteForm').addEventListener('submit', function(e) {
         alert('La date du culte ne peut pas être dans le passé.');
         return false;
     }
+
+    // Vérifier qu'au moins un officiant a toutes ses informations remplies
+    const officiants = document.querySelectorAll('.officiant-item:not(#officiant-template)');
+    let hasValidOfficiant = false;
+    let hasInvalidOfficiant = false;
+    
+    officiants.forEach(officiant => {
+        const userId = officiant.querySelector('.officiant-user').value;
+        const titre = officiant.querySelector('.officiant-titre').value.trim();
+        
+        if (userId && titre) {
+            hasValidOfficiant = true;
+        } else if (userId || titre) {
+            hasInvalidOfficiant = true;
+        }
+    });
+
+    if (hasInvalidOfficiant) {
+        e.preventDefault();
+        alert('Veuillez compléter toutes les informations des officiants ou les supprimer.');
+        return false;
+    }
 });
 
 // Initialisation
 document.addEventListener('DOMContentLoaded', function() {
     updatePreview();
     toggleLinksSection();
+    checkNoOfficiants();
 });
 </script>
 @endpush

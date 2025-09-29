@@ -194,12 +194,14 @@
                         <i class="fas fa-list text-purple-600 mr-2"></i>
                         Liste des Programmes (<?php echo e($programmes->total()); ?>)
                     </h2>
+                    <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('programmes.manage')): ?>
                     <div class="flex gap-2">
                         <button type="button" onclick="showSelectedActions()"
                             class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-amber-500 to-orange-500 text-white text-sm font-medium rounded-xl hover:from-amber-600 hover:to-orange-600 transition-all duration-200 shadow-md hover:shadow-lg">
                             <i class="fas fa-tasks mr-2"></i> Actions groupées
                         </button>
                     </div>
+                    <?php endif; ?>
                 </div>
             </div>
             <div class="p-6">

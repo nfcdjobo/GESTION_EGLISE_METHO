@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\Validator;
 
 class EventController extends Controller
 {
+
     /**
      * Constructeur avec middleware d'authentification
      */
@@ -389,8 +390,7 @@ class EventController extends Controller
                 ], Response::HTTP_INTERNAL_SERVER_ERROR);
             }
 
-            return redirect()->back()
-                ->with('error', 'Erreur lors de la restauration: ' . $e->getMessage());
+            return redirect()->back() ->with('error', 'Erreur lors de la restauration: ' . $e->getMessage());
         }
     }
 
@@ -473,6 +473,25 @@ class EventController extends Controller
             return redirect()->back()
                 ->with('error', 'Erreur lors du changement de statut: ' . $e->getMessage());
         }
+    }
+
+
+    public function publier(Event $event){
+        $event->ouvert_public = !$event->ouvert_public;
+        $event->save();
+
+        $message = $event->ouvert_public ? "Événement publié avec succès" : "Événement dépublié avec succès";
+
+        if (request()->expectsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => $message,
+                'data' => $event
+            ]);
+        }
+
+        return redirect()->back() ->with('success', $message);
+
     }
 
     /**

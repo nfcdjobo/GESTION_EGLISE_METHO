@@ -279,21 +279,21 @@
                                                 <?php endif; ?>
                                                 <?php endif; ?>
                                                 <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('permissions.toggle')): ?>
-                                                <button type="button" onclick="togglePermission(<?php echo e($permission->id); ?>)" class="inline-flex items-center justify-center w-8 h-8 text-blue-600 bg-blue-100 rounded-lg hover:bg-blue-200 transition-colors" title="Activer/Désactiver">
+                                                <button type="button" onclick="togglePermission('<?php echo e($permission->id); ?>')" class="inline-flex items-center justify-center w-8 h-8 text-blue-600 bg-blue-100 rounded-lg hover:bg-blue-200 transition-colors" title="Activer/Désactiver">
                                                     <i class="fas fa-power-off text-sm"></i>
                                                 </button>
                                                 <?php endif; ?>
                                             <?php endif; ?>
 
                                             <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('permissions.clone')): ?>
-                                                <button type="button" onclick="clonePermission(<?php echo e($permission->id); ?>)" class="inline-flex items-center justify-center w-8 h-8 text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors" title="Cloner">
+                                                <button type="button" onclick="clonePermission('<?php echo e($permission->id); ?>')" class="inline-flex items-center justify-center w-8 h-8 text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors" title="Cloner">
                                                     <i class="fas fa-copy text-sm"></i>
                                                 </button>
                                             <?php endif; ?>
 
                                             <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('permissions.delete')): ?>
                                                 <?php if(!$permission->is_system): ?>
-                                                    <button type="button" onclick="deletePermission(<?php echo e($permission->id); ?>)" class="inline-flex items-center justify-center w-8 h-8 text-red-600 bg-red-100 rounded-lg hover:bg-red-200 transition-colors" title="Supprimer">
+                                                    <button type="button" onclick="deletePermission('<?php echo e($permission->id); ?>')" class="inline-flex items-center justify-center w-8 h-8 text-red-600 bg-red-100 rounded-lg hover:bg-red-200 transition-colors" title="Supprimer">
                                                         <i class="fas fa-trash text-sm"></i>
                                                     </button>
                                                 <?php endif; ?>
@@ -457,7 +457,7 @@ function deletePermission(permissionId) {
 // Activer/Désactiver une permission
 function togglePermission(permissionId) {
     fetch(`<?php echo e(route('private.permissions.toggle', ':permissionId')); ?>`.replace(':permissionId', permissionId), {
-        method: 'PATCH',
+        method: 'POST',
         headers: {
             'X-CSRF-TOKEN': '<?php echo e(csrf_token()); ?>',
             'Content-Type': 'application/json',

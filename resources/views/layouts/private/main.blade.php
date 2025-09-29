@@ -8,9 +8,7 @@
     <title>@yield('title', isset($appAcronym) ? $appAcronym : "Église Méthodiste - Belle Ville")</title>
     <meta name="description" content="Beautiful responsive admin dashboard built with Tailwind CSS">
     <meta name="author" content="">
-    <link rel="icon"
-        href="https://www.cevaa.org/la-communaute/fiches-deglises/afrique-occidentale-centrafrique/logo-emci.png/image_preview"
-        type="image/png" />
+    <link rel="icon" href="{{$AppParametres->logo ? Storage::url($AppParametres->logo) :  ''}}" type="image/png" />
 
     {{--
     <script src="https://cdn.tailwindcss.com"></script> --}}

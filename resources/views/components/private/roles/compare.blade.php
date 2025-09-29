@@ -156,7 +156,7 @@
                     <div class="flex-shrink-0">
                         <div
                             class="w-12 h-12 bg-gradient-to-r from-yellow-500 to-orange-500 rounded-xl flex items-center justify-center shadow-lg">
-                            <i class="fas fa-exclamation-triangle text-white text-xl"></i>{{ $roles->count() }}
+                            <i class="fas fa-exclamation-triangle text-white text-xl"></i>
                         </div>
                     </div>
                     <div class="ml-4">

@@ -73,6 +73,10 @@
                                 </button>
                             @endcan
 
+                            <a href="{{ route('private.annonces.export-pdf', $annonce) }}" class="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-xl hover:bg-blue-700 transition-colors">
+                                <i class="fas fa-file-pdf"></i> Exporter en PDF
+                            </a>
+
                             <a href="{{ route('private.annonces.index') }}"
                                 class="inline-flex items-center px-4 py-2 bg-slate-600 text-white text-sm font-medium rounded-xl hover:bg-slate-700 transition-colors">
                                 <i class="fas fa-arrow-left mr-2"></i> Retour
@@ -224,9 +228,9 @@
                                 @if ($annonce->afficher_site_web)
                                     <i class="fas fa-check-circle text-green-500 mr-1"></i>
                                     <span class="text-sm text-green-600">Activé</span>
-                                @else
+                                {{-- @else
                                     <i class="fas fa-times-circle text-red-500 mr-1"></i>
-                                    <span class="text-sm text-red-600">Désactivé</span>
+                                    <span class="text-sm text-red-600">Désactivé</span> --}}
                                 @endif
                             </span>
                         </div>
@@ -237,9 +241,9 @@
                                 @if ($annonce->annoncer_culte)
                                     <i class="fas fa-check-circle text-green-500 mr-1"></i>
                                     <span class="text-sm text-green-600">Activé</span>
-                                @else
+                                {{-- @else
                                     <i class="fas fa-times-circle text-red-500 mr-1"></i>
-                                    <span class="text-sm text-red-600">Désactivé</span>
+                                    <span class="text-sm text-red-600">Désactivé</span> --}}
                                 @endif
                             </span>
                         </div>

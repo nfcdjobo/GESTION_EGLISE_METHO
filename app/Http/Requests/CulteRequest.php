@@ -54,12 +54,6 @@ class CulteRequest extends FormRequest
             'adresse_lieu' => ['nullable', 'string'],
             'capacite_prevue' => ['nullable', 'integer', 'min:1', 'max:100000'],
 
-            // Responsables et intervenants (UUIDs optionnels)
-            'pasteur_principal_id' => ['nullable', 'uuid', 'exists:users,id'],
-            'predicateur_id' => ['nullable', 'uuid', 'exists:users,id'],
-            'responsable_culte_id' => ['nullable', 'uuid', 'exists:users,id'],
-            'dirigeant_louange_id' => ['nullable', 'uuid', 'exists:users,id'],
-            'responsable_finances_id' => ['nullable', 'uuid', 'exists:users,id'],
 
             // Équipe du culte (JSON)
             'equipe_culte' => ['nullable', 'array'],
@@ -329,10 +323,10 @@ class CulteRequest extends FormRequest
             'heure_fin' => 'heure de fin',
             'type_culte' => 'type de culte',
             'categorie' => 'catégorie',
-            'pasteur_principal_id' => 'pasteur principal',
-            'predicateur_id' => 'prédicateur',
-            'responsable_culte_id' => 'responsable du culte',
-            'dirigeant_louange_id' => 'dirigeant de louange',
+            // 'pasteur_principal_id' => 'pasteur principal',
+            // 'predicateur_id' => 'prédicateur',
+            // 'responsable_culte_id' => 'responsable du culte',
+            // 'dirigeant_louange_id' => 'dirigeant de louange',
             'nombre_participants' => 'nombre de participants',
             'offrande_totale' => 'total des offrandes',
             'note_globale' => 'note globale',

@@ -472,7 +472,7 @@ function exportNouveauxVisiteurs(selected = null) {
     const typeFilter = document.querySelector('select[name="type_suivi"]').value;
     if (typeFilter) params.append('type_suivi', typeFilter);
 
-    window.open(`/private/participants-cultes/nouveaux-visiteurs/export?${params.toString()}`, '_blank');
+    window.open(`/participants-cultes/nouveaux-visiteurs/export?${params.toString()}`, '_blank');
 }
 
 function planifierSuivi() {

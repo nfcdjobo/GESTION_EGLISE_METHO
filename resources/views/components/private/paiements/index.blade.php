@@ -231,9 +231,9 @@
                             Vous n'avez pas encore effectué de paiement.
                         @endif
                     </p>
-                    @can('paiements.create')
-                    <a href="{{ route('private.subscriptions.create') }}" class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-medium rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-200 shadow-md hover:shadow-lg">
-                        <i class="fas fa-hand-holding-usd mr-2"></i> Créer une Souscription
+                    @can('fimecos.read')
+                    <a href="{{ route('private.fimecos.index') }}" class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-medium rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-200 shadow-md hover:shadow-lg">
+                        <i class="fas fa-list mr-2"></i> Liste FIMECOs
                     </a>
                     @endcan
                 </div>

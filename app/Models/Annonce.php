@@ -222,4 +222,84 @@ class Annonce extends Model
     }
 
 
+    /**
+ * Obtenir le contenu nettoyé pour affichage PDF
+ *
+ * @return string
+ */
+public function getContenuForPdf(): string
+{
+    if (empty($this->contenu)) {
+        return '<p style="color: #9ca3af; font-style: italic;">Aucun contenu disponible</p>';
+    }
+
+    $content = $this->contenu;
+
+    // Ajouter des styles inline pour les paragraphes
+    $content = preg_replace('/<p>/i', '<p style="margin: 8px 0; line-height: 1.6;">', $content);
+
+    // Ajouter des styles inline pour les titres
+    $content = preg_replace('/<h1>/i', '<h1 style="font-size: 14px; font-weight: bold; color: #1f2937; margin: 12px 0 8px 0;">', $content);
+    $content = preg_replace('/<h2>/i', '<h2 style="font-size: 12px; font-weight: bold; color: #374151; margin: 10px 0 6px 0;">', $content);
+    $content = preg_replace('/<h3>/i', '<h3 style="font-size: 11px; font-weight: bold; color: #4b5563; margin: 8px 0 4px 0;">', $content);
+    $content = preg_replace('/<h4>/i', '<h4 style="font-size: 10px; font-weight: bold; color: #6b7280; margin: 6px 0 3px 0;">', $content);
+
+    // Ajouter des styles pour le texte en gras
+    $content = preg_replace('/<strong>/i', '<strong style="font-weight: bold; color: #1f2937;">', $content);
+    $content = preg_replace('/<b>/i', '<b style="font-weight: bold; color: #1f2937;">', $content);
+
+    // Ajouter des styles pour le texte en italique
+    $content = preg_replace('/<em>/i', '<em style="font-style: italic;">', $content);
+    $content = preg_replace('/<i>/i', '<i style="font-style: italic;">', $content);
+
+    // Gérer les listes avec styles
+    $content = preg_replace('/<ul>/i', '<ul style="margin: 8px 0; padding-left: 20px; list-style-type: disc;">', $content);
+    $content = preg_replace('/<ol>/i', '<ol style="margin: 8px 0; padding-left: 20px;">', $content);
+    $content = preg_replace('/<li>/i', '<li style="margin: 3px 0; line-height: 1.5;">', $content);
+
+    // Gérer les tableaux
+    $content = preg_replace('/<table>/i', '<table style="width: 100%; border-collapse: collapse; margin: 10px 0; font-size: 8px;">', $content);
+    $content = preg_replace('/<td>/i', '<td style="border: 1px solid #d1d5db; padding: 4px;">', $content);
+    $content = preg_replace('/<th>/i', '<th style="border: 1px solid #d1d5db; padding: 4px; background-color: #f3f4f6; font-weight: bold;">', $content);
+
+    // Gérer les citations
+    $content = preg_replace('/<blockquote>/i', '<blockquote style="border-left: 3px solid #3b82f6; padding-left: 12px; margin: 10px 0; font-style: italic; color: #4b5563;">', $content);
+
+    // Gérer les liens
+    $content = preg_replace('/<a /i', '<a style="color: #3b82f6; text-decoration: underline;" ', $content);
+
+    // Nettoyer les sauts de ligne excessifs
+    $content = preg_replace('/(<br\s*\/?>\s*){3,}/i', '<br><br>', $content);
+
+    return $content;
+}
+
+
+/**
+ * Obtenir un aperçu court du contenu (pour listes)
+ *
+ * @param int $limit
+ * @return string
+ */
+public function getContenuPreview(int $limit = 200): string
+{
+    if (empty($this->contenu)) {
+        return 'Aucun contenu';
+    }
+
+    // Supprimer toutes les balises HTML
+    $content = strip_tags($this->contenu);
+
+    // Décoder les entités HTML
+    $content = html_entity_decode($content, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+
+    // Nettoyer les espaces multiples
+    $content = preg_replace('/\s+/', ' ', $content);
+
+    // Trimmer et limiter
+    $content = trim($content);
+
+    return \Illuminate\Support\Str::limit($content, $limit);
+}
+
 }

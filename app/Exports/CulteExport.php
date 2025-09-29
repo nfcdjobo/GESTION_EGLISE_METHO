@@ -3,6 +3,7 @@
 namespace App\Exports;
 
 use App\Models\Culte;
+use App\Models\Parametres;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithStyles;
@@ -16,6 +17,7 @@ use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Style\Border;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Style\Font;
+use PhpOffice\PhpSpreadsheet\Worksheet\Drawing;
 
 class CulteExport implements WithMultipleSheets
 {
@@ -23,6 +25,7 @@ class CulteExport implements WithMultipleSheets
     protected $fondsStatistiques;
     protected $metriques;
     protected $dateGeneration;
+    protected $appParametres;
 
     public function __construct(Culte $culte, $fondsStatistiques = null, $metriques = null)
     {
@@ -30,33 +33,218 @@ class CulteExport implements WithMultipleSheets
         $this->fondsStatistiques = $fondsStatistiques ?? [];
         $this->metriques = $metriques ?? [];
         $this->dateGeneration = now()->format('d/m/Y H:i');
+        $this->appParametres = Parametres::first();
     }
 
     public function sheets(): array
     {
         $sheets = [
-            new CulteInformationsSheet($this->culte, $this->dateGeneration),
-            new CulteStatistiquesSheet($this->culte, $this->fondsStatistiques, $this->metriques),
+            new CulteInformationsSheet($this->culte, $this->dateGeneration, $this->appParametres),
+            new CulteStatistiquesSheet($this->culte, $this->fondsStatistiques, $this->metriques, $this->appParametres),
         ];
 
         if (!empty($this->fondsStatistiques['total_transactions'])) {
-            $sheets[] = new CulteFinancesSheet($this->culte, $this->fondsStatistiques, $this->metriques);
+            $sheets[] = new CulteFinancesSheet($this->culte, $this->fondsStatistiques, $this->metriques, $this->appParametres);
         }
 
         return $sheets;
     }
 }
 
+// Trait pour gérer l'en-tête et le pied de page communs
+trait HasHeaderFooter
+{
+    protected function applyHeaderFooter($sheet, $appParametres, $maxColumn, $startDataRow)
+    {
+        // EN-TÊTE - Ligne 1 à 4
+        
+        // Ligne 1: Logo + Nom de l'église
+        // Colonne A pour le logo
+        if (!empty($appParametres->logo)) {
+            try {
+                $logoPath = storage_path('app/public/' . $appParametres->logo);
+                
+                if (file_exists($logoPath)) {
+                    $drawing = new Drawing();
+                    $drawing->setName('Logo');
+                    $drawing->setDescription('Logo de l\'église');
+                    $drawing->setPath($logoPath);
+                    $drawing->setCoordinates('A1');
+                    $drawing->setHeight(50);
+                    $drawing->setOffsetX(5);
+                    $drawing->setOffsetY(5);
+                    $drawing->setWorksheet($sheet);
+                    
+                    $sheet->getRowDimension(1)->setRowHeight(40);
+                }
+            } catch (\Exception $e) {
+                // Si erreur, continuer sans logo
+            }
+        }
+        
+        // Colonne A: fond bleu pour cohérence
+        $sheet->getStyle('A1:A3')->applyFromArray([
+            'fill' => ['fillType' => Fill::FILL_SOLID, 'color' => ['rgb' => '1E40AF']],
+        ]);
+        $sheet->getColumnDimension('A')->setWidth(12);
+
+        // Colonnes B à milieu: Nom de l'église + téléphones (partie gauche)
+        $midCol = chr(ord('A') + floor((ord($maxColumn) - ord('A')) / 2));
+        
+        // Ligne 1: Nom de l'église sur toute la largeur
+        $sheet->mergeCells("B1:{$maxColumn}1");
+        $sheet->setCellValue('B1', strtoupper($appParametres->nom_eglise ?? 'ÉGLISE'));
+        $sheet->getStyle("B1:{$maxColumn}1")->applyFromArray([
+            'font' => ['bold' => true, 'size' => 16, 'color' => ['rgb' => 'FFFFFF']],
+            'fill' => ['fillType' => Fill::FILL_SOLID, 'color' => ['rgb' => '1E40AF']],
+            'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER, 'vertical' => Alignment::VERTICAL_CENTER],
+        ]);
+
+        // Ligne 2: Téléphones à gauche (après logo)
+        $contactLeft = [];
+        if (!empty($appParametres->telephone_1)) {
+            $contactLeft[] = "Tel 1: {$appParametres->telephone_1}";
+        }
+        if (!empty($appParametres->telephone_2)) {
+            $contactLeft[] = "Tel 2: {$appParametres->telephone_2}";
+        }
+        
+        $sheet->mergeCells("B2:{$midCol}2");
+        $sheet->setCellValue('B2', implode(' | ', $contactLeft));
+        $sheet->getStyle("B2:{$midCol}2")->applyFromArray([
+            'font' => ['size' => 9, 'color' => ['rgb' => 'FFFFFF']],
+            'fill' => ['fillType' => Fill::FILL_SOLID, 'color' => ['rgb' => '1E40AF']],
+            'alignment' => ['horizontal' => Alignment::HORIZONTAL_LEFT, 'vertical' => Alignment::VERTICAL_CENTER],
+        ]);
+
+        // Ligne 2: Email à droite
+        $afterMidCol = chr(ord($midCol) + 1);
+        $sheet->mergeCells("{$afterMidCol}2:{$maxColumn}2");
+        $sheet->setCellValue("{$afterMidCol}2", $appParametres->email ?? '');
+        $sheet->getStyle("{$afterMidCol}2:{$maxColumn}2")->applyFromArray([
+            'font' => ['size' => 9, 'color' => ['rgb' => 'FFFFFF']],
+            'fill' => ['fillType' => Fill::FILL_SOLID, 'color' => ['rgb' => '1E40AF']],
+            'alignment' => ['horizontal' => Alignment::HORIZONTAL_RIGHT, 'vertical' => Alignment::VERTICAL_CENTER],
+        ]);
+
+        // Ligne 3: Adresse complète (comme dans le PDF)
+        $adresseComplete = '';
+        $adresseParts = [];
+        
+        if (!empty($appParametres->adresse)) {
+            $adresseParts[] = $appParametres->adresse;
+        }
+        if (!empty($appParametres->code_postal)) {
+            $adresseParts[] = $appParametres->code_postal;
+        }
+        if (!empty($appParametres->ville)) {
+            $adresseParts[] = $appParametres->ville;
+        }
+        if (!empty($appParametres->commune)) {
+            $adresseParts[] = $appParametres->commune;
+        }
+        if (!empty($appParametres->pays)) {
+            $adresseParts[] = $appParametres->pays;
+        }
+        
+        $adresseComplete = implode(', ', $adresseParts);
+
+        $sheet->mergeCells("B3:{$maxColumn}3");
+        $sheet->setCellValue('B3', $adresseComplete);
+        $sheet->getStyle("B3:{$maxColumn}3")->applyFromArray([
+            'font' => ['size' => 9, 'color' => ['rgb' => 'FFFFFF']],
+            'fill' => ['fillType' => Fill::FILL_SOLID, 'color' => ['rgb' => '1E40AF']],
+            'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER, 'vertical' => Alignment::VERTICAL_CENTER],
+        ]);
+        $sheet->getRowDimension(3)->setRowHeight(18);
+
+        // Ligne 4: Bordure décorative orange
+        $sheet->mergeCells("A4:{$maxColumn}4");
+        $sheet->getStyle("A4:{$maxColumn}4")->applyFromArray([
+            'fill' => ['fillType' => Fill::FILL_SOLID, 'color' => ['rgb' => 'F59E0B']],
+        ]);
+        $sheet->getRowDimension(4)->setRowHeight(4);
+
+        // PIED DE PAGE - Calculer la dernière ligne
+        $lastRow = $sheet->getHighestRow() + 2;
+
+        // Ligne de séparation bleu
+        $sheet->mergeCells("A{$lastRow}:{$maxColumn}{$lastRow}");
+        $sheet->getStyle("A{$lastRow}:{$maxColumn}{$lastRow}")->applyFromArray([
+            'fill' => ['fillType' => Fill::FILL_SOLID, 'color' => ['rgb' => '3B82F6']],
+        ]);
+        $sheet->getRowDimension($lastRow)->setRowHeight(3);
+        $lastRow++;
+
+        // Verset biblique (fond gris foncé, texte jaune/or)
+        $verset = $appParametres->verset_biblique ?? "Car Dieu a tant aimé le monde qu'il a donné son Fils unique...";
+        $reference = $appParametres->reference_verset ?? "Jean 3:16";
+        
+        $sheet->mergeCells("A{$lastRow}:{$maxColumn}{$lastRow}");
+        $sheet->setCellValue("A{$lastRow}", "\"{$verset}\" - {$reference}");
+        $sheet->getStyle("A{$lastRow}:{$maxColumn}{$lastRow}")->applyFromArray([
+            'font' => ['italic' => true, 'size' => 9, 'color' => ['rgb' => 'FBBF24']], // Couleur jaune/or
+            'fill' => ['fillType' => Fill::FILL_SOLID, 'color' => ['rgb' => '37393B']], // Gris très foncé
+            'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER, 'vertical' => Alignment::VERTICAL_CENTER],
+        ]);
+        $sheet->getRowDimension($lastRow)->setRowHeight(20);
+        $lastRow++;
+
+        // Réseaux sociaux (fond gris foncé, texte blanc)
+        $social = [];
+        if (!empty($appParametres->facebook_url)) {
+            $social[] = "Facebook: {$appParametres->facebook_url}";
+        }
+        if (!empty($appParametres->instagram_url)) {
+            $social[] = "Instagram: {$appParametres->instagram_url}";
+        }
+        if (!empty($appParametres->youtube_url)) {
+            $social[] = "YouTube: {$appParametres->youtube_url}";
+        }
+        if (!empty($appParametres->twitter_url)) {
+            $social[] = "Twitter: {$appParametres->twitter_url}";
+        }
+        
+        $sheet->mergeCells("A{$lastRow}:{$maxColumn}{$lastRow}");
+        $sheet->setCellValue("A{$lastRow}", implode(' | ', $social));
+        $sheet->getStyle("A{$lastRow}:{$maxColumn}{$lastRow}")->applyFromArray([
+            'font' => ['size' => 8, 'color' => ['rgb' => 'FFFFFF']],
+            'fill' => ['fillType' => Fill::FILL_SOLID, 'color' => ['rgb' => '37393B']],
+            'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER, 'vertical' => Alignment::VERTICAL_CENTER],
+        ]);
+        $lastRow++;
+
+        // Dernière ligne avec site web et date de génération (fond gris foncé, texte gris clair)
+        $footerText = '';
+        if (!empty($appParametres->website_url)) {
+            $footerText = "Site web: {$appParametres->website_url} | ";
+        }
+        $footerText .= "Généré le " . now()->format('d/m/Y H:i');
+
+        $sheet->mergeCells("A{$lastRow}:{$maxColumn}{$lastRow}");
+        $sheet->setCellValue("A{$lastRow}", $footerText);
+        $sheet->getStyle("A{$lastRow}:{$maxColumn}{$lastRow}")->applyFromArray([
+            'font' => ['size' => 8, 'color' => ['rgb' => '9CA3AF']], // Gris clair
+            'fill' => ['fillType' => Fill::FILL_SOLID, 'color' => ['rgb' => '37393B']],
+            'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER, 'vertical' => Alignment::VERTICAL_CENTER],
+        ]);
+    }
+}
+
 // Feuille des informations générales
 class CulteInformationsSheet implements FromCollection, WithHeadings, WithStyles, WithCustomStartCell, WithEvents, WithTitle
 {
+    use HasHeaderFooter;
+
     protected $culte;
     protected $dateGeneration;
+    protected $appParametres;
 
-    public function __construct(Culte $culte, $dateGeneration)
+    public function __construct(Culte $culte, $dateGeneration, Parametres $appParametres)
     {
         $this->culte = $culte;
         $this->dateGeneration = $dateGeneration;
+        $this->appParametres = $appParametres;
     }
 
     public function title(): string
@@ -66,7 +254,7 @@ class CulteInformationsSheet implements FromCollection, WithHeadings, WithStyles
 
     public function startCell(): string
     {
-        return 'A6'; // Laisser de la place pour l'en-tête
+        return 'A8';
     }
 
     public function collection()
@@ -83,22 +271,33 @@ class CulteInformationsSheet implements FromCollection, WithHeadings, WithStyles
             ['Statut', $this->culte->statut_libelle],
             ['Public', $this->culte->est_public ? 'Oui' : 'Non'],
             ['Diffusion en ligne', $this->culte->diffusion_en_ligne ? 'Oui' : 'Non'],
-            ['', ''], // Ligne vide
-            ['RESPONSABLES', ''],
-            ['Pasteur principal', $this->culte->pasteurPrincipal?->nom_complet ?? 'Non assigné'],
-            ['Prédicateur', $this->culte->predicateur?->nom_complet ?? 'Non assigné'],
-            ['Responsable culte', $this->culte->responsableCulte?->nom_complet ?? 'Non assigné'],
-            ['Dirigeant louange', $this->culte->dirigeantLouange?->nom_complet ?? 'Non assigné'],
-            ['', ''], // Ligne vide
-            ['MESSAGE', ''],
-            ['Titre du message', $this->culte->titre_message ?? ''],
-            ['Passage biblique', $this->culte->passage_biblique ?? ''],
         ]);
+
+        // Ajouter les officiants
+        if ($this->culte->officiants_detail->isNotEmpty()) {
+            $data->push(['', '']);
+            $data->push(['OFFICIANTS', '']);
+            
+            foreach ($this->culte->officiants_detail as $officiant) {
+                $provenance = ($officiant['provenance'] && $officiant['provenance'] !== 'Église Locale') 
+                    ? ' (' . $officiant['provenance'] . ')' 
+                    : '';
+                $data->push([
+                    $officiant['titre'], 
+                    $officiant['nom_complet'] . $provenance
+                ]);
+            }
+        }
+
+        $data->push(['', '']);
+        $data->push(['MESSAGE', '']);
+        $data->push(['Titre du message', $this->culte->titre_message ?? '']);
+        $data->push(['Passage biblique', $this->culte->passage_biblique ?? '']);
 
         // Ajouter les statistiques de participation si disponibles
         if ($this->culte->nombre_participants) {
             $data = $data->concat([
-                ['', ''], // Ligne vide
+                ['', ''],
                 ['PARTICIPATION', ''],
                 ['Total participants', number_format($this->culte->nombre_participants)],
                 ['Adultes', number_format($this->culte->nombre_adultes ?? 0)],
@@ -113,7 +312,7 @@ class CulteInformationsSheet implements FromCollection, WithHeadings, WithStyles
         // Ajouter les évaluations si disponibles
         if ($this->culte->note_globale) {
             $data = $data->concat([
-                ['', ''], // Ligne vide
+                ['', ''],
                 ['ÉVALUATIONS', ''],
                 ['Note globale', $this->culte->note_globale . '/10'],
                 ['Note louange', ($this->culte->note_louange ?? '') ? $this->culte->note_louange . '/10' : ''],
@@ -127,13 +326,13 @@ class CulteInformationsSheet implements FromCollection, WithHeadings, WithStyles
 
     public function headings(): array
     {
-        return []; // Pas d'en-têtes car on gère tout dans collection()
+        return [];
     }
 
     public function styles(Worksheet $sheet)
     {
         return [
-            6 => [
+            8 => [
                 'font' => ['bold' => true, 'size' => 12, 'color' => ['rgb' => 'FFFFFF']],
                 'fill' => ['fillType' => Fill::FILL_SOLID, 'color' => ['rgb' => '3B82F6']],
                 'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER],
@@ -147,36 +346,32 @@ class CulteInformationsSheet implements FromCollection, WithHeadings, WithStyles
             AfterSheet::class => function(AfterSheet $event) {
                 $sheet = $event->sheet->getDelegate();
 
-                // En-tête principal
-                $sheet->mergeCells('A1:B3');
-                $sheet->setCellValue('A1', 'RAPPORT DE CULTE');
-                $sheet->getStyle('A1:B3')->applyFromArray([
-                    'font' => ['bold' => true, 'size' => 18, 'color' => ['rgb' => 'FFFFFF']],
-                    'fill' => ['fillType' => Fill::FILL_SOLID, 'color' => ['rgb' => '1F2937']],
+                // Appliquer l'en-tête et le pied de page
+                $this->applyHeaderFooter($sheet, $this->appParametres, 'B', 8);
+
+                // Titre du rapport - Ligne 6
+                $sheet->mergeCells('A6:B6');
+                $sheet->setCellValue('A6', 'RAPPORT DE CULTE');
+                $sheet->getStyle('A6:B6')->applyFromArray([
+                    'font' => ['bold' => true, 'size' => 16, 'color' => ['rgb' => '1F2937']],
                     'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER, 'vertical' => Alignment::VERTICAL_CENTER],
                 ]);
+                $sheet->getRowDimension(6)->setRowHeight(25);
 
-                // Sous-titre
-                $sheet->mergeCells('A4:B4');
-                $sheet->setCellValue('A4', $this->culte->titre . ' - ' . $this->culte->date_culte->format('d/m/Y'));
-                $sheet->getStyle('A4')->applyFromArray([
-                    'font' => ['size' => 12, 'color' => ['rgb' => '6B7280']],
-                    'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER],
-                ]);
-
-                // Date de génération
-                $sheet->setCellValue('A5', 'Généré le : ' . $this->dateGeneration);
-                $sheet->getStyle('A5')->applyFromArray([
-                    'font' => ['size' => 10, 'color' => ['rgb' => '9CA3AF'], 'italic' => true],
+                // Sous-titre - Ligne 7
+                $sheet->mergeCells('A7:B7');
+                $sheet->setCellValue('A7', $this->culte->titre . ' - ' . $this->culte->date_culte->format('d/m/Y'));
+                $sheet->getStyle('A7')->applyFromArray([
+                    'font' => ['size' => 11, 'color' => ['rgb' => '6B7280']],
                     'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER],
                 ]);
 
                 // Styling des sections
-                $currentRow = 6;
+                $currentRow = 8;
                 $data = $this->collection();
 
                 foreach ($data as $row) {
-                    if (in_array($row[0], ['RESPONSABLES', 'MESSAGE', 'PARTICIPATION', 'ÉVALUATIONS'])) {
+                    if (in_array($row[0], ['OFFICIANTS', 'MESSAGE', 'PARTICIPATION', 'ÉVALUATIONS'])) {
                         $sheet->getStyle("A{$currentRow}:B{$currentRow}")->applyFromArray([
                             'font' => ['bold' => true, 'color' => ['rgb' => 'FFFFFF']],
                             'fill' => ['fillType' => Fill::FILL_SOLID, 'color' => ['rgb' => '059669']],
@@ -192,14 +387,13 @@ class CulteInformationsSheet implements FromCollection, WithHeadings, WithStyles
 
                 // Bordures pour toutes les cellules utilisées
                 $lastRow = $currentRow - 1;
-                $sheet->getStyle("A6:B{$lastRow}")->applyFromArray([
+                $sheet->getStyle("A8:B{$lastRow}")->applyFromArray([
                     'borders' => [
                         'allBorders' => ['borderStyle' => Border::BORDER_THIN, 'color' => ['rgb' => 'D1D5DB']],
                     ],
                 ]);
 
                 // Ajuster la largeur des colonnes
-                $sheet->getColumnDimension('A')->setWidth(25);
                 $sheet->getColumnDimension('B')->setWidth(35);
             },
         ];
@@ -209,15 +403,19 @@ class CulteInformationsSheet implements FromCollection, WithHeadings, WithStyles
 // Feuille des statistiques détaillées
 class CulteStatistiquesSheet implements FromCollection, WithHeadings, WithStyles, WithCustomStartCell, WithEvents, WithTitle
 {
+    use HasHeaderFooter;
+
     protected $culte;
     protected $fondsStatistiques;
     protected $metriques;
+    protected $appParametres;
 
-    public function __construct(Culte $culte, $fondsStatistiques, $metriques)
+    public function __construct(Culte $culte, $fondsStatistiques, $metriques, Parametres $appParametres)
     {
         $this->culte = $culte;
         $this->fondsStatistiques = $fondsStatistiques;
         $this->metriques = $metriques;
+        $this->appParametres = $appParametres;
     }
 
     public function title(): string
@@ -227,7 +425,7 @@ class CulteStatistiquesSheet implements FromCollection, WithHeadings, WithStyles
 
     public function startCell(): string
     {
-        return 'A6';
+        return 'A8';
     }
 
     public function collection()
@@ -307,7 +505,7 @@ class CulteStatistiquesSheet implements FromCollection, WithHeadings, WithStyles
     public function styles(Worksheet $sheet)
     {
         return [
-            6 => [
+            8 => [
                 'font' => ['bold' => true, 'size' => 12, 'color' => ['rgb' => 'FFFFFF']],
                 'fill' => ['fillType' => Fill::FILL_SOLID, 'color' => ['rgb' => '7C3AED']],
                 'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER],
@@ -321,24 +519,29 @@ class CulteStatistiquesSheet implements FromCollection, WithHeadings, WithStyles
             AfterSheet::class => function(AfterSheet $event) {
                 $sheet = $event->sheet->getDelegate();
 
-                // En-tête
-                $sheet->mergeCells('A1:C3');
-                $sheet->setCellValue('A1', 'STATISTIQUES DÉTAILLÉES');
-                $sheet->getStyle('A1:C3')->applyFromArray([
+                // Appliquer l'en-tête et le pied de page
+                $this->applyHeaderFooter($sheet, $this->appParametres, 'C', 8);
+
+                // Titre - Ligne 6
+                $sheet->mergeCells('A6:C6');
+                $sheet->setCellValue('A6', 'STATISTIQUES DÉTAILLÉES');
+                $sheet->getStyle('A6:C6')->applyFromArray([
                     'font' => ['bold' => true, 'size' => 16, 'color' => ['rgb' => 'FFFFFF']],
                     'fill' => ['fillType' => Fill::FILL_SOLID, 'color' => ['rgb' => '7C3AED']],
                     'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER, 'vertical' => Alignment::VERTICAL_CENTER],
                 ]);
+                $sheet->getRowDimension(6)->setRowHeight(25);
 
-                $sheet->mergeCells('A4:C4');
-                $sheet->setCellValue('A4', $this->culte->titre);
-                $sheet->getStyle('A4')->applyFromArray([
-                    'font' => ['size' => 12],
+                // Sous-titre - Ligne 7
+                $sheet->mergeCells('A7:C7');
+                $sheet->setCellValue('A7', $this->culte->titre);
+                $sheet->getStyle('A7')->applyFromArray([
+                    'font' => ['size' => 11],
                     'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER],
                 ]);
 
                 // Styling des sections
-                $currentRow = 6;
+                $currentRow = 8;
                 $data = $this->collection();
 
                 foreach ($data as $row) {
@@ -352,7 +555,6 @@ class CulteStatistiquesSheet implements FromCollection, WithHeadings, WithStyles
                         $sheet->getStyle("A{$currentRow}")->applyFromArray([
                             'font' => ['bold' => true],
                         ]);
-                        // Alignement des valeurs numériques à droite
                         $sheet->getStyle("B{$currentRow}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
                     }
                     $currentRow++;
@@ -360,7 +562,7 @@ class CulteStatistiquesSheet implements FromCollection, WithHeadings, WithStyles
 
                 // Bordures
                 $lastRow = $currentRow - 1;
-                $sheet->getStyle("A6:C{$lastRow}")->applyFromArray([
+                $sheet->getStyle("A8:C{$lastRow}")->applyFromArray([
                     'borders' => [
                         'allBorders' => ['borderStyle' => Border::BORDER_THIN, 'color' => ['rgb' => 'D1D5DB']],
                     ],
@@ -378,15 +580,19 @@ class CulteStatistiquesSheet implements FromCollection, WithHeadings, WithStyles
 // Feuille des finances détaillées
 class CulteFinancesSheet implements FromCollection, WithHeadings, WithStyles, WithCustomStartCell, WithEvents, WithTitle
 {
+    use HasHeaderFooter;
+
     protected $culte;
     protected $fondsStatistiques;
     protected $metriques;
+    protected $appParametres;
 
-    public function __construct(Culte $culte, $fondsStatistiques, $metriques)
+    public function __construct(Culte $culte, $fondsStatistiques, $metriques, Parametres $appParametres)
     {
         $this->culte = $culte;
         $this->fondsStatistiques = $fondsStatistiques;
         $this->metriques = $metriques;
+        $this->appParametres = $appParametres;
     }
 
     public function title(): string
@@ -396,7 +602,7 @@ class CulteFinancesSheet implements FromCollection, WithHeadings, WithStyles, Wi
 
     public function startCell(): string
     {
-        return 'A6';
+        return 'A8';
     }
 
     public function collection()
@@ -415,7 +621,7 @@ class CulteFinancesSheet implements FromCollection, WithHeadings, WithStyles, Wi
             ]);
         }
 
-        $data->push(['', '', '', '']); // Ligne vide
+        $data->push(['', '', '', '']);
         $data->push(['MODES DE PAIEMENT', '', '', '']);
 
         // Répartition par mode de paiement
@@ -430,7 +636,7 @@ class CulteFinancesSheet implements FromCollection, WithHeadings, WithStyles, Wi
 
         // Top donateurs
         if (!empty($this->fondsStatistiques['top_donateurs'])) {
-            $data->push(['', '', '', '']); // Ligne vide
+            $data->push(['', '', '', '']);
             $data->push(['TOP DONATEURS', '', '', '']);
             $data->push(['Donateur', 'Nb Dons', 'Montant Total', 'Rang']);
 
@@ -455,7 +661,7 @@ class CulteFinancesSheet implements FromCollection, WithHeadings, WithStyles, Wi
     public function styles(Worksheet $sheet)
     {
         return [
-            6 => [
+            8 => [
                 'font' => ['bold' => true, 'size' => 12, 'color' => ['rgb' => 'FFFFFF']],
                 'fill' => ['fillType' => Fill::FILL_SOLID, 'color' => ['rgb' => '059669']],
                 'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER],
@@ -469,26 +675,30 @@ class CulteFinancesSheet implements FromCollection, WithHeadings, WithStyles, Wi
             AfterSheet::class => function(AfterSheet $event) {
                 $sheet = $event->sheet->getDelegate();
 
-                // En-tête
-                $sheet->mergeCells('A1:D3');
-                $sheet->setCellValue('A1', 'RAPPORT FINANCIER DÉTAILLÉ');
-                $sheet->getStyle('A1:D3')->applyFromArray([
+                // Appliquer l'en-tête et le pied de page
+                $this->applyHeaderFooter($sheet, $this->appParametres, 'D', 8);
+
+                // Titre - Ligne 6
+                $sheet->mergeCells('A6:D6');
+                $sheet->setCellValue('A6', 'RAPPORT FINANCIER DÉTAILLÉ');
+                $sheet->getStyle('A6:D6')->applyFromArray([
                     'font' => ['bold' => true, 'size' => 16, 'color' => ['rgb' => 'FFFFFF']],
                     'fill' => ['fillType' => Fill::FILL_SOLID, 'color' => ['rgb' => '059669']],
                     'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER, 'vertical' => Alignment::VERTICAL_CENTER],
                 ]);
+                $sheet->getRowDimension(6)->setRowHeight(25);
 
-                // Résumé financier
-                $sheet->mergeCells('A4:D4');
+                // Résumé financier - Ligne 7
+                $sheet->mergeCells('A7:D7');
                 $totalFormate = number_format($this->fondsStatistiques['montant_total'], 0);
-                $sheet->setCellValue('A4', "Total collecté: {$totalFormate} FCFA | {$this->fondsStatistiques['total_transactions']} transactions | {$this->fondsStatistiques['donateurs_uniques']} donateurs");
-                $sheet->getStyle('A4')->applyFromArray([
-                    'font' => ['size' => 12, 'bold' => true],
+                $sheet->setCellValue('A7', "Total collecté: {$totalFormate} FCFA | {$this->fondsStatistiques['total_transactions']} transactions | {$this->fondsStatistiques['donateurs_uniques']} donateurs");
+                $sheet->getStyle('A7')->applyFromArray([
+                    'font' => ['size' => 11, 'bold' => true],
                     'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER],
                 ]);
 
                 // Styling des sections et données
-                $currentRow = 6;
+                $currentRow = 8;
                 $data = $this->collection();
 
                 foreach ($data as $row) {
@@ -513,7 +723,7 @@ class CulteFinancesSheet implements FromCollection, WithHeadings, WithStyles, Wi
 
                 // Bordures
                 $lastRow = $currentRow - 1;
-                $sheet->getStyle("A6:D{$lastRow}")->applyFromArray([
+                $sheet->getStyle("A8:D{$lastRow}")->applyFromArray([
                     'borders' => [
                         'allBorders' => ['borderStyle' => Border::BORDER_THIN, 'color' => ['rgb' => 'D1D5DB']],
                     ],

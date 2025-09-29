@@ -1,36 +1,12 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Private\Web\UserController;
-use App\Http\Controllers\Private\Web\CulteController;
 use App\Http\Controllers\Private\Web\ErrorController;
-use App\Http\Controllers\Private\Web\EventController;
-use App\Http\Controllers\Private\Web\ClasseController;
-use App\Http\Controllers\Private\Web\ProjetController;
-use App\Http\Controllers\Private\Web\AnnonceController;
-use App\Http\Controllers\Private\Web\ContactController;
-use App\Http\Controllers\Private\Web\RapportController;
-use App\Http\Controllers\Private\Web\ReunionController;
 use App\Http\Controllers\Private\Web\DashboardController;
-use App\Http\Controllers\Private\Web\ProgrammeController;
-use App\Http\Controllers\Private\Web\TransactionController;
 
-/*
-|--------------------------------------------------------------------------
-| Web Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register web routes for your application. These
-| routes are loaded by the RouteServiceProvider and all of them will
-| be assigned to the "web" middleware group. Make something great!
-|
-*/
 
-require __DIR__.'/router/about.php';
-require __DIR__.'/router/contact.php';
-require __DIR__.'/router/events.php';
-require __DIR__.'/router/culte.php';
-require __DIR__.'/router/horaires.php';
+
+
 
 require __DIR__.'/private/web/roles.php';
 require __DIR__.'/private/web/permissions.php';
@@ -55,16 +31,18 @@ require __DIR__.'/private/web/fimecos.php';
 require __DIR__.'/private/web/moissons.php';
 require __DIR__.'/private/web/assiduite-faible.php';
 require __DIR__.'/private/web/parametres.php';
+require __DIR__.'/private/web/parametresdons.php';
+require __DIR__.'/private/web/dons.php';
+require __DIR__.'/public/web/donates.php';
+require __DIR__.'/public/web/welcome.php';
 
 require __DIR__.'/auth/index.php';
 
-Route::get('/', function () {
-    return view('index');
-})->name('public.accueil');
 
-Route::get('/donate', function () {
-    return view('components.public.donate');
-})->name('public.add-donate');
+
+
+
+
 
 
 Route::prefix('dashboard')->name('private.')->middleware(['auth', 'verified', 'user.status'])->group(function () {

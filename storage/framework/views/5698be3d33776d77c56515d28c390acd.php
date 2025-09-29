@@ -258,7 +258,7 @@
                                                 </a>
                                             <?php endif; ?>
 
-                                            <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('roles.create')): ?>
+                                            <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('roles.clone')): ?>
                                                 <button type="button" onclick="cloneRole(<?php echo e($role->id); ?>)" class="inline-flex items-center justify-center w-8 h-8 text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors" title="Cloner">
                                                     <i class="fas fa-copy text-sm"></i>
                                                 </button>

@@ -1292,6 +1292,7 @@ class ProjetController extends Controller
 
             // Projets nécessitant une action
             $projetsAction = Projet::projetsNecessitantAction()->count();
+            
 
             // Budget total et collecté
             $budgetTotal = Projet::sum('budget_prevu');

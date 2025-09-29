@@ -33,7 +33,7 @@ class ParametresController extends Controller
                 ]);
             }
 
-            return view('components.parametres.index', compact('parametres'));
+            return view('components.private.parametres.index', compact('parametres'));
 
         } catch (\Exception $e) {
             if ($request->expectsJson()) {
@@ -67,7 +67,7 @@ class ParametresController extends Controller
                 ]);
             }
 
-            return view('components.parametres.edit', compact('parametres'));
+            return view('components.private.parametres.edit', compact('parametres'));
 
         } catch (\Exception $e) {
             if ($request->expectsJson()) {
@@ -109,6 +109,8 @@ class ParametresController extends Controller
 
             $data = $validator->validated();
 
+
+
             // Gérer l'upload du logo
             if ($request->hasFile('logo')) {
                 $data['logo'] = $this->handleFileUpload($request->file('logo'), 'logos');
@@ -119,12 +121,12 @@ class ParametresController extends Controller
                 $data['images_hero'] = $this->handleMultipleFileUpload($request->file('images_hero'), 'hero-images');
             }
 
-            // Gérer les horaires de culte (format JSON)
-            if ($request->has('horaires_cultes')) {
-                $data['horaires_cultes'] = $this->processHoraires($request->input('horaires_cultes'));
+            // Gérer les programmes (remplace horaires_cultes)
+            if ($request->has('programmes')) {
+                $data['programmes'] = $this->processProgrammes($request->input('programmes'));
             }
 
-            $updated = Parametres::updateParametres($data);
+            $updated =  Parametres::updateParametres($data);
             $parametres = Parametres::getInstance();
 
             if ($request->expectsJson()) {
@@ -140,6 +142,7 @@ class ParametresController extends Controller
                 ->with('success', 'Paramètres mis à jour avec succès');
 
         } catch (\Exception $e) {
+            dd($e->getmessage());
             if ($request->expectsJson()) {
                 return response()->json([
                     'success' => false,
@@ -174,7 +177,7 @@ class ParametresController extends Controller
                 ]);
             }
 
-            return view('components.parametres.show', compact('parametres', 'infosCompletes'));
+            return view('components.private.parametres.show', compact('parametres', 'infosCompletes'));
 
         } catch (\Exception $e) {
             if ($request->expectsJson()) {
@@ -213,7 +216,7 @@ class ParametresController extends Controller
                 'mission_statement' => $parametres->mission_statement,
                 'vision' => $parametres->vision,
                 'description_eglise' => $parametres->description_eglise,
-                'horaires_cultes' => $parametres->horaires_cultes,
+                'programmes' => $parametres->getProgrammesPublics(), // Remplace horaires_cultes
                 'reseaux_sociaux' => [
                     'facebook' => $parametres->facebook_url,
                     'instagram' => $parametres->instagram_url,
@@ -243,6 +246,251 @@ class ParametresController extends Controller
             }
 
             return back()->with('error', 'Erreur lors de la récupération des informations: ' . $e->getMessage());
+        }
+    }
+
+    // ============= GESTION DES PROGRAMMES =============
+
+    /**
+     * Récupérer tous les programmes
+     *
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function getProgrammes(Request $request)
+    {
+        try {
+            $parametres = Parametres::getInstance();
+            $programmes = $parametres->getProgrammes();
+
+            return response()->json([
+                'success' => true,
+                'data' => $programmes,
+                'message' => 'Programmes récupérés avec succès'
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Erreur lors de la récupération des programmes',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Récupérer les programmes publics
+     *
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function getProgrammesPublics(Request $request)
+    {
+        try {
+            $parametres = Parametres::getInstance();
+            $programmes = $parametres->getProgrammesPublics();
+
+            return response()->json([
+                'success' => true,
+                'data' => $programmes,
+                'message' => 'Programmes publics récupérés avec succès'
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Erreur lors de la récupération des programmes publics',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Récupérer un programme par son UUID
+     *
+     * @param Request $request
+     * @param string $id
+     * @return JsonResponse
+     */
+    public function getProgramme(Request $request, $id)
+    {
+        try {
+            $parametres = Parametres::getInstance();
+            $programme = $parametres->getProgrammeById($id);
+
+            if (!$programme) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Programme non trouvé'
+                ], 404);
+            }
+
+            return response()->json([
+                'success' => true,
+                'data' => $programme,
+                'message' => 'Programme récupéré avec succès'
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Erreur lors de la récupération du programme',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Ajouter un nouveau programme
+     *
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function ajouterProgramme(Request $request)
+    {
+        try {
+            $validator = $this->validateProgramme($request);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Erreurs de validation',
+                    'errors' => $validator->errors()
+                ], 422);
+            }
+
+            $parametres = Parametres::getInstance();
+            $nouvelId = $parametres->ajouterProgramme($validator->validated());
+
+            $nouveauProgramme = $parametres->getProgrammeById($nouvelId);
+
+            return response()->json([
+                'success' => true,
+                'data' => $nouveauProgramme,
+                'message' => 'Programme ajouté avec succès'
+            ], 201);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Erreur lors de l\'ajout du programme',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Mettre à jour un programme
+     *
+     * @param Request $request
+     * @param string $id
+     * @return JsonResponse
+     */
+    public function mettreAJourProgramme(Request $request, $id)
+    {
+        try {
+            $parametres = Parametres::getInstance();
+
+            // Vérifier si le programme existe
+            if (!$parametres->getProgrammeById($id)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Programme non trouvé'
+                ], 404);
+            }
+
+            $validator = $this->validateProgramme($request, false);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Erreurs de validation',
+                    'errors' => $validator->errors()
+                ], 422);
+            }
+
+            $programmeModifie = $parametres->mettreAJourProgramme($id, $validator->validated());
+
+            return response()->json([
+                'success' => true,
+                'data' => $programmeModifie,
+                'message' => 'Programme mis à jour avec succès'
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Erreur lors de la mise à jour du programme',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Supprimer un programme
+     *
+     * @param Request $request
+     * @param string $id
+     * @return JsonResponse
+     */
+    public function supprimerProgramme(Request $request, $id)
+    {
+        try {
+            $parametres = Parametres::getInstance();
+
+            // Vérifier si le programme existe
+            if (!$parametres->getProgrammeById($id)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Programme non trouvé'
+                ], 404);
+            }
+
+            $parametres->supprimerProgramme($id);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Programme supprimé avec succès'
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Erreur lors de la suppression du programme',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Réorganiser l'ordre des programmes
+     *
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function reordonnerProgrammes(Request $request)
+    {
+        try {
+            $request->validate([
+                'ordre' => 'required|array',
+                'ordre.*' => 'required|string|uuid'
+            ]);
+
+            $parametres = Parametres::getInstance();
+            $programmesReordonnes = $parametres->reordonnerProgrammes($request->input('ordre'));
+
+            return response()->json([
+                'success' => true,
+                'data' => $programmesReordonnes,
+                'message' => 'Programmes réordonnés avec succès'
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Erreur lors de la réorganisation des programmes',
+                'error' => $e->getMessage()
+            ], 500);
         }
     }
 
@@ -307,6 +555,8 @@ class ParametresController extends Controller
         }
     }
 
+    // ============= MÉTHODES PRIVÉES =============
+
     /**
      * Valider les données des paramètres
      *
@@ -315,7 +565,7 @@ class ParametresController extends Controller
      */
     private function validateParametres(Request $request)
     {
-        return Validator::make($request->all(), [
+        $validator = Validator::make($request->all(), [
             'nom_eglise' => 'required|string|max:255',
             'telephone_1' => 'required|string|max:20',
             'telephone_2' => 'nullable|string|max:20',
@@ -325,7 +575,7 @@ class ParametresController extends Controller
             'ville' => 'required|string|max:255',
             'commune' => 'nullable|string|max:255',
             'pays' => 'required|string|max:255',
-            'code_postal' => 'nullable|string|max:10',
+            'code_postal' => 'nullable|string|max:20',
             'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
             'images_hero.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
             'verset_biblique' => 'nullable|string',
@@ -344,7 +594,59 @@ class ParametresController extends Controller
             'devise' => 'nullable|string|in:EUR,USD,XOF,XAF',
             'langue' => 'nullable|string|in:fr,en,es',
             'fuseau_horaire' => 'nullable|string',
+
+            // Validation des programmes
+            'programmes' => 'required|array',
+            'programmes.*.id' => 'nullable|string|uuid',
+            'programmes.*.titre' => 'required_with:programmes.*|string|max:255',
+            'programmes.*.description' => 'required|string',
+            'programmes.*.icone' => 'required|string|max:255',
+            'programmes.*.type_horaire' => 'required|string|in:regulier,sur_rendez_vous,permanent,ponctuel',
+            'programmes.*.jour' => 'nullable|string|max:255',
+            'programmes.*.heure_debut' => 'nullable|date_format:H:i',
+            'programmes.*.heure_fin' => 'nullable|date_format:H:i|after:programmes.*.heure_debut',
+            'programmes.*.horaire_texte' => 'required|string|max:255',
+            'programmes.*.est_public' => 'sometimes|boolean',
+            'programmes.*.est_actif' => 'sometimes|boolean',
+            'programmes.*.ordre' => 'nullable|integer|min:1',
         ]);
+
+        // Si non défini => mettre false
+        $data = $validator->validated();
+        foreach ($data['programmes'] as &$programme) {
+            $programme['est_public'] = $programme['est_public'] ?? 0;
+            $programme['est_actif'] = $programme['est_actif'] ?? 0;
+        }
+
+        $validator->setData(array_merge($validator->getData(), ['programmes' => $data['programmes']]));
+
+        return $validator;
+    }
+
+    /**
+     * Valider les données d'un programme
+     *
+     * @param Request $request
+     * @param bool $required
+     * @return \Illuminate\Contracts\Validation\Validator
+     */
+    private function validateProgramme(Request $request, $required = true)
+    {
+        $rules = [
+            'titre' => ($required ? 'required' : 'sometimes') . '|string|max:255',
+            'description' => ($required ? 'required' : 'sometimes') . '|string',
+            'icone' => ($required ? 'required' : 'sometimes') . '|string|max:255',
+            'type_horaire' => ($required ? 'required' : 'sometimes') . '|string|in:regulier,sur_rendez_vous,permanent,ponctuel',
+            'jour' => 'nullable|string|max:255',
+            'heure_debut' => 'nullable|date_format:H:i',
+            'heure_fin' => 'nullable|date_format:H:i|after:heure_debut',
+            'horaire_texte' => 'nullable|string|max:255',
+            'est_public' => 'sometimes|boolean',
+            'est_actif' => 'sometimes|boolean',
+            'ordre' => 'sometimes|integer|min:1',
+        ];
+
+        return Validator::make($request->all(), $rules);
     }
 
     /**
@@ -379,21 +681,78 @@ class ParametresController extends Controller
     }
 
     /**
-     * Traiter les horaires de culte
+     * Traiter les programmes
      *
-     * @param mixed $horaires
+     * @param mixed $programmes
      * @return array
      */
-    private function processHoraires($horaires)
+    private function processProgrammes($programmes)
     {
-        if (is_string($horaires)) {
-            return json_decode($horaires, true) ?: [];
+        if (is_string($programmes)) {
+            $programmes = json_decode($programmes, true) ?: [];
         }
 
-        if (is_array($horaires)) {
-            return $horaires;
+        if (!is_array($programmes)) {
+            return [];
         }
 
-        return [];
+        $programmesTraites = [];
+
+        foreach ($programmes as $index => $programme) {
+            // Ignorer les programmes vides (sans titre)
+            if (empty($programme['titre'])) {
+                continue;
+            }
+
+            // Générer un UUID pour les nouveaux programmes (sans ID ou ID vide)
+            if (empty($programme['id'])) {
+                $programme['id'] = \Illuminate\Support\Str::uuid()->toString();
+            }
+
+            // Nettoyer et valider les données
+            $programmePropre = [
+                'id' => $programme['id'],
+                'titre' => $programme['titre'],
+                'description' => $programme['description'] ?? '',
+                'icone' => $programme['icone'] ?? 'fas fa-calendar',
+                'type_horaire' => $programme['type_horaire'] ?? 'regulier',
+                'jour' => $programme['jour'] ?? null,
+                'heure_debut' => $programme['heure_debut'] ?? null,
+                'heure_fin' => $programme['heure_fin'] ?? null,
+                'horaire_texte' => $programme['horaire_texte'] ?? '',
+                'est_public' => isset($programme['est_public']) ? $programme['est_public'] : false,
+                'est_actif' => isset($programme['est_actif']) ? $programme['est_actif'] : false,
+                'ordre' => isset($programme['ordre']) ? (int) $programme['ordre'] : ($index + 1),
+            ];
+
+            // Auto-générer l'horaire_texte si vide mais qu'on a les données
+            if (empty($programmePropre['horaire_texte']) && $programmePropre['jour'] && $programmePropre['heure_debut']) {
+                $horaire = $programmePropre['jour'] . ' : ' . $programmePropre['heure_debut'];
+                if ($programmePropre['heure_fin']) {
+                    $horaire .= ' - ' . $programmePropre['heure_fin'];
+                }
+                $programmePropre['horaire_texte'] = $horaire;
+            }
+
+            // Gestion des types d'horaires spéciaux
+            if ($programmePropre['type_horaire'] === 'sur_rendez_vous' && empty($programmePropre['horaire_texte'])) {
+                $programmePropre['horaire_texte'] = 'Sur rendez-vous';
+            } elseif ($programmePropre['type_horaire'] === 'permanent' && empty($programmePropre['horaire_texte'])) {
+                $programmePropre['horaire_texte'] = 'Actions permanentes';
+            }
+
+            $programmesTraites[] = $programmePropre;
+        }
+
+        // Réorganiser les ordres pour être consécutifs
+        usort($programmesTraites, function ($a, $b) {
+            return $a['ordre'] <=> $b['ordre'];
+        });
+
+        foreach ($programmesTraites as $index => &$programme) {
+            $programme['ordre'] = $index + 1;
+        }
+
+        return $programmesTraites;
     }
 }

@@ -35,7 +35,7 @@ return new class extends Migration
             $table->string('ville', 100)->nullable();
             $table->string('code_postal', 20)->nullable();
             $table->string('region', 100)->nullable();
-            $table->string('pays', 5)->default('CI'); // Côte d'Ivoire par défaut
+            $table->string('pays', 50)->default('CI'); // Côte d'Ivoire par défaut
 
             // Informations familiales
             $table->enum('statut_matrimonial', ['celibataire', 'marie', 'divorce', 'veuf'])->default('celibataire');

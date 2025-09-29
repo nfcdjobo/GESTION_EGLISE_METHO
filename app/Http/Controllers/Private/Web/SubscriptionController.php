@@ -6,6 +6,7 @@ use Exception;
 use Carbon\Carbon;
 use App\Models\User;
 use App\Models\Fimeco;
+use App\Models\Parametres;
 use App\Models\Subscription;
 use Illuminate\Http\Request;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -17,10 +18,84 @@ use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Cache;
+
+use PhpOffice\PhpSpreadsheet\Style\Fill;
 use Illuminate\Support\Facades\Validator;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Style\Color;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use PhpOffice\PhpSpreadsheet\Style\Border;
+use PhpOffice\PhpSpreadsheet\Style\Alignment;
 
 class SubscriptionController extends Controller
 {
+
+    public function __construct()
+    {
+        // Middleware d'authentification de base
+        $this->middleware('auth');
+
+        // ================================
+        // PERMISSIONS CRUD PRINCIPALES
+        // ================================
+
+        // Lecture des souscriptions
+        $this->middleware('permission:subscriptions.read')->only([
+            'index',
+            'show',
+            'search',
+            'liveStats',
+            'peutSouscrire'
+        ]);
+
+        // Création de souscriptions
+        $this->middleware('permission:subscriptions.create')->only(['create', 'store']);
+
+        // Modification de souscriptions
+        $this->middleware('permission:subscriptions.update')->only([
+            'edit',
+            'update',
+            'checkExists',
+            'usersDisponibles'
+        ]);
+
+        // Suppression de souscriptions
+        $this->middleware('permission:subscriptions.delete')->only(['destroy']);
+
+        // ================================
+        // PERMISSIONS FONCTIONNELLES
+        // ================================
+
+        // Dashboard et statistiques
+        $this->middleware('permission:subscriptions.dashboard')->only(['dashboard']);
+        $this->middleware('permission:subscriptions.mes-statistiques')->only(['mesStatistiques']);
+
+        // Export de données
+        $this->middleware('permission:subscriptions.export')->only(['export']);
+
+        // Validation de données
+        $this->middleware('permission:subscriptions.validate-data')->only(['validateSubscriptionData']);
+
+        // Gestion des paiements
+        $this->middleware('permission:subscriptions.paiement')->only([
+            'effectuerPaiement',
+            'simulerPaiement'
+        ]);
+
+        // Validation de souscription
+        $this->middleware('permission:subscriptions.validate')->only(['validate']);
+
+        // Rapports
+        $this->middleware('permission:subscriptions.rapport')->only(['rapport']);
+
+        // Gestion du statut
+        $this->middleware('permission:subscriptions.desactiver')->only(['desactiver']);
+        $this->middleware('permission:subscriptions.reactiver')->only(['reactiver']);
+        $this->middleware('permission:subscriptions.annuler')->only(['annuler']);
+        $this->middleware('permission:subscriptions.suspendre')->only(['suspendre']);
+    }
+
+
     /**
      * Affiche la liste des souscriptions avec pagination et filtres
      */
@@ -1522,25 +1597,153 @@ public function scopeTopSouscripteurs($query, $limit = 10)
     /**
      * Génère un export Excel
      */
-    private function generateExcelExport(array $data, string $filename)
-    {
-        return response()->streamDownload(function () use ($data) {
-            $handle = fopen('php://output', 'w');
-            fputs($handle, "\xEF\xBB\xBF");
+    // private function generateExcelExport(array $data, string $filename)
+    // {
+    //     return response()->streamDownload(function () use ($data) {
+    //         $handle = fopen('php://output', 'w');
+    //         fputs($handle, "\xEF\xBB\xBF");
 
-            if (!empty($data)) {
-                fputcsv($handle, array_keys($data[0]), "\t");
-                foreach ($data as $row) {
-                    fputcsv($handle, $row, "\t");
-                }
-            }
+    //         if (!empty($data)) {
+    //             fputcsv($handle, array_keys($data[0]), "\t");
+    //             foreach ($data as $row) {
+    //                 fputcsv($handle, $row, "\t");
+    //             }
+    //         }
 
-            fclose($handle);
-        }, $filename . '.xls', [
-            'Content-Type' => 'application/vnd.ms-excel',
-            'Content-Disposition' => 'attachment; filename="' . $filename . '.xls"',
-        ]);
-    }
+    //         fclose($handle);
+    //     }, $filename . '.xls', [
+    //         'Content-Type' => 'application/vnd.ms-excel',
+    //         'Content-Disposition' => 'attachment; filename="' . $filename . '.xls"',
+    //     ]);
+    // }
+
+
+    // Dans SubscriptionController.php
+
+
+    // private function generateExcelExport(array $data, string $filename)
+    // {
+    //     $spreadsheet = new Spreadsheet();
+    //     $sheet = $spreadsheet->getActiveSheet();
+
+    //     // En-tête du document
+    //     $sheet->setCellValue('A1', 'RAPPORT DES SOUSCRIPTIONS');
+    //     $sheet->mergeCells('A1:K1');
+    //     $sheet->getStyle('A1')->getFont()->setBold(true)->setSize(16);
+    //     $sheet->getStyle('A1')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+    //     $sheet->getStyle('A1')->getFill()
+    //         ->setFillType(Fill::FILL_SOLID)
+    //         ->getStartColor()->setRGB('1e40af');
+    //     $sheet->getStyle('A1')->getFont()->getColor()->setRGB('FFFFFF');
+    //     $sheet->getRowDimension(1)->setRowHeight(30);
+
+    //     // Statistiques (ligne 3)
+    //     $totalSouscrit = array_sum(array_column($data, 'Montant souscrit'));
+    //     $totalPaye = array_sum(array_column($data, 'Montant payé'));
+    //     $progressionMoyenne = count($data) > 0 ? array_sum(array_column($data, 'Progression (%)')) / count($data) : 0;
+
+    //     $sheet->setCellValue('A3', 'Total Souscrit:');
+    //     $sheet->setCellValue('B3', number_format($totalSouscrit, 0, ',', ' ') . ' FCFA');
+    //     $sheet->setCellValue('D3', 'Total Payé:');
+    //     $sheet->setCellValue('E3', number_format($totalPaye, 0, ',', ' ') . ' FCFA');
+    //     $sheet->setCellValue('G3', 'Progression Moy.:');
+    //     $sheet->setCellValue('H3', number_format($progressionMoyenne, 1) . '%');
+
+    //     // Style des statistiques
+    //     $sheet->getStyle('A3:H3')->getFont()->setBold(true);
+    //     $sheet->getStyle('A3:H3')->getFill()
+    //         ->setFillType(Fill::FILL_SOLID)
+    //         ->getStartColor()->setRGB('f8fafc');
+
+    //     // En-têtes du tableau (ligne 5)
+    //     $headers = array_keys($data[0]);
+    //     $col = 'A';
+    //     foreach ($headers as $header) {
+    //         $sheet->setCellValue($col . '5', $header);
+    //         $col++;
+    //     }
+
+    //     // Style des en-têtes
+    //     $sheet->getStyle('A5:K5')->getFont()->setBold(true);
+    //     $sheet->getStyle('A5:K5')->getFill()
+    //         ->setFillType(Fill::FILL_SOLID)
+    //         ->getStartColor()->setRGB('f3f4f6');
+    //     $sheet->getStyle('A5:K5')->getBorders()->getAllBorders()
+    //         ->setBorderStyle(Border::BORDER_THIN);
+    //     $sheet->getStyle('A5:K5')->getAlignment()
+    //         ->setHorizontal(Alignment::HORIZONTAL_CENTER);
+
+    //     // Données
+    //     $row = 6;
+    //     foreach ($data as $item) {
+    //         $col = 'A';
+    //         foreach ($item as $key => $value) {
+    //             $sheet->setCellValue($col . $row, $value);
+
+    //             // Colorisation selon progression
+    //             if ($key === 'Progression (%)') {
+    //                 $progression = floatval($value);
+    //                 $color = $progression >= 100 ? 'd1fae5' :
+    //                     ($progression >= 75 ? 'fef3c7' :
+    //                         ($progression >= 50 ? 'dbeafe' :
+    //                             ($progression >= 25 ? 'fef9c3' : 'fee2e2')));
+
+    //                 $sheet->getStyle($col . $row)->getFill()
+    //                     ->setFillType(Fill::FILL_SOLID)
+    //                     ->getStartColor()->setRGB($color);
+    //             }
+
+    //             $col++;
+    //         }
+
+    //         // Alternance de couleurs
+    //         if ($row % 2 === 0) {
+    //             $sheet->getStyle('A' . $row . ':K' . $row)->getFill()
+    //                 ->setFillType(Fill::FILL_SOLID)
+    //                 ->getStartColor()->setRGB('f9fafb');
+    //         }
+
+    //         $row++;
+    //     }
+
+    //     // Bordures pour toutes les cellules de données
+    //     $lastRow = $row - 1;
+    //     $sheet->getStyle('A5:K' . $lastRow)->getBorders()->getAllBorders()
+    //         ->setBorderStyle(Border::BORDER_THIN);
+
+    //     // Ajuster la largeur des colonnes
+    //     foreach (range('A', 'K') as $col) {
+    //         $sheet->getColumnDimension($col)->setAutoSize(true);
+    //     }
+
+    //     // Téléchargement
+    //     $writer = new Xlsx($spreadsheet);
+
+    //     return response()->streamDownload(function () use ($writer) {
+    //         $writer->save('php://output');
+    //     }, $filename . '.xlsx', [
+    //         'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    //     ]);
+    // }
+
+
+    /**
+ * Génère un export Excel
+ */
+private function generateExcelExport(array $data, string $filename)
+{
+    $AppParametres = Parametres::first();
+
+    $html = view('exports.subscriptions.liste-excel-html', compact('data', 'AppParametres'))->render();
+
+    return response($html, 200, [
+        'Content-Type' => 'application/vnd.ms-excel',
+        'Content-Disposition' => 'attachment; filename="' . $filename . '.xls"',
+        'Pragma' => 'no-cache',
+        'Cache-Control' => 'must-revalidate, post-check=0, pre-check=0',
+        'Expires' => '0'
+    ]);
+}
 
     /**
      * Génère un export PDF
@@ -1555,7 +1758,7 @@ public function scopeTopSouscripteurs($query, $limit = 10)
         }
 
         try {
-            $pdf = Pdf::loadView('exports.subscriptions.liste-pdf', compact('data'));
+            $pdf = Pdf::loadView('exports.subscriptions.liste-souscripteur-pdf', compact('data'));
 
             return response()->streamDownload(function () use ($pdf) {
                 echo $pdf->output();

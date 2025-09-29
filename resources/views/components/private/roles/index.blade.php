@@ -256,7 +256,7 @@
                                                 </a>
                                             @endcan
 
-                                            @can('roles.create')
+                                            @can('roles.clone')
                                                 <button type="button" onclick="cloneRole({{ $role->id }})" class="inline-flex items-center justify-center w-8 h-8 text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors" title="Cloner">
                                                     <i class="fas fa-copy text-sm"></i>
                                                 </button>

@@ -139,7 +139,7 @@ class Handler extends ExceptionHandler
                 return redirect($redirectUrl, 301);
             }
         }
-dd($exception);
+// dd($exception);
         // Rendu de la page d'erreur personnalisée
         return $this->renderErrorPage($request, $statusCode, $exception);
     }
@@ -369,25 +369,25 @@ dd($exception);
     private function getSmartRedirect(string $path): ?string
     {
         $redirects = [
-            'admin/classes' => 'private/classes',
-            'admin/dashboard' => 'private/dashboard',
-            'admin' => 'private/dashboard',
-            'dashboard' => 'private/dashboard',
+            'admin/classes' => '/classes',
+            'admin/dashboard' => '/dashboard',
+            'admin' => '/dashboard',
+            'dashboard' => '/dashboard',
             'login' => 'security/login',
             'logout' => 'security/logout',
-            'classe' => 'private/classes',
-            'dashbord' => 'private/dashboard',
-            'dashborad' => 'private/dashboard',
-            'statistique' => 'private/classes/statistiques',
-            'stats' => 'private/classes/statistiques',
-            'classes.html' => 'private/classes',
-            'dashboard.html' => 'private/dashboard',
+            'classe' => '/classes',
+            'dashbord' => '/dashboard',
+            'dashborad' => '/dashboard',
+            'statistique' => '/classes/statistiques',
+            'stats' => '/classes/statistiques',
+            'classes.html' => '/classes',
+            'dashboard.html' => '/dashboard',
             'index.php' => '/',
             'home.php' => '/',
-            'user' => 'private/users',
-            'profile' => 'private/profile',
-            'setting' => 'private/settings',
-            'settings' => 'private/settings'
+            'user' => '/users',
+            'profile' => '/profile',
+            'setting' => '/settings',
+            'settings' => '/settings'
         ];
 
         $cleanPath = trim($path, '/');

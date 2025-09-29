@@ -24,15 +24,91 @@ use Illuminate\Validation\ValidationException;
 
 class FondsController extends Controller
 {
+    /**
+     * Constructor - Application des middlewares de permissions
+     * Aligné avec les routes définies dans fonds.php
+     */
     public function __construct()
     {
+        // Middleware d'authentification de base
         $this->middleware('auth');
-        $this->middleware('permission:fonds.read')->only(['index', 'show', 'dashboard', 'statistics', 'analytics']);
+
+        // ================================
+        // PERMISSIONS CRUD PRINCIPALES
+        // ================================
+
+        // Lecture des transactions
+        $this->middleware('permission:fonds.read')->only(['index', 'show']);
+
+        // Création de transactions
         $this->middleware('permission:fonds.create')->only(['create', 'store']);
-        $this->middleware('permission:fonds.update')->only(['edit', 'update', 'validateTransaction', 'cancel', 'refund']);
+
+        // Modification de transactions
+        $this->middleware('permission:fonds.update')->only(['edit', 'update']);
+
+        // Suppression de transactions
         $this->middleware('permission:fonds.delete')->only(['destroy']);
-        $this->middleware('permission:fonds.export')->only(['export']);
-        $this->middleware('permission:fonds.receipt')->only(['generateReceipt']);
+
+        // ================================
+        // PERMISSIONS PAGES SPÉCIALISÉES
+        // ================================
+
+        // Dashboard financier
+        $this->middleware('permission:fonds.dashboard')->only(['dashboard']);
+
+        // Statistiques
+        $this->middleware('permission:fonds.statistics')->only(['statistics']);
+
+        // Analytiques avancées
+        $this->middleware('permission:fonds.analytics')->only(['analytics']);
+
+        // Rapports
+        $this->middleware('permission:fonds.reports')->only(['reports']);
+
+        // ================================
+        // PERMISSIONS GESTION DU STATUT
+        // ================================
+
+        // Validation de transaction
+        $this->middleware('permission:fonds.validate')->only(['validateTransaction']);
+
+        // Annulation de transaction
+        $this->middleware('permission:fonds.cancel')->only(['cancel']);
+
+        // Remboursement de transaction
+        $this->middleware('permission:fonds.refund')->only(['refund']);
+
+        // ================================
+        // PERMISSIONS REÇUS FISCAUX
+        // ================================
+
+        // Génération de reçu
+        $this->middleware('permission:fonds.generate-receipt')->only(['generateReceipt']);
+
+        // Formulaire de reçu
+        $this->middleware('permission:fonds.receipt-form')->only(['showReceiptForm']);
+
+        // Téléchargement de reçu
+        $this->middleware('permission:fonds.receipt-download')->only(['downloadReceipt']);
+
+        // Prévisualisation de reçu
+        $this->middleware('permission:fonds.receipt-preview')->only(['previewReceipt']);
+
+        // Envoi de reçu par email
+        $this->middleware('permission:fonds.receipt-email')->only(['sendReceiptByEmail']);
+
+        // ================================
+        // PERMISSIONS ACTIONS SPÉCIALES
+        // ================================
+
+        // Export des données
+        $this->middleware('permission:fonds.export')->only(['export', 'exportCSV', 'exportExcel', 'exportPDF']);
+
+        // Duplication de transaction
+        $this->middleware('permission:fonds.duplicate')->only(['duplicate']);
+
+        // Restauration (soft delete)
+        $this->middleware('permission:fonds.restore')->only(['restore']);
     }
 
     /**
@@ -331,7 +407,7 @@ class FondsController extends Controller
     /**
      * Création d'une nouvelle transaction
      */
-    public function create()
+    public function create(Request $request)
     {
 
         try {
@@ -341,8 +417,6 @@ class FondsController extends Controller
             $collecteurs = User::withRole('Collecteur');
             $projets = Projet::actifs()->orderBy('nom_projet')->get();
 
-            // dd($projets);
-
             $formData = [
                 'donateurs' => $donateurs,
                 'cultes' => $cultes,
@@ -351,6 +425,13 @@ class FondsController extends Controller
                 'types_transaction' => $this->getTypesTransaction(),
                 'modes_paiement' => $this->getModePaiements()
             ];
+
+            if ($request->filled('culte_id')) {
+                $culte = Culte::find($request->get('culte_id'));
+                $formData['culte'] = $culte;
+            } else {
+                $formData['culte'] = null;
+            }
 
             if (request()->expectsJson()) {
                 return response()->json([

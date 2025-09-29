@@ -330,20 +330,23 @@
                                                 <!-- Boutons d'action pour les paiements en attente -->
                                                 @if($payment->statut === 'en_attente')
                                                     <div class="flex space-x-2">
-                                                        @can('payments.validate')
+                                                        @can('paiements.validate')
                                                             <button onclick="validerPaiement('{{ $payment->id }}')"
-                                                                    class="group relative inline-flex items-center justify-center w-10 h-10 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300 hover:from-green-600 hover:to-emerald-700"
+                                                                    class="group relative inline-flex items-center justify-center px-4 py-2 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300 hover:from-green-600 hover:to-emerald-700"
                                                                     title="Valider le paiement">
-                                                                <i class="fas fa-check text-sm group-hover:scale-110 transition-transform duration-200"></i>
+                                                                <i class="fas fa-check text-sm mr-2 group-hover:scale-110 transition-transform duration-200"></i>
+                                                                <span class="font-medium text-sm">Valider</span>
                                                                 <!-- Effet de brillance -->
                                                                 <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-500 rounded-xl"></div>
                                                             </button>
                                                         @endcan
-                                                        @can('payments.reject')
+
+                                                        @can('paiements.reject')
                                                             <button onclick="rejeterPaiement('{{ $payment->id }}')"
-                                                                    class="group relative inline-flex items-center justify-center w-10 h-10 bg-gradient-to-r from-red-500 to-rose-600 text-white rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300 hover:from-red-600 hover:to-rose-700"
+                                                                    class="group relative inline-flex items-center justify-center px-4 py-2 bg-gradient-to-r from-red-500 to-rose-600 text-white rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300 hover:from-red-600 hover:to-rose-700"
                                                                     title="Rejeter le paiement">
-                                                                <i class="fas fa-times text-sm group-hover:scale-110 transition-transform duration-200"></i>
+                                                                <i class="fas fa-times text-sm mr-2 group-hover:scale-110 transition-transform duration-200"></i>
+                                                                <span class="font-medium text-sm">Rejeter</span>
                                                                 <!-- Effet de brillance -->
                                                                 <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-500 rounded-xl"></div>
                                                             </button>
@@ -564,12 +567,12 @@
                             </button>
                         @endcan
 
-                        @can('subscriptions.delete')
-                            <button onclick="deleteSouscription()"
+                        {{-- @can('subscriptions.delete')
+                            <button onclick="deleteSouscription()" disabled
                                     class="w-full inline-flex items-center justify-center px-4 py-2 bg-red-600 text-white font-medium rounded-xl hover:bg-red-700 transition-colors">
                                 <i class="fas fa-trash mr-2"></i> Supprimer
                             </button>
-                        @endcan
+                        @endcan --}}
                     </div>
                 </div>
             </div>
@@ -797,10 +800,10 @@
                     class="flex-1 px-4 py-3 bg-slate-200 text-slate-700 rounded-xl hover:bg-slate-300 transition-colors font-medium">
                     Annuler
                 </button>
-                <button type="button" onclick="simulerPaiement()"
+                {{-- <button type="button" onclick="simulerPaiement()"
                     class="px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors font-medium">
                     <i class="fas fa-calculator mr-2"></i> Simuler
-                </button>
+                </button> --}}
                 <button type="submit" id="submitPaiement"
                     class="flex-1 px-4 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-xl hover:from-green-700 hover:to-emerald-700 transition-all duration-200 shadow-md hover:shadow-lg font-medium disabled:opacity-50 disabled:cursor-not-allowed">
                     <i class="fas fa-save mr-2"></i> Enregistrer le paiement
@@ -1261,7 +1264,6 @@ document.getElementById('validationForm').addEventListener('submit', function(e)
     .then(data => {
         if (data.success) {
             const actionText = currentAction === 'validate' ? 'validé' : 'rejeté';
-            console.log("+++++++++++++++++++++++++++++", currentAction, data.message)
             showSuccess(data.message || `Paiement ${actionText} avec succès`, 'Action réalisée');
             setTimeout(() => location.reload(), 2000);
         } else {
@@ -1541,47 +1543,47 @@ function calculerImpactPaiement() {
 
 
 // Simulation via API
-function simulerPaiement() {
-    const montant = parseFloat(document.getElementById('montant').value);
+// function simulerPaiement() {
+//     const montant = parseFloat(document.getElementById('montant').value);
 
-    if (!montant || montant <= 0) {
-        showWarning('Veuillez saisir un montant valide pour la simulation');
-        return;
-    }
+//     if (!montant || montant <= 0) {
+//         showWarning('Veuillez saisir un montant valide pour la simulation');
+//         return;
+//     }
 
-    fetch("{{ route('private.subscriptions.simuler-paiement', $subscription['id']) }}", {
-        method: 'POST',
-        headers: {
-            'X-CSRF-TOKEN': "{{ csrf_token() }}",
-            'Accept': 'application/json',
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ montant: montant })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            // Afficher les suggestions si disponibles
-            if (data.data.suggestions_prochains_paiements) {
-                afficherSuggestions(data.data.suggestions_prochains_paiements);
-            }
+//     fetch("{.{ route('private.subscriptions.simuler-paiement', $subscription['id']) }}", {
+//         method: 'POST',
+//         headers: {
+//             'X-CSRF-TOKEN': "{{ csrf_token() }}",
+//             'Accept': 'application/json',
+//             'Content-Type': 'application/json',
+//         },
+//         body: JSON.stringify({ montant: montant })
+//     })
+//     .then(response => response.json())
+//     .then(data => {
+//         if (data.success) {
+//             // Afficher les suggestions si disponibles
+//             if (data.data.suggestions_prochains_paiements) {
+//                 afficherSuggestions(data.data.suggestions_prochains_paiements);
+//             }
 
-            // Afficher les avertissements
-            if (data.data.warnings && data.data.warnings.length > 0) {
-                let warningsText = data.data.warnings.map(w => w.message || w).join('\n');
-                showInfo(warningsText, 'Informations sur votre paiement');
-            }
+//             // Afficher les avertissements
+//             if (data.data.warnings && data.data.warnings.length > 0) {
+//                 let warningsText = data.data.warnings.map(w => w.message || w).join('\n');
+//                 showInfo(warningsText, 'Informations sur votre paiement');
+//             }
 
-            showSuccess('Simulation terminée. Vérifiez l\'impact ci-dessus.', 'Simulation réussie');
-        } else {
-            showError(data.message || 'Erreur lors de la simulation');
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        showError('Erreur technique lors de la simulation');
-    });
-}
+//             showSuccess('Simulation terminée. Vérifiez l\'impact ci-dessus.', 'Simulation réussie');
+//         } else {
+//             showError(data.message || 'Erreur lors de la simulation');
+//         }
+//     })
+//     .catch(error => {
+//         console.error('Error:', error);
+//         showError('Erreur technique lors de la simulation');
+//     });
+// }
 
 
 
@@ -1622,29 +1624,29 @@ function afficherSuggestions(suggestions) {
 
 
 // Validation du formulaire
-function validatePaiementForm() {
-    const montant = parseFloat(document.getElementById('montant').value) || 0;
-    const accepterSupplementaire = document.getElementById('accepterSupplementaire');
-    const submitButton = document.getElementById('submitPaiement');
+        function validatePaiementForm() {
+            const montant = parseFloat(document.getElementById('montant').value) || 0;
+            const accepterSupplementaire = document.getElementById('accepterSupplementaire');
+            const submitButton = document.getElementById('submitPaiement');
 
-    // Si paiement supplémentaire et pas d'acceptation
-    if (impactSimulation && impactSimulation.montant_supplementaire > 0) {
-        if (!accepterSupplementaire.checked) {
+            // Si paiement supplémentaire et pas d'acceptation
+            if (impactSimulation && impactSimulation.montant_supplementaire > 0) {
+                if (!accepterSupplementaire.checked) {
+                    submitButton.disabled = true;
+                    submitButton.innerHTML = '<i class="fas fa-lock mr-2"></i> Confirmez le paiement supplémentaire';
+                    return false;
+                }
+            }
+
+            if (montant > 0) {
+                submitButton.disabled = false;
+                submitButton.innerHTML = '<i class="fas fa-save mr-2"></i> Enregistrer le paiement';
+                return true;
+            }
+
             submitButton.disabled = true;
-            submitButton.innerHTML = '<i class="fas fa-lock mr-2"></i> Confirmez le paiement supplémentaire';
             return false;
         }
-    }
-
-    if (montant > 0) {
-        submitButton.disabled = false;
-        submitButton.innerHTML = '<i class="fas fa-save mr-2"></i> Enregistrer le paiement';
-        return true;
-    }
-
-    submitButton.disabled = true;
-    return false;
-}
 
 
 

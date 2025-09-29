@@ -23,10 +23,11 @@
                             <i class="fas fa-plus mr-2"></i> Nouvelle Réunion
                         </a>
                     @endcan
-
+                    @can('reunions.calendar')
                     <a href="{{ route('private.reunions.calendrier') }}" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white text-sm font-medium rounded-xl hover:from-green-700 hover:to-emerald-700 transition-all duration-200 shadow-md hover:shadow-lg">
                         <i class="fas fa-calendar mr-2"></i> Calendrier
                     </a>
+                    @endcan
                     @can('reunions.statistics')
                     <a href="{{ route('private.reunions.statistiques') }}" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-cyan-600 to-blue-600 text-white text-sm font-medium rounded-xl hover:from-cyan-700 hover:to-blue-700 transition-all duration-200 shadow-md hover:shadow-lg">
                         <i class="fas fa-chart-bar mr-2"></i> Statistiques
@@ -506,7 +507,7 @@ function dupliquerReunion() {
     .then(response => response.json())
     .then(data => {
         if (data.success || data.message?.includes('succès')) {
-            window.location.href = `/private/reunions/${data.data?.id || reunionId}`;
+            window.location.href = `/reunions/${data.data?.id || reunionId}`;
         } else {
             alert(data.message || 'Une erreur est survenue');
         }

@@ -6,6 +6,8 @@ use DOMDocument;
 use DOMXPath;
 use Illuminate\Support\Str;
 
+use DOMElement;
+
 /**
  * Helper pour traiter le contenu CKEditor
  */
@@ -26,12 +28,34 @@ class CKEditorHelper
 
         // Tags autorisés par défaut pour CKEditor
         $defaultAllowedTags = [
-            'p', 'br', 'strong', 'b', 'em', 'i', 'u', 's', 'strike',
-            'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
-            'ul', 'ol', 'li',
-            'a', 'blockquote',
-            'table', 'thead', 'tbody', 'tr', 'th', 'td',
-            'span', 'div'
+            'p',
+            'br',
+            'strong',
+            'b',
+            'em',
+            'i',
+            'u',
+            's',
+            'strike',
+            'h1',
+            'h2',
+            'h3',
+            'h4',
+            'h5',
+            'h6',
+            'ul',
+            'ol',
+            'li',
+            'a',
+            'blockquote',
+            'table',
+            'thead',
+            'tbody',
+            'tr',
+            'th',
+            'td',
+            'span',
+            'div'
         ];
 
         $allowedTags = $allowedTags ?? $defaultAllowedTags;
@@ -99,6 +123,11 @@ class CKEditorHelper
         $xpath = new DOMXPath($dom);
         $linkNodes = $xpath->query('//a[@href]');
 
+        if ($linkNodes === false) {
+            return [];
+        }
+
+        /** @var DOMElement $link */
         foreach ($linkNodes as $link) {
             $href = $link->getAttribute('href');
             $text = trim($link->textContent);
@@ -256,8 +285,10 @@ class CKEditorHelper
                     $attributes = $matches[1] . $matches[4];
 
                     // Vérifier si c'est un lien externe
-                    if (!str_starts_with($href, config('app.url')) &&
-                        (str_starts_with($href, 'http://') || str_starts_with($href, 'https://'))) {
+                    if (
+                        !str_starts_with($href, config('app.url')) &&
+                        (str_starts_with($href, 'http://') || str_starts_with($href, 'https://'))
+                    ) {
 
                         // Ajouter target="_blank" s'il n'existe pas déjà
                         if (!str_contains($attributes, 'target=')) {
@@ -335,5 +366,75 @@ class CKEditorHelper
             'links' => self::extractLinks($content),
             'has_formatting' => $content !== strip_tags($content)
         ];
+    }
+
+
+
+
+
+    /**
+     * Nettoyer le contenu HTML de CKEditor pour l'affichage PDF
+     *
+     * @param string|null $htmlContent
+     * @param bool $isPreview Mode aperçu (simplifié)
+     * @param int|null $limit Limite de caractères (pour aperçu)
+     * @return string
+     */
+    public static function cleanForPdf(?string $htmlContent, bool $isPreview = false, ?int $limit = null): string
+    {
+        if (empty($htmlContent)) {
+            return '';
+        }
+
+        $content = $htmlContent;
+
+        // Convertir les balises de liste en puces
+        $content = preg_replace('/<li[^>]*>/i', '• ', $content);
+
+        // Convertir les titres
+        $content = preg_replace('/<h1[^>]*>(.*?)<\/h1>/i', "\n\n=== $1 ===\n\n", $content);
+        $content = preg_replace('/<h2[^>]*>(.*?)<\/h2>/i', "\n\n== $1 ==\n\n", $content);
+        $content = preg_replace('/<h3[^>]*>(.*?)<\/h3>/i', "\n\n= $1 =\n\n", $content);
+
+        // Convertir les paragraphes et sauts de ligne
+        $content = str_replace(['</p>', '<br>', '<br/>', '<br />'], ["\n\n", "\n", "\n", "\n"], $content);
+
+        // Conserver le gras et l'italique si non preview
+        if (!$isPreview) {
+            $content = preg_replace('/<(strong|b)[^>]*>(.*?)<\/(strong|b)>/i', '**$2**', $content);
+            $content = preg_replace('/<(em|i)[^>]*>(.*?)<\/(em|i)>/i', '_$2_', $content);
+        }
+
+        // Supprimer toutes les balises HTML restantes
+        $content = strip_tags($content);
+
+        // Décoder les entités HTML
+        $content = html_entity_decode($content, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+
+        // Nettoyer les espaces multiples
+        if ($isPreview) {
+            $content = preg_replace('/\s+/', ' ', $content);
+        } else {
+            $content = preg_replace('/[ \t]+/', ' ', $content);
+            $content = preg_replace('/\n{3,}/', "\n\n", $content);
+        }
+
+        // Trimmer
+        $content = trim($content);
+
+        // Limiter si nécessaire
+        if ($limit && strlen($content) > $limit) {
+            $content = Str::limit($content, $limit);
+        }
+
+        return $content;
+    }
+
+    /**
+     * Nettoyer pour un court aperçu
+     */
+    public static function cleanForPreview(?string $htmlContent, int $limit = 200): string
+    {
+        return self::cleanForPdf($htmlContent, true, $limit);
     }
 }

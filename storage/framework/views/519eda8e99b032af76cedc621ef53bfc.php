@@ -5,11 +5,11 @@
     <div class="flex items-center justify-center h-16 bg-gradient-to-r from-blue-600 to-purple-600 border-b border-blue-700">
         <div class="flex items-center">
             <div class="w-10 h-10 bg-white rounded-full flex items-center justify-center">
-                <img class="h-10 w-10 rounded-full object-cover ring-2 ring-blue-500"
-                    src="https://www.cevaa.org/la-communaute/fiches-deglises/afrique-occidentale-centrafrique/logo-emci.png/image_preview"
-                    alt="Logo église" />
+
+                <img src="<?php echo e($AppParametres->logo ? Storage::url($AppParametres->logo) :  ''); ?>"
+                    alt="Logo <?php echo e($AppParametres->nom_eglise ?? 'Logo église'); ?>"  class="h-10 w-10 rounded-full object-cover ring-2 ring-blue-500">
             </div>
-            <span class="ml-2 text-white font-bold text-lg">Méthodiste</span>
+            <span class="ml-2 text-white font-bold text-lg"><?php echo e($AppParametres->nom_eglise ?? 'Méthodiste'); ?></span>
         </div>
     </div>
 
@@ -20,8 +20,7 @@
                 <img class="h-10 w-10 rounded-full object-cover ring-2 ring-blue-500"
                     src="<?php echo e(auth()->user()->photo_profil ? Storage::url(auth()->user()->photo_profil) : 'https://ui-avatars.com/api/?name=' . auth()->user()->nom . '+' . auth()->user()->prenom . '&background=3b82f6&color=fff'); ?>"
                     alt="<?php echo e(auth()->user()->photo_profil); ?>" />
-                <span
-                    class="absolute bottom-0 right-0 h-3 w-3 bg-green-400 rounded-full border-2 border-white animate-pulse"></span>
+                <span class="absolute bottom-0 right-0 h-3 w-3 bg-green-400 rounded-full border-2 border-white animate-pulse"></span>
             </div>
             <div>
                 <h6 class="text-sm font-semibold text-slate-900">
@@ -40,7 +39,7 @@
             <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">Navigation</h4>
             <nav class="space-y-2">
 
-                <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('access-dashboard')): ?>
+                <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('dashboard.read')): ?>
                     <!-- Dashboard -->
                     <a href="<?php echo e(route('private.dashboard')); ?>"
                         class="nav-item flex items-center w-full px-3 py-2.5 text-sm font-medium <?php echo e(request()->routeIs('private.dashboard') ? 'text-white bg-gradient-to-r from-blue-500 to-purple-500 shadow-lg ring-2 ring-blue-200' : 'text-slate-700 hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 hover:text-blue-600'); ?> rounded-xl transition-all duration-200 group"
@@ -52,7 +51,7 @@
                 <?php endif; ?>
 
                 <!-- Section : Administration -->
-                <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->any(['roles.read', 'permissions.read', 'classes.read'])): ?>
+                <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->any(['roles.read', 'permissions.read', 'classes.read', 'parametresdons.read'])): ?>
                     <div class="pt-4 pb-2">
                         <h5 class="text-xs font-medium text-slate-400 uppercase tracking-wider mb-2">Administration</h5>
                     </div>
@@ -89,6 +88,17 @@
                             <span>Classes</span>
                         </a>
                     <?php endif; ?>
+
+                    <!-- Projets -->
+                    <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('parametresdons.read')): ?>
+                            <a href="<?php echo e(route('private.parametresdons.index')); ?>"
+                                class="nav-item flex items-center px-3 py-2.5 text-sm font-medium <?php echo e(request()->routeIs('private.parametresdons.*') ? 'text-white bg-gradient-to-r from-violet-500 to-purple-500 shadow-lg ring-2 ring-violet-200' : 'text-slate-700 hover:bg-gradient-to-r hover:from-violet-50 hover:to-purple-50 hover:text-violet-600'); ?> rounded-xl transition-all duration-200 group"
+                                data-route="private.parametresdons.index">
+                                <i class="fas fa-arrows-rotate <?php echo e(request()->routeIs('private.parametresdons.*') ? 'text-yellow-300' : 'text-violet-500 group-hover:text-violet-600'); ?> mr-3"></i>
+                                <span>Moyens de paiement</span>
+                            </a>
+                        <?php endif; ?>
+
                 <?php endif; ?>
 
                 <!-- Section : Membres -->
@@ -201,16 +211,7 @@
                         </a>
                     <?php endif; ?>
 
-                    <!-- Moissons -->
-                    <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('moissons.read')): ?>
-                        <a href="<?php echo e(route('private.moissons.index')); ?>"
-                            class="nav-item flex items-center px-3 py-2.5 text-sm font-medium <?php echo e(request()->routeIs('private.moissons.*') ? 'text-white bg-gradient-to-r from-green-500 to-teal-500 shadow-lg ring-2 ring-green-200' : 'text-slate-700 hover:bg-gradient-to-r hover:from-emerald-50 hover:to-green-50 hover:text-emerald-600'); ?> rounded-xl transition-all duration-200 group"
-                            data-route="private.moissons.index">
-                            <i
-                                class="fas fa-seedling <?php echo e(request()->routeIs('private.moissons.*') ? 'text-yellow-300' : 'text-emerald-500 group-hover:text-emerald-600'); ?> mr-3"></i>
-                            <span>Moissons</span>
-                        </a>
-                    <?php endif; ?>
+
 
                     <!-- Souscriptions -->
                     <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('subscriptions.read')): ?>
@@ -234,6 +235,17 @@
                         </a>
                     <?php endif; ?>
 
+                    <!-- Moissons -->
+                    <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('moissons.read')): ?>
+                        <a href="<?php echo e(route('private.moissons.index')); ?>"
+                            class="nav-item flex items-center px-3 py-2.5 text-sm font-medium <?php echo e(request()->routeIs('private.moissons.*') ? 'text-white bg-gradient-to-r from-green-500 to-teal-500 shadow-lg ring-2 ring-green-200' : 'text-slate-700 hover:bg-gradient-to-r hover:from-emerald-50 hover:to-green-50 hover:text-emerald-600'); ?> rounded-xl transition-all duration-200 group"
+                            data-route="private.moissons.index">
+                            <i
+                                class="fas fa-seedling <?php echo e(request()->routeIs('private.moissons.*') ? 'text-yellow-300' : 'text-emerald-500 group-hover:text-emerald-600'); ?> mr-3"></i>
+                            <span>Moissons</span>
+                        </a>
+                    <?php endif; ?>
+
                     <!-- Projets -->
                     <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('projets.read')): ?>
                         <a href="<?php echo e(route('private.projets.index')); ?>"
@@ -244,7 +256,20 @@
                             <span>Projets</span>
                         </a>
                     <?php endif; ?>
-                <?php endif; ?>
+
+
+
+
+                    <!-- Donations -->
+                    <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('dons.read')): ?>
+                            <a href="<?php echo e(route('private.dons.index')); ?>"
+                                class="nav-item flex items-center px-3 py-2.5 text-sm font-medium <?php echo e(request()->routeIs('private.dons.*') ? 'text-white bg-gradient-to-r from-violet-500 to-purple-500 shadow-lg ring-2 ring-violet-200' : 'text-slate-700 hover:bg-gradient-to-r hover:from-violet-50 hover:to-purple-50 hover:text-violet-600'); ?> rounded-xl transition-all duration-200 group"
+                                data-route="private.dons.index">
+                                <i class="fas fa-dove <?php echo e(request()->routeIs('private.dons.*') ? 'text-yellow-300' : 'text-violet-500 group-hover:text-violet-600'); ?> mr-3"></i>
+                                <span>Donations</span>
+                            </a>
+                        <?php endif; ?>
+                    <?php endif; ?>
 
                 <!-- Section : Réunions -->
                 <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->any(['types-reunions.read', 'reunions.read', 'rapports-reunions.read', 'annonces.read',
@@ -310,24 +335,7 @@
                     <?php endif; ?>
                 <?php endif; ?>
 
-                <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->any(['multimedia.read'])): ?>
-                    <!-- Section : Médias -->
-                    <div class="pt-4 pb-2">
-                        <h5 class="text-xs font-medium text-slate-400 uppercase tracking-wider mb-2">Médias & Communication
-                        </h5>
-                    </div>
-
-                    <!-- Médias -->
-                    <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('multimedia.read')): ?>
-                        <a href="<?php echo e(route('private.multimedia.index')); ?>"
-                            class="nav-item flex items-center px-3 py-2.5 text-sm font-medium <?php echo e(request()->routeIs('private.multimedia.*') ? 'text-white bg-gradient-to-r from-pink-500 to-rose-500 shadow-lg ring-2 ring-pink-200' : 'text-slate-700 hover:bg-gradient-to-r hover:from-pink-50 hover:to-rose-50 hover:text-pink-600'); ?> rounded-xl transition-all duration-200 group"
-                            data-route="private.multimedia.index">
-                            <i
-                                class="fas fa-photo-video <?php echo e(request()->routeIs('private.multimedia.*') ? 'text-yellow-300' : 'text-pink-500 group-hover:text-pink-600'); ?> mr-3"></i>
-                            <span>Médias</span>
-                        </a>
-                    <?php endif; ?>
-                <?php endif; ?>
+                
 
                 <!-- Additional Pages -->
                 <div class="pt-4 space-y-1">
@@ -363,11 +371,17 @@
                 </div>
 
                 <!-- Paramètres -->
-                <a href="#"
-                    class="flex items-center px-3 py-2.5 text-sm font-medium text-slate-700 rounded-xl hover:bg-gradient-to-r hover:from-gray-50 hover:to-slate-50 hover:text-gray-600 transition-all duration-200 group">
-                    <i class="fas fa-cog text-gray-500 mr-3 group-hover:text-gray-600"></i>
-                    <span>Paramètres</span>
-                </a>
+                <!-- Donations -->
+                    <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('parametres.read')): ?>
+                        <a href="<?php echo e(route('private.parametres.index')); ?>"
+                            class="nav-item flex items-center px-3 py-2.5 text-sm font-medium <?php echo e(request()->routeIs('private.parametres.*') ? 'text-white bg-gradient-to-r from-gray-500 to-purple-500 shadow-lg ring-2 ring-gray-200' : 'text-slate-700 hover:bg-gradient-to-r hover:from-gray-50 hover:to-purple-50 hover:text-gray-600'); ?> rounded-xl transition-all duration-200 group" data-route="private.parametres.index">
+
+                            <i class="fas fa-cog <?php echo e(request()->routeIs('private.parametres.*') ? 'text-gray-300' : 'text-violet-500 group-hover:text-gray-600'); ?> mr-3"></i>
+                            <span>Paramètres</span>
+                        </a>
+                    <?php endif; ?>
+
+
 
                 <!-- Déconnexion -->
                 <div class="pt-2">

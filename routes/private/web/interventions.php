@@ -13,23 +13,24 @@ use App\Http\Controllers\Private\Web\InterventionController;
 |
 */
 
-Route::prefix('dashboard/interventions')->name('private.interventions.')->middleware(['auth', 'verified', 'user.status'])->group(function () {
+Route::prefix('interventions')->name('private.interventions.')->middleware(['auth', 'verified', 'user.status'])->group(function () {
 
     // Routes de base CRUD
-    Route::get('/', [InterventionController::class, 'index'])->name('index');
-    Route::get('create', [InterventionController::class, 'create'])->name('create');
-    Route::post('/', [InterventionController::class, 'store'])->name('store');
-    Route::get('{intervention}', [InterventionController::class, 'show'])->name('show');
-    Route::get('{intervention}/edit', [InterventionController::class, 'edit'])->name('edit');
-    Route::put('{intervention}', [InterventionController::class, 'update'])->name('update');
-    Route::patch('{intervention}', [InterventionController::class, 'update'])->name('update.patch');
-    Route::delete('{intervention}', [InterventionController::class, 'destroy'])->name('destroy');
+    Route::get('/', [InterventionController::class, 'index'])->middleware('permission:interventions.read')->name('index');
+    Route::get('create', [InterventionController::class, 'create'])->middleware('permission:interventions.create')->name('create');
+    Route::post('/', [InterventionController::class, 'store'])->middleware('permission:interventions.create')->name('store');
+    Route::get('{intervention}', [InterventionController::class, 'show'])->middleware('permission:interventions.read')->name('show');
+    Route::get('{intervention}/edit', [InterventionController::class, 'edit'])->middleware('permission:interventions.update')->name('edit');
+    Route::put('{intervention}', [InterventionController::class, 'update'])->middleware('permission:interventions.update')->name('update');
+    Route::patch('{intervention}', [InterventionController::class, 'update'])->middleware('permission:interventions.update')->name('update.patch');
+    Route::delete('{intervention}', [InterventionController::class, 'destroy'])->middleware('permission:interventions.delete')->name('destroy');
 
     // Routes spécifiques
-    Route::get('trash/list', [InterventionController::class, 'trash'])->name('trash');
-    Route::patch('{intervention}/restore', [InterventionController::class, 'restore'])->name('restore');
-    Route::patch('{intervention}/statut', [InterventionController::class, 'changeStatut'])->name('change-statut');
-    Route::get('evenement/list', [InterventionController::class, 'parEvenement'])->name('par-evenement');
+    Route::get('trash/list', [InterventionController::class, 'trash'])->middleware('permission:interventions.read')->name('trash');
+    Route::get('evenement/list', [InterventionController::class, 'parEvenement'])->middleware('permission:interventions.read')->name('par-evenement');
+    Route::patch('{intervention}/restore', [InterventionController::class, 'restore'])->middleware('permission:interventions.restore')->name('restore');
+    Route::patch('{intervention}/statut', [InterventionController::class, 'changeStatut'])->middleware('permission:interventions.toggle-statut')->name('change-statut');
+
 
 });
 

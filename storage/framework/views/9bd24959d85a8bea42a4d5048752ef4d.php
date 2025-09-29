@@ -38,10 +38,8 @@
                         </div>
                     </div>
                     <div class="ml-4">
-                        <p class="text-2xl font-bold text-slate-800"><?php echo e($users->where('statut_membre', 'actif')->count()); ?>
-
-                        </p>
-                        <p class="text-sm text-slate-500" actifs</p>
+                        <p class="text-2xl font-bold text-slate-800"><?php echo e($users->where('statut_membre', 'actif')->count()); ?></p>
+                        <p class="text-sm text-slate-500"> actifs</p>
                     </div>
                 </div>
             </div>
@@ -373,11 +371,15 @@
                                                     </a>
                                                 <?php endif; ?>
                                                 <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('users.delete')): ?>
+                                                <?php if(Auth::user()->hasAnyRole(['secretaire', 'super-admin']) && $user->id != Auth::user()->id): ?>
                                                     <button onclick="deleteUser('<?php echo e($user->id); ?>')"
                                                         class="inline-flex items-center justify-center w-8 h-8 text-red-600 bg-red-100 rounded-lg hover:bg-red-200 transition-colors"
                                                         title="Supprimer">
                                                         <i class="fas fa-trash text-sm"></i>
                                                     </button>
+
+                                                <?php endif; ?>
+                                                    
                                                 <?php endif; ?>
                                                 <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('users.toggle-status')): ?>
                                                     <?php if(Auth::id() !== $user->id): ?>

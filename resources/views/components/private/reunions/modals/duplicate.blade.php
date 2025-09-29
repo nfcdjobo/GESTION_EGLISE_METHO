@@ -370,7 +370,7 @@ function confirmerDuplication() {
             // Rediriger vers la nouvelle réunion ou recharger la page
             setTimeout(() => {
                 if (data.data && data.data.id) {
-                    window.location.href = `/private/reunions/${data.data.id}`;
+                    window.location.href = `/reunions/${data.data.id}`;
                 } else {
                     window.location.reload();
                 }

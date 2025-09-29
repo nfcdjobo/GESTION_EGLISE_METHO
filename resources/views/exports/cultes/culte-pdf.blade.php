@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -19,26 +20,106 @@
             padding: 0;
         }
 
-        .header {
-            text-align: center;
-            border-bottom: 3px solid #3b82f6;
-            padding-bottom: 15px;
-            margin-bottom: 20px;
+        /* EN-TÊTE STRUCTURE - CORRIGÉ */
+        .structure-header {
+            background-color: #1e40af;
+            color: white;
+            padding: 15px;
+            margin: -1cm -1cm 20px -1cm;
+            border-bottom: 4px solid #f59e0b;
+            overflow: hidden;
+        }
+        
+        .structure-header-content {
+            width: 100%;
+        }
+        
+        .structure-header-left {
+            float: left;
+            width: 48%;
+        }
+        
+        .structure-header-right {
+            float: right;
+            width: 48%;
+            text-align: right;
         }
 
-        .header h1 {
+        .logo-section {
+            float: left;
+            width: 70px;
+            margin-right: 10px;
+        }
+
+        .info-left {
+            margin-left: 80px;
+        }
+
+        .structure-logo {
+            width: 60px;
+            height: 60px;
+            background-color: white;
+            border-radius: 8px;
+            padding: 5px;
+            text-align: center;
+            line-height: 60px;
+        }
+        
+        .structure-logo img {
+            max-width: 50px;
+            max-height: 50px;
+            vertical-align: middle;
+        }
+
+        .structure-name {
+            font-size: 14px;
+            font-weight: bold;
+            margin: 0 0 8px 0;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: white;
+        }
+
+        .structure-contact {
+            font-size: 7px;
+            line-height: 1.6;
+            color: white;
+        }
+
+        .structure-contact div {
+            margin: 3px 0;
+            word-wrap: break-word;
+        }
+
+        /* Clearfix pour le float */
+        .structure-header-content:after {
+            content: "";
+            display: table;
+            clear: both;
+        }
+
+        /* TITRE RAPPORT */
+        .report-title {
+            text-align: center;
+            padding: 15px 0;
+            margin: 20px 0;
+            border-bottom: 3px solid #3b82f6;
+        }
+
+        .report-title h1 {
             color: #1f2937;
             font-size: 18px;
             margin: 0 0 8px 0;
             font-weight: bold;
         }
 
-        .header .subtitle {
+        .report-title .subtitle {
             color: #6b7280;
             font-size: 10px;
             margin: 0;
         }
 
+        /* SECTIONS */
         .section {
             margin-bottom: 25px;
             page-break-inside: avoid;
@@ -78,21 +159,34 @@
             background-color: #6366f1;
         }
 
+        /* KPIs - CORRIGÉ */
         .kpis-grid {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
+            width: 100%;
             margin-bottom: 15px;
         }
 
         .kpi-card {
-            flex: 1;
-            min-width: 120px;
+            float: left;
+            width: 23%;
+            margin-right: 2%;
+            margin-bottom: 10px;
             background-color: #f8fafc;
             border: 1px solid #e5e7eb;
             border-radius: 4px;
             padding: 8px;
             text-align: center;
+            box-sizing: border-box;
+        }
+
+        .kpi-card:nth-child(4n) {
+            margin-right: 0;
+        }
+
+        /* Clearfix pour les KPIs */
+        .kpis-grid:after {
+            content: "";
+            display: table;
+            clear: both;
         }
 
         .kpi-label {
@@ -124,6 +218,7 @@
             color: #f59e0b;
         }
 
+        /* TABLEAUX */
         .table-container {
             margin-bottom: 15px;
             overflow-x: auto;
@@ -165,26 +260,43 @@
             text-align: center;
         }
 
+        /* FOOTER */
         .footer {
-            position: fixed;
-            bottom: 0.5cm;
-            left: 1cm;
-            right: 1cm;
-            text-align: center;
+            background-color: #37393b;
+            color: white;
+            padding: 10px 15px;
             font-size: 7px;
-            color: #6b7280;
-            border-top: 1px solid #e5e7eb;
-            padding-top: 5px;
+            border-top: 3px solid #3b82f6;
+            margin: 30px -1cm -1cm -1cm;
         }
 
+        .footer-verse {
+            text-align: center;
+            font-style: italic;
+            color: #fbbf24;
+            margin-bottom: 8px;
+            font-size: 8px;
+            line-height: 1.3;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #4b5563;
+        }
+
+        .footer-content {
+            text-align: center;
+        }
+
+        .footer-social {
+            margin-bottom: 5px;
+        }
+
+        .footer-platform {
+            font-size: 7px;
+            color: #9ca3af;
+        }
+
+        /* AUTRES STYLES */
         .page-break {
             page-break-before: always;
-        }
-
-        .highlight {
-            background-color: #fef3c7;
-            padding: 1px 3px;
-            border-radius: 2px;
         }
 
         .status-badge {
@@ -243,12 +355,23 @@
         }
 
         .two-column {
-            display: flex;
-            gap: 15px;
+            width: 100%;
         }
 
         .column {
-            flex: 1;
+            float: left;
+            width: 48%;
+            margin-right: 2%;
+        }
+
+        .column:nth-child(2n) {
+            margin-right: 0;
+        }
+
+        .two-column:after {
+            content: "";
+            display: table;
+            clear: both;
         }
 
         .financial-highlight {
@@ -272,29 +395,6 @@
             margin-top: 2px;
         }
 
-        .progress-bar {
-            width: 100%;
-            height: 8px;
-            background-color: #e5e7eb;
-            border-radius: 4px;
-            overflow: hidden;
-            margin: 3px 0;
-        }
-
-        .progress-fill {
-            height: 100%;
-            background-color: #3b82f6;
-            transition: width 0.3s ease;
-        }
-
-        .progress-fill.green {
-            background-color: #059669;
-        }
-
-        .progress-fill.purple {
-            background-color: #7c3aed;
-        }
-
         .message-content {
             background-color: #fefce8;
             border-left: 4px solid #f59e0b;
@@ -316,11 +416,103 @@
         }
     </style>
 </head>
+
 <body>
-    <!-- En-tête -->
-    <div class="header">
-        <h1>ÉGLISE - RAPPORT DE CULTE</h1>
-        <p class="subtitle">{{ htmlspecialchars($culte->titre) }} - {{ \Carbon\Carbon::parse($culte->date_culte)->format('l d F Y') }}</p>
+    <!-- EN-TÊTE STRUCTURE -->
+    <div class="structure-header">
+        <div class="structure-header-content">
+            <!-- PARTIE GAUCHE: Logo + Nom + Téléphones -->
+            <div class="structure-header-left">
+                <div class="logo-section">
+                    @if(!empty($AppParametres->logo))
+                        @php
+                            try {
+                                $logoPath = storage_path('app/public/' . $AppParametres->logo);
+                                
+                                // Vérifier si le fichier existe
+                                if (file_exists($logoPath)) {
+                                    $imageData = base64_encode(file_get_contents($logoPath));
+                                    $imageExtension = strtolower(pathinfo($logoPath, PATHINFO_EXTENSION));
+                                    
+                                    // Déterminer le type MIME
+                                    $mimeTypes = [
+                                        'jpg' => 'jpeg',
+                                        'jpeg' => 'jpeg',
+                                        'png' => 'png',
+                                        'gif' => 'gif',
+                                        'svg' => 'svg+xml',
+                                        'webp' => 'webp'
+                                    ];
+                                    
+                                    $mimeType = $mimeTypes[$imageExtension] ?? 'png';
+                                    $logoBase64 = "data:image/{$mimeType};base64,{$imageData}";
+                                } else {
+                                    $logoBase64 = null;
+                                }
+                            } catch (\Exception $e) {
+                                $logoBase64 = null;
+                            }
+                        @endphp
+                        
+                        @if(isset($logoBase64) && $logoBase64)
+                            <div class="structure-logo">
+                                <img src="{{ $logoBase64 }}" alt="Logo">
+                            </div>
+                        @else
+                            <div class="structure-logo" style="font-size: 24px; font-weight: bold; color: #3b82f6;">
+                                {{ strtoupper(substr($AppParametres->nom_eglise, 0, 2)) }}
+                            </div>
+                        @endif
+                    @else
+                        <div class="structure-logo" style="font-size: 24px; font-weight: bold; color: #3b82f6;">
+                            {{ strtoupper(substr($AppParametres->nom_eglise, 0, 2)) }}
+                        </div>
+                    @endif
+                </div>
+                
+                <div class="info-left">
+                    <div class="structure-name">{{ htmlspecialchars($AppParametres->nom_eglise) }}</div>
+                    <div class="structure-contact">
+                        @if(!empty($AppParametres->telephone_1))
+                            <div><strong>Tel 1:</strong> {{ htmlspecialchars($AppParametres->telephone_1) }}</div>
+                        @endif
+                        @if(!empty($AppParametres->telephone_2))
+                            <div><strong>Tel 2:</strong> {{ htmlspecialchars($AppParametres->telephone_2) }}</div>
+                        @endif
+                    </div>
+                </div>
+            </div>
+            
+            <!-- PARTIE DROITE: Email + Adresse -->
+            <div class="structure-header-right">
+                <div class="structure-contact">
+                    @if(!empty($AppParametres->email))
+                        <div><strong>Email:</strong> {{ htmlspecialchars($AppParametres->email) }}</div>
+                    @endif
+                    @if(!empty($AppParametres->adresse))
+                        <div>
+                            <strong>Adresse:</strong>
+                            {{ htmlspecialchars($AppParametres->adresse) }}
+                            @if(!empty($AppParametres->code_postal)), {{ htmlspecialchars($AppParametres->code_postal) }}@endif
+                            @if(!empty($AppParametres->ville)) {{ htmlspecialchars($AppParametres->ville) }}@endif
+                        </div>
+                    @endif
+                    @if(!empty($AppParametres->commune))
+                        <div>{{ htmlspecialchars($AppParametres->commune) }}</div>
+                    @endif
+                    @if(!empty($AppParametres->pays))
+                        <div>{{ htmlspecialchars($AppParametres->pays) }}</div>
+                    @endif
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- TITRE DU RAPPORT -->
+    <div class="report-title">
+        <h1>RAPPORT DE CULTE</h1>
+        <p class="subtitle">{{ htmlspecialchars($culte->titre) }} -
+            {{ \Carbon\Carbon::parse($culte->date_culte)->format('l d F Y') }}</p>
     </div>
 
     <!-- Informations générales -->
@@ -363,10 +555,11 @@
         </div>
 
         @if($culte->description)
-        <div class="summary-box">
-            <strong>Description:</strong>
-            <div style="margin-top: 5px; font-size: 9px;">{{ nl2br(htmlspecialchars(strip_tags($culte->description))) }}</div>
-        </div>
+            <div class="summary-box">
+                <strong>Description:</strong>
+                <div style="margin-top: 5px; font-size: 9px;">{{ nl2br(htmlspecialchars(strip_tags($culte->description))) }}
+                </div>
+            </div>
         @endif
     </div>
 
@@ -385,40 +578,27 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @if($culte->pasteurPrincipal)
-                    <tr>
-                        <td><strong>Pasteur Principal</strong></td>
-                        <td>{{ htmlspecialchars($culte->pasteurPrincipal->nom_complet) }}</td>
-                        <td>{{ htmlspecialchars($culte->pasteurPrincipal->email ?: 'Non renseigné') }}</td>
-                        <td>{{ htmlspecialchars($culte->pasteurPrincipal->telephone_1 ?: 'Non renseigné') }}</td>
-                    </tr>
-                    @endif
+                    @if($culte->officiants_detail->isNotEmpty())
+                        <tr style="background-color: #f3f4f6;">
+                            <td colspan="4"
+                                style="text-align: center; font-weight: bold; font-size: 9px; padding: 5px; color: #374151;">
+                                OFFICIANTS
+                            </td>
+                        </tr>
 
-                    @if($culte->predicateur && $culte->predicateur->id !== $culte->pasteurPrincipal?->id)
-                    <tr>
-                        <td><strong>Prédicateur</strong></td>
-                        <td>{{ htmlspecialchars($culte->predicateur->nom_complet) }}</td>
-                        <td>{{ htmlspecialchars($culte->predicateur->email ?: 'Non renseigné') }}</td>
-                        <td>{{ htmlspecialchars($culte->predicateur->telephone_1 ?: 'Non renseigné') }}</td>
-                    </tr>
-                    @endif
-
-                    @if($culte->responsableCulte)
-                    <tr>
-                        <td><strong>Responsable Culte</strong></td>
-                        <td>{{ htmlspecialchars($culte->responsableCulte->nom_complet) }}</td>
-                        <td>{{ htmlspecialchars($culte->responsableCulte->email ?: 'Non renseigné') }}</td>
-                        <td>{{ htmlspecialchars($culte->responsableCulte->telephone_1 ?: 'Non renseigné') }}</td>
-                    </tr>
-                    @endif
-
-                    @if($culte->dirigeantLouange)
-                    <tr>
-                        <td><strong>Dirigeant Louange</strong></td>
-                        <td>{{ htmlspecialchars($culte->dirigeantLouange->nom_complet) }}</td>
-                        <td>{{ htmlspecialchars($culte->dirigeantLouange->email ?: 'Non renseigné') }}</td>
-                        <td>{{ htmlspecialchars($culte->dirigeantLouange->telephone_1 ?: 'Non renseigné') }}</td>
-                    </tr>
+                        @foreach($culte->officiants_detail as $officiant)
+                            <tr>
+                                <td><strong>{{ htmlspecialchars($officiant['titre']) }}</strong>
+                                    @if($officiant['provenance'] && $officiant['provenance'] !== 'Église Locale')
+                                        <br><span
+                                            style="font-size: 7px; color: #6b7280; font-weight: normal;">({{ htmlspecialchars($officiant['provenance']) }})</span>
+                                    @endif
+                                </td>
+                                <td>{{ htmlspecialchars($officiant['user']->nom_complet) }}</td>
+                                <td>{{ htmlspecialchars($officiant['user']->email ?? 'Non renseigné') }}</td>
+                                <td>{{ htmlspecialchars($officiant['user']->telephone_1 ?? 'Non renseigné') }}</td>
+                            </tr>
+                        @endforeach
                     @endif
                 </tbody>
             </table>
@@ -427,360 +607,172 @@
 
     <!-- Message et Prédication -->
     @if($culte->titre_message || $culte->passage_biblique || $culte->resume_message)
-    <div class="section">
-        <h2 class="section-title message">Message et Prédication</h2>
+        <div class="section">
+            <h2 class="section-title message">Message et Prédication</h2>
 
-        @if($culte->titre_message)
-        <div class="summary-box">
-            <strong>Titre du message:</strong> {{ htmlspecialchars($culte->titre_message) }}
-        </div>
-        @endif
+            @if($culte->titre_message)
+                <div class="summary-box">
+                    <strong>Titre du message:</strong> {{ htmlspecialchars($culte->titre_message) }}
+                </div>
+            @endif
 
-        @if($culte->passage_biblique)
-        <div class="bible-verse">
-            <strong>Passage biblique:</strong> {{ htmlspecialchars($culte->passage_biblique) }}
-        </div>
-        @endif
+            @if($culte->passage_biblique)
+                <div class="bible-verse">
+                    <strong>Passage biblique:</strong> {{ htmlspecialchars($culte->passage_biblique) }}
+                </div>
+            @endif
 
-        @if($culte->resume_message)
-        <div class="message-content">
-            <strong>Résumé du message:</strong><br>
-            {{ nl2br(htmlspecialchars(strip_tags($culte->resume_message))) }}
+            @if($culte->resume_message)
+                <div class="message-content">
+                    <strong>Résumé du message:</strong><br>
+                    {{ nl2br(htmlspecialchars(strip_tags($culte->resume_message))) }}
+                </div>
+            @endif
         </div>
-        @endif
-    </div>
     @endif
 
     <!-- Statistiques de Participation -->
     @if($culte->nombre_participants || $culte->statut === 'termine')
-    <div class="section">
-        <h2 class="section-title statistiques">Statistiques de Participation</h2>
+        <div class="section">
+            <h2 class="section-title statistiques">Statistiques de Participation</h2>
 
-        <div class="kpis-grid">
-            @if($culte->nombre_participants)
-            <div class="kpi-card blue">
-                <div class="kpi-label">TOTAL PARTICIPANTS</div>
-                <div class="kpi-value">{{ number_format($culte->nombre_participants) }}</div>
-            </div>
-            @endif
+            <div class="kpis-grid">
+                @if($culte->nombre_participants)
+                    <div class="kpi-card blue">
+                        <div class="kpi-label">TOTAL PARTICIPANTS</div>
+                        <div class="kpi-value">{{ number_format($culte->nombre_participants) }}</div>
+                    </div>
+                @endif
 
-            @if($culte->nombre_adultes)
-            <div class="kpi-card green">
-                <div class="kpi-label">ADULTES</div>
-                <div class="kpi-value">{{ number_format($culte->nombre_adultes) }}</div>
-            </div>
-            @endif
+                @if($culte->nombre_adultes)
+                    <div class="kpi-card green">
+                        <div class="kpi-label">ADULTES</div>
+                        <div class="kpi-value">{{ number_format($culte->nombre_adultes) }}</div>
+                    </div>
+                @endif
 
-            @if($culte->nombre_jeunes)
-            <div class="kpi-card purple">
-                <div class="kpi-label">JEUNES</div>
-                <div class="kpi-value">{{ number_format($culte->nombre_jeunes) }}</div>
-            </div>
-            @endif
+                @if($culte->nombre_jeunes)
+                    <div class="kpi-card purple">
+                        <div class="kpi-label">JEUNES</div>
+                        <div class="kpi-value">{{ number_format($culte->nombre_jeunes) }}</div>
+                    </div>
+                @endif
 
-            @if($culte->nombre_enfants)
-            <div class="kpi-card amber">
-                <div class="kpi-label">ENFANTS</div>
-                <div class="kpi-value">{{ number_format($culte->nombre_enfants) }}</div>
-            </div>
-            @endif
+                @if($culte->nombre_enfants)
+                    <div class="kpi-card amber">
+                        <div class="kpi-label">ENFANTS</div>
+                        <div class="kpi-value">{{ number_format($culte->nombre_enfants) }}</div>
+                    </div>
+                @endif
 
-            @if($culte->nombre_nouveaux)
-            <div class="kpi-card blue">
-                <div class="kpi-label">NOUVEAUX</div>
-                <div class="kpi-value">{{ number_format($culte->nombre_nouveaux) }}</div>
-            </div>
-            @endif
+                @if($culte->nombre_nouveaux)
+                    <div class="kpi-card blue">
+                        <div class="kpi-label">NOUVEAUX</div>
+                        <div class="kpi-value">{{ number_format($culte->nombre_nouveaux) }}</div>
+                    </div>
+                @endif
 
-            @if($culte->nombre_conversions)
-            <div class="kpi-card green">
-                <div class="kpi-label">CONVERSIONS</div>
-                <div class="kpi-value">{{ number_format($culte->nombre_conversions) }}</div>
-            </div>
-            @endif
+                @if($culte->nombre_conversions)
+                    <div class="kpi-card green">
+                        <div class="kpi-label">CONVERSIONS</div>
+                        <div class="kpi-value">{{ number_format($culte->nombre_conversions) }}</div>
+                    </div>
+                @endif
 
-            @if($culte->nombre_baptemes)
-            <div class="kpi-card purple">
-                <div class="kpi-label">BAPTÊMES</div>
-                <div class="kpi-value">{{ number_format($culte->nombre_baptemes) }}</div>
+                @if($culte->nombre_baptemes)
+                    <div class="kpi-card purple">
+                        <div class="kpi-label">BAPTÊMES</div>
+                        <div class="kpi-value">{{ number_format($culte->nombre_baptemes) }}</div>
+                    </div>
+                @endif
             </div>
-            @endif
         </div>
-
-        @if($culte->heure_debut_reelle || $culte->heure_fin_reelle)
-        <div class="summary-box">
-            <strong>Horaires réels:</strong>
-            @if($culte->heure_debut_reelle)
-                Début: {{ \Carbon\Carbon::parse($culte->heure_debut_reelle)->format('H:i') }}
-            @endif
-            @if($culte->heure_fin_reelle)
-                - Fin: {{ \Carbon\Carbon::parse($culte->heure_fin_reelle)->format('H:i') }}
-            @endif
-            @if($culte->duree_totale)
-                (Durée: {{ $culte->duree_totale }})
-            @endif
-        </div>
-        @endif
-    </div>
     @endif
 
     <!-- Statistiques Financières -->
     @if(isset($fondsStatistiques) && $fondsStatistiques['total_transactions'] > 0)
-    <div class="section page-break">
-        <h2 class="section-title financier">Statistiques Financières</h2>
+        <div class="section page-break">
+            <h2 class="section-title financier">Statistiques Financières</h2>
 
-        <!-- Métriques principales -->
-        <div class="kpis-grid">
-            <div class="kpi-card green">
-                <div class="kpi-label">MONTANT TOTAL</div>
-                <div class="kpi-value">{{ number_format($fondsStatistiques['montant_total'], 0) }} FCFA</div>
+            <div class="kpis-grid">
+                <div class="kpi-card green">
+                    <div class="kpi-label">MONTANT TOTAL</div>
+                    <div class="kpi-value">{{ number_format($fondsStatistiques['montant_total'], 0) }} FCFA</div>
+                </div>
+
+                <div class="kpi-card blue">
+                    <div class="kpi-label">TRANSACTIONS</div>
+                    <div class="kpi-value">{{ $fondsStatistiques['total_transactions'] }}</div>
+                </div>
+
+                <div class="kpi-card purple">
+                    <div class="kpi-label">DONATEURS</div>
+                    <div class="kpi-value">{{ $fondsStatistiques['donateurs_uniques'] }}</div>
+                </div>
+
+                <div class="kpi-card amber">
+                    <div class="kpi-label">MOYENNE/TRANSACTION</div>
+                    <div class="kpi-value">{{ number_format($metriques['transaction_moyenne'], 0) }} FCFA</div>
+                </div>
             </div>
 
-            <div class="kpi-card blue">
-                <div class="kpi-label">TRANSACTIONS</div>
-                <div class="kpi-value">{{ $fondsStatistiques['total_transactions'] }}</div>
-            </div>
-
-            <div class="kpi-card purple">
-                <div class="kpi-label">DONATEURS</div>
-                <div class="kpi-value">{{ $fondsStatistiques['donateurs_uniques'] }}</div>
-            </div>
-
-            <div class="kpi-card amber">
-                <div class="kpi-label">MOYENNE/TRANSACTION</div>
-                <div class="kpi-value">{{ number_format($metriques['transaction_moyenne'], 0) }} FCFA</div>
-            </div>
+            @if(count($fondsStatistiques['par_type']) > 0)
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Type de Transaction</th>
+                                <th class="center">Nombre</th>
+                                <th class="number">Montant (FCFA)</th>
+                                <th class="center">Pourcentage</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($fondsStatistiques['par_type'] as $type => $data)
+                                <tr>
+                                    <td>{{ htmlspecialchars(ucfirst(str_replace('_', ' ', $type))) }}</td>
+                                    <td class="center">{{ $data['nombre'] }}</td>
+                                    <td class="number"><strong>{{ number_format($data['montant'], 0) }}</strong></td>
+                                    <td class="center">{{ $data['pourcentage'] }}%</td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            @endif
         </div>
-
-        @if($culte->nombre_participants > 0)
-        <!-- Ratios par participant -->
-        <div class="summary-box">
-            <strong>Ratios par participant:</strong>
-            <div style="margin-top: 8px;">
-                <div style="margin: 3px 0;">
-                    Offrande par participant: <strong>{{ number_format($metriques['offrande_par_participant'], 0) }} FCFA</strong>
-                </div>
-                <div style="margin: 3px 0;">
-                    Dîme par participant: <strong>{{ number_format($metriques['dime_par_participant'], 0) }} FCFA</strong>
-                </div>
-                <div style="margin: 3px 0;">
-                    Taux de participation financière: <strong>{{ $metriques['taux_participation_financiere'] }}%</strong>
-                </div>
-            </div>
-        </div>
-        @endif
-
-        <!-- Répartition par type -->
-        @if(count($fondsStatistiques['par_type']) > 0)
-        <div class="table-container">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Type de Transaction</th>
-                        <th class="center">Nombre</th>
-                        <th class="number">Montant (FCFA)</th>
-                        <th class="center">Pourcentage</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach($fondsStatistiques['par_type'] as $type => $data)
-                    <tr>
-                        <td>{{ htmlspecialchars(ucfirst(str_replace('_', ' ', $type))) }}</td>
-                        <td class="center">{{ $data['nombre'] }}</td>
-                        <td class="number"><strong>{{ number_format($data['montant'], 0) }}</strong></td>
-                        <td class="center">{{ $data['pourcentage'] }}%</td>
-                    </tr>
-                    @endforeach
-                </tbody>
-            </table>
-        </div>
-        @endif
-
-        <!-- Top donateurs -->
-        @if(count($fondsStatistiques['top_donateurs']) > 0)
-        <div style="margin-top: 15px;">
-            <strong style="font-size: 10px;">Top 5 des donateurs:</strong>
-            <div class="table-container" style="margin-top: 5px;">
-                <table>
-                    <thead>
-                        <tr>
-                            <th class="center">Rang</th>
-                            <th>Donateur</th>
-                            <th class="center">Nb Dons</th>
-                            <th class="number">Montant Total (FCFA)</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach($fondsStatistiques['top_donateurs'] as $index => $donateur)
-                        <tr>
-                            <td class="center"><strong>{{ $index + 1 }}</strong></td>
-                            <td>{{ htmlspecialchars($donateur['donateur']) }}</td>
-                            <td class="center">{{ $donateur['nombre_dons'] }}</td>
-                            <td class="number"><strong>{{ number_format($donateur['montant_total'], 0) }}</strong></td>
-                        </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-            </div>
-        </div>
-        @endif
-
-        <!-- Comparaison avec moyenne -->
-        @if(isset($metriques['comparaison']) && $metriques['comparaison']['moyenne_type_culte'] > 0)
-        <div class="financial-highlight">
-            <div style="font-size: 10px; margin-bottom: 5px;">
-                <strong>Comparaison avec la moyenne des {{ $culte->type_culte_libelle }}s:</strong>
-            </div>
-            <div style="display: flex; gap: 15px; align-items: center; justify-content: center;">
-                <div style="text-align: center;">
-                    <div style="font-size: 8px; color: #6b7280;">Ce culte</div>
-                    <div class="amount">{{ number_format($fondsStatistiques['montant_total'], 0) }} FCFA</div>
-                </div>
-                <div style="text-align: center;">
-                    <div style="font-size: 8px; color: #6b7280;">Moyenne</div>
-                    <div class="amount">{{ number_format($metriques['comparaison']['moyenne_type_culte'], 0) }} FCFA</div>
-                </div>
-                <div style="text-align: center;">
-                    @php
-                        $ecart = $metriques['comparaison']['ecart_pourcentage'];
-                        $couleur = $ecart > 0 ? '#059669' : '#dc2626';
-                        $signe = $ecart > 0 ? '+' : '';
-                    @endphp
-                    <div style="font-size: 8px; color: #6b7280;">Écart</div>
-                    <div style="font-size: 12px; font-weight: bold; color: {{ $couleur }};">{{ $signe }}{{ $ecart }}%</div>
-                </div>
-            </div>
-        </div>
-        @endif
-    </div>
     @endif
 
-    <!-- Évaluations -->
-    @if($culte->note_globale || $culte->note_louange || $culte->note_message || $culte->note_organisation)
-    <div class="section">
-        <h2 class="section-title">Évaluations</h2>
-
-        <div class="kpis-grid">
-            @if($culte->note_globale)
-            <div class="kpi-card amber">
-                <div class="kpi-label">NOTE GLOBALE</div>
-                <div class="kpi-value">{{ $culte->note_globale }}/10</div>
-            </div>
-            @endif
-
-            @if($culte->note_louange)
-            <div class="kpi-card purple">
-                <div class="kpi-label">LOUANGE</div>
-                <div class="kpi-value">{{ $culte->note_louange }}/10</div>
-            </div>
-            @endif
-
-            @if($culte->note_message)
-            <div class="kpi-card blue">
-                <div class="kpi-label">MESSAGE</div>
-                <div class="kpi-value">{{ $culte->note_message }}/10</div>
-            </div>
-            @endif
-
-            @if($culte->note_organisation)
-            <div class="kpi-card green">
-                <div class="kpi-label">ORGANISATION</div>
-                <div class="kpi-value">{{ $culte->note_organisation }}/10</div>
-            </div>
-            @endif
-        </div>
-    </div>
-    @endif
-
-    <!-- Notes et Commentaires -->
-    @if($culte->notes_pasteur || $culte->notes_organisateur || $culte->points_forts || $culte->points_amelioration)
-    <div class="section">
-        <h2 class="section-title notes">Notes et Commentaires</h2>
-
-        @if($culte->notes_pasteur)
-        <div class="summary-box">
-            <strong>Notes du pasteur:</strong>
-            <div style="margin-top: 5px; font-size: 9px;">{{ nl2br(htmlspecialchars(strip_tags($culte->notes_pasteur))) }}</div>
-        </div>
-        @endif
-
-        @if($culte->notes_organisateur)
-        <div class="summary-box">
-            <strong>Notes de l'organisateur:</strong>
-            <div style="margin-top: 5px; font-size: 9px;">{{ nl2br(htmlspecialchars(strip_tags($culte->notes_organisateur))) }}</div>
-        </div>
-        @endif
-
-        @if($culte->points_forts || $culte->points_amelioration)
-        <div class="two-column">
-            @if($culte->points_forts)
-            <div class="column">
-                <div style="background-color: #ecfdf5; border: 1px solid #a7f3d0; border-radius: 4px; padding: 8px;">
-                    <strong style="color: #065f46;">Points forts:</strong>
-                    <div style="margin-top: 5px; font-size: 9px; color: #047857;">{{ nl2br(htmlspecialchars(strip_tags($culte->points_forts))) }}</div>
-                </div>
-            </div>
-            @endif
-
-            @if($culte->points_amelioration)
-            <div class="column">
-                <div style="background-color: #fef3c7; border: 1px solid #fcd34d; border-radius: 4px; padding: 8px;">
-                    <strong style="color: #92400e;">Points d'amélioration:</strong>
-                    <div style="margin-top: 5px; font-size: 9px; color: #b45309;">{{ nl2br(htmlspecialchars(strip_tags($culte->points_amelioration))) }}</div>
-                </div>
-            </div>
-            @endif
-        </div>
-        @endif
-    </div>
-    @endif
-
-    <!-- Résumé du culte -->
-    <div class="section">
-        <h2 class="section-title">Résumé du Culte</h2>
-        <div class="summary-box">
-            <div style="font-size: 9px; line-height: 1.4;">
-                <p style="margin: 0 0 6px 0;">
-                    <strong>Vue d'ensemble:</strong> Le culte "{{ $culte->titre }}" s'est déroulé le {{ \Carbon\Carbon::parse($culte->date_culte)->format('l d F Y') }} et avait pour statut "{{ $culte->statut_libelle }}".
-                </p>
-
-                @if($culte->nombre_participants)
-                <p style="margin: 0 0 6px 0;">
-                    <strong>Participation:</strong> {{ number_format($culte->nombre_participants) }} personne(s) ont participé à ce culte
-                    @if($culte->nombre_adultes || $culte->nombre_jeunes || $culte->nombre_enfants)
-                        , répartis comme suit :
-                        @if($culte->nombre_adultes) {{ $culte->nombre_adultes }} adulte(s)@endif
-                        @if($culte->nombre_jeunes)@if($culte->nombre_adultes), @endif {{ $culte->nombre_jeunes }} jeune(s)@endif
-                        @if($culte->nombre_enfants)@if($culte->nombre_adultes || $culte->nombre_jeunes), @endif {{ $culte->nombre_enfants }} enfant(s)@endif
-                    @endif
-                    .
-                </p>
-                @endif
-
-                @if(isset($fondsStatistiques) && $fondsStatistiques['total_transactions'] > 0)
-                <p style="margin: 0 0 6px 0;">
-                    <strong>Finances:</strong> Un total de {{ number_format($fondsStatistiques['montant_total'], 0) }} FCFA a été collecté lors de ce culte, réparti sur {{ $fondsStatistiques['total_transactions'] }} transaction(s) de {{ $fondsStatistiques['donateurs_uniques'] }} donateur(s).
-                </p>
-                @endif
-
-                @if($culte->pasteurPrincipal)
-                <p style="margin: 0 0 6px 0;">
-                    <strong>Responsabilité:</strong> {{ htmlspecialchars($culte->pasteurPrincipal->nom_complet) }} était le pasteur principal de ce culte.
-                </p>
-                @endif
-
-                <p style="margin: 0;">
-                    <strong>Enregistrement:</strong> Ce rapport a été généré le {{ $dateGeneration }} et reflète l'état du culte au moment de l'extraction.
-                </p>
-            </div>
-        </div>
-    </div>
-
-    <!-- Pied de page -->
+    <!-- FOOTER -->
     <div class="footer">
-        <div style="display: flex; justify-content: space-between; align-items: center;">
-            <div>Généré automatiquement par le système de gestion d'église</div>
-            <div>{{ $dateGeneration }}</div>
+        <div class="footer-verse">
+            @if(!empty($AppParametres->verset_biblique) && !empty($AppParametres->reference_verset))
+                "{{ htmlspecialchars($AppParametres->verset_biblique) }}" - {{ htmlspecialchars($AppParametres->reference_verset) }}
+            @else
+                "Car Dieu a tant aimé le monde qu'il a donné son Fils unique..." - Jean 3:16
+            @endif
+        </div>
+        <div class="footer-content">
+            <div class="footer-social">
+                @if(!empty($AppParametres->facebook_url))
+                    Facebook: {{ htmlspecialchars($AppParametres->facebook_url) }} |
+                @endif
+                @if(!empty($AppParametres->instagram_url))
+                    Instagram: {{ htmlspecialchars($AppParametres->instagram_url) }} |
+                @endif
+                @if(!empty($AppParametres->youtube_url))
+                    YouTube: {{ htmlspecialchars($AppParametres->youtube_url) }} |
+                @endif
+                @if(!empty($AppParametres->twitter_url))
+                    Twitter: {{ htmlspecialchars($AppParametres->twitter_url) }}
+                @endif
+            </div>
+            <div class="footer-platform">
+                @if(!empty($AppParametres->website_url))
+                    Site web: {{ htmlspecialchars($AppParametres->website_url) }} |
+                @endif
+                Généré le {{ $dateGeneration }}
+            </div>
         </div>
     </div>
 
@@ -795,4 +787,5 @@
         }
     </script>
 </body>
+
 </html>

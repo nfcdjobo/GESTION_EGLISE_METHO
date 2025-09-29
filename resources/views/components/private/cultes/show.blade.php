@@ -159,7 +159,7 @@
                 </div>
 
                 <!-- Responsables -->
-                <div class="bg-white/80 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
+                {{-- <div class="bg-white/80 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
                     <div class="p-6 border-b border-slate-200">
                         <h2 class="text-xl font-bold text-slate-800 flex items-center">
                             <i class="fas fa-users text-purple-600 mr-2"></i>
@@ -216,6 +216,85 @@
                                 </div>
                             @endif
                         </div>
+                    </div>
+                </div> --}}
+                <!-- Officiants et Responsables -->
+                <div class="bg-white/80 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
+                    <div class="p-6 border-b border-slate-200">
+                        <div class="flex items-center justify-between">
+                            <h2 class="text-xl font-bold text-slate-800 flex items-center">
+                                <i class="fas fa-users text-purple-600 mr-2"></i>
+                                Officiants et Responsables
+                            </h2>
+                            @can('cultes.update')
+                                <button type="button" onclick="openOfficialsModal('{{ $culte->id }}')"
+                                    class="inline-flex items-center px-3 py-1 bg-indigo-100 text-indigo-700 text-sm font-medium rounded-lg hover:bg-indigo-200 transition-colors">
+                                    <i class="fas fa-edit mr-1"></i> Gérer
+                                </button>
+                            @endcan
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        @if ($culte->officiants_detail && $culte->officiants_detail->count() > 0)
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                @foreach($culte->officiants_detail as $officiant)
+                                    @php
+                                        // Icônes et couleurs selon le titre
+                                        $iconMap = [
+                                            'pasteur' => ['icon' => 'fa-user-tie', 'color' => 'blue'],
+                                            'prédicateur' => ['icon' => 'fa-microphone', 'color' => 'green'],
+                                            'predicateur' => ['icon' => 'fa-microphone', 'color' => 'green'],
+                                            'louange' => ['icon' => 'fa-music', 'color' => 'amber'],
+                                            'responsable' => ['icon' => 'fa-user-cog', 'color' => 'purple'],
+                                            'organisateur' => ['icon' => 'fa-user-cog', 'color' => 'purple'],
+                                            'maître' => ['icon' => 'fa-microphone-alt', 'color' => 'pink'],
+                                            'interprète' => ['icon' => 'fa-language', 'color' => 'cyan'],
+                                            'interprete' => ['icon' => 'fa-language', 'color' => 'cyan'],
+                                        ];
+
+                                        $titreLower = strtolower($officiant['titre']);
+                                        $iconData = null;
+
+                                        foreach ($iconMap as $key => $data) {
+                                            if (strpos($titreLower, $key) !== false) {
+                                                $iconData = $data;
+                                                break;
+                                            }
+                                        }
+
+                                        if (!$iconData) {
+                                            $iconData = ['icon' => 'fa-user', 'color' => 'slate'];
+                                        }
+                                    @endphp
+
+                                    <div class="flex items-center space-x-3 p-4 bg-gradient-to-r from-{{ $iconData['color'] }}-50 to-{{ $iconData['color'] }}-50 rounded-xl hover:shadow-md transition-all duration-200">
+                                        <div class="w-12 h-12 bg-{{ $iconData['color'] }}-100 rounded-full flex items-center justify-center flex-shrink-0">
+                                            <i class="fas {{ $iconData['icon'] }} text-{{ $iconData['color'] }}-600 text-lg"></i>
+                                        </div>
+                                        <div class="flex-1 min-w-0">
+                                            <p class="text-sm font-medium text-slate-500 truncate">{{ $officiant['titre'] }}</p>
+                                            <p class="font-semibold text-slate-900 truncate">{{ $officiant['nom_complet'] }}</p>
+                                            @if ($officiant['provenance'] !== 'Église Locale')
+                                                <p class="text-xs text-slate-500 truncate">
+                                                    <i class="fas fa-map-marker-alt mr-1"></i>{{ $officiant['provenance'] }}
+                                                </p>
+                                            @endif
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </div>
+                        @else
+                            <div class="text-center py-8 text-slate-500">
+                                <i class="fas fa-user-slash text-3xl mb-2"></i>
+                                <p class="italic">Aucun officiant assigné à ce culte</p>
+                                @can('cultes.manage-participants')
+                                    <button type="button" onclick="openOfficialsModal('{{ $culte->id }}')"
+                                        class="mt-3 inline-flex items-center px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 transition-colors">
+                                        <i class="fas fa-plus mr-2"></i>Ajouter des officiants
+                                    </button>
+                                @endcan
+                            </div>
+                        @endif
                     </div>
                 </div>
 
@@ -653,7 +732,7 @@
                         </h2>
                     </div>
                     <div class="p-6 space-y-3">
-                        @can('cultes.participant')
+                        @can('participant_cultes.ajouter-participant')
                             <a href="{{ route('private.cultes.participants', $culte->id) }}"
                                 class="w-full inline-flex items-center justify-center px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white text-sm font-medium rounded-xl hover:from-green-700 hover:to-emerald-700 transition-all duration-200">
                                 <i class="fas fa-user-plus mr-2"></i> Ajouter des participants
@@ -667,12 +746,14 @@
                             </a>
                         @endcan
 
+                        @can('cultes.change-status')
                         @if ($culte->statut !== 'termine')
                             <button type="button" onclick="openStatusModal('{{ $culte->id }}', '{{ $culte->statut }}')"
                                 class="w-full inline-flex items-center justify-center px-4 py-2 bg-gradient-to-r from-blue-600 to-cyan-600 text-white text-sm font-medium rounded-xl hover:from-blue-700 hover:to-cyan-700 transition-all duration-200">
                                 <i class="fas fa-exchange-alt mr-2"></i> Changer le statut
                             </button>
                         @endif
+                        @endcan
 
                         @if ($culte->lien_diffusion_live)
                             <a href="{{ $culte->lien_diffusion_live }}" target="_blank"
@@ -688,6 +769,7 @@
                             </a>
                         @endif
 
+                        
                         @if ($culte->lien_enregistrement_audio)
                             <a href="{{ $culte->lien_enregistrement_audio }}" target="_blank"
                                 class="w-full inline-flex items-center justify-center px-4 py-2 bg-gradient-to-r from-amber-600 to-orange-600 text-white text-sm font-medium rounded-xl hover:from-amber-700 hover:to-orange-700 transition-all duration-200">

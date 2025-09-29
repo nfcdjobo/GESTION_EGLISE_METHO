@@ -27,7 +27,7 @@ namespace App\Models{
  * @property string|null $contact_principal_id Contact principal
  * @property string|null $lieu_evenement Lieu de l'événement
  * @property string $statut Statut de l'annonce
- * @property string|null $cree_par Utilisateur créateur
+ * @property string|null $cree_par Membres créateur
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
@@ -229,8 +229,8 @@ namespace App\Models{
  * @property \Illuminate\Support\Carbon|null $derniere_mise_a_jour Dernière mise à jour des infos
  * @property string|null $notes_complementaires Notes complémentaires
  * @property string|null $responsable_contact_id Responsable de ces informations
- * @property string|null $cree_par Utilisateur qui a créé
- * @property string|null $modifie_par Dernier utilisateur ayant modifié
+ * @property string|null $cree_par Membres qui a créé
+ * @property string|null $modifie_par Dernier membres ayant modifié
  * @property bool $verifie Informations vérifiées
  * @property \Illuminate\Support\Carbon|null $derniere_verification Dernière vérification
  * @property \Illuminate\Support\Carbon|null $created_at
@@ -382,11 +382,6 @@ namespace App\Models{
  * @property string $lieu Lieu du culte
  * @property string|null $adresse_lieu Adresse complète si lieu externe
  * @property int|null $capacite_prevue Capacité prévue de participants
- * @property string|null $pasteur_principal_id Pasteur principal du culte
- * @property string|null $predicateur_id Prédicateur/Orateur principal
- * @property string|null $responsable_culte_id Responsable de l'organisation
- * @property string|null $dirigeant_louange_id Dirigeant de louange
- * @property array|null $equipe_culte Équipe du culte (JSON: rôles et personnes)
  * @property string|null $titre_message Titre du message/prédication
  * @property string|null $resume_message Résumé du message
  * @property string|null $passage_biblique Passage biblique principal
@@ -429,34 +424,40 @@ namespace App\Models{
  * @property string|null $note_louange Note de la louange (1-10)
  * @property string|null $note_message Note du message (1-10)
  * @property string|null $note_organisation Note de l'organisation (1-10)
- * @property string|null $cree_par Utilisateur qui a créé l'enregistrement
- * @property string|null $modifie_par Dernier utilisateur ayant modifié
+ * @property string|null $cree_par Membres qui a créé l'enregistrement
+ * @property string|null $modifie_par Dernier membres ayant modifié
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property array|null $officiants Liste des officiants du culte (JSON: [{user_id, titre, provenance}, ...])
  * @property-read \App\Models\User|null $createur
- * @property-read \App\Models\User|null $dirigeantLouange
  * @property-read string|null $atmosphere_libelle
  * @property-read string $categorie_libelle
  * @property-read array $content_overview
  * @property-read mixed $description_formatted
+ * @property-read array|null $dirigeant_louange
  * @property-read string|null $duree_totale
  * @property-read bool $is_a_venir
  * @property-read bool $is_termine
  * @property-read mixed $notes_formatted
+ * @property-read \Illuminate\Support\Collection $officiants_detail
+ * @property-read array|null $pasteur_principal
  * @property-read mixed $plan_message_formatted
  * @property-read mixed $points_formatted
+ * @property-read array|null $predicateur
+ * @property-read array|null $responsable_organisation
  * @property-read mixed $resume_message_formatted
  * @property-read string $statut_libelle
  * @property-read mixed $temoignages_formatted
  * @property-read string $type_culte_libelle
  * @property-read \App\Models\User|null $modificateur
- * @property-read \App\Models\User|null $pasteurPrincipal
- * @property-read \App\Models\User|null $predicateur
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\User> $officiantsUsers
+ * @property-read int|null $officiants_users_count
  * @property-read \App\Models\Programme $programme
- * @property-read \App\Models\User|null $responsableCulte
  * @property-read \App\Models\User|null $responsableFinances
  * @method static \Illuminate\Database\Eloquent\Builder|Culte aVenir()
+ * @method static \Illuminate\Database\Eloquent\Builder|Culte avecOfficiant(string $userId)
+ * @method static \Illuminate\Database\Eloquent\Builder|Culte avecOfficiantTitre(string $titre)
  * @method static \Illuminate\Database\Eloquent\Builder|Culte newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Culte newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Culte onlyTrashed()
@@ -482,11 +483,9 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|Culte whereDetailOffrandes($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Culte whereDiffusionEnLigne($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Culte whereDimeTotale($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Culte whereDirigeantLouangeId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Culte whereDureeLouange($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Culte whereDureeMessage($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Culte whereDureePriere($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Culte whereEquipeCulte($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Culte whereEstEnregistre($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Culte whereEstPublic($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Culte whereHeureDebut($value)
@@ -514,17 +513,15 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|Culte whereNoteOrganisation($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Culte whereNotesOrganisateur($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Culte whereNotesPasteur($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Culte whereOfficiants($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Culte whereOffrandeTotale($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Culte whereOrdreService($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Culte wherePassageBiblique($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Culte wherePasteurPrincipalId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Culte wherePhotosCulte($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Culte wherePlanMessage($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Culte wherePointsAmelioration($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Culte wherePointsForts($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Culte wherePredicateurId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Culte whereProgrammeId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Culte whereResponsableCulteId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Culte whereResponsableFinancesId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Culte whereResumeMessage($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Culte whereStatut($value)
@@ -539,6 +536,53 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|Culte withoutTrashed()
  */
 	class Culte extends \Eloquent {}
+}
+
+namespace App\Models{
+/**
+ * @property string $id
+ * @property string|null $parametre_fond_id
+ * @property string $nom_donateur
+ * @property string $prenom_donateur
+ * @property string $telephone_1
+ * @property string|null $telephone_2
+ * @property string $montant
+ * @property string $devise
+ * @property string $preuve Chemin vers le fichier de preuve
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property-read string $devise_libelle
+ * @property-read string $montant_formate
+ * @property-read string $nom_complet
+ * @property-read string|null $url_preuve
+ * @property-read \App\Models\ParametreDon|null $parametreDon
+ * @method static \Illuminate\Database\Eloquent\Builder|Don entreMontants(float $min, float $max)
+ * @method static \Illuminate\Database\Eloquent\Builder|Don montantMaximum(float $montant)
+ * @method static \Illuminate\Database\Eloquent\Builder|Don montantMinimum(float $montant)
+ * @method static \Illuminate\Database\Eloquent\Builder|Don newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Don newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Don onlyTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|Don parDevise(string $devise)
+ * @method static \Illuminate\Database\Eloquent\Builder|Don parDonateur(?string $nom = null, ?string $prenom = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|Don query()
+ * @method static \Illuminate\Database\Eloquent\Builder|Don recents(int $jours = 30)
+ * @method static \Illuminate\Database\Eloquent\Builder|Don whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Don whereDeletedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Don whereDevise($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Don whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Don whereMontant($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Don whereNomDonateur($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Don whereParametreFondId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Don wherePrenomDonateur($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Don wherePreuve($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Don whereTelephone1($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Don whereTelephone2($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Don whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Don withTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|Don withoutTrashed()
+ */
+	class Don extends \Eloquent {}
 }
 
 namespace App\Models{
@@ -733,8 +777,8 @@ namespace App\Models{
  * @property bool $evenement_recurrent Événement récurrent
  * @property string|null $frequence_recurrence Fréquence de récurrence
  * @property \Illuminate\Support\Carbon|null $prochaine_occurrence Prochaine occurrence
- * @property string|null $cree_par Utilisateur qui a créé lévénement
- * @property string|null $modifie_par Dernier utilisateur ayant modifié
+ * @property string|null $cree_par Membres qui a créé lévénement
+ * @property string|null $modifie_par Dernier membres ayant modifié
  * @property \Illuminate\Support\Carbon|null $derniere_activite Dernière activité
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
@@ -972,7 +1016,7 @@ namespace App\Models{
  * @property string|null $transaction_parent_id Transaction parent si récurrente
  * @property string|null $occasion_speciale Occasion spéciale (Noël, Pâques, etc.)
  * @property string|null $lieu_collecte Lieu de collecte (église principale, annexe, etc.)
- * @property string|null $cree_par Utilisateur créateur
+ * @property string|null $cree_par Membres créateur
  * @property string|null $modifie_par Dernier modificateur
  * @property \Illuminate\Support\Carbon|null $derniere_verification Dernière vérification comptable
  * @property string|null $verifie_par Vérificateur comptable
@@ -1081,13 +1125,45 @@ namespace App\Models{
 namespace App\Models{
 /**
  * @property string $id
- * @property string $inscrit_id ID de l'utilisateur inscrit
+ * @property string|null $parametre_don_id
+ * @property string $action Type d'action effectuée
+ * @property string|null $effectuer_par
+ * @property array|null $infos Les informations enregistrées lors de l'action
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \App\Models\User|null $effectuerPar
+ * @property-read string $action_libelle
+ * @property-read string $description
+ * @property-read \App\Models\ParametreDon|null $parametreDon
+ * @method static \Illuminate\Database\Eloquent\Builder|HistoriqueActionSurParametreDon newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|HistoriqueActionSurParametreDon newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|HistoriqueActionSurParametreDon parAction(string $action)
+ * @method static \Illuminate\Database\Eloquent\Builder|HistoriqueActionSurParametreDon parParametreDon(string $parametreDonId)
+ * @method static \Illuminate\Database\Eloquent\Builder|HistoriqueActionSurParametreDon parUtilisateur(string $userId)
+ * @method static \Illuminate\Database\Eloquent\Builder|HistoriqueActionSurParametreDon query()
+ * @method static \Illuminate\Database\Eloquent\Builder|HistoriqueActionSurParametreDon recentes(int $jours = 30)
+ * @method static \Illuminate\Database\Eloquent\Builder|HistoriqueActionSurParametreDon recentsEnPremier()
+ * @method static \Illuminate\Database\Eloquent\Builder|HistoriqueActionSurParametreDon whereAction($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|HistoriqueActionSurParametreDon whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|HistoriqueActionSurParametreDon whereEffectuerPar($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|HistoriqueActionSurParametreDon whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|HistoriqueActionSurParametreDon whereInfos($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|HistoriqueActionSurParametreDon whereParametreDonId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|HistoriqueActionSurParametreDon whereUpdatedAt($value)
+ */
+	class HistoriqueActionSurParametreDon extends \Eloquent {}
+}
+
+namespace App\Models{
+/**
+ * @property string $id
+ * @property string $inscrit_id ID de l'membres inscrit
  * @property string $event_id ID de l'événement
- * @property string|null $cree_par ID de l'utilisateur qui a créé l'inscription
+ * @property string|null $cree_par ID de l'membres qui a créé l'inscription
  * @property \Illuminate\Support\Carbon|null $cree_le Date et heure de création
- * @property string|null $modifie_par ID du dernier utilisateur ayant modifié
- * @property string|null $supprimer_par ID de l'utilisateur qui a supprimé
- * @property string|null $annule_par ID de l'utilisateur qui a annulé
+ * @property string|null $modifie_par ID du dernier membres ayant modifié
+ * @property string|null $supprimer_par ID de l'membres qui a supprimé
+ * @property string|null $annule_par ID de l'membres qui a annulé
  * @property \Illuminate\Support\Carbon|null $annule_le Date et heure d'annulation
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
@@ -1337,9 +1413,9 @@ namespace App\Models{
  * @property string|null $note_qualite Note de qualité (1-10)
  * @property bool $contenu_sensible Contenu sensible
  * @property string|null $avertissement Avertissement si contenu sensible
- * @property string $telecharge_par Utilisateur qui a téléchargé
- * @property string|null $cree_par Utilisateur créateur
- * @property string|null $modifie_par Dernier utilisateur modificateur
+ * @property string $telecharge_par Membres qui a téléchargé
+ * @property string|null $cree_par Membres créateur
+ * @property string|null $modifie_par Dernier membres modificateur
  * @property array|null $historique_modifications Historique des modifications
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
@@ -1472,6 +1548,62 @@ namespace App\Models{
 namespace App\Models{
 /**
  * @property string $id
+ * @property string $operateur
+ * @property string $type
+ * @property string $numero_compte
+ * @property string|null $qrcode
+ * @property bool $statut Actif/Inactif
+ * @property bool $publier Publié/Non publié
+ * @property string|null $publier_par
+ * @property string|null $creer_par
+ * @property string|null $modifier_par
+ * @property string|null $supprimer_par
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property string|null $logo Logo le l'opérateur
+ * @property-read \App\Models\User|null $creerPar
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Don> $dons
+ * @property-read int|null $dons_count
+ * @property-read string $type_libelle
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\HistoriqueActionSurParametreDon> $historiques
+ * @property-read int|null $historiques_count
+ * @property-read \App\Models\User|null $modifierPar
+ * @property-read \App\Models\User|null $publierPar
+ * @property-read \App\Models\User|null $supprimerPar
+ * @method static \Illuminate\Database\Eloquent\Builder|ParametreDon actif()
+ * @method static \Illuminate\Database\Eloquent\Builder|ParametreDon actifEtPublie()
+ * @method static \Illuminate\Database\Eloquent\Builder|ParametreDon newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|ParametreDon newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|ParametreDon onlyTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|ParametreDon parOperateur(string $operateur)
+ * @method static \Illuminate\Database\Eloquent\Builder|ParametreDon parType(string $type)
+ * @method static \Illuminate\Database\Eloquent\Builder|ParametreDon publie()
+ * @method static \Illuminate\Database\Eloquent\Builder|ParametreDon query()
+ * @method static \Illuminate\Database\Eloquent\Builder|ParametreDon whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ParametreDon whereCreerPar($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ParametreDon whereDeletedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ParametreDon whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ParametreDon whereLogo($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ParametreDon whereModifierPar($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ParametreDon whereNumeroCompte($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ParametreDon whereOperateur($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ParametreDon wherePublier($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ParametreDon wherePublierPar($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ParametreDon whereQrcode($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ParametreDon whereStatut($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ParametreDon whereSupprimerPar($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ParametreDon whereType($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ParametreDon whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ParametreDon withTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|ParametreDon withoutTrashed()
+ */
+	class ParametreDon extends \Eloquent {}
+}
+
+namespace App\Models{
+/**
+ * @property string $id
  * @property string $nom_eglise
  * @property string $telephone_1
  * @property string|null $telephone_2
@@ -1494,7 +1626,7 @@ namespace App\Models{
  * @property string|null $youtube_url
  * @property string|null $twitter_url
  * @property string|null $website_url
- * @property array|null $horaires_cultes
+ * @property array|null $programmes
  * @property \Illuminate\Support\Carbon|null $date_fondation
  * @property int|null $nombre_membres
  * @property string|null $histoire_eglise
@@ -1524,7 +1656,6 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|Parametres whereFacebookUrl($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Parametres whereFuseauHoraire($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Parametres whereHistoireEglise($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Parametres whereHorairesCultes($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Parametres whereId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Parametres whereImagesHero($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Parametres whereInstagramUrl($value)
@@ -1534,6 +1665,7 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|Parametres whereNomEglise($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Parametres whereNombreMembres($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Parametres wherePays($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Parametres whereProgrammes($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Parametres whereReferenceVerset($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Parametres whereSingleton($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Parametres whereTelephone1($value)
@@ -1552,7 +1684,7 @@ namespace App\Models{
 namespace App\Models{
 /**
  * @property string $id
- * @property string $participant_id ID de l'utilisateur participant
+ * @property string $participant_id ID de l'membres participant
  * @property string $culte_id ID du culte
  * @property string $statut_presence Type de présence du participant
  * @property string $type_participation Mode de participation
@@ -1741,8 +1873,8 @@ namespace App\Models{
  * @property bool $is_active Permission active/inactive
  * @property bool $is_system Permission système (non modifiable)
  * @property array|null $conditions Conditions supplémentaires en JSON
- * @property string|null $created_by Utilisateur qui a créé la permission
- * @property string|null $updated_by Dernier utilisateur ayant modifié
+ * @property string|null $created_by Membres qui a créé la permission
+ * @property string|null $updated_by Dernier membres ayant modifié
  * @property \Illuminate\Support\Carbon|null $last_used_at Dernière utilisation de la permission
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
@@ -1855,7 +1987,7 @@ namespace App\Models{
  * @property string $audience_cible Audience ciblée
  * @property string $statut Statut du programme
  * @property string|null $notes Notes supplémentaires
- * @property string|null $cree_par Utilisateur créateur
+ * @property string|null $cree_par Membres créateur
  * @property string|null $modifie_par Dernier modificateur
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
@@ -2560,8 +2692,8 @@ namespace App\Models{
  * @property bool $rappel_1_semaine_envoye Rappel J-7 envoyé
  * @property \Illuminate\Support\Carbon|null $dernier_rappel_envoye Dernier rappel envoyé
  * @property int $nombre_rappels_envoyes Nombre de rappels envoyés
- * @property string|null $cree_par Utilisateur qui a créé la réunion
- * @property string|null $modifie_par Dernier utilisateur ayant modifié
+ * @property string|null $cree_par Membres qui a créé la réunion
+ * @property string|null $modifie_par Dernier membres ayant modifié
  * @property string|null $validee_par Qui a validé la réunion
  * @property \Illuminate\Support\Carbon|null $validee_le Date de validation
  * @property string|null $notes_organisateur Notes privées de l'organisateur
@@ -3077,8 +3209,8 @@ namespace App\Models{
  * @property string|null $conditions_participation Conditions de participation
  * @property string|null $code_vestimentaire Code vestimentaire
  * @property string|null $responsable_type_id Responsable par défaut de ce type
- * @property string|null $cree_par Utilisateur qui a créé le type
- * @property string|null $modifie_par Dernier utilisateur ayant modifié
+ * @property string|null $cree_par Membres qui a créé le type
+ * @property string|null $modifie_par Dernier membres ayant modifié
  * @property \Illuminate\Support\Carbon|null $derniere_utilisation Dernière utilisation de ce type
  * @property int $nombre_utilisations Nombre d'utilisations total
  * @property \Illuminate\Support\Carbon|null $created_at
@@ -3205,7 +3337,7 @@ namespace App\Models{
  * @property string|null $temoignage
  * @property string|null $dons_spirituels
  * @property string|null $demandes_priere
- * @property mixed $password
+ * @property mixed|null $password
  * @property bool $actif
  * @property string|null $remember_token
  * @property string|null $photo_profil
@@ -3216,10 +3348,6 @@ namespace App\Models{
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Annonce> $annonces
  * @property-read int|null $annonces_count
  * @property-read \App\Models\Classe|null $classe
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Culte> $cultesPasteur
- * @property-read int|null $cultes_pasteur_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Culte> $cultesPredicateur
- * @property-read int|null $cultes_predicateur_count
  * @property-read mixed $nom_complet
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Intervention> $interventions
  * @property-read int|null $interventions_count
@@ -3312,16 +3440,16 @@ namespace App\Models{
 namespace App\Models{
 /**
  * @property string $id
- * @property string $user_id Référence vers l'utilisateur
+ * @property string $user_id Référence vers l'membres
  * @property string $permission_id Référence vers la permission
  * @property bool $is_granted Permission accordée ou révoquée
- * @property string|null $granted_by Utilisateur qui a accordé la permission
+ * @property string|null $granted_by Membres qui a accordé la permission
  * @property \Illuminate\Support\Carbon $granted_at Date d'attribution de la permission
  * @property \Illuminate\Support\Carbon|null $expires_at Date d'expiration (null = permanente)
  * @property bool $is_expired Flag calculé automatiquement par trigger
  * @property string|null $reason Raison de l'attribution/révocation
  * @property array|null $metadata Données supplémentaires en JSON (contexte, conditions, etc.)
- * @property string|null $revoked_by Utilisateur qui a révoqué la permission
+ * @property string|null $revoked_by Membres qui a révoqué la permission
  * @property \Illuminate\Support\Carbon|null $revoked_at Date de révocation
  * @property string|null $revocation_reason Raison de la révocation
  * @property \Illuminate\Support\Carbon|null $created_at
@@ -3367,7 +3495,7 @@ namespace App\Models{
 
 namespace App\Models{
 /**
- * @property string $user_id ID de l'utilisateur
+ * @property string $user_id ID de l'membres
  * @property string $role_id ID du rôle
  * @property string|null $attribue_par Qui a attribué ce rôle
  * @property \Illuminate\Support\Carbon $attribue_le Quand le rôle a été attribué
@@ -3417,8 +3545,6 @@ namespace App\Models{
  * @property string $collecter_par
  * @property \Illuminate\Support\Carbon $collecte_le
  * @property string $creer_par
- * @property int|null $quantite Quantité vendue si applicable
- * @property string|null $prix_unitaire Prix unitaire si applicable
  * @property string|null $description Description détaillée de la vente
  * @property array|null $editeurs Historique des modifications en JSONB
  * @property bool $status
@@ -3455,8 +3581,6 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|VenteMoisson whereMoissonId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|VenteMoisson whereMontantSolde($value)
  * @method static \Illuminate\Database\Eloquent\Builder|VenteMoisson whereMontantSupplementaire($value)
- * @method static \Illuminate\Database\Eloquent\Builder|VenteMoisson wherePrixUnitaire($value)
- * @method static \Illuminate\Database\Eloquent\Builder|VenteMoisson whereQuantite($value)
  * @method static \Illuminate\Database\Eloquent\Builder|VenteMoisson whereReste($value)
  * @method static \Illuminate\Database\Eloquent\Builder|VenteMoisson whereStatus($value)
  * @method static \Illuminate\Database\Eloquent\Builder|VenteMoisson whereUpdatedAt($value)

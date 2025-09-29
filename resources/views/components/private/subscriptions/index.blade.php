@@ -99,7 +99,7 @@
                         @can('fimecos.read')
                             <a href="{{ route('private.fimecos.index') }}"
                                 class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-sm font-medium rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-200 shadow-md hover:shadow-lg">
-                                <i class="fas fa-plus mr-2"></i> Nouvelle Souscription
+                                <i class="fas fa-list mr-2"></i> Liste FIMECOs
                             </a>
                         @endcan
                         @can('subscriptions.dashboard')
@@ -476,8 +476,8 @@
                                 Commencez par créer votre première souscription.
                             @endif
                         </p>
-                        @can('subscriptions.create')
-                            <a href="{{ route('private.subscriptions.create') }}"
+                        @can('fimecos.read')
+                            <a href="{{ route('private.fimecos.index') }}"
                                 class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-medium rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-200 shadow-md hover:shadow-lg">
                                 <i class="fas fa-list mr-2"></i> Liste FIMECOs
                             </a>

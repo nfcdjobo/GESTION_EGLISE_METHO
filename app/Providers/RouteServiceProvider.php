@@ -29,18 +29,10 @@ class RouteServiceProvider extends ServiceProvider
         });
 
         $this->routes(function () {
-            Route::middleware('api')
-                ->prefix('api')
-                ->group(base_path('routes/api.php'));
+            Route::middleware('api')->prefix('api')->group(base_path('routes/api.php'));
 
-            Route::middleware('web')
-                ->group(base_path('routes/web.php'));
+            Route::middleware('web')->group(base_path('routes/web.php'));
 
-            Route::middleware('web')->group(base_path('routes/router/about.php'));
-            Route::middleware('web')->group(base_path('routes/router/culte.php'));
-            Route::middleware('web')->group(base_path('routes/router/events.php'));
-            Route::middleware('web')->group(base_path('routes/router/contact.php'));
-            Route::middleware('web')->group(base_path('routes/router/horaires.php'));
         });
     }
 }

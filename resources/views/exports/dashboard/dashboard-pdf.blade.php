@@ -4,307 +4,126 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Rapport Dashboard Église</title>
-    <style>
-        @page {
-            margin: 1cm;
-            size: A4 landscape;
-        }
-
-        body {
-            font-family: 'DejaVu Sans', Arial, sans-serif;
-            font-size: 9px;
-            line-height: 1.3;
-            color: #1f2937;
-            margin: 0;
-            padding: 0;
-        }
-
-        .header {
-            text-align: center;
-            border-bottom: 3px solid #3b82f6;
-            padding-bottom: 15px;
-            margin-bottom: 20px;
-        }
-
-        .header h1 {
-            color: #1f2937;
-            font-size: 18px;
-            margin: 0 0 8px 0;
-            font-weight: bold;
-        }
-
-        .header .subtitle {
-            color: #6b7280;
-            font-size: 10px;
-            margin: 0;
-        }
-
-        .metadata {
-            background-color: #f8fafc;
-            border-left: 4px solid #3b82f6;
-            padding: 12px;
-            margin-bottom: 20px;
-            page-break-inside: avoid;
-        }
-
-        .metadata h2 {
-            color: #1f2937;
-            font-size: 12px;
-            margin: 0 0 8px 0;
-            font-weight: bold;
-        }
-
-        .metadata-grid {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 12px;
-        }
-
-        .metadata-item {
-            flex: 1;
-            min-width: 150px;
-        }
-
-        .metadata-label {
-            font-weight: bold;
-            color: #374151;
-        }
-
-        .metadata-value {
-            color: #6b7280;
-            margin-left: 5px;
-        }
-
-        .section {
-            margin-bottom: 25px;
-            page-break-inside: avoid;
-        }
-
-        .section-title {
-            background-color: #059669;
-            color: white;
-            padding: 8px 12px;
-            font-size: 11px;
-            font-weight: bold;
-            margin: 0 0 12px 0;
-            border-radius: 3px;
-        }
-
-        .kpis-grid {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin-bottom: 15px;
-        }
-
-        .kpi-card {
-            flex: 1;
-            min-width: 120px;
-            background-color: #f8fafc;
-            border: 1px solid #e5e7eb;
-            border-radius: 4px;
-            padding: 8px;
-            text-align: center;
-        }
-
-        .kpi-label {
-            font-size: 8px;
-            color: #6b7280;
-            margin-bottom: 3px;
-            font-weight: 500;
-        }
-
-        .kpi-value {
-            font-size: 12px;
-            font-weight: bold;
-            color: #1f2937;
-        }
-
-        .table-container {
-            margin-bottom: 15px;
-            overflow-x: auto;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 8px;
-            background-color: white;
-        }
-
-        th {
-            background-color: #f3f4f6;
-            color: #374151;
-            font-weight: bold;
-            padding: 6px 4px;
-            border: 1px solid #d1d5db;
-            text-align: left;
-            white-space: nowrap;
-        }
-
-        td {
-            padding: 5px 4px;
-            border: 1px solid #d1d5db;
-            color: #1f2937;
-            white-space: nowrap;
-        }
-
-        tr:nth-child(even) {
-            background-color: #f9fafb;
-        }
-
-        .number {
-            text-align: right;
-        }
-
-        .center {
-            text-align: center;
-        }
-
-        .footer {
-            position: fixed;
-            bottom: 0.5cm;
-            left: 1cm;
-            right: 1cm;
-            text-align: center;
-            font-size: 7px;
-            color: #6b7280;
-            border-top: 1px solid #e5e7eb;
-            padding-top: 5px;
-        }
-
-        .page-break {
-            page-break-before: always;
-        }
-
-        .highlight {
-            background-color: #fef3c7;
-            padding: 1px 3px;
-            border-radius: 2px;
-        }
-
-        .positive {
-            color: #059669;
-            font-weight: bold;
-        }
-
-        .negative {
-            color: #dc2626;
-            font-weight: bold;
-        }
-
-        .trend {
-            font-size: 8px;
-            padding: 2px 6px;
-            border-radius: 10px;
-            display: inline-block;
-        }
-
-        .trend.up {
-            background-color: #d1fae5;
-            color: #065f46;
-        }
-
-        .trend.down {
-            background-color: #fee2e2;
-            color: #991b1b;
-        }
-
-        .summary-box {
-            background-color: #eff6ff;
-            border: 1px solid #bfdbfe;
-            border-radius: 4px;
-            padding: 10px;
-            margin: 10px 0;
-        }
-
-        .summary-title {
-            color: #1e40af;
-            font-size: 10px;
-            font-weight: bold;
-            margin-bottom: 6px;
-        }
-
-        .summary-text {
-            font-size: 8px;
-            line-height: 1.4;
-            color: #1f2937;
-        }
-
-        .ratio-cards {
-            display: flex;
-            gap: 15px;
-            margin-bottom: 15px;
-        }
-
-        .ratio-card {
-            flex: 1;
-            background-color: #f8fafc;
-            border: 1px solid #e5e7eb;
-            border-radius: 4px;
-            padding: 10px;
-        }
-
-        .ratio-card h3 {
-            margin: 0 0 6px 0;
-            color: #1f2937;
-            font-size: 9px;
-            font-weight: bold;
-        }
-
-        .ratio-item {
-            margin-bottom: 5px;
-            font-size: 8px;
-            display: flex;
-            justify-content: space-between;
-        }
-
-        .ratio-label {
-            font-weight: bold;
-        }
-
-        .ratio-value {
-            text-align: right;
-        }
-
-        .no-data {
-            color: #6b7280;
-            font-style: italic;
-            text-align: center;
-            padding: 15px;
-            background-color: #f9fafb;
-            border-radius: 4px;
-        }
-    </style>
 </head>
-<body>
+<body style="font-family: 'DejaVu Sans', Arial, sans-serif; font-size: 9px; line-height: 1.3; color: #1f2937; margin: 0; padding: 0;">
+
+    <!-- EN-TÊTE STRUCTURE -->
+    <div style="background-color: #1e40af; color: white; padding: 15px; margin: -1cm -1cm 20px -1cm; border-bottom: 4px solid #f59e0b; overflow: hidden;">
+        <div style="width: 100%;">
+            <!-- PARTIE GAUCHE: Logo + Nom + Téléphones -->
+            <div style="float: left; width: 48%;">
+                <div style="float: left; width: 70px; margin-right: 10px;">
+                    @if(!empty($AppParametres->logo))
+                        @php
+                            try {
+                                $logoPath = storage_path('app/public/' . $AppParametres->logo);
+                                if (file_exists($logoPath)) {
+                                    $imageData = base64_encode(file_get_contents($logoPath));
+                                    $imageExtension = strtolower(pathinfo($logoPath, PATHINFO_EXTENSION));
+                                    $mimeTypes = [
+                                        'jpg' => 'jpeg', 'jpeg' => 'jpeg', 'png' => 'png',
+                                        'gif' => 'gif', 'svg' => 'svg+xml', 'webp' => 'webp'
+                                    ];
+                                    $mimeType = $mimeTypes[$imageExtension] ?? 'png';
+                                    $logoBase64 = "data:image/{$mimeType};base64,{$imageData}";
+                                } else {
+                                    $logoBase64 = null;
+                                }
+                            } catch (\Exception $e) {
+                                $logoBase64 = null;
+                            }
+                        @endphp
+
+                        @if(isset($logoBase64) && $logoBase64)
+                            <div style="width: 60px; height: 60px; background-color: white; border-radius: 8px; padding: 5px; text-align: center; line-height: 60px;">
+                                <img src="{{ $logoBase64 }}" alt="Logo" style="max-width: 50px; max-height: 50px; vertical-align: middle;">
+                            </div>
+                        @else
+                            <div style="width: 60px; height: 60px; background-color: white; border-radius: 8px; padding: 5px; text-align: center; line-height: 60px; font-size: 24px; font-weight: bold; color: #3b82f6;">
+                                {{ strtoupper(substr($AppParametres->nom_eglise, 0, 2)) }}
+                            </div>
+                        @endif
+                    @else
+                        <div style="width: 60px; height: 60px; background-color: white; border-radius: 8px; padding: 5px; text-align: center; line-height: 60px; font-size: 24px; font-weight: bold; color: #3b82f6;">
+                            {{ strtoupper(substr($AppParametres->nom_eglise, 0, 2)) }}
+                        </div>
+                    @endif
+                </div>
+
+                <div style="margin-left: 80px;">
+                    <div style="font-size: 14px; font-weight: bold; margin: 0 0 8px 0; text-transform: uppercase; letter-spacing: 0.5px; color: white;">
+                        {{ htmlspecialchars($AppParametres->nom_eglise) }}
+                    </div>
+                    <div style="font-size: 7px; line-height: 1.6; color: white;">
+                        @if(!empty($AppParametres->telephone_1))
+                            <div style="margin: 3px 0; word-wrap: break-word;"><strong>Tel 1:</strong> {{ htmlspecialchars($AppParametres->telephone_1) }}</div>
+                        @endif
+                        @if(!empty($AppParametres->telephone_2))
+                            <div style="margin: 3px 0; word-wrap: break-word;"><strong>Tel 2:</strong> {{ htmlspecialchars($AppParametres->telephone_2) }}</div>
+                        @endif
+                    </div>
+                </div>
+            </div>
+
+            <!-- PARTIE DROITE: Email + Adresse -->
+            <div style="float: right; width: 48%; text-align: right;">
+                <div style="font-size: 7px; line-height: 1.6; color: white;">
+                    @if(!empty($AppParametres->email))
+                        <div style="margin: 3px 0; word-wrap: break-word;"><strong>Email:</strong> {{ htmlspecialchars($AppParametres->email) }}</div>
+                    @endif
+                    @if(!empty($AppParametres->adresse))
+                        <div style="margin: 3px 0; word-wrap: break-word;">
+                            <strong>Adresse:</strong>
+                            {{ htmlspecialchars($AppParametres->adresse) }}
+                            @if(!empty($AppParametres->code_postal)), {{ htmlspecialchars($AppParametres->code_postal) }}@endif
+                            @if(!empty($AppParametres->ville)) {{ htmlspecialchars($AppParametres->ville) }}@endif
+                        </div>
+                    @endif
+                    @if(!empty($AppParametres->commune))
+                        <div style="margin: 3px 0; word-wrap: break-word;">{{ htmlspecialchars($AppParametres->commune) }}</div>
+                    @endif
+                    @if(!empty($AppParametres->pays))
+                        <div style="margin: 3px 0; word-wrap: break-word;">{{ htmlspecialchars($AppParametres->pays) }}</div>
+                    @endif
+                </div>
+            </div>
+            <div style="clear: both;"></div>
+        </div>
+    </div>
+
     <!-- En-tête -->
-    <div class="header">
-        <h1>{{ $data['metadata']['church_name'] ?? 'Église - Tableau de Bord' }}</h1>
-        <p class="subtitle">Rapport d'Activités - Période {{ $data['metadata']['period_label'] }}</p>
+    <div style="text-align: center; border-bottom: 3px solid #3b82f6; padding-bottom: 15px; margin-bottom: 20px;">
+        <h1 style="color: #1f2937; font-size: 18px; margin: 0 0 8px 0; font-weight: bold;">
+            {{ $data['metadata']['church_name'] ?? 'Église - Tableau de Bord' }}
+        </h1>
+        <p style="color: #6b7280; font-size: 10px; margin: 0;">
+            Rapport d'Activités - Période {{ $data['metadata']['period_label'] }}
+        </p>
     </div>
 
     <!-- Métadonnées -->
-    <div class="section">
-        <h2 class="section-title">Informations du Rapport</h2>
-        <div class="table-container">
-            <table>
+    <div style="margin-bottom: 25px;">
+        <h2 style="background-color: #059669; color: white; padding: 8px 12px; font-size: 11px; font-weight: bold; margin: 0 0 12px 0; border-radius: 3px;">
+            Informations du Rapport
+        </h2>
+        <div style="margin-bottom: 15px; overflow-x: auto;">
+            <table style="width: 100%; border-collapse: collapse; font-size: 8px; background-color: white;">
                 <thead>
                     <tr>
-                        <th>Période</th>
-                        <th>Du</th>
-                        <th>Au</th>
-                        <th>Exporté le</th>
-                        <th>Exporté par</th>
+                        <th style="background-color: #f3f4f6; color: #374151; font-weight: bold; padding: 6px 4px; border: 1px solid #d1d5db; text-align: left; white-space: nowrap;">Période</th>
+                        <th style="background-color: #f3f4f6; color: #374151; font-weight: bold; padding: 6px 4px; border: 1px solid #d1d5db; text-align: left; white-space: nowrap;">Du</th>
+                        <th style="background-color: #f3f4f6; color: #374151; font-weight: bold; padding: 6px 4px; border: 1px solid #d1d5db; text-align: left; white-space: nowrap;">Au</th>
+                        <th style="background-color: #f3f4f6; color: #374151; font-weight: bold; padding: 6px 4px; border: 1px solid #d1d5db; text-align: left; white-space: nowrap;">Exporté le</th>
+                        <th style="background-color: #f3f4f6; color: #374151; font-weight: bold; padding: 6px 4px; border: 1px solid #d1d5db; text-align: left; white-space: nowrap;">Exporté par</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr>
-                        <td>{{ $data['metadata']['period_label'] }}</td>
-                        <td>{{ $data['metadata']['start_date'] }}</td>
-                        <td>{{ $data['metadata']['end_date'] }}</td>
-                        <td>{{ $data['metadata']['exported_at'] }}</td>
-                        <td>{{ $data['metadata']['exported_by'] }}</td>
+                        <td style="padding: 5px 4px; border: 1px solid #d1d5db; color: #1f2937; white-space: nowrap;">{{ $data['metadata']['period_label'] }}</td>
+                        <td style="padding: 5px 4px; border: 1px solid #d1d5db; color: #1f2937; white-space: nowrap;">{{ $data['metadata']['start_date'] }}</td>
+                        <td style="padding: 5px 4px; border: 1px solid #d1d5db; color: #1f2937; white-space: nowrap;">{{ $data['metadata']['end_date'] }}</td>
+                        <td style="padding: 5px 4px; border: 1px solid #d1d5db; color: #1f2937; white-space: nowrap;">{{ $data['metadata']['exported_at'] }}</td>
+                        <td style="padding: 5px 4px; border: 1px solid #d1d5db; color: #1f2937; white-space: nowrap;">{{ $data['metadata']['exported_by'] }}</td>
                     </tr>
                 </tbody>
             </table>
@@ -312,29 +131,31 @@
     </div>
 
     <!-- Section KPIs -->
-    <div class="section">
-        <h2 class="section-title">Indicateurs Clés de Performance (KPIs)</h2>
+    <div style="margin-bottom: 25px;">
+        <h2 style="background-color: #059669; color: white; padding: 8px 12px; font-size: 11px; font-weight: bold; margin: 0 0 12px 0; border-radius: 3px;">
+            Indicateurs Clés de Performance (KPIs)
+        </h2>
 
-        <div class="table-container">
-            <table>
+        <div style="margin-bottom: 15px; overflow-x: auto;">
+            <table style="width: 100%; border-collapse: collapse; font-size: 8px; background-color: white;">
                 <thead>
                     <tr>
-                        <th class="center">Total Membres</th>
-                        <th class="center">Nouveaux Membres</th>
-                        <th class="center">Présence Moyenne</th>
-                        <th class="center">Nombre de Cultes</th>
-                        <th class="center">Total Offrandes</th>
-                        <th class="center">FIMECO Progression</th>
+                        <th style="background-color: #f3f4f6; color: #374151; font-weight: bold; padding: 6px 4px; border: 1px solid #d1d5db; text-align: center; white-space: nowrap;">Total Membres</th>
+                        <th style="background-color: #f3f4f6; color: #374151; font-weight: bold; padding: 6px 4px; border: 1px solid #d1d5db; text-align: center; white-space: nowrap;">Nouveaux Membres</th>
+                        <th style="background-color: #f3f4f6; color: #374151; font-weight: bold; padding: 6px 4px; border: 1px solid #d1d5db; text-align: center; white-space: nowrap;">Présence Moyenne</th>
+                        <th style="background-color: #f3f4f6; color: #374151; font-weight: bold; padding: 6px 4px; border: 1px solid #d1d5db; text-align: center; white-space: nowrap;">Nombre de Cultes</th>
+                        <th style="background-color: #f3f4f6; color: #374151; font-weight: bold; padding: 6px 4px; border: 1px solid #d1d5db; text-align: center; white-space: nowrap;">Total Offrandes</th>
+                        <th style="background-color: #f3f4f6; color: #374151; font-weight: bold; padding: 6px 4px; border: 1px solid #d1d5db; text-align: center; white-space: nowrap;">FIMECO Progression</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr>
-                        <td class="center">{{ number_format($data['kpis']['total_membres']) }}</td>
-                        <td class="center positive">+{{ number_format($data['kpis']['nouveaux_membres']) }}</td>
-                        <td class="center">{{ number_format($data['kpis']['avg_participants']) }}</td>
-                        <td class="center">{{ number_format($data['kpis']['nombre_cultes']) }}</td>
-                        <td class="center">{{ number_format($data['kpis']['total_offrandes'], 0, ',', ' ') }} FCFA</td>
-                        <td class="center">{{ $data['kpis']['fimeco_progression'] }}%</td>
+                        <td style="padding: 5px 4px; border: 1px solid #d1d5db; text-align: center; white-space: nowrap;">{{ number_format($data['kpis']['total_membres']) }}</td>
+                        <td style="padding: 5px 4px; border: 1px solid #d1d5db; text-align: center; color: #059669; font-weight: bold; white-space: nowrap;">+{{ number_format($data['kpis']['nouveaux_membres']) }}</td>
+                        <td style="padding: 5px 4px; border: 1px solid #d1d5db; text-align: center; white-space: nowrap;">{{ number_format($data['kpis']['avg_participants']) }}</td>
+                        <td style="padding: 5px 4px; border: 1px solid #d1d5db; text-align: center; white-space: nowrap;">{{ number_format($data['kpis']['nombre_cultes']) }}</td>
+                        <td style="padding: 5px 4px; border: 1px solid #d1d5db; text-align: center; white-space: nowrap;">{{ number_format($data['kpis']['total_offrandes'], 0, ',', ' ') }} FCFA</td>
+                        <td style="padding: 5px 4px; border: 1px solid #d1d5db; text-align: center; white-space: nowrap;">{{ $data['kpis']['fimeco_progression'] }}%</td>
                     </tr>
                 </tbody>
             </table>
@@ -342,311 +163,142 @@
     </div>
 
     <!-- Section Évolution des Membres -->
-    <div class="section">
-        <h2 class="section-title">1. Évolution des Membres</h2>
+    <div style="margin-bottom: 25px;">
+        <h2 style="background-color: #059669; color: white; padding: 8px 12px; font-size: 11px; font-weight: bold; margin: 0 0 12px 0; border-radius: 3px;">
+            1. Évolution des Membres
+        </h2>
 
         @if(!empty($data['members_evolution']))
-        <div class="table-container">
-            <table>
+        <div style="margin-bottom: 15px; overflow-x: auto;">
+            <table style="width: 100%; border-collapse: collapse; font-size: 8px; background-color: white;">
                 <thead>
                     <tr>
-                        <th>Période</th>
-                        <th class="number">Total Membres</th>
-                        <th class="number">Nouveaux</th>
-                        <th class="number">Actifs</th>
-                        <th class="number">Visiteurs</th>
-                        <th class="number">Nouveaux Convertis</th>
+                        <th style="background-color: #f3f4f6; color: #374151; font-weight: bold; padding: 6px 4px; border: 1px solid #d1d5db; text-align: left; white-space: nowrap;">Période</th>
+                        <th style="background-color: #f3f4f6; color: #374151; font-weight: bold; padding: 6px 4px; border: 1px solid #d1d5db; text-align: right; white-space: nowrap;">Total Membres</th>
+                        <th style="background-color: #f3f4f6; color: #374151; font-weight: bold; padding: 6px 4px; border: 1px solid #d1d5db; text-align: right; white-space: nowrap;">Nouveaux</th>
+                        <th style="background-color: #f3f4f6; color: #374151; font-weight: bold; padding: 6px 4px; border: 1px solid #d1d5db; text-align: right; white-space: nowrap;">Actifs</th>
+                        <th style="background-color: #f3f4f6; color: #374151; font-weight: bold; padding: 6px 4px; border: 1px solid #d1d5db; text-align: right; white-space: nowrap;">Visiteurs</th>
+                        <th style="background-color: #f3f4f6; color: #374151; font-weight: bold; padding: 6px 4px; border: 1px solid #d1d5db; text-align: right; white-space: nowrap;">Nouveaux Convertis</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach($data['members_evolution'] as $member)
-                    <tr>
-                        <td>{{ $member['period'] }}</td>
-                        <td class="number">{{ number_format($member['total_membres']) }}</td>
-                        <td class="number positive">{{ number_format($member['nouveaux_membres']) }}</td>
-                        <td class="number">{{ number_format($member['membres_actifs']) }}</td>
-                        <td class="number">{{ number_format($member['visiteurs']) }}</td>
-                        <td class="number">{{ number_format($member['nouveaux_convertis']) }}</td>
+                    @foreach($data['members_evolution'] as $index => $member)
+                    <tr style="background-color: {{ $index % 2 === 0 ? '#f9fafb' : 'white' }};">
+                        <td style="padding: 5px 4px; border: 1px solid #d1d5db; color: #1f2937; white-space: nowrap;">{{ $member['period'] }}</td>
+                        <td style="padding: 5px 4px; border: 1px solid #d1d5db; text-align: right; white-space: nowrap;">{{ number_format($member['total_membres']) }}</td>
+                        <td style="padding: 5px 4px; border: 1px solid #d1d5db; text-align: right; color: #059669; font-weight: bold; white-space: nowrap;">{{ number_format($member['nouveaux_membres']) }}</td>
+                        <td style="padding: 5px 4px; border: 1px solid #d1d5db; text-align: right; white-space: nowrap;">{{ number_format($member['membres_actifs']) }}</td>
+                        <td style="padding: 5px 4px; border: 1px solid #d1d5db; text-align: right; white-space: nowrap;">{{ number_format($member['visiteurs']) }}</td>
+                        <td style="padding: 5px 4px; border: 1px solid #d1d5db; text-align: right; white-space: nowrap;">{{ number_format($member['nouveaux_convertis']) }}</td>
                     </tr>
                     @endforeach
                 </tbody>
             </table>
         </div>
         @else
-        <div class="no-data">Aucune donnée disponible pour cette période.</div>
+        <div style="color: #6b7280; font-style: italic; text-align: center; padding: 15px; background-color: #f9fafb; border-radius: 4px;">
+            Aucune donnée disponible pour cette période.
+        </div>
         @endif
     </div>
 
     <!-- Section Présence aux Cultes -->
-    <div class="section">
-        <h2 class="section-title">2. Présence aux Cultes</h2>
+    <div style="margin-bottom: 25px;">
+        <h2 style="background-color: #059669; color: white; padding: 8px 12px; font-size: 11px; font-weight: bold; margin: 0 0 12px 0; border-radius: 3px;">
+            2. Présence aux Cultes
+        </h2>
 
         @if(!empty($data['culte_attendance']))
-        <div class="table-container">
-            <table>
+        <div style="margin-bottom: 15px; overflow-x: auto;">
+            <table style="width: 100%; border-collapse: collapse; font-size: 8px; background-color: white;">
                 <thead>
                     <tr>
-                        <th>Période</th>
-                        <th class="number">Participants Moyens</th>
-                        <th class="number">Physiques</th>
-                        <th class="number">En Ligne</th>
-                        <th class="number">Nouveaux Visiteurs</th>
-                        <th class="number">Nb Cultes</th>
-                        <th class="number">Taux Présence (%)</th>
+                        <th style="background-color: #f3f4f6; color: #374151; font-weight: bold; padding: 6px 4px; border: 1px solid #d1d5db; text-align: left; white-space: nowrap;">Période</th>
+                        <th style="background-color: #f3f4f6; color: #374151; font-weight: bold; padding: 6px 4px; border: 1px solid #d1d5db; text-align: right; white-space: nowrap;">Participants Moyens</th>
+                        <th style="background-color: #f3f4f6; color: #374151; font-weight: bold; padding: 6px 4px; border: 1px solid #d1d5db; text-align: right; white-space: nowrap;">Physiques</th>
+                        <th style="background-color: #f3f4f6; color: #374151; font-weight: bold; padding: 6px 4px; border: 1px solid #d1d5db; text-align: right; white-space: nowrap;">En Ligne</th>
+                        <th style="background-color: #f3f4f6; color: #374151; font-weight: bold; padding: 6px 4px; border: 1px solid #d1d5db; text-align: right; white-space: nowrap;">Nouveaux Visiteurs</th>
+                        <th style="background-color: #f3f4f6; color: #374151; font-weight: bold; padding: 6px 4px; border: 1px solid #d1d5db; text-align: right; white-space: nowrap;">Nb Cultes</th>
+                        <th style="background-color: #f3f4f6; color: #374151; font-weight: bold; padding: 6px 4px; border: 1px solid #d1d5db; text-align: right; white-space: nowrap;">Taux Présence (%)</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach($data['culte_attendance'] as $culte)
-                    <tr>
-                        <td>{{ $culte['period'] }}</td>
-                        <td class="number">{{ number_format($culte['avg_participants']) }}</td>
-                        <td class="number">{{ number_format($culte['participants_physiques']) }}</td>
-                        <td class="number">{{ number_format($culte['participants_en_ligne']) }}</td>
-                        <td class="number">{{ number_format($culte['nouveaux_visiteurs']) }}</td>
-                        <td class="number">{{ number_format($culte['nombre_cultes']) }}</td>
-                        <td class="number">{{ number_format($culte['taux_presence'], 1) }}%</td>
+                    @foreach($data['culte_attendance'] as $index => $culte)
+                    <tr style="background-color: {{ $index % 2 === 0 ? '#f9fafb' : 'white' }};">
+                        <td style="padding: 5px 4px; border: 1px solid #d1d5db; color: #1f2937; white-space: nowrap;">{{ $culte['period'] }}</td>
+                        <td style="padding: 5px 4px; border: 1px solid #d1d5db; text-align: right; white-space: nowrap;">{{ number_format($culte['avg_participants']) }}</td>
+                        <td style="padding: 5px 4px; border: 1px solid #d1d5db; text-align: right; white-space: nowrap;">{{ number_format($culte['participants_physiques']) }}</td>
+                        <td style="padding: 5px 4px; border: 1px solid #d1d5db; text-align: right; white-space: nowrap;">{{ number_format($culte['participants_en_ligne']) }}</td>
+                        <td style="padding: 5px 4px; border: 1px solid #d1d5db; text-align: right; white-space: nowrap;">{{ number_format($culte['nouveaux_visiteurs']) }}</td>
+                        <td style="padding: 5px 4px; border: 1px solid #d1d5db; text-align: right; white-space: nowrap;">{{ number_format($culte['nombre_cultes']) }}</td>
+                        <td style="padding: 5px 4px; border: 1px solid #d1d5db; text-align: right; white-space: nowrap;">{{ number_format($culte['taux_presence'], 1) }}%</td>
                     </tr>
                     @endforeach
                 </tbody>
             </table>
         </div>
         @else
-        <div class="no-data">Aucune donnée de culte disponible pour cette période.</div>
+        <div style="color: #6b7280; font-style: italic; text-align: center; padding: 15px; background-color: #f9fafb; border-radius: 4px;">
+            Aucune donnée de culte disponible pour cette période.
+        </div>
         @endif
     </div>
 
     <!-- Section Offrandes -->
-    <div class="section page-break">
-        <h2 class="section-title">3. Évolution des Offrandes</h2>
+    <div style="margin-bottom: 25px; page-break-before: always;">
+        <h2 style="background-color: #059669; color: white; padding: 8px 12px; font-size: 11px; font-weight: bold; margin: 0 0 12px 0; border-radius: 3px;">
+            3. Évolution des Offrandes
+        </h2>
 
         @if(!empty($data['offrandes_evolution']))
-        <div class="table-container">
-            <table>
+        <div style="margin-bottom: 15px; overflow-x: auto;">
+            <table style="width: 100%; border-collapse: collapse; font-size: 7px; background-color: white;">
                 <thead>
                     <tr>
-                        <th>Période</th>
-                        <th class="number">Dîmes (FCFA)</th>
-                        <th class="number">Offrandes Ordinaires</th>
-                        <th class="number">Offrandes Libres</th>
-                        <th class="number">Offrandes Spéciales</th>
-                        <th class="number">Missions</th>
-                        <th class="number">Construction</th>
-                        <th class="number">Total (FCFA)</th>
-                        <th class="number">Nb Transactions</th>
+                        <th style="background-color: #f3f4f6; color: #374151; font-weight: bold; padding: 6px 3px; border: 1px solid #d1d5db; text-align: left; white-space: nowrap;">Période</th>
+                        <th style="background-color: #f3f4f6; color: #374151; font-weight: bold; padding: 6px 3px; border: 1px solid #d1d5db; text-align: right; white-space: nowrap;">Dîmes (FCFA)</th>
+                        <th style="background-color: #f3f4f6; color: #374151; font-weight: bold; padding: 6px 3px; border: 1px solid #d1d5db; text-align: right; white-space: nowrap;">Offrandes Ordinaires</th>
+                        <th style="background-color: #f3f4f6; color: #374151; font-weight: bold; padding: 6px 3px; border: 1px solid #d1d5db; text-align: right; white-space: nowrap;">Offrandes Libres</th>
+                        <th style="background-color: #f3f4f6; color: #374151; font-weight: bold; padding: 6px 3px; border: 1px solid #d1d5db; text-align: right; white-space: nowrap;">Offrandes Spéciales</th>
+                        <th style="background-color: #f3f4f6; color: #374151; font-weight: bold; padding: 6px 3px; border: 1px solid #d1d5db; text-align: right; white-space: nowrap;">Missions</th>
+                        <th style="background-color: #f3f4f6; color: #374151; font-weight: bold; padding: 6px 3px; border: 1px solid #d1d5db; text-align: right; white-space: nowrap;">Construction</th>
+                        <th style="background-color: #f3f4f6; color: #374151; font-weight: bold; padding: 6px 3px; border: 1px solid #d1d5db; text-align: right; white-space: nowrap;">Total (FCFA)</th>
+                        <th style="background-color: #f3f4f6; color: #374151; font-weight: bold; padding: 6px 3px; border: 1px solid #d1d5db; text-align: right; white-space: nowrap;">Nb Transactions</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach($data['offrandes_evolution'] as $offrande)
-                    <tr>
-                        <td>{{ $offrande['period'] }}</td>
-                        <td class="number">{{ number_format($offrande['dimes'], 0, ',', ' ') }}</td>
-                        <td class="number">{{ number_format($offrande['offrandes_ordinaires'], 0, ',', ' ') }}</td>
-                        <td class="number">{{ number_format($offrande['offrandes_libres'], 0, ',', ' ') }}</td>
-                        <td class="number">{{ number_format($offrande['offrandes_speciales'], 0, ',', ' ') }}</td>
-                        <td class="number">{{ number_format($offrande['offrandes_missions'] ?? 0, 0, ',', ' ') }}</td>
-                        <td class="number">{{ number_format($offrande['offrandes_construction'] ?? 0, 0, ',', ' ') }}</td>
-                        <td class="number highlight">{{ number_format($offrande['total_offrandes'], 0, ',', ' ') }}</td>
-                        <td class="number">{{ number_format($offrande['nombre_transactions']) }}</td>
+                    @foreach($data['offrandes_evolution'] as $index => $offrande)
+                    <tr style="background-color: {{ $index % 2 === 0 ? '#f9fafb' : 'white' }};">
+                        <td style="padding: 4px 3px; border: 1px solid #d1d5db; color: #1f2937; white-space: nowrap;">{{ $offrande['period'] }}</td>
+                        <td style="padding: 4px 3px; border: 1px solid #d1d5db; text-align: right; white-space: nowrap;">{{ number_format($offrande['dimes'], 0, ',', ' ') }}</td>
+                        <td style="padding: 4px 3px; border: 1px solid #d1d5db; text-align: right; white-space: nowrap;">{{ number_format($offrande['offrandes_ordinaires'], 0, ',', ' ') }}</td>
+                        <td style="padding: 4px 3px; border: 1px solid #d1d5db; text-align: right; white-space: nowrap;">{{ number_format($offrande['offrandes_libres'], 0, ',', ' ') }}</td>
+                        <td style="padding: 4px 3px; border: 1px solid #d1d5db; text-align: right; white-space: nowrap;">{{ number_format($offrande['offrandes_speciales'], 0, ',', ' ') }}</td>
+                        <td style="padding: 4px 3px; border: 1px solid #d1d5db; text-align: right; white-space: nowrap;">{{ number_format($offrande['offrandes_missions'] ?? 0, 0, ',', ' ') }}</td>
+                        <td style="padding: 4px 3px; border: 1px solid #d1d5db; text-align: right; white-space: nowrap;">{{ number_format($offrande['offrandes_construction'] ?? 0, 0, ',', ' ') }}</td>
+                        <td style="padding: 4px 3px; border: 1px solid #d1d5db; text-align: right; background-color: #fef3c7; padding: 1px 3px; border-radius: 2px; white-space: nowrap;">{{ number_format($offrande['total_offrandes'], 0, ',', ' ') }}</td>
+                        <td style="padding: 4px 3px; border: 1px solid #d1d5db; text-align: right; white-space: nowrap;">{{ number_format($offrande['nombre_transactions']) }}</td>
                     </tr>
                     @endforeach
                 </tbody>
             </table>
         </div>
         @else
-        <div class="no-data">Aucune donnée d'offrandes disponible pour cette période.</div>
+        <div style="color: #6b7280; font-style: italic; text-align: center; padding: 15px; background-color: #f9fafb; border-radius: 4px;">
+            Aucune donnée d'offrandes disponible pour cette période.
+        </div>
         @endif
     </div>
 
-    <!-- Section Ratio Présence/Offrande -->
-    <div class="section">
-        <h2 class="section-title">4. Ratio Présence/Offrande</h2>
+    <!-- Résumé Exécutif et Recommandations -->
+    <div style="margin-bottom: 25px; page-break-before: always;">
+        <h2 style="background-color: #059669; color: white; padding: 8px 12px; font-size: 11px; font-weight: bold; margin: 0 0 12px 0; border-radius: 3px;">
+            Résumé Exécutif
+        </h2>
 
-        @if(!empty($data['presence_offrande_ratio']))
-        <div class="table-container">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Période</th>
-                        <th class="number">Participants Moyens</th>
-                        <th class="number">Total Offrandes (FCFA)</th>
-                        <th class="number">Ratio (FCFA/personne)</th>
-                        <th class="number">Nb Cultes</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach($data['presence_offrande_ratio'] as $ratio)
-                    <tr>
-                        <td>{{ $ratio['period'] }}</td>
-                        <td class="number">{{ number_format($ratio['avg_participants']) }}</td>
-                        <td class="number">{{ number_format($ratio['total_offrandes'], 0, ',', ' ') }}</td>
-                        <td class="number highlight">{{ number_format($ratio['ratio_offrande_par_personne'], 0, ',', ' ') }}</td>
-                        <td class="number">{{ number_format($ratio['nombre_cultes']) }}</td>
-                    </tr>
-                    @endforeach
-                </tbody>
-            </table>
-        </div>
-        @else
-        <div class="no-data">Aucune donnée de ratio disponible pour cette période.</div>
-        @endif
-    </div>
-
-    <!-- Section FIMECO -->
-    @if(!empty($data['fimeco_evolution']))
-    <div class="section">
-        <h2 class="section-title">5. Évolution des FIMECO</h2>
-
-        <div class="table-container">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Période</th>
-                        <th class="number">Nb FIMECOs</th>
-                        <th class="number">Cible Totale (FCFA)</th>
-                        <th class="number">Collecte Totale (FCFA)</th>
-                        <th class="number">Progression (%)</th>
-                        <th class="number">Souscripteurs</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach($data['fimeco_evolution'] as $fimeco)
-                    <tr>
-                        <td>{{ $fimeco['period'] }}</td>
-                        <td class="number">{{ number_format($fimeco['nombre_fimecos']) }}</td>
-                        <td class="number">{{ number_format($fimeco['cible_totale'], 0, ',', ' ') }}</td>
-                        <td class="number">{{ number_format($fimeco['collecte_totale'], 0, ',', ' ') }}</td>
-                        <td class="number highlight">{{ number_format($fimeco['progression_moyenne'], 1) }}%</td>
-                        <td class="number">{{ number_format($fimeco['souscripteurs_totaux']) }}</td>
-                    </tr>
-                    @endforeach
-                </tbody>
-            </table>
-        </div>
-
-        <!-- Détails FIMECO -->
-        @foreach($data['fimeco_evolution'] as $fimeco)
-            @if(isset($fimeco['fimecos_details']))
-                <h3 style="margin-top: 15px; color: #374151; font-size: 10px; font-weight: bold;">Détails des FIMECOs - {{ $fimeco['period'] }}</h3>
-                @foreach($fimeco['fimecos_details'] as $detail)
-                <div style="background-color: #f8fafc; border: 1px solid #e5e7eb; border-radius: 3px; padding: 8px; margin-bottom: 8px;">
-                    <h4 style="margin: 0 0 5px 0; color: #1f2937; font-size: 9px; font-weight: bold;">{{ $detail['nom'] }}</h4>
-                    <div style="display: flex; justify-content: space-between; font-size: 8px; margin-bottom: 3px;">
-                        <span><strong>Cible:</strong> {{ number_format($detail['cible'], 0, ',', ' ') }} FCFA</span>
-                        <span><strong>Collecté:</strong> {{ number_format($detail['montant_solde'], 0, ',', ' ') }} FCFA</span>
-                    </div>
-                    <div style="display: flex; justify-content: space-between; font-size: 8px;">
-                        <span><strong>Progression:</strong> {{ number_format($detail['progression'], 1) }}%</span>
-                        <span><strong>Souscripteurs:</strong> {{ $detail['nombre_souscripteurs'] }}</span>
-                    </div>
-                    <div style="margin-top: 3px; font-size: 7px; color: #6b7280;">
-                        <span><strong>Période:</strong> {{ \Carbon\Carbon::parse($detail['debut'])->format('d/m/Y') }} - {{ \Carbon\Carbon::parse($detail['fin'])->format('d/m/Y') }}</span>
-                        <span style="margin-left: 15px;"><strong>Statut:</strong> {{ ucfirst($detail['statut']) }}</span>
-                    </div>
-                </div>
-                @endforeach
-            @endif
-        @endforeach
-    </div>
-    @endif
-
-    <!-- Section Ratios et Souscripteurs FIMECO -->
-    @if(!empty($data['souscripteur_fimeco_ratio']))
-    <div class="section">
-        <h2 class="section-title">6. Ratio Souscripteurs/Collecte FIMECO</h2>
-
-        <div class="table-container">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Période</th>
-                        <th class="number">Nb Souscripteurs</th>
-                        <th class="number">Total Collecté (FCFA)</th>
-                        <th class="number">Total Souscrit (FCFA)</th>
-                        <th class="number">Ratio (FCFA/souscripteur)</th>
-                        <th class="number">Taux Réalisation (%)</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach($data['souscripteur_fimeco_ratio'] as $ratio)
-                    <tr>
-                        <td>{{ $ratio['period'] }}</td>
-                        <td class="number">{{ number_format($ratio['nombre_souscripteurs']) }}</td>
-                        <td class="number">{{ number_format($ratio['total_collecte'], 0, ',', ' ') }}</td>
-                        <td class="number">{{ number_format($ratio['total_souscrit'], 0, ',', ' ') }}</td>
-                        <td class="number highlight">{{ number_format($ratio['ratio_collecte_par_souscripteur'], 0, ',', ' ') }}</td>
-                        <td class="number {{ $ratio['taux_realisation'] >= 50 ? 'positive' : 'negative' }}">{{ number_format($ratio['taux_realisation'], 1) }}%</td>
-                    </tr>
-                    @endforeach
-                </tbody>
-            </table>
-        </div>
-    </div>
-    @endif
-
-    <!-- Section Analyse et Tendances -->
-    <div class="section page-break">
-        <h2 class="section-title">7. Analyses et Tendances</h2>
-
-        <div class="ratio-cards">
-            <div class="ratio-card">
-                <h3>Ratios Globaux</h3>
-
-                <div class="table-container">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Ratio Présence/Offrande</th>
-                                <th class="number">Ratio Souscripteur/Collecte</th>
-                                <th class="number">Total Offrandes Période</th>
-                                <th class="number">Total Collecte FIMECO</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>{{ number_format($data['ratios']['presence_offrande_ratio'], 0, ',', ' ') }} FCFA/personne</td>
-                                <td class="number">{{ number_format($data['ratios']['souscripteur_collecte_ratio'], 0, ',', ' ') }} FCFA/souscripteur</td>
-                                <td class="number">{{ number_format($data['ratios']['total_offrandes'], 0, ',', ' ') }} FCFA</td>
-                                <td class="number highlight">{{ number_format($data['ratios']['total_collecte_fimeco'], 0, ',', ' ') }} FCFA</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-
-
-
-            </div>
-
-            @if(isset($data['trends']))
-            <div class="ratio-card">
-                <h3>Évolution des Offrandes</h3>
-                <div class="table-container">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th class="number">Ratio Souscripteur/Collecte</th>
-                                <th class="number">Période Actuelle</th>
-                                <th class="number">Période Précédente</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>{{ $data['trends']['offrandes_trend'] > 0 ? '+' : '' }}{{ $data['trends']['offrandes_trend'] }}%</td>
-                                <td class="number">{{ number_format($data['trends']['current_offrandes'], 0, ',', ' ') }} FCFA</td>
-                                <td class="number">{{ number_format($data['trends']['previous_offrandes'], 0, ',', ' ') }} FCFA</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-
-
-            </div>
-            @endif
-        </div>
-
-        <!-- Résumé Exécutif -->
-        <div class="summary-box">
-            <div class="summary-title">Résumé Exécutif</div>
-            <div class="summary-text">
+        <div style="background-color: #eff6ff; border: 1px solid #bfdbfe; border-radius: 4px; padding: 10px; margin: 10px 0;">
+            <div style="color: #1e40af; font-size: 10px; font-weight: bold; margin-bottom: 6px;">Synthèse de la Période</div>
+            <div style="font-size: 8px; line-height: 1.4; color: #1f2937;">
                 <p style="margin: 0 0 6px 0;">
                     <strong>Membres:</strong> L'église compte actuellement {{ number_format($data['kpis']['total_membres']) }} membres avec {{ number_format($data['kpis']['nouveaux_membres']) }} nouveaux membres sur la période.
                 </p>
@@ -665,9 +317,9 @@
         </div>
 
         <!-- Recommandations -->
-        <div class="summary-box" style="background-color: #fefce8; border-color: #facc15;">
-            <div class="summary-title" style="color: #a16207;">Recommandations</div>
-            <div class="summary-text">
+        <div style="background-color: #fefce8; border: 1px solid #facc15; border-radius: 4px; padding: 10px; margin: 10px 0;">
+            <div style="color: #a16207; font-size: 10px; font-weight: bold; margin-bottom: 6px;">Recommandations</div>
+            <div style="font-size: 8px; line-height: 1.4; color: #1f2937;">
                 @if(isset($data['trends']) && $data['trends']['offrandes_trend'] < 0)
                 <p style="margin: 0 0 6px 0;">• Considérer des actions pour améliorer la collecte des offrandes (tendance en baisse de {{ abs($data['trends']['offrandes_trend']) }}%).</p>
                 @endif
@@ -685,14 +337,35 @@
         </div>
     </div>
 
-    <!-- Pied de page -->
-    <div class="footer">
-        <div style="display: flex; justify-content: space-between; align-items: center;">
-            <div>
-                Généré automatiquement par le système de gestion d'église
+    <!-- FOOTER -->
+    <div style="background-color: #37393b; color: white; padding: 10px 15px; font-size: 7px; border-top: 3px solid #3b82f6; margin: 30px -1cm -1cm -1cm;">
+        <div style="text-align: center; font-style: italic; color: #fbbf24; margin-bottom: 8px; font-size: 8px; line-height: 1.3; padding-bottom: 8px; border-bottom: 1px solid #4b5563;">
+            @if(!empty($AppParametres->verset_biblique) && !empty($AppParametres->reference_verset))
+                "{{ htmlspecialchars($AppParametres->verset_biblique) }}" - {{ htmlspecialchars($AppParametres->reference_verset) }}
+            @else
+                "Car Dieu a tant aimé le monde qu'il a donné son Fils unique..." - Jean 3:16
+            @endif
+        </div>
+        <div style="text-align: center;">
+            <div style="margin-bottom: 5px;">
+                @if(!empty($AppParametres->facebook_url))
+                    Facebook: {{ htmlspecialchars($AppParametres->facebook_url) }} |
+                @endif
+                @if(!empty($AppParametres->instagram_url))
+                    Instagram: {{ htmlspecialchars($AppParametres->instagram_url) }} |
+                @endif
+                @if(!empty($AppParametres->youtube_url))
+                    YouTube: {{ htmlspecialchars($AppParametres->youtube_url) }} |
+                @endif
+                @if(!empty($AppParametres->twitter_url))
+                    Twitter: {{ htmlspecialchars($AppParametres->twitter_url) }}
+                @endif
             </div>
-            <div>
-                {{ $data['metadata']['exported_at'] }}
+            <div style="font-size: 7px; color: #9ca3af;">
+                @if(!empty($AppParametres->website_url))
+                    Site web: {{ htmlspecialchars($AppParametres->website_url) }} |
+                @endif
+                Généré le {{ $data['metadata']['exported_at'] }}
             </div>
         </div>
     </div>

@@ -48,9 +48,8 @@ return new class extends Migration {
                 'administratif'       // Administratif
             ])->comment('Catégorie du projet');
 
-            // Budget et finances
+            // Budget et finances - CORRIGÉ : budget_collecte retiré car calculé automatiquement
             $table->decimal('budget_prevu', 15, 2)->nullable()->comment('Budget prévisionnel total');
-            $table->decimal('budget_collecte', 15, 2)->default(0)->comment('Montant déjà collecté');
             $table->decimal('budget_depense', 15, 2)->default(0)->comment('Montant déjà dépensé');
             $table->decimal('budget_minimum', 15, 2)->nullable()->comment('Budget minimum pour démarrer');
             $table->string('devise', 3)->default('XOF')->comment('Devise du budget');
@@ -82,8 +81,7 @@ return new class extends Migration {
             $table->decimal('latitude', 10, 8)->nullable()->comment('Latitude GPS');
             $table->decimal('longitude', 11, 8)->nullable()->comment('Longitude GPS');
 
-
-            // Statut et progression
+            // Statut et progression - AJOUTÉ : statut_precedent pour l'historique
             $table->enum('statut', [
                 'conception',         // En conception
                 'planification',      // En planification
@@ -96,6 +94,18 @@ return new class extends Migration {
                 'archive'            // Archivé
             ])->default('conception')->comment('Statut du projet');
 
+            $table->enum('statut_precedent', [
+                'conception',
+                'planification',
+                'recherche_financement',
+                'en_attente',
+                'en_cours',
+                'suspendu',
+                'termine',
+                'annule',
+                'archive'
+            ])->nullable()->comment('Statut précédent (historique)');
+
             $table->enum('priorite', [
                 'faible',
                 'normale',
@@ -104,14 +114,14 @@ return new class extends Migration {
                 'critique'
             ])->default('normale')->comment('Niveau de priorité');
 
-            $table->decimal('pourcentage_completion', 5, 2)->default(0)->comment('Pourcentage davancement');
+            $table->decimal('pourcentage_completion', 5, 2)->default(0)->comment('Pourcentage d\'avancement');
             $table->text('derniere_activite')->nullable()->comment('Dernière activité enregistrée');
             $table->date('derniere_mise_a_jour')->nullable()->comment('Date de dernière mise à jour');
 
-            // Approbation et validation necessita_approbation
+            // Approbation et validation
             $table->uuid('approuve_par')->nullable()->comment('Qui a approuvé le projet');
-            $table->timestamp('approuve_le')->nullable()->comment('Date dapprobation');
-            $table->text('commentaires_approbation')->nullable()->comment('Commentaires dapprobation');
+            $table->timestamp('approuve_le')->nullable()->comment('Date d\'approbation');
+            $table->text('commentaires_approbation')->nullable()->comment('Commentaires d\'approbation');
             $table->boolean('necessite_approbation')->default(true)->comment('Nécessite une approbation');
 
             // Objectifs et métriques
@@ -152,7 +162,7 @@ return new class extends Migration {
             $table->boolean('conforme_reglementation')->default(true)->comment('Conforme à la réglementation');
             $table->text('autorisations_requises')->nullable()->comment('Autorisations requises');
             $table->boolean('audit_requis')->default(false)->comment('Audit requis');
-            $table->text('observations_audit')->nullable()->comment('Observations daudit');
+            $table->text('observations_audit')->nullable()->comment('Observations d\'audit');
 
             // Fréquence et récurrence
             $table->boolean('projet_recurrent')->default(false)->comment('Projet récurrent');
@@ -168,7 +178,7 @@ return new class extends Migration {
             // Métadonnées techniques
             $table->json('metadonnees')->nullable()->comment('Métadonnées supplémentaires (JSON)');
             $table->string('reference_externe')->nullable()->comment('Référence externe');
-            $table->text('integration_systemes')->nullable()->comment('Intégration avec dautres systèmes');
+            $table->text('integration_systemes')->nullable()->comment('Intégration avec d\'autres systèmes');
 
             // Notes et commentaires
             $table->text('notes_responsable')->nullable()->comment('Notes du responsable');
@@ -176,24 +186,14 @@ return new class extends Migration {
             $table->text('historique_modifications')->nullable()->comment('Historique des modifications');
 
             // Audit et traçabilité
-            $table->uuid('cree_par')->nullable()->comment('Membres qui a créé le projet');
-            $table->uuid('modifie_par')->nullable()->comment('Dernier membres ayant modifié');
+            $table->uuid('cree_par')->nullable()->comment('Membre qui a créé le projet');
+            $table->uuid('modifie_par')->nullable()->comment('Dernier membre ayant modifié');
             $table->timestamp('derniere_activite_date')->nullable()->comment('Date de dernière activité');
             $table->uuid('derniere_activite_par')->nullable()->comment('Auteur de la dernière activité');
 
             // Timestamps standards
             $table->timestamps();
             $table->softDeletes();
-
-            // Contraintes foreign key
-            $table->foreign('responsable_id')->references('id')->on('users')->onDelete('set null');
-            $table->foreign('coordinateur_id')->references('id')->on('users')->onDelete('set null');
-            $table->foreign('chef_projet_id')->references('id')->on('users')->onDelete('set null');
-            $table->foreign('approuve_par')->references('id')->on('users')->onDelete('set null');
-            // $table->foreign('projet_parent_id')->references('id')->on('projets')->onDelete('set null');
-            $table->foreign('cree_par')->references('id')->on('users')->onDelete('set null');
-            $table->foreign('modifie_par')->references('id')->on('users')->onDelete('set null');
-            $table->foreign('derniere_activite_par')->references('id')->on('users')->onDelete('set null');
 
             // Index pour les performances
             $table->index(['statut', 'priorite'], 'idx_projets_statut_priorite');
@@ -204,8 +204,9 @@ return new class extends Migration {
             $table->index(['ouvert_aux_dons', 'visible_public'], 'idx_projets_public_dons');
             $table->index(['pourcentage_completion', 'statut'], 'idx_projets_completion');
             $table->index(['ville', 'region'], 'idx_projets_localisation');
-            $table->index(['budget_prevu', 'budget_collecte'], 'idx_projets_budget');
+            $table->index(['budget_prevu'], 'idx_projets_budget');
             $table->index(['necessite_approbation', 'approuve_le'], 'idx_projets_approbation');
+            $table->index(['statut', 'statut_precedent'], 'idx_projets_statut_historique');
 
             // Index pour les recherches
             $table->index('nom_projet', 'idx_projets_nom');
@@ -221,48 +222,73 @@ return new class extends Migration {
             ], 'idx_projets_recherche');
         });
 
-        // Ajouter la contrainte de clé étrangère après la création de la table
+        // Ajouter les contraintes de clés étrangères après la création de la table
         Schema::table('projets', function (Blueprint $table) {
-            // Clés étrangères - CORRIGÉES
+            $table->foreign('responsable_id')->references('id')->on('users')->onDelete('set null');
+            $table->foreign('coordinateur_id')->references('id')->on('users')->onDelete('set null');
+            $table->foreign('chef_projet_id')->references('id')->on('users')->onDelete('set null');
+            $table->foreign('approuve_par')->references('id')->on('users')->onDelete('set null');
             $table->foreign('projet_parent_id')->references('id')->on('projets')->onDelete('set null');
-
+            $table->foreign('cree_par')->references('id')->on('users')->onDelete('set null');
+            $table->foreign('modifie_par')->references('id')->on('users')->onDelete('set null');
+            $table->foreign('derniere_activite_par')->references('id')->on('users')->onDelete('set null');
         });
 
-        // Commentaire sur la table
-        DB::statement("COMMENT ON TABLE projets IS 'Gestion complète des projets de l''église avec suivi budgétaire et d''avancement';");
+        // Nettoyer les objets existants avant création
+        DB::statement("DROP TRIGGER IF EXISTS trigger_validate_projet_transition ON projets");
+        DB::statement("DROP FUNCTION IF EXISTS validate_projet_transition()");
+        DB::statement("DROP VIEW IF EXISTS projets_action_requise");
+        DB::statement("DROP VIEW IF EXISTS statistiques_projets");
+        DB::statement("DROP VIEW IF EXISTS projets_dons_ouverts");
+        DB::statement("DROP VIEW IF EXISTS projets_actifs");
 
-
-
-
-        DB::statement("
+        // Vues CORRIGÉES
+        DB::statement('
             CREATE VIEW projets_actifs AS
             SELECT
                 p.*,
-                (resp.prenom || ' ' || resp.nom) AS nom_responsable,
-                (coord.prenom || ' ' || coord.nom) AS nom_coordinateur,
-                (chef.prenom || ' ' || chef.nom) AS nom_chef_projet,
+                CONCAT(resp.prenom, \' \', resp.nom) AS nom_responsable,
+                CONCAT(coord.prenom, \' \', coord.nom) AS nom_coordinateur,
+                CONCAT(chef.prenom, \' \', chef.nom) AS nom_chef_projet,
+                COALESCE(f.budget_collecte, 0) AS budget_collecte,
                 CASE
-                    WHEN p.budget_prevu > 0 THEN ROUND((p.budget_collecte::numeric / p.budget_prevu::numeric) * 100, 2)
+                    WHEN p.budget_prevu > 0 AND f.budget_collecte IS NOT NULL
+                    THEN ROUND((f.budget_collecte::numeric / p.budget_prevu::numeric) * 100, 2)
                     ELSE 0
                 END AS pourcentage_financement,
                 CASE
-                    WHEN p.budget_prevu > 0 THEN (p.budget_prevu - p.budget_collecte)
-                    ELSE 0
+                    WHEN p.budget_prevu > 0 AND f.budget_collecte IS NOT NULL
+                    THEN (p.budget_prevu - f.budget_collecte)
+                    ELSE p.budget_prevu
                 END AS montant_restant,
                 (p.date_fin_prevue - CURRENT_DATE) AS jours_restants
             FROM projets p
             LEFT JOIN users resp ON p.responsable_id = resp.id
             LEFT JOIN users coord ON p.coordinateur_id = coord.id
             LEFT JOIN users chef ON p.chef_projet_id = chef.id
-            WHERE p.statut IN ('en_cours', 'planification', 'en_attente')
+            LEFT JOIN (
+                SELECT
+                    projet_id,
+                    SUM(CASE WHEN statut = \'validee\' THEN montant ELSE 0 END) as budget_collecte
+                FROM fonds
+                WHERE deleted_at IS NULL
+                GROUP BY projet_id
+            ) f ON p.id = f.projet_id
+            WHERE p.statut IN (\'en_cours\', \'planification\', \'en_attente\', \'recherche_financement\')
             AND p.deleted_at IS NULL
-            ORDER BY p.priorite DESC, p.date_debut ASC
-        ");
+            ORDER BY
+                CASE p.priorite
+                    WHEN \'critique\' THEN 1
+                    WHEN \'urgente\' THEN 2
+                    WHEN \'haute\' THEN 3
+                    WHEN \'normale\' THEN 4
+                    WHEN \'faible\' THEN 5
+                END,
+                p.date_debut ASC NULLS LAST
+        ');
 
-
-
-        DB::statement("
-            CREATE OR REPLACE VIEW projets_dons_ouverts AS
+        DB::statement('
+            CREATE VIEW projets_dons_ouverts AS
             SELECT
                 p.id,
                 p.nom_projet,
@@ -270,44 +296,159 @@ return new class extends Migration {
                 p.description,
                 p.type_projet,
                 p.budget_prevu,
-                p.budget_collecte,
+                COALESCE(f.budget_collecte, 0) AS budget_collecte,
                 p.image_principale,
                 p.message_promotion,
-                ROUND((p.budget_collecte::numeric / NULLIF(p.budget_prevu,0)::numeric) * 100, 2) AS pourcentage_financement,
-                (p.budget_prevu - p.budget_collecte) AS montant_restant,
-                (resp.prenom || ' ' || resp.nom) AS nom_responsable,
+                CASE
+                    WHEN p.budget_prevu > 0 AND f.budget_collecte IS NOT NULL
+                    THEN ROUND((f.budget_collecte::numeric / p.budget_prevu::numeric) * 100, 2)
+                    ELSE 0
+                END AS pourcentage_financement,
+                CASE
+                    WHEN p.budget_prevu > 0 AND f.budget_collecte IS NOT NULL
+                    THEN (p.budget_prevu - f.budget_collecte)
+                    ELSE p.budget_prevu
+                END AS montant_restant,
+                CONCAT(resp.prenom, \' \', resp.nom) AS nom_responsable,
                 p.localisation
             FROM projets p
             LEFT JOIN users resp ON p.responsable_id = resp.id
+            LEFT JOIN (
+                SELECT
+                    projet_id,
+                    SUM(CASE WHEN statut = \'validee\' THEN montant ELSE 0 END) as budget_collecte
+                FROM fonds
+                WHERE deleted_at IS NULL
+                GROUP BY projet_id
+            ) f ON p.id = f.projet_id
             WHERE p.ouvert_aux_dons = true
             AND p.visible_public = true
-            AND p.statut IN ('en_cours', 'planification', 'recherche_financement')
+            AND p.statut IN (\'en_cours\', \'planification\', \'recherche_financement\')
             AND p.deleted_at IS NULL
-            ORDER BY p.priorite DESC, p.pourcentage_completion ASC
-        ");
+            ORDER BY
+                CASE p.priorite
+                    WHEN \'critique\' THEN 1
+                    WHEN \'urgente\' THEN 2
+                    WHEN \'haute\' THEN 3
+                    WHEN \'normale\' THEN 4
+                    WHEN \'faible\' THEN 5
+                END,
+                p.pourcentage_completion ASC
+        ');
 
-        // Vue pour les statistiques de projets
-        DB::statement("
-    CREATE OR REPLACE VIEW statistiques_projets AS
-    SELECT
-        p.type_projet,
-        p.statut,
-        COUNT(*) AS nombre_projets,
-        AVG(p.pourcentage_completion) AS completion_moyenne,
-        SUM(p.budget_prevu) AS budget_total_prevu,
-        SUM(p.budget_collecte) AS budget_total_collecte,
-        SUM(p.budget_depense) AS budget_total_depense,
-        AVG(p.note_satisfaction) AS satisfaction_moyenne,
-        COUNT(*) FILTER (WHERE p.statut = 'termine') AS projets_termines,
-        COUNT(*) FILTER (WHERE p.date_fin_prevue < CURRENT_DATE AND p.statut != 'termine') AS projets_retard
-    FROM projets p
-    WHERE p.deleted_at IS NULL
-    GROUP BY p.type_projet, p.statut
-    ORDER BY nombre_projets DESC
-");
+        DB::statement('
+            CREATE VIEW statistiques_projets AS
+            SELECT
+                p.type_projet,
+                p.statut,
+                COUNT(*) AS nombre_projets,
+                AVG(p.pourcentage_completion) AS completion_moyenne,
+                SUM(p.budget_prevu) AS budget_total_prevu,
+                SUM(COALESCE(f.budget_collecte, 0)) AS budget_total_collecte,
+                SUM(p.budget_depense) AS budget_total_depense,
+                AVG(p.note_satisfaction) AS satisfaction_moyenne,
+                COUNT(*) FILTER (WHERE p.statut = \'termine\') AS projets_termines,
+                COUNT(*) FILTER (WHERE p.date_fin_prevue < CURRENT_DATE AND p.statut NOT IN (\'termine\', \'annule\', \'archive\')) AS projets_retard
+            FROM projets p
+            LEFT JOIN (
+                SELECT
+                    projet_id,
+                    SUM(CASE WHEN statut = \'validee\' THEN montant ELSE 0 END) as budget_collecte
+                FROM fonds
+                WHERE deleted_at IS NULL
+                GROUP BY projet_id
+            ) f ON p.id = f.projet_id
+            WHERE p.deleted_at IS NULL
+            GROUP BY p.type_projet, p.statut
+            ORDER BY nombre_projets DESC
+        ');
 
+        DB::statement('
+            CREATE VIEW projets_action_requise AS
+            SELECT
+                p.id,
+                p.nom_projet,
+                p.code_projet,
+                p.statut,
+                p.statut_precedent,
+                p.priorite,
+                p.date_fin_prevue,
+                p.pourcentage_completion,
+                CONCAT(resp.prenom, \' \', resp.nom) AS nom_responsable,
+                CASE
+                    WHEN p.necessite_approbation = true AND p.approuve_par IS NULL THEN \'approbation_requise\'
+                    WHEN p.date_fin_prevue < CURRENT_DATE AND p.statut NOT IN (\'termine\', \'annule\', \'archive\') THEN \'en_retard\'
+                    WHEN p.prochaine_evaluation <= CURRENT_DATE THEN \'evaluation_requise\'
+                    WHEN p.statut = \'planification\' AND p.budget_prevu > 0 AND COALESCE(f.budget_collecte, 0) < COALESCE(p.budget_minimum, p.budget_prevu) THEN \'financement_requis\'
+                    WHEN p.statut = \'recherche_financement\' AND COALESCE(f.budget_collecte, 0) >= COALESCE(p.budget_minimum, p.budget_prevu) THEN \'financement_atteint\'
+                    ELSE \'suivi_normal\'
+                END AS type_action,
+                COALESCE(f.budget_collecte, 0) AS budget_collecte
+            FROM projets p
+            LEFT JOIN users resp ON p.responsable_id = resp.id
+            LEFT JOIN (
+                SELECT
+                    projet_id,
+                    SUM(CASE WHEN statut = \'validee\' THEN montant ELSE 0 END) as budget_collecte
+                FROM fonds
+                WHERE deleted_at IS NULL
+                GROUP BY projet_id
+            ) f ON p.id = f.projet_id
+            WHERE p.deleted_at IS NULL
+            AND (
+                (p.necessite_approbation = true AND p.approuve_par IS NULL) OR
+                (p.date_fin_prevue < CURRENT_DATE AND p.statut NOT IN (\'termine\', \'annule\', \'archive\')) OR
+                (p.prochaine_evaluation <= CURRENT_DATE) OR
+                (p.statut = \'planification\' AND p.budget_prevu > 0 AND COALESCE(f.budget_collecte, 0) < COALESCE(p.budget_minimum, p.budget_prevu)) OR
+                (p.statut = \'recherche_financement\' AND COALESCE(f.budget_collecte, 0) >= COALESCE(p.budget_minimum, p.budget_prevu))
+            )
+            ORDER BY
+                CASE p.priorite
+                    WHEN \'critique\' THEN 1
+                    WHEN \'urgente\' THEN 2
+                    WHEN \'haute\' THEN 3
+                    WHEN \'normale\' THEN 4
+                    WHEN \'faible\' THEN 5
+                END,
+                p.date_fin_prevue ASC NULLS LAST
+        ');
 
+        // Fonction et trigger pour les validations automatiques
+        DB::statement('
+            CREATE OR REPLACE FUNCTION validate_projet_transition()
+            RETURNS TRIGGER AS $$
+            BEGIN
+                -- Validation : ne peut pas passer en cours sans être approuvé
+                IF NEW.statut = \'en_cours\' AND NEW.necessite_approbation = true AND NEW.approuve_par IS NULL THEN
+                    RAISE EXCEPTION \'Impossible de démarrer un projet non approuvé\';
+                END IF;
 
+                -- Validation : projet terminé doit avoir 100% de completion
+                IF NEW.statut = \'termine\' AND NEW.pourcentage_completion < 100 THEN
+                    NEW.pourcentage_completion = 100;
+                END IF;
+
+                -- Validation : projet en recherche de financement doit être ouvert aux dons
+                IF NEW.statut = \'recherche_financement\' AND NEW.ouvert_aux_dons = false THEN
+                    NEW.ouvert_aux_dons = true;
+                END IF;
+
+                -- Auto-complétion de la date de fin si projet terminé
+                IF NEW.statut = \'termine\' AND (OLD.statut IS NULL OR OLD.statut != \'termine\') AND NEW.date_fin_reelle IS NULL THEN
+                    NEW.date_fin_reelle = CURRENT_DATE;
+                END IF;
+
+                RETURN NEW;
+            END;
+            $$ LANGUAGE plpgsql;
+        ');
+
+        DB::statement('
+            CREATE TRIGGER trigger_validate_projet_transition
+            BEFORE UPDATE ON projets
+            FOR EACH ROW
+            EXECUTE FUNCTION validate_projet_transition();
+        ');
     }
 
     /**
@@ -315,8 +456,12 @@ return new class extends Migration {
      */
     public function down(): void
     {
+        // Suppression du trigger et de la fonction
+        DB::statement("DROP TRIGGER IF EXISTS trigger_validate_projet_transition ON projets");
+        DB::statement("DROP FUNCTION IF EXISTS validate_projet_transition()");
+
         // Suppression des vues
-        // DB::statement("DROP VIEW IF EXISTS projets_action_requise");
+        DB::statement("DROP VIEW IF EXISTS projets_action_requise");
         DB::statement("DROP VIEW IF EXISTS statistiques_projets");
         DB::statement("DROP VIEW IF EXISTS projets_dons_ouverts");
         DB::statement("DROP VIEW IF EXISTS projets_actifs");

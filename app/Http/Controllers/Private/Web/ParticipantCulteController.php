@@ -253,9 +253,6 @@ class ParticipantCulteController extends Controller
      */
     public function storeWithUserCreation(Request $request): JsonResponse
     {
-        // dd($request->all());
-        // $data = $request->all();
-        // return response()->json($data);
         try {
             $validator = $this->validateParticipationWithUser($request);
 
@@ -313,7 +310,7 @@ class ParticipantCulteController extends Controller
                 "type_participation" => $request->type_participation,
                 "role_culte" => $request->role_culte,
                 "heure_arrivee" => $request->heure_arrivee,
-                'premiere_visite' => $request->premiere_visite,
+                'premiere_visite' => $request->premiere_visite ?? false,
                 "participant_id" => $participantId,
                 "heure_depart" => $request->heure_depart,
             ];
@@ -856,10 +853,10 @@ class ParticipantCulteController extends Controller
         try {
             // Récupérer le culte avec ses relations
             $culte = Culte::with([
-                'pasteurPrincipal',
-                'predicateur',
-                'responsableCulte',
-                'dirigeantLouange',
+                // 'pasteurPrincipal',
+                // 'predicateur',
+                // 'responsableCulte',
+                // 'dirigeantLouange',
                 'programme'
             ])->findOrFail($culteId);
 
@@ -932,7 +929,7 @@ class ParticipantCulteController extends Controller
             ));
 
         } catch (\Exception $e) {
-            // dd($e->getMessage());
+            dd($e->getMessage());
             return back()->with('error', 'Erreur lors du chargement des participants : ' . $e->getMessage());
         }
     }

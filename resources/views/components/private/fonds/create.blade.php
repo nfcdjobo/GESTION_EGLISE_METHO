@@ -134,13 +134,12 @@
                                 </div>
 
                                 <div>
-                                    <label for="culte_id" class="block text-sm font-medium text-slate-700 mb-2">Culte
-                                        associé</label>
+                                    <label for="culte_id" class="block text-sm font-medium text-slate-700 mb-2">Culte associé</label>
                                     <select id="culte_id" name="culte_id"
                                         class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors @error('culte_id') border-red-500 focus:ring-red-500 focus:border-red-500 @enderror">
                                         <option value="">Aucun culte</option>
                                         @foreach($formData['cultes'] as $culte)
-                                            <option value="{{ $culte->id }}" {{ old('culte_id') == $culte->id ? 'selected' : '' }}>
+                                            <option value="{{ $culte->id }}" {{ in_array($culte->id, [old('culte_id'), $culte?->id]) ? 'selected' : '' }}>
                                                 {{ $culte->titre }} - {{ $culte->date_culte->format('d/m/Y') }}
                                             </option>
                                         @endforeach

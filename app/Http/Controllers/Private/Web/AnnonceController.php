@@ -57,14 +57,23 @@ class AnnonceController extends Controller
         // Tri par défaut par priorité puis date de publication
         $annonces = $query->trieesParPriorite()->paginate(15);
 
-        return view('components.private.annonces.index', [
+        $data = [
             'annonces' => $annonces,
             'filtres' => $request->only(['statut', 'type_annonce', 'audience_cible', 'niveau_priorite', 'search']),
             'typesAnnonces' => Annonce::getTypesAnnonces(),
             'niveauxPriorite' => Annonce::getNiveauxPriorite(),
             'audiencesCibles' => Annonce::getAudiencesCibles(),
             'statuts' => Annonce::getStatuts(),
-        ]);
+        ];
+
+        if ($this->isApiRequest($request)) {
+            response()->json([
+                "success" => true,
+                "data" => $data
+            ]);
+        }
+
+        return view('components.private.annonces.index', $data);
     }
 
     /**
@@ -296,4 +305,122 @@ class AnnonceController extends Controller
                $request->header('Accept') === 'application/json' ||
                $request->ajax();
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    /**
+ * Export PDF d'une annonce
+ */
+public function exportPdf(Annonce $annonce)
+{
+    $annonce->load(['contactPrincipal', 'auteur']);
+
+
+    // Préparation des données pour le PDF
+    $data = [
+        'annonce' => $annonce
+    ];
+
+    // Configuration de DomPDF
+    $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('exports.annonces.annonce-pdf', $data);
+
+    // Configuration du papier
+    $pdf->setPaper('A4', 'portrait');
+
+    // Options supplémentaires
+    $pdf->setOptions([
+        'isHtml5ParserEnabled' => true,
+        'isRemoteEnabled' => true,
+        'defaultFont' => 'DejaVu Sans',
+        'isFontSubsettingEnabled' => true,
+    ]);
+
+    // Nom du fichier
+    $fileName = 'annonce_' . \Illuminate\Support\Str::slug($annonce->titre) . '_' . now()->format('Y-m-d') . '.pdf';
+
+    // Téléchargement du PDF
+    return $pdf->download($fileName);
+}
+
+/**
+ * Export PDF de la liste des annonces
+ */
+public function exportListePdf(Request $request)
+{
+    $query = Annonce::with(['contactPrincipal', 'auteur']);
+
+    // Appliquer les mêmes filtres que l'index
+    if ($request->filled('statut')) {
+        $query->where('statut', $request->statut);
+    }
+
+    if ($request->filled('type_annonce')) {
+        $query->parType($request->type_annonce);
+    }
+
+    if ($request->filled('audience_cible')) {
+        $query->parAudience($request->audience_cible);
+    }
+
+    if ($request->filled('niveau_priorite')) {
+        $query->where('niveau_priorite', $request->niveau_priorite);
+    }
+
+    if ($request->filled('search')) {
+        $search = $request->search;
+        $query->where(function($q) use ($search) {
+            $q->where('titre', 'ILIKE', "%{$search}%")
+              ->orWhere('contenu', 'ILIKE', "%{$search}%");
+        });
+    }
+
+    // Récupérer toutes les annonces filtrées
+    $annonces = $query->trieesParPriorite()->get();
+
+    // Calcul des statistiques
+    $stats = [
+        'total' => $annonces->count(),
+        'par_statut' => $annonces->groupBy('statut')->map->count(),
+        'par_type' => $annonces->groupBy('type_annonce')->map->count(),
+        'par_priorite' => $annonces->groupBy('niveau_priorite')->map->count(),
+        'urgentes' => $annonces->where('niveau_priorite', 'urgent')->count(),
+    ];
+
+
+    $data = [
+        'annonces' => $annonces,
+        'stats' => $stats,
+        'filtres' => $request->only(['statut', 'type_annonce', 'audience_cible', 'niveau_priorite', 'search']),
+    ];
+
+    $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('exports.annonces.liste-annonces-pdf', $data);
+    $pdf->setPaper('A4', 'portrait');
+    $pdf->setOptions([
+        'isHtml5ParserEnabled' => true,
+        'isRemoteEnabled' => true,
+        'defaultFont' => 'DejaVu Sans',
+        'isFontSubsettingEnabled' => true,
+    ]);
+
+    $fileName = 'liste_annonces_' . now()->format('Y-m-d_His') . '.pdf';
+
+    return $pdf->download($fileName);
+}
 }

@@ -333,11 +333,11 @@ class ErrorController extends Controller
         // Patterns courants de fautes de frappe
         $patterns = [
             '/classe[s]?/' => 'private/classes',
-            '/dashbord/' => 'private/dashboard',
-            '/admini?s?tration/' => 'private/dashboard',
+            '/dashbord/' => 'dashboard',
+            '/admini?s?tration/' => 'dashboard',
             '/login/' => 'security/login',
-            '/profil[e]?/' => 'private/profile',
-            '/statistique[s]?/' => 'private/classes/statistiques'
+            '/profil[e]?/' => 'profile',
+            '/statistique[s]?/' => 'classes/statistiques'
         ];
 
         foreach ($patterns as $pattern => $redirect) {

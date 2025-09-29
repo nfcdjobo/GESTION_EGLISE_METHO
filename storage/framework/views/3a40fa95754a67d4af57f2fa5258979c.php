@@ -3,9 +3,9 @@
     <!-- Hero Section -->
     <section class="hero" id="accueil">
         <div class="hero-content">
-            <h1>Bienvenue dans notre Communauté</h1>
-            <p>Une famille de foi unie depuis plus de 100 ans au service de Dieu et de la communauté en Côte d'Ivoire</p>
-            <a href="#services" class="cta-button">Découvrir nos Programmes</a>
+            <h1><?php echo e($AppParametres->description_eglise); ?></h1>
+            <p><?php echo e($AppParametres->vision); ?></p>
+            <a href="#programmes" class="cta-button">Découvrir nos Programmes</a>
         </div>
     </section>
 
@@ -13,79 +13,109 @@
     <section class="section" id="programmes">
         <h2>Nos programmes</h2>
         <div class="services-grid">
-            <div class="service-card fade-in">
-                <div class="service-icon"><i class="fas fa-praying-hands"></i></div>
-                <h3>Cultes Dominicaux</h3>
-                <p>Rejoignez-nous chaque dimanche pour des moments de louange, de prière et d'enseignement biblique enrichissant.</p>
-                <p><strong>Dimanche : 9h00 - 11h30</strong></p>
-            </div>
-            <div class="service-card fade-in">
-                <div class="service-icon"><i class="fas fa-book-open"></i></div>
-                <h3>Étude Biblique</h3>
-                <p>Approfondissez votre connaissance de la Parole de Dieu à travers nos études bibliques interactives.</p>
-                <p><strong>Mercredi : 18h00 - 19h30</strong></p>
-            </div>
-            <div class="service-card fade-in">
-                <div class="service-icon"><i class="fas fa-child"></i></div>
-                <h3>École du Dimanche</h3>
-                <p>Enseignement adapté aux enfants et adolescents pour grandir dans la foi chrétienne.</p>
-                <p><strong>Dimanche : 8h00 - 9h00</strong></p>
-            </div>
-            <div class="service-card fade-in">
-                <div class="service-icon"><i class="fas fa-heart"></i></div>
-                <h3>Œuvres Sociales</h3>
-                <p>Actions communautaires, aide aux plus démunis et projets de développement local.</p>
-                <p><strong>Actions permanentes</strong></p>
-            </div>
-            <div class="service-card fade-in">
-                <div class="service-icon"><i class="fas fa-ring"></i></div>
-                <h3>Mariages & Baptêmes</h3>
-                <p>Célébration des moments importants de la vie chrétienne dans la joie et la communion.</p>
-                <p><strong>Sur rendez-vous</strong></p>
-            </div>
-            <div class="service-card fade-in">
-                <div class="service-icon"><i class="fas fa-music"></i></div>
-                <h3>Chœur & Musique</h3>
-                <p>Groupes de louange et chorales pour magnifier le Seigneur par la musique.</p>
-                <p><strong>Samedi : 15h00 - 17h00</strong></p>
-            </div>
+            <?php if($AppParametres && $AppParametres->count() > 0): ?>
+                <?php
+                    // Récupérer tous les programmes publics
+                    $programmesPublics = $AppParametres->getProgrammesPublics();
+
+                    // Pagination manuelle
+                    $perPage = 6; // Nombre de programmes par page
+                    $currentPage = request()->get('page', 1);
+                    $offset = ($currentPage - 1) * $perPage;
+                    $programmesPage = array_slice($programmesPublics, $offset, $perPage);
+                    $totalPages = ceil(count($programmesPublics) / $perPage);
+
+                ?>
+
+                <?php $__empty_1 = true; $__currentLoopData = $programmesPage; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $programme): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
+
+                    <div class="service-card fade-in">
+                        <div class="service-icon">
+                            <i class="<?php echo e($programme['icone'] ?? 'fas fa-calendar'); ?>"></i>
+                        </div>
+                        <h3><?php echo e($programme['titre']); ?></h3>
+                        <p><?php echo e($programme['description'] ?? 'Description non disponible'); ?></p>
+                        <p><strong><?php echo e($programme['horaire_texte'] ?? 'Horaires à définir'); ?></strong></p>
+                    </div>
+                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
+                    <div class="service-card fade-in">
+                        <div class="service-icon">
+                            <i class="fas fa-info-circle"></i>
+                        </div>
+                        <h3>Aucun programme disponible</h3>
+                        <p>Nous travaillons actuellement sur nos programmes. Revenez bientôt !</p>
+                    </div>
+                <?php endif; ?>
+            <?php else: ?>
+                <div class="service-card fade-in">
+                    <div class="service-icon">
+                        <i class="fas fa-cogs"></i>
+                    </div>
+                    <h3>Configuration en cours</h3>
+                    <p>Les programmes seront bientôt disponibles.</p>
+                </div>
+            <?php endif; ?>
         </div>
+
+        <!-- Pagination personnalisée pour les programmes -->
+        <?php if($AppParametres && count($AppParametres->getProgrammesPublics()) > $perPage): ?>
+            <div class="pagination-programmes">
+                <div class="pagination-container">
+                    <?php if($currentPage > 1): ?>
+                        <a href="?page=<?php echo e($currentPage - 1); ?>#programmes" class="pagination-link pagination-prev">
+                            <i class="fas fa-chevron-left"></i> Précédent
+                        </a>
+                    <?php endif; ?>
+
+                    <div class="pagination-numbers">
+                        <?php for($i = 1; $i <= $totalPages; $i++): ?>
+                            <a href="?page=<?php echo e($i); ?>#programmes" class="pagination-number <?php echo e($i == $currentPage ? 'active' : ''); ?>">
+                                <?php echo e($i); ?>
+
+                            </a>
+                        <?php endfor; ?>
+                    </div>
+
+                    <?php if($currentPage < $totalPages): ?>
+                        <a href="?page=<?php echo e($currentPage + 1); ?>#programmes" class="pagination-link pagination-next">
+                            Suivant <i class="fas fa-chevron-right"></i>
+                        </a>
+                    <?php endif; ?>
+                </div>
+
+                <div class="pagination-info">
+                    Affichage <?php echo e($offset + 1); ?> - <?php echo e(min($offset + $perPage, count($programmesPublics))); ?>
+
+                    sur <?php echo e(count($programmesPublics)); ?> programmes
+                </div>
+            </div>
+        <?php endif; ?>
     </section>
 
     <!-- Events Section -->
     <section class="section events" id="events">
         <h2>Événements à venir</h2>
         <div class="events-list">
-            <div class="event-item fade-in">
-                <div class="event-date">
-                    <div style="font-size: 1.5rem; font-weight: bold;">20</div>
-                    <div>AOÛT</div>
+            <?php $__empty_1 = true; $__currentLoopData = $AppEvents; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $event): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
+                <div class="event-item fade-in">
+                    <div class="event-date">
+                        <div style="font-size: 1.5rem; font-weight: bold;"><?php echo e(\Carbon\Carbon::parse($event->date_debut)->day); ?>
+
+                        </div>
+                        <div><?php echo e(ucfirst(strtolower(\Carbon\Carbon::parse($event->date_debut)->translatedFormat('F')))); ?></div>
+                    </div>
+                    <div class="event-info">
+                        <h3><?php echo e($event->titre); ?></h3>
+                        <p><?php echo e($event->resume_court); ?></p>
+                    </div>
                 </div>
-                <div class="event-info">
-                    <h3>Concert de Louange</h3>
-                    <p>Soirée spéciale de louange et d'adoration avec la participation de plusieurs chorales.</p>
+            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
+                <div class="no-events">
+                    <h3>Aucun événement programmé pour le moment</h3>
+                    <p>Nous préparons de nouveaux événements spirituels et communautaires. Restez connectés pour être informés de nos prochaines activités !</p>
                 </div>
-            </div>
-            <div class="event-item fade-in">
-                <div class="event-date">
-                    <div style="font-size: 1.5rem; font-weight: bold;">25</div>
-                    <div>AOÛT</div>
-                </div>
-                <div class="event-info">
-                    <h3>Conférence Jeunesse</h3>
-                    <p>Rencontre dédiée aux jeunes sur le thème "Être disciple au 21ème siècle".</p>
-                </div>
-            </div>
-            <div class="event-item fade-in">
-                <div class="event-date">
-                    <div style="font-size: 1.5rem; font-weight: bold;">01</div>
-                    <div>SEPT</div>
-                </div>
-                <div class="event-info">
-                    <h3>Journée Communautaire</h3>
-                    <p>Activités familiales, repas partagé et témoignages de la communauté.</p>
-                </div>
-            </div>
+            <?php endif; ?>
+
         </div>
     </section>
 
@@ -96,25 +126,170 @@
             <div class="contact-item fade-in">
                 <div class="contact-icon"><i class="fas fa-map-marker-alt"></i></div>
                 <h3>Adresse</h3>
-                <p>Rue des Églises<br>Abidjan, Côte d'Ivoire</p>
+                <p><?php echo e($AppParametres->adresse); ?><br><?php echo e($AppParametres->ville); ?>, <?php echo e($AppParametres->pays); ?></p>
             </div>
             <div class="contact-item fade-in">
                 <div class="contact-icon"><i class="fas fa-phone"></i></div>
                 <h3>Téléphone</h3>
-                <p>+225 XX XX XX XX XX</p>
+                <p><?php echo e($AppParametres->telephone_1); ?> <?php if($AppParametres->telephone_2): ?> <br> <?php echo e($AppParametres->telephone_2); ?>
+
+                <?php endif; ?></p>
             </div>
             <div class="contact-item fade-in">
                 <div class="contact-icon"><i class="fas fa-envelope"></i></div>
                 <h3>Email</h3>
-                <p>contact@emu-ci.org</p>
-            </div>
-            <div class="contact-item fade-in">
-                <div class="contact-icon"><i class="fas fa-clock"></i></div>
-                <h3>Horaires</h3>
-                <p>Dim: 8h00-12h00<br>Mer: 18h00-19h30</p>
+                <p><?php echo e($AppParametres->email_principal); ?></p>
             </div>
         </div>
     </section>
+
+    <style>
+        /* Styles pour la pagination des programmes */
+        .pagination-programmes {
+            margin-top: 2rem;
+            text-align: center;
+        }
+
+        .pagination-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .pagination-link {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.75rem 1rem;
+            background: #ffffff;
+            color: #4a5568;
+            text-decoration: none;
+            border-radius: 0.5rem;
+            border: 1px solid #e2e8f0;
+            transition: all 0.2s ease;
+            font-weight: 500;
+            gap: 0.25rem;
+        }
+
+        .pagination-link:hover {
+            background: #f7fafc;
+            border-color: #cbd5e0;
+            color: #2d3748;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .pagination-numbers {
+            display: flex;
+            gap: 0.25rem;
+        }
+
+        .pagination-number {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 2.5rem;
+            height: 2.5rem;
+            background: #ffffff;
+            color: #4a5568;
+            text-decoration: none;
+            border-radius: 0.5rem;
+            border: 1px solid #e2e8f0;
+            transition: all 0.2s ease;
+            font-weight: 500;
+        }
+
+        .pagination-number:hover {
+            background: #f7fafc;
+            border-color: #cbd5e0;
+            color: #2d3748;
+            transform: translateY(-1px);
+        }
+
+        .pagination-number.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: transparent;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        .pagination-info {
+            font-size: 0.875rem;
+            color: #718096;
+            margin-top: 0.5rem;
+        }
+
+        /* Responsive design pour la pagination */
+        @media (max-width: 768px) {
+            .pagination-container {
+                gap: 0.25rem;
+            }
+
+            .pagination-link {
+                padding: 0.5rem 0.75rem;
+                font-size: 0.875rem;
+            }
+
+            .pagination-number {
+                width: 2rem;
+                height: 2rem;
+                font-size: 0.875rem;
+            }
+
+            .pagination-info {
+                font-size: 0.75rem;
+            }
+        }
+
+        /* Animation pour le changement de page */
+        .services-grid {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+
+
+
+    <script>
+        // JavaScript pour améliorer l'expérience utilisateur
+        document.addEventListener('DOMContentLoaded', function () {
+            // Smooth scroll vers la section programmes lors du changement de page
+            if (window.location.hash === '#programmes') {
+                setTimeout(() => {
+                    document.getElementById('programmes').scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }, 100);
+            }
+
+            // Ajouter un effet de chargement lors du changement de page
+            const paginationLinks = document.querySelectorAll('.pagination-link, .pagination-number');
+            paginationLinks.forEach(link => {
+                link.addEventListener('click', function (e) {
+                    if (!this.classList.contains('active')) {
+                        // Afficher un indicateur de chargement
+                        const servicesGrid = document.querySelector('.services-grid');
+                        servicesGrid.style.opacity = '0.6';
+                        servicesGrid.style.transform = 'scale(0.98)';
+                    }
+                });
+            });
+        });
+    </script>
 
 <?php $__env->stopSection(); ?>
 

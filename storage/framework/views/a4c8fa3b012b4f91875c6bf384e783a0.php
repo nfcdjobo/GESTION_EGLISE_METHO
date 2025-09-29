@@ -642,6 +642,7 @@
                     alert('Veuillez sélectionner un format d\'export');
                 }
             }
+            
 
             // Animation des cartes au chargement
             document.addEventListener('DOMContentLoaded', function() {

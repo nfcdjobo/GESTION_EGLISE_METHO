@@ -1,14 +1,17 @@
 <?php $__env->startSection('title', 'Gestion des Événements'); ?>
 
 <?php $__env->startSection('content'); ?>
+
 <div class="space-y-8">
     <!-- Page Title -->
+
     <div class="mb-8">
         <div class="bg-white rounded-xl shadow-lg p-6 border border-slate-200">
             <h1 class="text-3xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent">Gestion des Événements</h1>
             <p class="text-slate-500 mt-1">Administration des événements de l'église - <?php echo e(\Carbon\Carbon::now()->format('l d F Y')); ?></p>
         </div>
     </div>
+    <div id="toast-container" class="fixed top-4 right-4 space-y-2 z-50"></div>
 
     <!-- Filtres et actions -->
     <div class="bg-white/80 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
@@ -194,7 +197,9 @@
                     <select id="bulkAction" class="px-3 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors text-sm">
                         <option value="">Actions en lot</option>
                         <option value="export">Exporter sélection</option>
+                        <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('events.duplicate')): ?>
                         <option value="duplicate">Dupliquer sélection</option>
+                        <?php endif; ?>
                     </select>
                     <button type="button" onclick="executeBulkAction()" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-slate-600 to-slate-700 text-white text-sm font-medium rounded-xl hover:from-slate-700 hover:to-slate-800 transition-all duration-200">
                         <i class="fas fa-play mr-2"></i> Exécuter
@@ -335,6 +340,24 @@
                                                     <i class="fas fa-eye text-sm"></i>
                                                 </a>
                                             <?php endif; ?>
+
+                                            <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('events.update')): ?>
+                                                <button
+                                                    onclick="publier('<?php echo e($event->id); ?>')"
+                                                    class="inline-flex items-center justify-center w-8 h-8 rounded-lg transition-colors
+                                                        <?php echo e($event->ouvert_public
+                                                                ? 'text-red-600 bg-red-100 hover:bg-red-200'
+                                                                : 'text-green-600 bg-green-100 hover:bg-green-200'); ?>"
+                                                    title="<?php echo e($event->ouvert_public ? 'Dépublier' : 'Publier'); ?>">
+
+                                                    <?php if($event->ouvert_public): ?>
+                                                        <i class="fas fa-eye-slash text-sm"></i> 
+                                                    <?php else: ?>
+                                                        <i class="fas fa-eye text-sm"></i> 
+                                                    <?php endif; ?>
+                                                </button>
+                                            <?php endif; ?>
+
 
                                             <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('events.manage-inscriptions')): ?>
                                             <?php if($event->inscription_requise): ?>
@@ -498,6 +521,66 @@ if(selectAll){
 function showDeleteModal() {
     document.getElementById('deleteModal').classList.remove('hidden');
 }
+
+
+
+
+
+
+
+
+
+
+function showToast(message, type = "success") {
+        const container = document.getElementById("toast-container");
+
+        // Couleurs selon le type
+        const colors = {
+            success: "bg-green-100 text-green-800 border border-green-300",
+            error: "bg-red-100 text-red-800 border border-red-300",
+            warning: "bg-yellow-100 text-yellow-800 border border-yellow-300",
+        };
+
+        // Créer le toast
+        const toast = document.createElement("div");
+        toast.className = `px-4 py-2 rounded-lg shadow-md ${colors[type]}`;
+        toast.innerText = message;
+
+        container.appendChild(toast);
+
+        // Supprimer après 4s
+        setTimeout(() => {
+            toast.remove();
+            location.reload();
+        }, 4000);
+    }
+
+    function publier(eventId) {
+        fetch("<?php echo e(route('private.events.publier', ':id')); ?>".replace(':id', eventId), {
+            method: "POST",
+            headers: {
+                "X-CSRF-TOKEN": "<?php echo e(csrf_token()); ?>",
+                "Accept": "application/json"
+            }
+        })
+        .then(response => {
+            if (!response.ok) throw new Error("Erreur serveur");
+            return response.json();
+        })
+        .then(data => {
+            if (data.success) {
+                showToast(data.message || "Évènement mis à jour avec succès ✅", "success");
+            } else {
+                showToast(data.message || "Une erreur est survenue ❌", "error");
+            }
+        })
+        .catch(error => {
+            console.error(error);
+            showToast("Impossible de mettre à jour l’évènement ❌", "error");
+        });
+    }
+
+
 
 function closeDeleteModal() {
     document.getElementById('deleteModal').classList.add('hidden');

@@ -38,6 +38,10 @@
                                 <i class="fas fa-chart-bar mr-2"></i> Statistiques
                             </button>
                         @endcan
+
+                        <a href="{{ route('private.annonces.export-liste-pdf', request()->query()) }}" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-600 to-blue-600 text-white text-sm font-medium rounded-xl hover:from-blue-700 hover:to-blue-700 transition-all duration-200 shadow-md hover:shadow-lg">
+<i class="fas fa-file-pdf"></i> Exporter la liste en PDF
+</a>
                     </div>
                 </div>
             </div>

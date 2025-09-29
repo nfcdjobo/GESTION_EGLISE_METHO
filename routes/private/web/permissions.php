@@ -9,29 +9,24 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\private\Web\PermissionController;
 
 // Routes d'administration des permissions
-Route::middleware(['auth', 'user.status'])->prefix('dashboard')->name('private.')->group(function () {
+Route::middleware(['auth', 'user.status'])->prefix('permissions')->name('private.permissions.')->group(function () {
 
     // Gestion des permissions
-    Route::prefix('permissions')->name('permissions.')->group(function () {
-        Route::get('/', [PermissionController::class, 'index'])->name('index');
-        Route::post('/bulk-assign', [PermissionController::class, 'bulkAssign'])->name('bulk-assign');
 
-        Route::get('/statistics', [PermissionController::class, 'statistics'])->name('statistics');
-        Route::get('/create', [PermissionController::class, 'create'])->name('create');
-        Route::get('/export/csv', [PermissionController::class, 'export'])->name('export');
+    Route::get('/', [PermissionController::class, 'index'])->middleware('permission:permissions.read')->name('index');
+    Route::post('/bulk-assign', [PermissionController::class, 'bulkAssign'])->middleware('permission:permissions.bulk-assign')->name('bulk-assign');
 
-        Route::post('/', [PermissionController::class, 'store'])->name('store');
-        Route::get('/{permission}', [PermissionController::class, 'show'])->name('show');
-        Route::get('/{permission}/edit', [PermissionController::class, 'edit'])->name('edit');
-        Route::put('/{permission}', [PermissionController::class, 'update'])->name('update');
-        Route::delete('/{permission}', [PermissionController::class, 'destroy'])->name('destroy');
-        Route::post('/{permission}/clone', [PermissionController::class, 'clone'])->name('clone');
-        Route::post('/{permission}/toggle', [PermissionController::class, 'toggle'])->name('toggle');
+    Route::get('/statistics', [PermissionController::class, 'statistics'])->middleware('permission:permissions.statistics')->name('statistics');
+    Route::get('/create', [PermissionController::class, 'create'])->middleware('permission:permissions.create')->name('create');
+    Route::get('/export/csv', [PermissionController::class, 'export'])->middleware('permission:permissions.export')->name('export');
 
-    });
-
-
-
+    Route::post('/', [PermissionController::class, 'store'])->middleware('permission:permissions.create')->name('store');
+    Route::get('/{permission}', [PermissionController::class, 'show'])->middleware('permission:permissions.read')->name('show');
+    Route::get('/{permission}/edit', [PermissionController::class, 'edit'])->middleware('permission:permissions.update')->name('edit');
+    Route::put('/{permission}', [PermissionController::class, 'update'])->middleware('permission:permissions.update')->name('update');
+    Route::delete('/{permission}', [PermissionController::class, 'destroy'])->middleware('permission:permissions.delete')->name('destroy');
+    Route::post('/{permission}/clone', [PermissionController::class, 'clone'])->middleware('permission:permissions.clone')->name('clone');
+    Route::post('/{permission}/toggle', [PermissionController::class, 'toggle'])->middleware('permission:permissions.toggle')->name('toggle');
 
 });
 

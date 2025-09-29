@@ -904,7 +904,7 @@ class ReunionController extends Controller
         $validator = Validator::make($request->all(), [
             'temoignages' => 'required`|array',
         ]);
-
+        
         if ($validator->fails()) {
             if ($this->expectsJson($request)) {
                 return response()->json([
@@ -917,10 +917,10 @@ class ReunionController extends Controller
                 ->withErrors($validator)
                 ->with('error', 'Veuillez corriger les erreurs du formulaire');
         }
-
+//  return response()->json($reunion);
         try {
-            $temoignages = $reunion->temoignages_recueillis ?
-                $reunion->temoignages_recueillis . "\n\n---\n\n" : '';
+           
+            $temoignages = $reunion->temoignages_recueillis ? $reunion->temoignages_recueillis . "\n\n---\n\n" : '';
 
             $nouveauTemoignage = "**{$request->auteur}** ({$request->type})\n{$request->temoignage}";
 
@@ -939,12 +939,12 @@ class ReunionController extends Controller
             return back()->with('success', 'Témoignage ajouté avec succès');
 
         } catch (\Exception $e) {
-            // if ($this->expectsJson($request)) {
+            if ($this->expectsJson($request)) {
             return response()->json([
                 'message' => 'Erreur lors de l\'ajout du témoignage',
                 'error' => $e->getMessage()
             ], 500);
-            // }
+            }
 
             return back()->with('error', 'Erreur lors de l\'ajout: ' . $e->getMessage());
         }
@@ -1584,11 +1584,14 @@ class ReunionController extends Controller
             }
 
             $reunions = $query->orderBy('date_reunion')->orderBy('heure_debut_prevue')->get();
+            if ($this->expectsJson($request)) {
+                return response()->json([
+                    'data' => $reunions,
+                    'periode' => ['annee' => $annee, 'mois' => $mois]
+                ]);
+            }
 
-            return response()->json([
-                'data' => $reunions,
-                'periode' => ['annee' => $annee, 'mois' => $mois]
-            ]);
+            return view('components.private.reunions.calendrier', compact('reunions'));
 
 
         } catch (\Exception $e) {

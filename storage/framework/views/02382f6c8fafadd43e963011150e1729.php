@@ -182,63 +182,85 @@
                 </div>
 
                 <!-- Responsables -->
+                
+                <!-- Officiants et Responsables -->
                 <div class="bg-white/80 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
                     <div class="p-6 border-b border-slate-200">
-                        <h2 class="text-xl font-bold text-slate-800 flex items-center">
-                            <i class="fas fa-users text-purple-600 mr-2"></i>
-                            Responsables et Intervenants
-                        </h2>
-                    </div>
-                    <div class="p-6">
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <?php if($culte->pasteurPrincipal): ?>
-                                <div class="flex items-center space-x-3 p-4 bg-gradient-to-r from-blue-50 to-cyan-50 rounded-xl">
-                                    <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                                        <i class="fas fa-user-tie text-blue-600"></i>
-                                    </div>
-                                    <div>
-                                        <p class="text-sm font-medium text-slate-500">Pasteur principal</p>
-                                        <p class="font-semibold text-slate-900"><?php echo e($culte->pasteurPrincipal->nom); ?> <?php echo e($culte->pasteurPrincipal->prenom); ?></p>
-                                    </div>
-                                </div>
-                            <?php endif; ?>
-
-                            <?php if($culte->predicateur): ?>
-                                <div class="flex items-center space-x-3 p-4 bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl">
-                                    <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
-                                        <i class="fas fa-microphone text-green-600"></i>
-                                    </div>
-                                    <div>
-                                        <p class="text-sm font-medium text-slate-500">Prédicateur</p>
-                                        <p class="font-semibold text-slate-900"><?php echo e($culte->predicateur->nom); ?> <?php echo e($culte->predicateur->prenom); ?></p>
-                                    </div>
-                                </div>
-                            <?php endif; ?>
-
-                            <?php if($culte->responsableCulte): ?>
-                                <div class="flex items-center space-x-3 p-4 bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl">
-                                    <div class="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
-                                        <i class="fas fa-user-cog text-purple-600"></i>
-                                    </div>
-                                    <div>
-                                        <p class="text-sm font-medium text-slate-500">Responsable du culte</p>
-                                        <p class="font-semibold text-slate-900"><?php echo e($culte->responsableCulte->nom); ?> <?php echo e($culte->responsableCulte->prenom); ?></p>
-                                    </div>
-                                </div>
-                            <?php endif; ?>
-
-                            <?php if($culte->dirigeantLouange): ?>
-                                <div class="flex items-center space-x-3 p-4 bg-gradient-to-r from-amber-50 to-orange-50 rounded-xl">
-                                    <div class="w-10 h-10 bg-amber-100 rounded-full flex items-center justify-center">
-                                        <i class="fas fa-music text-amber-600"></i>
-                                    </div>
-                                    <div>
-                                        <p class="text-sm font-medium text-slate-500">Dirigeant de louange</p>
-                                        <p class="font-semibold text-slate-900"><?php echo e($culte->dirigeantLouange->nom); ?> <?php echo e($culte->dirigeantLouange->prenom); ?></p>
-                                    </div>
-                                </div>
+                        <div class="flex items-center justify-between">
+                            <h2 class="text-xl font-bold text-slate-800 flex items-center">
+                                <i class="fas fa-users text-purple-600 mr-2"></i>
+                                Officiants et Responsables
+                            </h2>
+                            <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('cultes.update')): ?>
+                                <button type="button" onclick="openOfficialsModal('<?php echo e($culte->id); ?>')"
+                                    class="inline-flex items-center px-3 py-1 bg-indigo-100 text-indigo-700 text-sm font-medium rounded-lg hover:bg-indigo-200 transition-colors">
+                                    <i class="fas fa-edit mr-1"></i> Gérer
+                                </button>
                             <?php endif; ?>
                         </div>
+                    </div>
+                    <div class="p-6">
+                        <?php if($culte->officiants_detail && $culte->officiants_detail->count() > 0): ?>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <?php $__currentLoopData = $culte->officiants_detail; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $officiant): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                    <?php
+                                        // Icônes et couleurs selon le titre
+                                        $iconMap = [
+                                            'pasteur' => ['icon' => 'fa-user-tie', 'color' => 'blue'],
+                                            'prédicateur' => ['icon' => 'fa-microphone', 'color' => 'green'],
+                                            'predicateur' => ['icon' => 'fa-microphone', 'color' => 'green'],
+                                            'louange' => ['icon' => 'fa-music', 'color' => 'amber'],
+                                            'responsable' => ['icon' => 'fa-user-cog', 'color' => 'purple'],
+                                            'organisateur' => ['icon' => 'fa-user-cog', 'color' => 'purple'],
+                                            'maître' => ['icon' => 'fa-microphone-alt', 'color' => 'pink'],
+                                            'interprète' => ['icon' => 'fa-language', 'color' => 'cyan'],
+                                            'interprete' => ['icon' => 'fa-language', 'color' => 'cyan'],
+                                        ];
+
+                                        $titreLower = strtolower($officiant['titre']);
+                                        $iconData = null;
+
+                                        foreach ($iconMap as $key => $data) {
+                                            if (strpos($titreLower, $key) !== false) {
+                                                $iconData = $data;
+                                                break;
+                                            }
+                                        }
+
+                                        if (!$iconData) {
+                                            $iconData = ['icon' => 'fa-user', 'color' => 'slate'];
+                                        }
+                                    ?>
+
+                                    <div class="flex items-center space-x-3 p-4 bg-gradient-to-r from-<?php echo e($iconData['color']); ?>-50 to-<?php echo e($iconData['color']); ?>-50 rounded-xl hover:shadow-md transition-all duration-200">
+                                        <div class="w-12 h-12 bg-<?php echo e($iconData['color']); ?>-100 rounded-full flex items-center justify-center flex-shrink-0">
+                                            <i class="fas <?php echo e($iconData['icon']); ?> text-<?php echo e($iconData['color']); ?>-600 text-lg"></i>
+                                        </div>
+                                        <div class="flex-1 min-w-0">
+                                            <p class="text-sm font-medium text-slate-500 truncate"><?php echo e($officiant['titre']); ?></p>
+                                            <p class="font-semibold text-slate-900 truncate"><?php echo e($officiant['nom_complet']); ?></p>
+                                            <?php if($officiant['provenance'] !== 'Église Locale'): ?>
+                                                <p class="text-xs text-slate-500 truncate">
+                                                    <i class="fas fa-map-marker-alt mr-1"></i><?php echo e($officiant['provenance']); ?>
+
+                                                </p>
+                                            <?php endif; ?>
+                                        </div>
+                                    </div>
+                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                            </div>
+                        <?php else: ?>
+                            <div class="text-center py-8 text-slate-500">
+                                <i class="fas fa-user-slash text-3xl mb-2"></i>
+                                <p class="italic">Aucun officiant assigné à ce culte</p>
+                                <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('cultes.manage-participants')): ?>
+                                    <button type="button" onclick="openOfficialsModal('<?php echo e($culte->id); ?>')"
+                                        class="mt-3 inline-flex items-center px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 transition-colors">
+                                        <i class="fas fa-plus mr-2"></i>Ajouter des officiants
+                                    </button>
+                                <?php endif; ?>
+                            </div>
+                        <?php endif; ?>
                     </div>
                 </div>
 
@@ -811,7 +833,7 @@
                         </h2>
                     </div>
                     <div class="p-6 space-y-3">
-                        <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('cultes.participant')): ?>
+                        <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('participant_cultes.ajouter-participant')): ?>
                             <a href="<?php echo e(route('private.cultes.participants', $culte->id)); ?>"
                                 class="w-full inline-flex items-center justify-center px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white text-sm font-medium rounded-xl hover:from-green-700 hover:to-emerald-700 transition-all duration-200">
                                 <i class="fas fa-user-plus mr-2"></i> Ajouter des participants
@@ -825,11 +847,13 @@
                             </a>
                         <?php endif; ?>
 
+                        <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('cultes.change-status')): ?>
                         <?php if($culte->statut !== 'termine'): ?>
                             <button type="button" onclick="openStatusModal('<?php echo e($culte->id); ?>', '<?php echo e($culte->statut); ?>')"
                                 class="w-full inline-flex items-center justify-center px-4 py-2 bg-gradient-to-r from-blue-600 to-cyan-600 text-white text-sm font-medium rounded-xl hover:from-blue-700 hover:to-cyan-700 transition-all duration-200">
                                 <i class="fas fa-exchange-alt mr-2"></i> Changer le statut
                             </button>
+                        <?php endif; ?>
                         <?php endif; ?>
 
                         <?php if($culte->lien_diffusion_live): ?>
@@ -846,6 +870,7 @@
                             </a>
                         <?php endif; ?>
 
+                        
                         <?php if($culte->lien_enregistrement_audio): ?>
                             <a href="<?php echo e($culte->lien_enregistrement_audio); ?>" target="_blank"
                                 class="w-full inline-flex items-center justify-center px-4 py-2 bg-gradient-to-r from-amber-600 to-orange-600 text-white text-sm font-medium rounded-xl hover:from-amber-700 hover:to-orange-700 transition-all duration-200">

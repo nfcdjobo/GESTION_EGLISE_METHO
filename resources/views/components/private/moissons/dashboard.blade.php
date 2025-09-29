@@ -28,10 +28,12 @@
                         class="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-xl hover:bg-blue-700 transition-colors">
                         <i class="fas fa-sync-alt mr-2"></i> Actualiser
                     </button>
+                    @can('moissons.export')
                     <button onclick="exporterDashboard()"
                         class="inline-flex items-center px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-xl hover:bg-green-700 transition-colors">
                         <i class="fas fa-download mr-2"></i> Exporter
                     </button>
+                    @endcan
                 </div>
             </div>
         </div>
@@ -441,7 +443,7 @@
         <!-- Chart.js -->
         <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
 
- 
+
 
         <script>
             let evolutionChart, repartitionChart;
@@ -726,10 +728,10 @@
                                 </td>
                                 <td class="px-6 py-4 text-right">
                                     <div class="flex items-center justify-end space-x-2">
-                                        <a href="/private/moissons/${moisson.id}" class="text-cyan-600 hover:text-cyan-700 transition-colors">
+                                        <a href="/moissons/${moisson.id}" class="text-cyan-600 hover:text-cyan-700 transition-colors">
                                             <i class="fas fa-eye"></i>
                                         </a>
-                                        <a href="/private/moissons/${moisson.id}/edit" class="text-yellow-600 hover:text-yellow-700 transition-colors">
+                                        <a href="/moissons/${moisson.id}/edit" class="text-yellow-600 hover:text-yellow-700 transition-colors">
                                             <i class="fas fa-edit"></i>
                                         </a>
                                     </div>

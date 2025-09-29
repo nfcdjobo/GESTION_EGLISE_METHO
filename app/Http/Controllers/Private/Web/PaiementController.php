@@ -20,6 +20,64 @@ use Illuminate\Support\Facades\Validator;
 
 class PaiementController extends Controller
 {
+
+    public function __construct()
+    {
+        // Middleware d'authentification de base
+        $this->middleware('auth');
+
+        // ================================
+        // PERMISSIONS CRUD PRINCIPALES
+        // ================================
+
+        // Lecture des paiements
+        $this->middleware('permission:paiements.read')->only([
+            'index',
+            'show',
+            'search',
+            'liveStats'
+        ]);
+
+        // Création de paiements
+        $this->middleware('permission:paiements.create')->only(['create', 'store']);
+
+        // Modification de paiements
+        $this->middleware('permission:paiements.update')->only(['edit']);
+
+        // ================================
+        // PERMISSIONS FONCTIONNELLES
+        // ================================
+
+        // Validation de paiements
+        $this->middleware('permission:paiements.validate')->only(['valider', 'validate']);
+
+        // Rejet de paiements
+        $this->middleware('permission:paiements.reject')->only(['reject']);
+
+        // Traitement en lot
+        $this->middleware('permission:paiements.traiter-en-lot')->only([
+            'traiterEnLot',
+            'batchValidate'
+        ]);
+
+        // Paiements en attente
+        $this->middleware('permission:paiements.en-attente')->only(['enAttente']);
+
+        // Types de paiement
+        $this->middleware('permission:paiements.types-paiement')->only(['typesPaiement']);
+
+        // Génération de reçus (accessible en lecture)
+        $this->middleware('permission:paiements.read')->only(['recepisse']);
+
+        // Export et statistiques
+        $this->middleware('permission:paiements.read')->only([
+            'export',
+            'dashboard',
+            'statistiquesPaiementsSupplementaires'
+        ]);
+    }
+
+
     /**
      * Affiche la liste des paiements avec pagination et filtres
      */
@@ -63,10 +121,10 @@ class PaiementController extends Controller
             }
 
             $meta = [
-                        'total' => $payments->total(),
-                        'per_page' => $payments->perPage(),
-                        'current_page' => $payments->currentPage(),
-                        'last_page' => $payments->lastPage(),
+                'total' => $payments->total(),
+                'per_page' => $payments->perPage(),
+                'current_page' => $payments->currentPage(),
+                'last_page' => $payments->lastPage(),
             ];
             return view('components.private.paiements.index', compact('payments', 'meta'));
 
@@ -82,6 +140,7 @@ class PaiementController extends Controller
             return back()->withErrors(['error' => 'Erreur lors de la récupération des paiements']);
         }
     }
+
 
     /**
      * Affiche un paiement spécifique
@@ -113,7 +172,7 @@ class PaiementController extends Controller
             return view('components.private.paiements.show', $data);
 
         } catch (Exception $e) {
-            dd($e->getMessage());
+            // dd($e->getMessage());
             if ($request->expectsJson()) {
                 return response()->json([
                     'success' => false,
@@ -126,6 +185,7 @@ class PaiementController extends Controller
                 ->withErrors(['error' => 'Paiement non trouvé']);
         }
     }
+
 
     /**
      * Méthode de validation modifiée pour accepter les paiements supplémentaires
@@ -301,6 +361,7 @@ class PaiementController extends Controller
         }
     }
 
+
     /**
      * Annule une validation ou un rejet (retour en attente)
      */
@@ -359,6 +420,7 @@ class PaiementController extends Controller
         }
     }
 
+
     /**
      * Dashboard des paiements avec statistiques
      */
@@ -399,6 +461,7 @@ class PaiementController extends Controller
             return back()->withErrors(['error' => 'Erreur lors du chargement du dashboard']);
         }
     }
+
 
     /**
      * Validation en lot des paiements
@@ -483,6 +546,7 @@ class PaiementController extends Controller
         }
     }
 
+
     /**
      * Génère un reçu de paiement
      */
@@ -524,6 +588,7 @@ class PaiementController extends Controller
             ], 500);
         }
     }
+
 
     /**
      * Export des paiements
@@ -573,7 +638,6 @@ class PaiementController extends Controller
         }
     }
 
-    // === MÉTHODES PRIVÉES ===
 
     /**
      * Applique les filtres à la requête
@@ -636,6 +700,7 @@ class PaiementController extends Controller
         }
     }
 
+
     /**
      * Applique le tri à la requête
      */
@@ -657,9 +722,6 @@ class PaiementController extends Controller
             $query->orderBy($sortBy, $sortDirection);
         }
     }
-
-
-
 
 
     /**
@@ -709,9 +771,6 @@ class PaiementController extends Controller
     }
 
 
-
-
-
     /**
      * Vérifie si l'utilisateur peut valider le paiement
      */
@@ -747,7 +806,6 @@ class PaiementController extends Controller
     }
 
 
-
     /**
      * Vérifie si l'utilisateur peut rejeter le paiement
      */
@@ -755,36 +813,6 @@ class PaiementController extends Controller
     {
         return $this->canValidatePayment($payment); // Mêmes permissions que pour valider
     }
-
-    // /**
-    //  * Vérifie si l'utilisateur peut annuler une validation/rejet
-    //  */
-    // private function canCancelValidation(SubscriptionPayment $payment): bool
-    // {
-    //     if ($payment->statut === 'en_attente') {
-    //         return false;
-    //     }
-
-    //     /**
-    //      * @var User $user
-    //      */
-    //     $user = auth()->user();
-
-    //     // Seul un admin peut annuler une validation/rejet
-    //     if (method_exists($user, 'hasRole') && $user->hasRole('admin')) {
-    //         return true;
-    //     }
-
-    //     // Le validateur original peut annuler dans les 24h
-    //     if ($payment->validateur_id === $user->id &&
-    //         $payment->date_validation &&
-    //         $payment->date_validation->diffInHours(now()) <= 24) {
-    //         return true;
-    //     }
-
-    //     return false;
-    // }
-
 
 
     /**
@@ -816,6 +844,7 @@ class PaiementController extends Controller
         return false;
     }
 
+
     /**
      * Historique de validation d'un paiement
      */
@@ -830,6 +859,7 @@ class PaiementController extends Controller
             'commentaire' => $payment->commentaire,
         ];
     }
+
 
     /**
      * Statistiques globales des paiements
@@ -847,6 +877,7 @@ class PaiementController extends Controller
             'montant_aujourd_hui' => SubscriptionPayment::aujourdhui()->sum('montant'),
         ];
     }
+
 
     /**
      * Paiements en attente de validation
@@ -872,6 +903,7 @@ class PaiementController extends Controller
             ->toArray();
     }
 
+
     /**
      * Performance de validation
      */
@@ -883,6 +915,7 @@ class PaiementController extends Controller
             'validations_par_validateur' => $this->getValidationsParValidateur(),
         ];
     }
+
 
     /**
      * Évolution mensuelle des paiements
@@ -910,6 +943,7 @@ class PaiementController extends Controller
         return $data;
     }
 
+
     /**
      * Répartition par types de paiement
      */
@@ -931,6 +965,7 @@ class PaiementController extends Controller
             })
             ->toArray();
     }
+
 
     /**
      * Alertes relatives aux paiements
@@ -965,8 +1000,8 @@ class PaiementController extends Controller
         return $alertes;
     }
 
-    // Méthodes de calcul pour les statistiques
 
+    // Méthodes de calcul pour les statistiques
     private function calculateDelaiMoyenValidation(): float
     {
         $payments = SubscriptionPayment::where('statut', 'valide')
@@ -986,6 +1021,7 @@ class PaiementController extends Controller
         return round($totalHeures / $payments->count(), 1);
     }
 
+
     private function calculateTauxValidation(): float
     {
         $totalPaiements = SubscriptionPayment::whereDate('created_at', '>=', now()->subDays(30))->count();
@@ -998,6 +1034,7 @@ class PaiementController extends Controller
 
         return round(($paiementsValides / $totalPaiements) * 100, 2);
     }
+
 
     private function getValidationsParValidateur(): array
     {
@@ -1019,8 +1056,8 @@ class PaiementController extends Controller
             ->toArray();
     }
 
-    // Méthodes d'export
 
+    // Méthodes d'export
     private function generateReceiptPdf(array $receiptData, SubscriptionPayment $payment)
     {
         if (!class_exists('Barryvdh\DomPDF\Facade\Pdf')) {
@@ -1049,6 +1086,7 @@ class PaiementController extends Controller
         }
     }
 
+
     private function generateCsvExport(array $data, string $filename): \Symfony\Component\HttpFoundation\StreamedResponse
     {
         return response()->streamDownload(function () use ($data) {
@@ -1067,6 +1105,7 @@ class PaiementController extends Controller
             'Content-Disposition' => 'attachment; filename="' . $filename . '.csv"',
         ]);
     }
+
 
     private function generateExcelExport(array $data, string $filename)
     {
@@ -1087,6 +1126,7 @@ class PaiementController extends Controller
             'Content-Disposition' => 'attachment; filename="' . $filename . '.xls"',
         ]);
     }
+
 
     private function generatePdfExport(array $data, string $filename)
     {
@@ -1113,6 +1153,7 @@ class PaiementController extends Controller
             ], 500);
         }
     }
+
 
     /**
      * API pour recherche de paiements
@@ -1171,6 +1212,7 @@ class PaiementController extends Controller
         }
     }
 
+
     /**
      * Suggestions de recherche
      */
@@ -1187,6 +1229,7 @@ class PaiementController extends Controller
             ];
         });
     }
+
 
     /**
      * Statistiques en temps réel
@@ -1219,6 +1262,7 @@ class PaiementController extends Controller
             ], 500);
         }
     }
+
 
     /**
      * API pour mobile - version simplifiée
@@ -1261,6 +1305,7 @@ class PaiementController extends Controller
         }
     }
 
+
     /**
      * Validation des données de paiement modifiée
      */
@@ -1300,6 +1345,7 @@ class PaiementController extends Controller
             ], 500);
         }
     }
+
 
     /**
      * Validation métier pour paiement modifiée
@@ -1351,8 +1397,6 @@ class PaiementController extends Controller
 
         return compact('warnings', 'suggestions', 'impact_paiement');
     }
-
-
 
 
     /**
@@ -1435,6 +1479,4 @@ class PaiementController extends Controller
             ], 500);
         }
     }
-
-
 }

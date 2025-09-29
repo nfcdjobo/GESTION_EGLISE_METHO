@@ -5,10 +5,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>@yield('title', isset($appAcronym) ? $appAcronym : "Église Méthodiste Unie - Côte d'Ivoire")</title>
+    <title>@yield('title', isset($AppParametres) ? $AppParametres->nom_eglise : "Église Méthodiste Unie - Côte d'Ivoire")</title>
     <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="icon" href="https://www.cevaa.org/la-communaute/fiches-deglises/afrique-occidentale-centrafrique/logo-emci.png/image_preview" type="image/png" />
+    <link rel="icon"
+        href="{{$AppParametres->logo ? Storage::url($AppParametres->logo) :  ''}}"
+        type="image/png" />
     <style>
         * {
             margin: 0;
@@ -46,6 +48,10 @@
         }
 
         .logo {
+            text-decoration: none;
+            /* enlève le soulignement */
+            color: inherit;
+            /* garde la couleur du parent */
             display: flex;
             align-items: center;
             gap: 15px;
@@ -58,10 +64,104 @@
             border: 3px solid #fff;
         }
 
+
+
+        /* Version 1: Blanc avec ombre dorée multicouche */
         .logo-text {
             font-size: 1.5rem;
             font-weight: bold;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            color: rgb(255, 255, 255);
+            text-shadow:
+                0 0 10px rgba(255, 215, 0, 0.9),
+                0 0 20px rgba(255, 165, 0, 0.7),
+                0 0 30px rgba(255, 140, 0, 0.5),
+                5px 5px 15px rgba(85, 26, 139, 0.8),
+                10px 10px 25px rgba(0, 0, 0, 0.6);
+        }
+
+        /* Version 2: Blanc avec lueur dorée intense */
+        .logo-text-v2 {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: rgb(255, 255, 255);
+            text-shadow:
+                0 0 5px #FFD700,
+                0 0 10px #FFD700,
+                0 0 15px #FFD700,
+                0 0 25px #FFA500,
+                0 0 35px #FF8C00,
+                5px 5px 10px rgba(85, 26, 139, 0.9),
+                8px 8px 20px rgba(0, 0, 0, 0.7);
+            filter: drop-shadow(2px 2px 8px rgba(255, 215, 0, 0.4));
+        }
+
+        /* Version 3: Blanc avec ombre 3D dorée */
+        .logo-text-v3 {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: rgb(255, 255, 255);
+            text-shadow:
+                1px 1px 0px rgba(255, 215, 0, 0.8),
+                2px 2px 0px rgba(255, 165, 0, 0.7),
+                3px 3px 0px rgba(255, 140, 0, 0.6),
+                4px 4px 0px rgba(218, 165, 32, 0.5),
+                5px 5px 15px rgba(85, 26, 139, 0.8),
+                8px 8px 25px rgba(0, 0, 0, 0.6),
+                0 0 20px rgba(255, 215, 0, 0.3);
+        }
+
+        /* Version 4: Blanc avec animation de lueur dorée */
+        .logo-text-v4 {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: rgb(255, 255, 255);
+            text-shadow:
+                0 0 8px rgba(255, 215, 0, 0.9),
+                0 0 16px rgba(255, 165, 0, 0.7),
+                0 0 24px rgba(255, 140, 0, 0.5),
+                6px 6px 12px rgba(85, 26, 139, 0.9),
+                10px 10px 30px rgba(0, 0, 0, 0.8);
+            animation: goldGlow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes goldGlow {
+            0% {
+                text-shadow:
+                    0 0 8px rgba(255, 215, 0, 0.7),
+                    0 0 16px rgba(255, 165, 0, 0.5),
+                    0 0 24px rgba(255, 140, 0, 0.3),
+                    6px 6px 12px rgba(85, 26, 139, 0.9),
+                    10px 10px 30px rgba(0, 0, 0, 0.8);
+            }
+
+            100% {
+                text-shadow:
+                    0 0 12px rgba(255, 215, 0, 1),
+                    0 0 24px rgba(255, 165, 0, 0.8),
+                    0 0 36px rgba(255, 140, 0, 0.6),
+                    6px 6px 12px rgba(85, 26, 139, 0.9),
+                    10px 10px 30px rgba(0, 0, 0, 0.8);
+            }
+        }
+
+        /* Version 5: Blanc élégant avec halo doré sophistiqué */
+        .logo-text-v5 {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: rgb(255, 255, 255);
+            text-shadow:
+                /* Halo doré proche */
+                0 0 3px rgba(255, 215, 0, 1),
+                0 0 6px rgba(255, 215, 0, 0.8),
+                0 0 12px rgba(255, 165, 0, 0.6),
+                0 0 18px rgba(255, 140, 0, 0.4),
+                /* Ombre violette directionnelle */
+                3px 3px 0px rgba(85, 26, 139, 0.8),
+                6px 6px 8px rgba(85, 26, 139, 0.6),
+                /* Ombre noire profonde */
+                8px 8px 20px rgba(0, 0, 0, 0.7),
+                12px 12px 35px rgba(0, 0, 0, 0.4);
+            filter: brightness(1.05) contrast(1.1);
         }
 
         nav ul {
@@ -576,6 +676,84 @@
             }
         }
     </style>
+
+
+    <style>
+        .authenticated-menu .dashboard-link {
+            background: linear-gradient(135deg, #10b981, #059669) !important;
+            color: white !important;
+            padding: 8px 16px !important;
+            border-radius: 8px !important;
+            font-weight: 600 !important;
+            margin-top: 8px !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            gap: 8px !important;
+            box-shadow: 0 4px 6px rgba(16, 185, 129, 0.2) !important;
+            border: 1px solid rgba(255, 255, 255, 0.2) !important;
+            text-decoration: none !important;
+            transition: all 0.3s ease !important;
+        }
+
+        .authenticated-menu .dashboard-link:hover {
+            background: linear-gradient(135deg, #059669, #047857) !important;
+            transform: translateY(-2px) !important;
+            box-shadow: 0 6px 8px rgba(16, 185, 129, 0.3) !important;
+            color: white !important;
+        }
+
+        .authenticated-menu .dashboard-link i {
+            font-size: 14px !important;
+        }
+
+        .login-link {
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8) !important;
+            color: white !important;
+            padding: 8px 16px !important;
+            border-radius: 8px !important;
+            font-weight: 600 !important;
+            margin-top: 8px !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            gap: 8px !important;
+            box-shadow: 0 4px 6px rgba(59, 130, 246, 0.2) !important;
+            text-decoration: none !important;
+            transition: all 0.3s ease !important;
+        }
+
+        .login-link:hover {
+            background: linear-gradient(135deg, #2563eb, #1e40af) !important;
+            transform: translateY(-2px) !important;
+            box-shadow: 0 6px 8px rgba(59, 130, 246, 0.3) !important;
+            color: white !important;
+        }
+
+        .login-link i {
+            font-size: 14px !important;
+        }
+
+        .authenticated-menu {
+            background: linear-gradient(135deg, #ecfdf5, #f0fdf4) !important;
+            border-left: 4px solid #10b981 !important;
+            padding: 16px !important;
+            border-radius: 8px !important;
+        }
+
+        .authenticated-menu::before {
+            content: "🔐 Mode Administrateur" !important;
+            display: block !important;
+            font-size: 12px !important;
+            color: #065f46 !important;
+            font-weight: 600 !important;
+            margin-bottom: 12px !important;
+            text-align: center !important;
+            background: rgba(16, 185, 129, 0.1) !important;
+            padding: 4px 8px !important;
+            border-radius: 12px !important;
+        }
+    </style>
+
+    @stack('styles')
 </head>
 
 <body>
@@ -587,7 +765,7 @@
     @include('layouts.public.footer')
 
 
-     <script>
+    <script>
         // ==========================================
         // MENU HAMBURGER - CODE MANQUANT AJOUTÉ
         // ==========================================
@@ -596,7 +774,7 @@
         const mobileLinks = document.querySelectorAll('.mobile-link');
 
         // Toggle du menu hamburger
-        hamburger.addEventListener('click', function() {
+        hamburger.addEventListener('click', function () {
             hamburger.classList.toggle('active');
             mobileMenu.classList.toggle('active');
 
@@ -606,7 +784,7 @@
 
         // Fermer le menu quand on clique sur un lien
         mobileLinks.forEach(link => {
-            link.addEventListener('click', function() {
+            link.addEventListener('click', function () {
                 hamburger.classList.remove('active');
                 mobileMenu.classList.remove('active');
                 document.body.style.overflow = '';
@@ -614,7 +792,7 @@
         });
 
         // Fermer le menu si on clique en dehors
-        document.addEventListener('click', function(e) {
+        document.addEventListener('click', function (e) {
             if (!hamburger.contains(e.target) && !mobileMenu.contains(e.target)) {
                 hamburger.classList.remove('active');
                 mobileMenu.classList.remove('active');

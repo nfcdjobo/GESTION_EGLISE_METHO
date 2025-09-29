@@ -49,13 +49,12 @@
                 </div>
             </div>
             <div class="p-6">
-                <form method="GET" action="{{ route('private.cultes.index') }}"
-                    class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
+                <form method="GET" action="{{ route('private.cultes.index') }}" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
                     <div class="lg:col-span-2">
                         <label class="block text-sm font-medium text-slate-700 mb-2">Recherche</label>
                         <div class="relative">
                             <input type="text" name="search" value="{{ request('search') }}"
-                                placeholder="Titre, lieu, message..."
+                                placeholder="Titre, lieu, message, officiant..."
                                 class="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
                             <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400"></i>
                         </div>
@@ -95,20 +94,33 @@
                             @foreach ($programmes as $programme)
                                 <option value="{{ $programme->id }}"
                                     {{ request('programme_id') == $programme->id ? 'selected' : '' }}>
-                                    {{ $programme->nom }}</option>
+                                    {{ $programme->nom_programme }}</option>
                             @endforeach
                         </select>
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-slate-700 mb-2">Pasteur</label>
-                        <select name="pasteur_id"
+                        <label class="block text-sm font-medium text-slate-700 mb-2">Officiant</label>
+                        <select name="officiant_id"
                             class="w-full px-3 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
-                            <option value="">Tous les pasteurs</option>
-                            @foreach ($pasteurs as $pasteur)
-                                <option value="{{ $pasteur->id }}"
-                                    {{ request('pasteur_id') == $pasteur->id ? 'selected' : '' }}>{{ $pasteur->nom }}
-                                    {{ $pasteur->prenom }}</option>
+                            <option value="">Tous les officiants</option>
+                            @foreach ($users as $user)
+                                <option value="{{ $user->id }}"
+                                    {{ request('officiant_id') == $user->id ? 'selected' : '' }}>
+                                    {{ $user->nom }} {{ $user->prenom }}
+                                </option>
                             @endforeach
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-2">Titre d'Officiant</label>
+                        <select name="titre_officiant"
+                            class="w-full px-3 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
+                            <option value="">Tous les titres</option>
+                            <option value="pasteur" {{ request('titre_officiant') == 'pasteur' ? 'selected' : '' }}>Pasteur</option>
+                            <option value="predicateur" {{ request('titre_officiant') == 'predicateur' ? 'selected' : '' }}>Prédicateur</option>
+                            <option value="dirigeant" {{ request('titre_officiant') == 'dirigeant' ? 'selected' : '' }}>Dirigeant de Louange</option>
+                            <option value="responsable" {{ request('titre_officiant') == 'responsable' ? 'selected' : '' }}>Responsable</option>
+                            <option value="organisateur" {{ request('titre_officiant') == 'organisateur' ? 'selected' : '' }}>Organisateur</option>
                         </select>
                     </div>
                     <div class="lg:col-span-6 grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -305,11 +317,42 @@
                                         </div>
                                     @endif
 
-                                    @if ($culte->pasteurPrincipal)
-                                        <div class="flex items-center text-sm text-slate-600">
+                                     {{-- {{dd($culte->officients_detail->take(3))}} --}}
+                                    <!-- Afficher les officiants avec la nouvelle structure -->
+                                    @if ($culte->officiants_detail && $culte->officiants_detail->count() > 0)
+
+                                        <div class="text-sm text-slate-600">
+                                            <div class="flex items-start">
+                                                <i class="fas fa-users w-4 mr-2 mt-0.5"></i>
+                                                <div class="flex-1">
+
+                                                    @php
+                                                        $officiants = $culte->officiants_detail->take(3);
+                                                        $remaining = $culte->officiants_detail->count() - 3;
+                                                    @endphp
+
+                                                    @foreach ($officiants as $index => $officiant)
+                                                        <span class="block">
+                                                            <span class="font-medium">{{ $officiant['titre'] }}:</span>
+                                                            {{ $officiant['nom_complet'] }}
+                                                            @if ($officiant['provenance'] !== 'Église Locale')
+                                                                <span class="text-xs text-slate-500">({{ $officiant['provenance'] }})</span>
+                                                            @endif
+                                                        </span>
+                                                    @endforeach
+
+                                                    @if ($remaining > 0)
+                                                        <span class="text-xs text-slate-500">
+                                                            +{{ $remaining }} autre{{ $remaining > 1 ? 's' : '' }}
+                                                        </span>
+                                                    @endif
+                                                </div>
+                                            </div>
+                                        </div>
+                                    @else
+                                        <div class="flex items-center text-sm text-slate-500">
                                             <i class="fas fa-user w-4 mr-2"></i>
-                                            <span>{{ $culte->pasteurPrincipal->nom }}
-                                                {{ $culte->pasteurPrincipal->prenom }}</span>
+                                            <span class="italic">Aucun officiant assigné</span>
                                         </div>
                                     @endif
 
@@ -339,7 +382,7 @@
                                                 <i class="fas fa-edit text-sm"></i>
                                             </a>
                                         @endcan
-
+                                        @can('cultes.change-status')
                                         @if ($culte->statut !== 'termine')
                                             <button type="button"
                                                 onclick="openStatusModal('{{ $culte->id }}', '{{ $culte->statut }}')"
@@ -348,12 +391,22 @@
                                                 <i class="fas fa-exchange-alt text-sm"></i>
                                             </button>
                                         @endif
+                                        @endcan
 
                                         @can('cultes.create')
                                             <button type="button" onclick="openDuplicateModal('{{ $culte->id }}')"
                                                 class="inline-flex items-center justify-center w-8 h-8 text-purple-600 bg-purple-100 rounded-lg hover:bg-purple-200 transition-colors"
                                                 title="Dupliquer">
                                                 <i class="fas fa-copy text-sm"></i>
+                                            </button>
+                                        @endcan
+
+                                        <!-- Bouton pour gérer les officiants -->
+                                        @can('cultes.update')
+                                            <button type="button" onclick="openOfficialsModal('{{ $culte->id }}')"
+                                                class="inline-flex items-center justify-center w-8 h-8 text-indigo-600 bg-indigo-100 rounded-lg hover:bg-indigo-200 transition-colors"
+                                                title="Gérer les officiants">
+                                                <i class="fas fa-user-tie text-sm"></i>
                                             </button>
                                         @endcan
                                     </div>
@@ -409,18 +462,19 @@
         </div>
     </div>
 
+    @can('cultes.change-status')
     <!-- Modal changement de statut -->
     <div id="statusModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl shadow-xl max-w-md w-full">
             <div class="p-6">
                 <h3 class="text-lg font-semibold text-slate-900 mb-4">Changer le statut du culte</h3>
+                @can('cultes.change-status')
                 <form id="statusForm">
                     @csrf
                     <input type="hidden" id="culte_id" name="culte_id">
                     <div class="mb-4">
                         <label class="block text-sm font-medium text-slate-700 mb-2">Nouveau statut</label>
-                        <select id="nouveau_statut" name="statut"
-                            class="w-full px-3 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
+                        <select id="nouveau_statut" name="statut" class="w-full px-3 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
                             <option value="planifie">Planifié</option>
                             <option value="en_preparation">En Préparation</option>
                             <option value="en_cours">En Cours</option>
@@ -438,13 +492,14 @@
                         </div>
                     </div>
                 </form>
+                @endcan
             </div>
             <div class="flex items-center justify-end space-x-3 p-6 border-t border-slate-200">
                 <button type="button" onclick="closeStatusModal()"
                     class="px-4 py-2 text-slate-700 bg-slate-100 rounded-xl hover:bg-slate-200 transition-colors">
                     Annuler
                 </button>
-                @can('cultes.update')
+                @can('cultes.change-status')
                     <button type="button" onclick="updateStatus()"
                         class="px-4 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors">
                         Changer le statut
@@ -453,6 +508,7 @@
             </div>
         </div>
     </div>
+    @endcan
 
     <!-- Modal duplication -->
     <div id="duplicateModal"
@@ -480,6 +536,11 @@
                                 class="w-full px-3 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                                 placeholder="Laisser vide pour ajouter (Copie)">
                         </div>
+                        <div class="flex items-center">
+                            <input type="checkbox" name="conserver_officiants" value="1" id="conserver_officiants"
+                                class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500">
+                            <label for="conserver_officiants" class="ml-2 text-sm text-slate-700">Conserver les officiants</label>
+                        </div>
                     </div>
                 </form>
             </div>
@@ -497,6 +558,69 @@
             </div>
         </div>
     </div>
+
+    <!-- Modal gestion des officiants -->
+    <div id="officialsModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-hidden">
+            <div class="p-6 border-b border-slate-200">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-lg font-semibold text-slate-900">Gérer les officiants</h3>
+                    <button type="button" onclick="closeOfficialsModal()" class="text-slate-400 hover:text-slate-600">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="p-6 overflow-y-auto" style="max-height: calc(90vh - 200px);">
+                <!-- Liste des officiants actuels -->
+                <div id="currentOfficials" class="mb-6">
+                    <h4 class="text-md font-medium text-slate-800 mb-3">Officiants actuels</h4>
+                    <div id="officialsListContainer">
+                        <!-- Sera rempli dynamiquement -->
+                    </div>
+                </div>
+
+                <!-- Formulaire d'ajout d'officiant -->
+                <div class="border-t border-slate-200 pt-6">
+                    <h4 class="text-md font-medium text-slate-800 mb-3">Ajouter un officiant</h4>
+                    <form id="addOfficiantForm" class="space-y-4">
+                        @csrf
+                        <input type="hidden" id="officials_culte_id" name="culte_id">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-slate-700 mb-2">Utilisateur</label>
+                                <select name="user_id" id="officiant_user_id" required
+                                    class="w-full px-3 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
+                                    <option value="">Sélectionner un utilisateur</option>
+                                    @foreach ($users as $user)
+                                        <option value="{{ $user->id }}">{{ $user->nom }} {{ $user->prenom }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-slate-700 mb-2">Titre/Rôle</label>
+                                <input type="text" name="titre" id="officiant_titre" required
+                                    placeholder="Ex: Pasteur Principal, Prédicateur..."
+                                    class="w-full px-3 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-slate-700 mb-2">Provenance</label>
+                                <input type="text" name="provenance" id="officiant_provenance"
+                                    placeholder="Église Locale" value="Église Locale"
+                                    class="w-full px-3 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
+                            </div>
+                        </div>
+                        <div class="flex justify-end">
+                            <button type="button" onclick="addOfficiant()"
+                                class="px-4 py-2 bg-green-600 text-white rounded-xl hover:bg-green-700 transition-colors">
+                                <i class="fas fa-plus mr-2"></i>Ajouter
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
     @include('partials.ckeditor-resources')
     @push('scripts')
         <script>
@@ -569,7 +693,7 @@
 
             document.getElementById('nouveau_statut').addEventListener('change', toggleRaisonField);
 
-            @can('cultes.update')
+            @can('cultes.change-status')
             function updateStatus() {
                 // Synchroniser CKEditor avant l'envoi
                 if (window.CKEditorInstances && window.CKEditorInstances['#raison']) {
@@ -581,7 +705,6 @@
                 }
 
                 const form = document.getElementById('statusForm');
-
                 const formData = new FormData(form);
                 const culteId = document.getElementById('culte_id').value;
 
@@ -653,6 +776,129 @@
             }
             @endcan
 
+            // Gestion des officiants
+            function openOfficialsModal(culteId) {
+                document.getElementById('officials_culte_id').value = culteId;
+                document.getElementById('officialsModal').classList.remove('hidden');
+                loadOfficials(culteId);
+            }
+
+            function closeOfficialsModal() {
+                document.getElementById('officialsModal').classList.add('hidden');
+                document.getElementById('addOfficiantForm').reset();
+            }
+
+            function loadOfficials(culteId) {
+                fetch(`{{ route('private.cultes.officiants.get', ':culteid') }}`.replace(':culteid', culteId), {
+                    method: 'GET',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Accept': 'application/json'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        displayOfficials(data.data);
+                    }
+                })
+                .catch(error => {
+                    console.error('Erreur:', error);
+                });
+            }
+
+            function displayOfficials(officials) {
+                const container = document.getElementById('officialsListContainer');
+
+                if (!officials || officials.length === 0) {
+                    container.innerHTML = '<p class="text-slate-500 italic">Aucun officiant assigné</p>';
+                    return;
+                }
+
+                let html = '<div class="space-y-3">';
+                officials.forEach(official => {
+                    html += `
+                        <div class="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
+                            <div class="flex-1">
+                                <div class="font-medium text-slate-900">${official.nom_complet}</div>
+                                <div class="text-sm text-slate-600">
+                                    <span class="font-medium">${official.titre}</span>
+                                    ${official.provenance !== 'Église Locale' ? ` - ${official.provenance}` : ''}
+                                </div>
+                            </div>
+                            <button type="button" onclick="removeOfficiant('${official.user_id}')"
+                                class="text-red-600 hover:text-red-800 transition-colors"
+                                title="Supprimer">
+                                <i class="fas fa-trash text-sm"></i>
+                            </button>
+                        </div>
+                    `;
+                });
+                html += '</div>';
+
+                container.innerHTML = html;
+            }
+
+            @can('cultes.update')
+            function addOfficiant() {
+                const form = document.getElementById('addOfficiantForm');
+                const formData = new FormData(form);
+                const culteId = document.getElementById('officials_culte_id').value;
+
+                fetch(`{{ route('private.cultes.officiants.ajouter', ':culteid') }}`.replace(':culteid', culteId), {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                            'Accept': 'application/json'
+                        },
+                        body: formData
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            displayOfficials(data.data);
+                            form.reset();
+                            document.getElementById('officiant_provenance').value = 'Église Locale';
+                        } else {
+                            alert(data.message || 'Une erreur est survenue');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Erreur:', error);
+                        alert('Une erreur est survenue');
+                    });
+            }
+
+            function removeOfficiant(userId) {
+                if (!confirm('Êtes-vous sûr de vouloir supprimer cet officiant ?')) return;
+
+                const culteId = document.getElementById('officials_culte_id').value;
+                const formData = new FormData();
+                formData.append('user_id', userId);
+
+                fetch(`{{ route('private.cultes.officiants.supprimer', ':culteid') }}`.replace(':culteid', culteId), {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                            'Accept': 'application/json'
+                        },
+                        body: formData
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            displayOfficials(data.data);
+                        } else {
+                            alert(data.message || 'Une erreur est survenue');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Erreur:', error);
+                        alert('Une erreur est survenue');
+                    });
+            }
+            @endcan
+
             // Suppression
             @can('cultes.delete')
             function deleteCulte(culteId) {
@@ -687,6 +933,10 @@
 
             document.getElementById('duplicateModal').addEventListener('click', function(e) {
                 if (e.target === this) closeDuplicateModal();
+            });
+
+            document.getElementById('officialsModal').addEventListener('click', function(e) {
+                if (e.target === this) closeOfficialsModal();
             });
         </script>
     @endpush

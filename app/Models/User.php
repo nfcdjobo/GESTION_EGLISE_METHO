@@ -117,21 +117,9 @@ class User extends Authenticatable
 
 
 
-    /**
-     * Cultes où l'utilisateur est pasteur principal
-     */
-    public function cultesPasteur()
-    {
-        return $this->hasMany(Culte::class, 'pasteur_principal_id');
-    }
+   
 
-    /**
-     * Cultes où l'utilisateur est prédicateur
-     */
-    public function cultesPredicateur()
-    {
-        return $this->hasMany(Culte::class, 'predicateur_id');
-    }
+ 
 
     /**
      * Transactions spirituelles en tant que donateur

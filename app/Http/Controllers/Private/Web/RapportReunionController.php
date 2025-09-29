@@ -22,18 +22,77 @@ use Illuminate\Support\Facades\Response;
 
 class RapportReunionController extends Controller
 {
+
+
     /**
-     * Constructor - Appliquer les middlewares d'authentification
+     * Constructor - Application des middlewares de permissions
+     * Chaque permission correspond aux routes définies dans rapportsreunions.php
      */
     public function __construct()
     {
+        // Middleware d'authentification de base
         $this->middleware('auth');
-        $this->middleware('can:viewAny,App\Models\RapportReunion')->only(['index', 'statistiques']);
-        $this->middleware('can:view,rapport')->only(['show']);
-        $this->middleware('can:create,App\Models\RapportReunion')->only(['create', 'store']);
-        $this->middleware('can:update,rapport')->only(['edit', 'update']);
-        $this->middleware('can:delete,rapport')->only(['destroy']);
+
+        // ================================
+        // PERMISSIONS CRUD PRINCIPALES
+        // ================================
+
+        // Lecture des rapports
+        $this->middleware('permission:rapports-reunions.read')->only(['index', 'show']);
+
+        // Création de rapports
+        $this->middleware('permission:rapports-reunions.create')->only(['create', 'store']);
+
+        // Modification de rapports
+        $this->middleware('permission:rapports-reunions.update')->only(['edit', 'update', 'ajouterPresence', 'supprimerPresence']);
+
+        // Suppression de rapports
+        $this->middleware('permission:rapports-reunions.delete')->only(['destroy']);
+
+        // ================================
+        // PERMISSIONS WORKFLOW
+        // ================================
+
+        // Passer en révision
+        $this->middleware('permission:rapports-reunions.revision')->only(['passerEnRevision']);
+
+        // Valider un rapport
+        $this->middleware('permission:rapports-reunions.validate')->only(['valider']);
+
+        // Publier un rapport
+        $this->middleware('permission:rapports-reunions.publish')->only(['publier']);
+
+        // Rejeter un rapport
+        $this->middleware('permission:rapports-reunions.reject')->only(['rejeter']);
+
+        // ================================
+        // PERMISSIONS ACTIONS DE SUIVI
+        // ================================
+
+        // Gestion des actions (ajout et complétion)
+        $this->middleware('permission:rapports-reunions.manage-actions')->only(['ajouterAction', 'terminerAction']);
+
+        // ================================
+        // PERMISSIONS STATISTIQUES ET EXPORT
+        // ================================
+
+        // Consultation des statistiques
+        $this->middleware('permission:rapports-reunions.statistics')->only(['statistiques']);
+
+        // Export des rapports (PDF/Excel)
+        $this->middleware('permission:rapports-reunions.export')->only(['export', 'exportRapportsPDF', 'exportRapportsPDFStream', 'exportRapportsProgressif']);
+
+        // Téléchargement PDF individuel
+        $this->middleware('permission:rapports-reunions.download-pdf')->only(['downloadPDF', 'exportRapportPDF', 'previewRapportPDF']);
+
+        // ================================
+        // PERMISSIONS RESTAURATION
+        // ================================
+
+        // Restauration (soft delete)
+        $this->middleware('permission:rapports-reunions.restore')->only(['restore']);
     }
+
 
     // ================================
     // MÉTHODES CRUD PRINCIPALES
@@ -75,33 +134,27 @@ class RapportReunionController extends Controller
      */
     public function create(Request $request): View|JsonResponse
     {
+
+        $reunion_id = $request->get('reunion');
         $reunions = Reunion::where('statut', 'terminee')
             ->whereDoesntHave('rapports')
             ->orderBy('date_reunion', 'desc')
             ->get();
-
-        $redacteurs = User::whereHas('roles', function ($query) {
-            $query->whereIn('name', ['redacteur', 'admin']);
-        })->get();
-
-        $validateurs = User::whereHas('roles', function ($query) {
-            $query->whereIn('name', ['validateur', 'admin']);
-        })->get();
 
         if ($request->expectsJson()) {
             return response()->json([
                 'success' => true,
                 'data' => [
                     'reunions' => $reunions,
-                    'redacteurs' => $redacteurs,
-                    'validateurs' => $validateurs,
+                    // 'redacteurs' => $redacteurs,
+                    // 'validateurs' => $validateurs,
                     'types_rapport' => RapportReunion::TYPES_RAPPORT,
                     'validation_rules' => RapportReunion::validationRules()
                 ]
             ]);
         }
 
-        return view('components.private.rapportsreunions.create', compact('reunions', 'redacteurs', 'validateurs'));
+        return view('components.private.rapportsreunions.create', compact('reunions',  'reunion_id'));
     }
 
     /**
@@ -117,7 +170,6 @@ class RapportReunionController extends Controller
         );
 
         if ($validator->fails()) {
-            dd($validator->errors());
             if ($request->expectsJson()) {
                 return response()->json([
                     'success' => false,
@@ -162,7 +214,7 @@ class RapportReunionController extends Controller
             }
 
             return redirect()->route('private.rapports-reunions.show', $rapport)
-                           ->with('success', 'Rapport créé avec succès');
+                ->with('success', 'Rapport créé avec succès');
 
         } catch (\Exception $e) {
             DB::rollBack();
@@ -177,8 +229,8 @@ class RapportReunionController extends Controller
             }
 
             return redirect()->back()
-                           ->withErrors('Erreur lors de la création du rapport')
-                           ->withInput();
+                ->withErrors('Erreur lors de la création du rapport')
+                ->withInput();
         }
     }
 
@@ -212,7 +264,10 @@ class RapportReunionController extends Controller
         }
 
         return view('components.private.rapportsreunions.show', compact(
-            'rapport', 'statistiques', 'actionsEnCours', 'actionsTerminees'
+            'rapport',
+            'statistiques',
+            'actionsEnCours',
+            'actionsTerminees'
         ));
     }
 
@@ -231,7 +286,7 @@ class RapportReunionController extends Controller
             }
 
             return redirect()->route('private.rapports-reunions.show', $rapport)
-                           ->withErrors('Vous n\'avez pas les droits pour modifier ce rapport');
+                ->withErrors('Vous n\'avez pas les droits pour modifier ce rapport');
         }
 
         $rapport->load(['reunion', 'redacteur', 'validateur']);
@@ -274,7 +329,7 @@ class RapportReunionController extends Controller
             }
 
             return redirect()->route('private.rapports-reunions.show', $rapport)
-                           ->withErrors('Vous n\'avez pas les droits pour modifier ce rapport');
+                ->withErrors('Vous n\'avez pas les droits pour modifier ce rapport');
         }
 
         $validator = Validator::make(
@@ -316,7 +371,7 @@ class RapportReunionController extends Controller
             }
 
             return redirect()->route('private.rapports-reunions.show', $rapport)
-                           ->with('success', 'Rapport mis à jour avec succès');
+                ->with('success', 'Rapport mis à jour avec succès');
 
         } catch (\Exception $e) {
             DB::rollBack();
@@ -347,7 +402,7 @@ class RapportReunionController extends Controller
             }
 
             return redirect()->back()
-                           ->withErrors('Impossible de supprimer un rapport publié');
+                ->withErrors('Impossible de supprimer un rapport publié');
         }
 
         try {
@@ -363,7 +418,7 @@ class RapportReunionController extends Controller
             }
 
             return redirect()->route('private.rapports-reunions.index')
-                           ->with('success', 'Rapport supprimé avec succès');
+                ->with('success', 'Rapport supprimé avec succès');
 
         } catch (\Exception $e) {
             Log::error("Erreur suppression rapport", ['error' => $e->getMessage()]);
@@ -397,7 +452,7 @@ class RapportReunionController extends Controller
             }
 
             return redirect()->back()
-                           ->withErrors('Impossible de passer ce rapport en révision');
+                ->withErrors('Impossible de passer ce rapport en révision');
         }
 
         Log::info("Rapport passé en révision", ['rapport_id' => $rapport->id]);
@@ -411,7 +466,7 @@ class RapportReunionController extends Controller
         }
 
         return redirect()->route('private.rapports-reunions.show', $rapport)
-                       ->with('success', 'Rapport passé en révision avec succès');
+            ->with('success', 'Rapport passé en révision avec succès');
     }
 
     /**
@@ -432,7 +487,7 @@ class RapportReunionController extends Controller
             }
 
             return redirect()->back()
-                           ->withErrors('Impossible de valider ce rapport');
+                ->withErrors('Impossible de valider ce rapport');
         }
 
         Log::info("Rapport validé", ['rapport_id' => $rapport->id, 'validateur_id' => Auth::id()]);
@@ -446,7 +501,7 @@ class RapportReunionController extends Controller
         }
 
         return redirect()->route('private.rapports-reunions.show', $rapport)
-                       ->with('success', 'Rapport validé avec succès');
+            ->with('success', 'Rapport validé avec succès');
     }
 
     /**
@@ -463,7 +518,7 @@ class RapportReunionController extends Controller
             }
 
             return redirect()->back()
-                           ->withErrors('Impossible de publier ce rapport');
+                ->withErrors('Impossible de publier ce rapport');
         }
 
         Log::info("Rapport publié", ['rapport_id' => $rapport->id]);
@@ -477,7 +532,7 @@ class RapportReunionController extends Controller
         }
 
         return redirect()->route('private.rapports-reunions.show', $rapport)
-                       ->with('success', 'Rapport publié avec succès');
+            ->with('success', 'Rapport publié avec succès');
     }
 
     /**
@@ -500,7 +555,7 @@ class RapportReunionController extends Controller
             }
 
             return redirect()->back()
-                           ->withErrors('Impossible de rejeter ce rapport');
+                ->withErrors('Impossible de rejeter ce rapport');
         }
 
         Log::info("Rapport rejeté", [
@@ -518,7 +573,7 @@ class RapportReunionController extends Controller
         }
 
         return redirect()->route('private.rapports-reunions.show', $rapport)
-                       ->with('success', 'Rapport rejeté avec succès');
+            ->with('success', 'Rapport rejeté avec succès');
     }
 
     // ================================
@@ -704,10 +759,10 @@ class RapportReunionController extends Controller
         COUNT(*) as total,
         COUNT(CASE WHEN statut = \'publie\' THEN 1 END) as publies
     ')
-    ->where('created_at', '>=', now()->subMonths(12))
-    ->groupByRaw('DATE_TRUNC(\'month\', created_at)')
-    ->orderBy('mois')
-    ->get();
+            ->where('created_at', '>=', now()->subMonths(12))
+            ->groupByRaw('DATE_TRUNC(\'month\', created_at)')
+            ->orderBy('mois')
+            ->get();
 
         // Top redacteurs
         $topRedacteurs = RapportReunion::with('redacteur')
@@ -742,69 +797,72 @@ class RapportReunionController extends Controller
         $rapports_en_attente = $rapportsEnAttente;
 
         return view('components.private.rapportsreunions.statistiques', compact(
-            'statistiques_globales', 'evolution_mensuelle', 'top_redacteurs', 'rapports_en_attente'
+            'statistiques_globales',
+            'evolution_mensuelle',
+            'top_redacteurs',
+            'rapports_en_attente'
         ));
     }
 
     /**
      * Export des rapports (PDF/Excel)
      */
-public function export(Request $request)
-{
-    $request->validate([
-        'format' => 'required|in:pdf,excel',
-        'statut' => 'nullable|in:' . implode(',', RapportReunion::STATUTS),
-        'type' => 'nullable|in:' . implode(',', RapportReunion::TYPES_RAPPORT),
-        'date_debut' => 'nullable|date',
-        'date_fin' => 'nullable|date',
-        'rapport_ids' => 'nullable|array',
-        'rapport_ids.*' => 'uuid|exists:rapport_reunions,id'
-    ]);
-// dd(14);
-    try {
-        $query = RapportReunion::with(['reunion', 'redacteur', 'validateur']);
+    public function export(Request $request)
+    {
+        $request->validate([
+            'format' => 'required|in:pdf,excel',
+            'statut' => 'nullable|in:' . implode(',', RapportReunion::STATUTS),
+            'type' => 'nullable|in:' . implode(',', RapportReunion::TYPES_RAPPORT),
+            'date_debut' => 'nullable|date',
+            'date_fin' => 'nullable|date',
+            'rapport_ids' => 'nullable|array',
+            'rapport_ids.*' => 'uuid|exists:rapport_reunions,id'
+        ]);
+        // dd(14);
+        try {
+            $query = RapportReunion::with(['reunion', 'redacteur', 'validateur']);
 
-        // Si des IDs spécifiques sont fournis
-        if ($request->filled('rapport_ids')) {
-            $query->whereIn('id', $request->get('rapport_ids'));
-        } else {
-            // Appliquer les filtres standards
-            $this->applyFilters($query, $request);
-        }
+            // Si des IDs spécifiques sont fournis
+            if ($request->filled('rapport_ids')) {
+                $query->whereIn('id', $request->get('rapport_ids'));
+            } else {
+                // Appliquer les filtres standards
+                $this->applyFilters($query, $request);
+            }
 
-        $rapports = $query->get();
+            $rapports = $query->get();
 
-        if ($rapports->isEmpty()) {
+            if ($rapports->isEmpty()) {
+                if ($request->expectsJson()) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Aucun rapport à exporter'
+                    ], 404);
+                }
+
+                return redirect()->back()->withErrors('Aucun rapport à exporter');
+            }
+
+            // Génération selon le format
+            if ($request->get('format') === 'pdf') {
+                return $this->exportPDF($rapports);
+            } else {
+                return $this->exportExcel($rapports);
+            }
+
+        } catch (\Exception $e) {
+            Log::error("Erreur export rapports", ['error' => $e->getMessage()]);
+
             if ($request->expectsJson()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Aucun rapport à exporter'
-                ], 404);
+                    'message' => 'Erreur lors de l\'export'
+                ], 500);
             }
 
-            return redirect()->back()->withErrors('Aucun rapport à exporter');
+            return redirect()->back()->withErrors('Erreur lors de l\'export');
         }
-
-        // Génération selon le format
-        if ($request->get('format') === 'pdf') {
-            return $this->exportPDF($rapports);
-        } else {
-            return $this->exportExcel($rapports);
-        }
-
-    } catch (\Exception $e) {
-        Log::error("Erreur export rapports", ['error' => $e->getMessage()]);
-
-        if ($request->expectsJson()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Erreur lors de l\'export'
-            ], 500);
-        }
-
-        return redirect()->back()->withErrors('Erreur lors de l\'export');
     }
-}
 
     // ================================
     // MÉTHODES UTILITAIRES PRIVÉES
@@ -839,10 +897,10 @@ public function export(Request $request)
             $search = $request->get('search');
             $query->where(function ($q) use ($search) {
                 $q->where('titre_rapport', 'like', "%{$search}%")
-                  ->orWhere('resume', 'like', "%{$search}%")
-                  ->orWhereHas('reunion', function ($reunion) use ($search) {
-                      $reunion->where('titre', 'like', "%{$search}%");
-                  });
+                    ->orWhere('resume', 'like', "%{$search}%")
+                    ->orWhereHas('reunion', function ($reunion) use ($search) {
+                        $reunion->where('titre', 'like', "%{$search}%");
+                    });
             });
         }
 
@@ -871,7 +929,7 @@ public function export(Request $request)
     {
         /** @var \App\Models\User $user */
         $user = Auth::user();
-        return match($rapport->statut) {
+        return match ($rapport->statut) {
             'brouillon' => [
                 'action' => 'passer_en_revision',
                 'label' => 'Passer en révision',
@@ -906,475 +964,429 @@ public function export(Request $request)
 
 
 
+    /**
+     * Export d'un rapport individuel en PDF avec configuration optimisée
+     */
+    public function exportRapportPDF(RapportReunion $rapport)
+    {
+        try {
+            // Chargement des relations nécessaires
+            $rapport->load([
+                'reunion',
+                'redacteur',
+                'validateur',
+                // 'reunion.participants',
+                // 'commentaires.auteur'
+            ]);
+
+            // Configuration avancée pour DOMPDF
+            $pdf = Pdf::loadView('exports.rapportsreunions.rapport-pdf', compact('rapport'))
+                ->setPaper('a4', 'portrait')
+                ->setOptions([
+                    'dpi' => 200,
+                    'defaultFont' => 'Inter',
+                    'defaultFontSize' => 11,
+                    'isHtml5ParserEnabled' => true,
+                    'isPhpEnabled' => true,
+                    'isRemoteEnabled' => true,
+                    'debugKeepTemp' => false,
+                    'debugPng' => false,
+                    'debugCss' => false,
+                    'fontSubsetting' => true,
+                    'fontHeightRatio' => 1.1,
+                    'isFontSubsettingEnabled' => true,
+                    'tempDir' => sys_get_temp_dir(),
+                    'chroot' => public_path(),
+                    'logOutputFile' => storage_path('logs/dompdf.log'),
+                    'enable_javascript' => false,
+                    'enable_css_float' => true,
+                    'enable_html5_parser' => true,
+                ]);
+
+            // Configuration des marges optimisées
+            $pdf->setOption('margin-top', 15);
+            $pdf->setOption('margin-right', 15);
+            $pdf->setOption('margin-bottom', 15);
+            $pdf->setOption('margin-left', 15);
+
+            // Nom du fichier optimisé
+            $filename = sprintf(
+                'rapport_%s_%s_%s.pdf',
+                Str::slug($rapport->titre_rapport, '_'),
+                $rapport->id,
+                now()->format('Y-m-d_H-i')
+            );
+
+            return $pdf->download($filename);
+
+        } catch (\Exception $e) {
+            \Log::error('Erreur lors de la génération du PDF:', [
+                'rapport_id' => $rapport->id,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return back()->with('error', 'Erreur lors de la génération du PDF: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Export de plusieurs rapports consolidés en PDF
+     */
+    public function exportRapportsPDF($filters = [])
+    {
+        try {
+            // Construction de la requête avec filtres
+            $query = RapportReunion::with([
+                'reunion',
+                'redacteur',
+                'validateur',
+                'reunion.participants'
+            ]);
+
+            // Application des filtres
+            if (!empty($filters['statut'])) {
+                $query->where('statut', $filters['statut']);
+            }
+
+            if (!empty($filters['type_rapport'])) {
+                $query->where('type_rapport', $filters['type_rapport']);
+            }
+
+            if (!empty($filters['date_debut'])) {
+                $query->whereDate('created_at', '>=', $filters['date_debut']);
+            }
+
+            if (!empty($filters['date_fin'])) {
+                $query->whereDate('created_at', '<=', $filters['date_fin']);
+            }
+
+            if (!empty($filters['redacteur_id'])) {
+                $query->where('redacteur_id', $filters['redacteur_id']);
+            }
+
+            // Tri par défaut
+            $rapports = $query->orderBy('created_at', 'desc')->get();
+
+            if ($rapports->isEmpty()) {
+                return back()->with('warning', 'Aucun rapport trouvé avec les critères sélectionnés.');
+            }
+
+            // Configuration PDF optimisée pour documents longs
+            $pdf = Pdf::loadView('exports.rapportsreunions.rapports-pdf', compact('rapports'))
+                ->setPaper('a4', 'portrait')
+                ->setOptions([
+                    'dpi' => 150,
+                    'defaultFont' => 'Inter',
+                    'defaultFontSize' => 10,
+                    'isHtml5ParserEnabled' => true,
+                    'isPhpEnabled' => true,
+                    'isRemoteEnabled' => true,
+                    'fontSubsetting' => true,
+                    'fontHeightRatio' => 1.0,
+                    'enable_css_float' => true,
+                    'enable_html5_parser' => true,
+                    // Optimisations pour gros documents
+                    'max_image_width' => 1200,
+                    'max_image_height' => 1200,
+                    'compress_images' => true,
+                    // Gestion mémoire
+                    'memory_limit' => '512M',
+                    'time_limit' => 300,
+                ]);
+
+            // Configuration des marges
+            $pdf->setOption('margin-top', 12);
+            $pdf->setOption('margin-right', 12);
+            $pdf->setOption('margin-bottom', 12);
+            $pdf->setOption('margin-left', 12);
+
+            // Nom du fichier avec informations contextuelles
+            $filename = sprintf(
+                'rapports_consolidés_%d_rapports_%s.pdf',
+                $rapports->count(),
+                now()->format('Y-m-d_H-i')
+            );
+
+            // Log de l'export
+            \Log::info('Export PDF consolidé généré', [
+                'nombre_rapports' => $rapports->count(),
+                'filtres' => $filters,
+                'filename' => $filename,
+                'user_id' => auth()->id()
+            ]);
+
+            return $pdf->download($filename);
+
+        } catch (\Exception $e) {
+            \Log::error('Erreur lors de la génération du PDF consolidé:', [
+                'filtres' => $filters,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return back()->with('error', 'Erreur lors de la génération du PDF: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Export avec streaming pour très gros documents
+     */
+    public function exportRapportsPDFStream($filters = [])
+    {
+        try {
+            $query = RapportReunion::with(['reunion', 'redacteur', 'validateur']);
+
+            // Application des filtres (même logique que ci-dessus)
+            // ...
+
+            $rapports = $query->orderBy('created_at', 'desc')->get();
+
+            // Configuration pour streaming
+            $pdf = Pdf::loadView('components.private.rapportsreunions.export.rapports-pdf', compact('rapports'))
+                ->setPaper('a4', 'portrait')
+                ->setOptions([
+                    'dpi' => 120, // DPI réduit pour les gros documents
+                    'defaultFont' => 'DejaVu Sans',
+                    'isHtml5ParserEnabled' => true,
+                    'isPhpEnabled' => true,
+                    'fontSubsetting' => false, // Désactivé pour le streaming
+                    'compress_images' => true,
+                    'memory_limit' => '1024M',
+                    'time_limit' => 0, // Pas de limite de temps
+                ]);
+
+            $filename = sprintf(
+                'rapports_stream_%d_%s.pdf',
+                $rapports->count(),
+                now()->format('Y-m-d_H-i')
+            );
+
+            // Stream le PDF directement au navigateur
+            return response()->streamDownload(function () use ($pdf) {
+                echo $pdf->output();
+            }, $filename, [
+                'Content-Type' => 'application/pdf',
+                'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+            ]);
+
+        } catch (\Exception $e) {
+            \Log::error('Erreur lors du streaming PDF:', [
+                'error' => $e->getMessage()
+            ]);
+
+            return back()->with('error', 'Erreur lors de la génération du PDF: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Génération d'un aperçu PDF (première page seulement)
+     */
+    public function previewRapportPDF(RapportReunion $rapport)
+    {
+        try {
+            $rapport->load(['reunion', 'redacteur', 'validateur']);
+
+            // Vue spéciale pour l'aperçu (première page uniquement)
+            $pdf = Pdf::loadView('components.private.rapportsreunions.export.rapport-preview', compact('rapport'))
+                ->setPaper('a4', 'portrait')
+                ->setOptions([
+                    'dpi' => 100,
+                    'defaultFont' => 'Inter',
+                    'isHtml5ParserEnabled' => true,
+                    'isPhpEnabled' => true,
+                    'memory_limit' => '256M',
+                ]);
+
+            $filename = sprintf('apercu_rapport_%d.pdf', $rapport->id);
+
+            return $pdf->stream($filename);
+
+        } catch (\Exception $e) {
+            \Log::error('Erreur aperçu PDF:', [
+                'rapport_id' => $rapport->id,
+                'error' => $e->getMessage()
+            ]);
+
+            return back()->with('error', 'Erreur lors de la génération de l\'aperçu');
+        }
+    }
+
+    /**
+     * Export en lot avec progression (pour AJAX)
+     */
+    public function exportRapportsProgressif(Request $request)
+    {
+        try {
+            $batchSize = 10; // Traiter par lots de 10
+            $page = $request->get('page', 1);
+
+            $query = RapportReunion::with(['reunion', 'redacteur', 'validateur']);
+
+            // Pagination pour le traitement par lots
+            $rapports = $query->forPage($page, $batchSize)->get();
+            $totalRapports = $query->count();
+
+            if ($rapports->isEmpty()) {
+                return response()->json([
+                    'status' => 'completed',
+                    'message' => 'Export terminé',
+                    'progress' => 100
+                ]);
+            }
+
+            // Génération PDF pour ce lot
+            $pdf = Pdf::loadView('components.private.rapportsreunions.export.rapports-batch', compact('rapports'));
+
+            // Sauvegarde temporaire du lot
+            $tempPath = storage_path('app/temp/batch_' . $page . '_' . time() . '.pdf');
+            $pdf->save($tempPath);
+
+            $progress = min(100, ($page * $batchSize / $totalRapports) * 100);
+
+            return response()->json([
+                'status' => 'processing',
+                'progress' => round($progress, 2),
+                'current_page' => $page,
+                'total_pages' => ceil($totalRapports / $batchSize),
+                'temp_file' => basename($tempPath)
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Configuration globale optimisée pour DOMPDF
+     */
+    private function getOptimizedPdfOptions()
+    {
+        return [
+            // Qualité et performance
+            'dpi' => 150,
+            'defaultFont' => 'Inter',
+            'defaultFontSize' => 11,
+
+            // Fonctionnalités
+            'isHtml5ParserEnabled' => true,
+            'isPhpEnabled' => true,
+            'isRemoteEnabled' => true,
+            'enable_css_float' => true,
+            'enable_html5_parser' => true,
+
+            // Optimisations
+            'fontSubsetting' => true,
+            'fontHeightRatio' => 1.1,
+            'compress_images' => true,
+            'max_image_width' => 1000,
+            'max_image_height' => 1000,
+
+            // Chemins et logs
+            'tempDir' => sys_get_temp_dir(),
+            'chroot' => public_path(),
+            'logOutputFile' => storage_path('logs/dompdf.log'),
+
+            // Sécurité
+            'enable_javascript' => false,
+            'debugKeepTemp' => app()->environment('local'),
+
+            // Ressources
+            'memory_limit' => '512M',
+            'time_limit' => 300,
+        ];
+    }
+
+    /**
+     * Nettoyage des fichiers temporaires
+     */
+    public function cleanupTempFiles()
+    {
+        $tempPath = storage_path('app/temp/');
+
+        if (is_dir($tempPath)) {
+            $files = glob($tempPath . 'batch_*.pdf');
+            $cleaned = 0;
+
+            foreach ($files as $file) {
+                if (filemtime($file) < strtotime('-1 hour')) {
+                    unlink($file);
+                    $cleaned++;
+                }
+            }
+
+            \Log::info("Nettoyage fichiers temporaires PDF", ['files_cleaned' => $cleaned]);
+        }
+    }
 
 
     /**
- * Export PDF d'un rapport individuel
- */
-// public function exportRapportPDF(RapportReunion $rapport)
-// {
-//     $rapport->load(['reunion', 'redacteur', 'validateur']);
-
-//     $pdf = Pdf::loadView('components.private.rapportsreunions.export.rapport-pdf', compact('rapport'))
-//               ->setPaper('a4', 'portrait')
-//               ->setOptions([
-//                   'dpi' => 150,
-//                   'defaultFont' => 'sans-serif',
-//                   'isHtml5ParserEnabled' => true,
-//                   'isPhpEnabled' => true
-//               ]);
-
-//     $filename = 'rapport_' . Str::slug($rapport->titre_rapport) . '_' . now()->format('Y-m-d') . '.pdf';
-
-//     return $pdf->download($filename);
-// }
-
-/**
- * Export PDF (implémenté avec DOMPDF)
- */
-// private function exportPDF($rapports)
-// {
-//     $rapports->load(['reunion', 'redacteur', 'validateur']);
-
-//     $pdf = Pdf::loadView('components.private.rapportsreunions.export.rapports-pdf', compact('rapports'))
-//               ->setPaper('a4', 'portrait')
-//               ->setOptions([
-//                   'dpi' => 150,
-//                   'defaultFont' => 'sans-serif',
-//                   'isHtml5ParserEnabled' => true,
-//                   'isPhpEnabled' => true
-//               ]);
-
-//     $filename = 'rapports_' . now()->format('Y-m-d_H-i') . '.pdf';
-
-//     return $pdf->download($filename);
-// }
-
-
-
-/**
- * Export d'un rapport individuel en PDF avec configuration optimisée
- */
-public function exportRapportPDF(RapportReunion $rapport)
-{
-    try {
-        // Chargement des relations nécessaires
-        $rapport->load([
-            'reunion',
-            'redacteur',
-            'validateur',
-            // 'reunion.participants',
-            // 'commentaires.auteur'
-        ]);
-
-        // Configuration avancée pour DOMPDF
-        $pdf = Pdf::loadView('components.private.rapportsreunions.export.rapport-pdf', compact('rapport'))
-                  ->setPaper('a4', 'portrait')
-                  ->setOptions([
-                      'dpi' => 200,
-                      'defaultFont' => 'Inter',
-                      'defaultFontSize' => 11,
-                      'isHtml5ParserEnabled' => true,
-                      'isPhpEnabled' => true,
-                      'isRemoteEnabled' => true,
-                      'debugKeepTemp' => false,
-                      'debugPng' => false,
-                      'debugCss' => false,
-                      'fontSubsetting' => true,
-                      'fontHeightRatio' => 1.1,
-                      'isFontSubsettingEnabled' => true,
-                      'tempDir' => sys_get_temp_dir(),
-                      'chroot' => public_path(),
-                      'logOutputFile' => storage_path('logs/dompdf.log'),
-                      'enable_javascript' => false,
-                      'enable_css_float' => true,
-                      'enable_html5_parser' => true,
-                  ]);
-
-        // Configuration des marges optimisées
-        $pdf->setOption('margin-top', 15);
-        $pdf->setOption('margin-right', 15);
-        $pdf->setOption('margin-bottom', 15);
-        $pdf->setOption('margin-left', 15);
-
-        // Nom du fichier optimisé
-        $filename = sprintf(
-            'rapport_%s_%s_%s.pdf',
-            Str::slug($rapport->titre_rapport, '_'),
-            $rapport->id,
-            now()->format('Y-m-d_H-i')
-        );
-
-        return $pdf->download($filename);
-
-    } catch (\Exception $e) {
-        \Log::error('Erreur lors de la génération du PDF:', [
-            'rapport_id' => $rapport->id,
-            'error' => $e->getMessage(),
-            'trace' => $e->getTraceAsString()
-        ]);
-
-        return back()->with('error', 'Erreur lors de la génération du PDF: ' . $e->getMessage());
-    }
-}
-
-/**
- * Export de plusieurs rapports consolidés en PDF
- */
-public function exportRapportsPDF($filters = [])
-{
-    try {
-        // Construction de la requête avec filtres
-        $query = RapportReunion::with([
-            'reunion',
-            'redacteur',
-            'validateur',
-            'reunion.participants'
-        ]);
-
-        // Application des filtres
-        if (!empty($filters['statut'])) {
-            $query->where('statut', $filters['statut']);
-        }
-
-        if (!empty($filters['type_rapport'])) {
-            $query->where('type_rapport', $filters['type_rapport']);
-        }
-
-        if (!empty($filters['date_debut'])) {
-            $query->whereDate('created_at', '>=', $filters['date_debut']);
-        }
-
-        if (!empty($filters['date_fin'])) {
-            $query->whereDate('created_at', '<=', $filters['date_fin']);
-        }
-
-        if (!empty($filters['redacteur_id'])) {
-            $query->where('redacteur_id', $filters['redacteur_id']);
-        }
-
-        // Tri par défaut
-        $rapports = $query->orderBy('created_at', 'desc')->get();
-
-        if ($rapports->isEmpty()) {
-            return back()->with('warning', 'Aucun rapport trouvé avec les critères sélectionnés.');
-        }
-
-        // Configuration PDF optimisée pour documents longs
-        $pdf = Pdf::loadView('components.private.rapportsreunions.export.rapports-pdf', compact('rapports'))
-                  ->setPaper('a4', 'portrait')
-                  ->setOptions([
-                      'dpi' => 150,
-                      'defaultFont' => 'Inter',
-                      'defaultFontSize' => 10,
-                      'isHtml5ParserEnabled' => true,
-                      'isPhpEnabled' => true,
-                      'isRemoteEnabled' => true,
-                      'fontSubsetting' => true,
-                      'fontHeightRatio' => 1.0,
-                      'enable_css_float' => true,
-                      'enable_html5_parser' => true,
-                      // Optimisations pour gros documents
-                      'max_image_width' => 1200,
-                      'max_image_height' => 1200,
-                      'compress_images' => true,
-                      // Gestion mémoire
-                      'memory_limit' => '512M',
-                      'time_limit' => 300,
-                  ]);
-
-        // Configuration des marges
-        $pdf->setOption('margin-top', 12);
-        $pdf->setOption('margin-right', 12);
-        $pdf->setOption('margin-bottom', 12);
-        $pdf->setOption('margin-left', 12);
-
-        // Nom du fichier avec informations contextuelles
-        $filename = sprintf(
-            'rapports_consolidés_%d_rapports_%s.pdf',
-            $rapports->count(),
-            now()->format('Y-m-d_H-i')
-        );
-
-        // Log de l'export
-        \Log::info('Export PDF consolidé généré', [
-            'nombre_rapports' => $rapports->count(),
-            'filtres' => $filters,
-            'filename' => $filename,
-            'user_id' => auth()->id()
-        ]);
-
-        return $pdf->download($filename);
-
-    } catch (\Exception $e) {
-        \Log::error('Erreur lors de la génération du PDF consolidé:', [
-            'filtres' => $filters,
-            'error' => $e->getMessage(),
-            'trace' => $e->getTraceAsString()
-        ]);
-
-        return back()->with('error', 'Erreur lors de la génération du PDF: ' . $e->getMessage());
-    }
-}
-
-/**
- * Export avec streaming pour très gros documents
- */
-public function exportRapportsPDFStream($filters = [])
-{
-    try {
-        $query = RapportReunion::with(['reunion', 'redacteur', 'validateur']);
-
-        // Application des filtres (même logique que ci-dessus)
-        // ...
-
-        $rapports = $query->orderBy('created_at', 'desc')->get();
-
-        // Configuration pour streaming
-        $pdf = Pdf::loadView('components.private.rapportsreunions.export.rapports-pdf', compact('rapports'))
-                  ->setPaper('a4', 'portrait')
-                  ->setOptions([
-                      'dpi' => 120, // DPI réduit pour les gros documents
-                      'defaultFont' => 'DejaVu Sans',
-                      'isHtml5ParserEnabled' => true,
-                      'isPhpEnabled' => true,
-                      'fontSubsetting' => false, // Désactivé pour le streaming
-                      'compress_images' => true,
-                      'memory_limit' => '1024M',
-                      'time_limit' => 0, // Pas de limite de temps
-                  ]);
-
-        $filename = sprintf(
-            'rapports_stream_%d_%s.pdf',
-            $rapports->count(),
-            now()->format('Y-m-d_H-i')
-        );
-
-        // Stream le PDF directement au navigateur
-        return response()->streamDownload(function() use ($pdf) {
-            echo $pdf->output();
-        }, $filename, [
-            'Content-Type' => 'application/pdf',
-            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
-        ]);
-
-    } catch (\Exception $e) {
-        \Log::error('Erreur lors du streaming PDF:', [
-            'error' => $e->getMessage()
-        ]);
-
-        return back()->with('error', 'Erreur lors de la génération du PDF: ' . $e->getMessage());
-    }
-}
-
-/**
- * Génération d'un aperçu PDF (première page seulement)
- */
-public function previewRapportPDF(RapportReunion $rapport)
-{
-    try {
-        $rapport->load(['reunion', 'redacteur', 'validateur']);
-
-        // Vue spéciale pour l'aperçu (première page uniquement)
-        $pdf = Pdf::loadView('components.private.rapportsreunions.export.rapport-preview', compact('rapport'))
-                  ->setPaper('a4', 'portrait')
-                  ->setOptions([
-                      'dpi' => 100,
-                      'defaultFont' => 'Inter',
-                      'isHtml5ParserEnabled' => true,
-                      'isPhpEnabled' => true,
-                      'memory_limit' => '256M',
-                  ]);
-
-        $filename = sprintf('apercu_rapport_%d.pdf', $rapport->id);
-
-        return $pdf->stream($filename);
-
-    } catch (\Exception $e) {
-        \Log::error('Erreur aperçu PDF:', [
-            'rapport_id' => $rapport->id,
-            'error' => $e->getMessage()
-        ]);
-
-        return back()->with('error', 'Erreur lors de la génération de l\'aperçu');
-    }
-}
-
-/**
- * Export en lot avec progression (pour AJAX)
- */
-public function exportRapportsProgressif(Request $request)
-{
-    try {
-        $batchSize = 10; // Traiter par lots de 10
-        $page = $request->get('page', 1);
-
-        $query = RapportReunion::with(['reunion', 'redacteur', 'validateur']);
-
-        // Pagination pour le traitement par lots
-        $rapports = $query->forPage($page, $batchSize)->get();
-        $totalRapports = $query->count();
-
-        if ($rapports->isEmpty()) {
-            return response()->json([
-                'status' => 'completed',
-                'message' => 'Export terminé',
-                'progress' => 100
-            ]);
-        }
-
-        // Génération PDF pour ce lot
-        $pdf = Pdf::loadView('components.private.rapportsreunions.export.rapports-batch', compact('rapports'));
-
-        // Sauvegarde temporaire du lot
-        $tempPath = storage_path('app/temp/batch_' . $page . '_' . time() . '.pdf');
-        $pdf->save($tempPath);
-
-        $progress = min(100, ($page * $batchSize / $totalRapports) * 100);
-
-        return response()->json([
-            'status' => 'processing',
-            'progress' => round($progress, 2),
-            'current_page' => $page,
-            'total_pages' => ceil($totalRapports / $batchSize),
-            'temp_file' => basename($tempPath)
-        ]);
-
-    } catch (\Exception $e) {
-        return response()->json([
-            'status' => 'error',
-            'message' => $e->getMessage()
-        ], 500);
-    }
-}
-
-/**
- * Configuration globale optimisée pour DOMPDF
- */
-private function getOptimizedPdfOptions()
-{
-    return [
-        // Qualité et performance
-        'dpi' => 150,
-        'defaultFont' => 'Inter',
-        'defaultFontSize' => 11,
-
-        // Fonctionnalités
-        'isHtml5ParserEnabled' => true,
-        'isPhpEnabled' => true,
-        'isRemoteEnabled' => true,
-        'enable_css_float' => true,
-        'enable_html5_parser' => true,
-
-        // Optimisations
-        'fontSubsetting' => true,
-        'fontHeightRatio' => 1.1,
-        'compress_images' => true,
-        'max_image_width' => 1000,
-        'max_image_height' => 1000,
-
-        // Chemins et logs
-        'tempDir' => sys_get_temp_dir(),
-        'chroot' => public_path(),
-        'logOutputFile' => storage_path('logs/dompdf.log'),
-
-        // Sécurité
-        'enable_javascript' => false,
-        'debugKeepTemp' => app()->environment('local'),
-
-        // Ressources
-        'memory_limit' => '512M',
-        'time_limit' => 300,
-    ];
-}
-
-/**
- * Nettoyage des fichiers temporaires
- */
-public function cleanupTempFiles()
-{
-    $tempPath = storage_path('app/temp/');
-
-    if (is_dir($tempPath)) {
-        $files = glob($tempPath . 'batch_*.pdf');
-        $cleaned = 0;
-
-        foreach ($files as $file) {
-            if (filemtime($file) < strtotime('-1 hour')) {
-                unlink($file);
-                $cleaned++;
-            }
-        }
-
-        \Log::info("Nettoyage fichiers temporaires PDF", ['files_cleaned' => $cleaned]);
-    }
-}
-
-
-/**
- * Export Excel simple (CSV en attendant Laravel Excel)
- */
-private function exportExcel($rapports)
-{
-    $headers = [
-        'Content-Type' => 'text/csv; charset=utf-8',
-        'Content-Disposition' => 'attachment; filename="rapports_' . now()->format('Y-m-d') . '.csv"',
-    ];
-
-    $callback = function() use ($rapports) {
-
-        $file = fopen('php://output', 'w');
-
-        // BOM pour Excel UTF-8
-        fprintf($file, chr(0xEF).chr(0xBB).chr(0xBF));
-
-        // Headers
-        fputcsv($file, [
-            'ID',
-            'Titre',
-            'Type',
-            'Statut',
-            'Réunion',
-            'Rédacteur',
-            'Validateur',
-            'Présents',
-            'Montant collecté',
-            'Note satisfaction',
-            'Date création',
-            'Date validation',
-            'Date publication'
-        ], ';');
-
-        // Données
-        foreach ($rapports as $rapport) {
+     * Export Excel simple (CSV en attendant Laravel Excel)
+     */
+    private function exportExcel($rapports)
+    {
+        $headers = [
+            'Content-Type' => 'text/csv; charset=utf-8',
+            'Content-Disposition' => 'attachment; filename="rapports_' . now()->format('Y-m-d') . '.csv"',
+        ];
+
+        $callback = function () use ($rapports) {
+
+            $file = fopen('php://output', 'w');
+
+            // BOM pour Excel UTF-8
+            fprintf($file, chr(0xEF) . chr(0xBB) . chr(0xBF));
+
+            // Headers
             fputcsv($file, [
-                $rapport->id,
-                $rapport->titre_rapport,
-                $rapport->type_rapport_traduit,
-                $rapport->statut_traduit,
-                $rapport->reunion ? $rapport->reunion->titre : '',
-                $rapport->redacteur ? $rapport->redacteur->nom . ' ' . $rapport->redacteur->prenom : '',
-                $rapport->validateur ? $rapport->validateur->nom . ' ' . $rapport->validateur->prenom : '',
-                $rapport->nombre_presents ?: '',
-                $rapport->montant_collecte ?: '',
-                $rapport->note_satisfaction ?: '',
-                $rapport->created_at->format('d/m/Y H:i'),
-                $rapport->valide_le ? $rapport->valide_le->format('d/m/Y H:i') : '',
-                $rapport->publie_le ? $rapport->publie_le->format('d/m/Y H:i') : ''
+                'ID',
+                'Titre',
+                'Type',
+                'Statut',
+                'Réunion',
+                'Rédacteur',
+                'Validateur',
+                'Présents',
+                'Montant collecté',
+                'Note satisfaction',
+                'Date création',
+                'Date validation',
+                'Date publication'
             ], ';');
-        }
 
-        fclose($file);
-    };
+            // Données
+            foreach ($rapports as $rapport) {
+                fputcsv($file, [
+                    $rapport->id,
+                    $rapport->titre_rapport,
+                    $rapport->type_rapport_traduit,
+                    $rapport->statut_traduit,
+                    $rapport->reunion ? $rapport->reunion->titre : '',
+                    $rapport->redacteur ? $rapport->redacteur->nom . ' ' . $rapport->redacteur->prenom : '',
+                    $rapport->validateur ? $rapport->validateur->nom . ' ' . $rapport->validateur->prenom : '',
+                    $rapport->nombre_presents ?: '',
+                    $rapport->montant_collecte ?: '',
+                    $rapport->note_satisfaction ?: '',
+                    $rapport->created_at->format('d/m/Y H:i'),
+                    $rapport->valide_le ? $rapport->valide_le->format('d/m/Y H:i') : '',
+                    $rapport->publie_le ? $rapport->publie_le->format('d/m/Y H:i') : ''
+                ], ';');
+            }
 
-    return Response::stream($callback, 200, $headers);
-}
+            fclose($file);
+        };
 
-/**
- * Export PDF d'un rapport depuis l'URL
- */
-public function downloadPDF(Request $request, RapportReunion $rapport)
-{
-    return $this->exportRapportPDF($rapport);
-}
+        return Response::stream($callback, 200, $headers);
+    }
+
+    /**
+     * Export PDF d'un rapport depuis l'URL
+     */
+    public function downloadPDF(Request $request, RapportReunion $rapport)
+    {
+        return $this->exportRapportPDF($rapport);
+    }
 }
