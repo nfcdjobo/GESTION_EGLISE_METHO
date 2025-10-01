@@ -259,6 +259,7 @@ class AuthenteController extends Controller
      */
     public function request(Request $request)
     {
+
         try {
             // Validation
             $validator = Validator::make($request->all(), [
@@ -305,15 +306,17 @@ class AuthenteController extends Controller
             // Envoyer l'email de réinitialisation
             // Note: Vous devez configurer le service d'email dans votre application
             try {
-                // Mail::send('emails.password-reset', ['token' => $token, 'user' => $user], function($message) use ($user) {
-                //     $message->to($user->email);
-                //     $message->subject('Réinitialisation de votre mot de passe');
-                // });
+                Mail::send('emails.password-reset', ['token' => $token, 'user' => $user], function($message) use ($user) {
+                    $message->to($user->email);
+                    $message->subject('Réinitialisation de votre mot de passe');
+                });
 
                 // Pour le moment, retourner le token (à des fins de test)
                 // En production, supprimez cette partie et utilisez l'envoi d'email
                 session()->flash('reset_token', $token);
+                session()->flash('email', $user->email);
             } catch (\Exception $e) {
+                dd($e->getMessage());
                 return back()->withErrors([
                     'recovery' => 'Erreur lors de l\'envoi de l\'email. Veuillez réessayer plus tard.'
                 ]);
@@ -333,7 +336,7 @@ class AuthenteController extends Controller
      */
     public function showResetForm($token)
     {
-        return view('auth.reset-password', ['token' => $token]);
+        return view('components.auth.reset-password', ['token' => $token]);
     }
 
     /**

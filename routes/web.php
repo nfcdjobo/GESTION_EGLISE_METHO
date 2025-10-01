@@ -32,6 +32,7 @@ require __DIR__.'/private/web/moissons.php';
 require __DIR__.'/private/web/assiduite-faible.php';
 require __DIR__.'/private/web/parametres.php';
 require __DIR__.'/private/web/parametresdons.php';
+require __DIR__.'/private/web/profil.php';
 require __DIR__.'/private/web/dons.php';
 require __DIR__.'/public/web/donates.php';
 require __DIR__.'/public/web/welcome.php';

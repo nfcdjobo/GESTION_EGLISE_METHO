@@ -5,7 +5,9 @@ namespace App\Http\Controllers\Private\Web;
 use App\Models\User;
 use App\Models\Annonce;
 use Illuminate\View\View;
+use Illuminate\Support\Str;
 use Illuminate\Http\Request;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Validation\Rule;
 use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
@@ -49,7 +51,7 @@ class AnnonceController extends Controller
 
         if ($request->filled('search')) {
             $search = $request->search;
-            $query->where(function($q) use ($search) {
+            $query->where(function ($q) use ($search) {
                 $q->where('titre', 'ILIKE', "%{$search}%")->orWhere('contenu', 'ILIKE', "%{$search}%");
             });
         }
@@ -215,7 +217,7 @@ class AnnonceController extends Controller
     public function publier(Request $request, Annonce $annonce)
     {
         if ($annonce->publier()) {
-             if ($this->isApiRequest($request)) {
+            if ($this->isApiRequest($request)) {
                 return response()->json([
                     'success' => true,
                     'message' => 'Annonce publiée avec succès.'
@@ -300,127 +302,107 @@ class AnnonceController extends Controller
     private function isApiRequest(Request $request)
     {
         return $request->wantsJson() ||
-               $request->expectsJson() ||
-               $request->is('api/*') ||
-               $request->header('Accept') === 'application/json' ||
-               $request->ajax();
+            $request->expectsJson() ||
+            $request->is('api/*') ||
+            $request->header('Accept') === 'application/json' ||
+            $request->ajax();
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
     /**
- * Export PDF d'une annonce
- */
-public function exportPdf(Annonce $annonce)
-{
-    $annonce->load(['contactPrincipal', 'auteur']);
+     * Export PDF d'une annonce
+     */
+    public function exportPdf(Annonce $annonce)
+    {
+        // Charger les relations nécessaires
+        $annonce->load(['contactPrincipal', 'auteur']);
 
+        // Préparation des données pour le PDF
+        $data = ['annonce' => $annonce];
 
-    // Préparation des données pour le PDF
-    $data = [
-        'annonce' => $annonce
-    ];
+        // Configuration de DomPDF
+        $pdf = Pdf::loadView('exports.annonces.annonce-pdf', $data);
 
-    // Configuration de DomPDF
-    $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('exports.annonces.annonce-pdf', $data);
+        // Configuration du papier
+        $pdf->setPaper('A4', 'portrait');
 
-    // Configuration du papier
-    $pdf->setPaper('A4', 'portrait');
+        // Options supplémentaires
+        $pdf->setOptions([
+            'isHtml5ParserEnabled' => true, // Permet de mieux gérer le HTML5
+            'isRemoteEnabled' => true, // Permet de charger des ressources externes (images, CSS)
+            'defaultFont' => 'DejaVu Sans', // Police supportant les caractères spéciaux
+            'isFontSubsettingEnabled' => true, // Réduit la taille du PDF en incluant uniquement les glyphes utilisés
+        ]);
 
-    // Options supplémentaires
-    $pdf->setOptions([
-        'isHtml5ParserEnabled' => true,
-        'isRemoteEnabled' => true,
-        'defaultFont' => 'DejaVu Sans',
-        'isFontSubsettingEnabled' => true,
-    ]);
+        // Nom du fichier
+        $fileName = 'annonce_' . Str::slug($annonce->titre) . '_' . now()->format('Y-m-d') . '.pdf';
 
-    // Nom du fichier
-    $fileName = 'annonce_' . \Illuminate\Support\Str::slug($annonce->titre) . '_' . now()->format('Y-m-d') . '.pdf';
-
-    // Téléchargement du PDF
-    return $pdf->download($fileName);
-}
-
-/**
- * Export PDF de la liste des annonces
- */
-public function exportListePdf(Request $request)
-{
-    $query = Annonce::with(['contactPrincipal', 'auteur']);
-
-    // Appliquer les mêmes filtres que l'index
-    if ($request->filled('statut')) {
-        $query->where('statut', $request->statut);
+        // Téléchargement du PDF
+        return $pdf->download($fileName);
     }
 
-    if ($request->filled('type_annonce')) {
-        $query->parType($request->type_annonce);
+    /**
+     * Export PDF de la liste des annonces
+     */
+    public function exportListePdf(Request $request)
+    {
+        $query = Annonce::with(['contactPrincipal', 'auteur']);
+
+        // Appliquer les mêmes filtres que l'index
+        if ($request->filled('statut')) {
+            $query->where('statut', $request->statut);
+        }
+
+        if ($request->filled('type_annonce')) {
+            $query->parType($request->type_annonce);
+        }
+
+        if ($request->filled('audience_cible')) {
+            $query->parAudience($request->audience_cible);
+        }
+
+        if ($request->filled('niveau_priorite')) {
+            $query->where('niveau_priorite', $request->niveau_priorite);
+        }
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('titre', 'ILIKE', "%{$search}%")
+                    ->orWhere('contenu', 'ILIKE', "%{$search}%");
+            });
+        }
+
+        // Récupérer toutes les annonces filtrées
+        $annonces = $query->trieesParPriorite()->get();
+
+        // Calcul des statistiques
+        $stats = [
+            'total' => $annonces->count(),
+            'par_statut' => $annonces->groupBy('statut')->map->count(),
+            'par_type' => $annonces->groupBy('type_annonce')->map->count(),
+            'par_priorite' => $annonces->groupBy('niveau_priorite')->map->count(),
+            'urgentes' => $annonces->where('niveau_priorite', 'urgent')->count(),
+        ];
+
+
+        $data = [
+            'annonces' => $annonces,
+            'stats' => $stats,
+            'filtres' => $request->only(['statut', 'type_annonce', 'audience_cible', 'niveau_priorite', 'search']),
+        ];
+
+        $pdf = Pdf::loadView('exports.annonces.liste-annonces-pdf', $data);
+        $pdf->setPaper('A4', 'portrait');
+        $pdf->setOptions([
+            'isHtml5ParserEnabled' => true,
+            'isRemoteEnabled' => true,
+            'defaultFont' => 'DejaVu Sans',
+            'isFontSubsettingEnabled' => true,
+        ]);
+
+        $fileName = 'liste_annonces_' . now()->format('Y-m-d_His') . '.pdf';
+
+        return $pdf->download($fileName);
     }
-
-    if ($request->filled('audience_cible')) {
-        $query->parAudience($request->audience_cible);
-    }
-
-    if ($request->filled('niveau_priorite')) {
-        $query->where('niveau_priorite', $request->niveau_priorite);
-    }
-
-    if ($request->filled('search')) {
-        $search = $request->search;
-        $query->where(function($q) use ($search) {
-            $q->where('titre', 'ILIKE', "%{$search}%")
-              ->orWhere('contenu', 'ILIKE', "%{$search}%");
-        });
-    }
-
-    // Récupérer toutes les annonces filtrées
-    $annonces = $query->trieesParPriorite()->get();
-
-    // Calcul des statistiques
-    $stats = [
-        'total' => $annonces->count(),
-        'par_statut' => $annonces->groupBy('statut')->map->count(),
-        'par_type' => $annonces->groupBy('type_annonce')->map->count(),
-        'par_priorite' => $annonces->groupBy('niveau_priorite')->map->count(),
-        'urgentes' => $annonces->where('niveau_priorite', 'urgent')->count(),
-    ];
-
-
-    $data = [
-        'annonces' => $annonces,
-        'stats' => $stats,
-        'filtres' => $request->only(['statut', 'type_annonce', 'audience_cible', 'niveau_priorite', 'search']),
-    ];
-
-    $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('exports.annonces.liste-annonces-pdf', $data);
-    $pdf->setPaper('A4', 'portrait');
-    $pdf->setOptions([
-        'isHtml5ParserEnabled' => true,
-        'isRemoteEnabled' => true,
-        'defaultFont' => 'DejaVu Sans',
-        'isFontSubsettingEnabled' => true,
-    ]);
-
-    $fileName = 'liste_annonces_' . now()->format('Y-m-d_His') . '.pdf';
-
-    return $pdf->download($fileName);
-}
 }

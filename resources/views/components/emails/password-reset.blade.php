@@ -167,7 +167,7 @@
             </div>
 
             <div class="button-container">
-                <a href="{{ $resetUrl }}" class="reset-button">
+                <a href="{{ route('security.password.reset', $token) }}" class="reset-button">
                     🔑 Réinitialiser mon mot de passe
                 </a>
             </div>
@@ -176,7 +176,7 @@
                 <div class="alternative-text">
                     Si le bouton ne fonctionne pas, copiez et collez ce lien dans votre navigateur :
                 </div>
-                <div class="link">{{ $resetUrl }}</div>
+                <div class="link">{{ route('security.password.reset', $token) }}</div>
             </div>
 
             <div class="warning">

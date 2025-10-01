@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Réinitialisation du mot de passe - Plateforme de l'Église</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="icon" href="{{$AppParametres->logo ? Storage::url($AppParametres->logo) :  ''}}" type="image/png" />
+    <link rel="icon" href="<?php echo e($AppParametres->logo ? Storage::url($AppParametres->logo) :  ''); ?>" type="image/png" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
@@ -39,8 +39,8 @@
     <div class="w-full max-w-md">
         <!-- Logo et Titre -->
         <div class="text-center mb-8">
-            <a href="{{route('public.accueil')}}" class="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-orange-600 to-red-600 rounded-full mb-4 shadow-lg">
-                <img class="aspect-square w-[80px] rounded-full object-cover ring-2 ring-blue-500" src="{{$AppParametres->logo ? Storage::url($AppParametres->logo) :  ''}}" alt="Logo église" />
+            <a href="<?php echo e(route('public.accueil')); ?>" class="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-orange-600 to-red-600 rounded-full mb-4 shadow-lg">
+                <img class="aspect-square w-[80px] rounded-full object-cover ring-2 ring-blue-500" src="<?php echo e($AppParametres->logo ? Storage::url($AppParametres->logo) :  ''); ?>" alt="Logo église" />
             </a>
             <h1 class="text-3xl font-bold text-gray-800 mb-2">Nouveau mot de passe</h1>
             <p class="text-gray-600">Créez votre nouveau mot de passe</p>
@@ -50,18 +50,18 @@
         <div class="bg-white rounded-2xl shadow-xl p-8">
 
             <!-- Messages d'erreur -->
-            @if ($errors->any())
+            <?php if($errors->any()): ?>
                 <div class="bg-red-50 border-l-4 border-red-500 p-4 mb-6 rounded-lg">
                     <div class="flex items-center">
                         <i class="fas fa-exclamation-circle text-red-500 mr-2"></i>
                         <div>
-                            @foreach ($errors->all() as $error)
-                                <p class="text-red-700 text-sm">{{ $error }}</p>
-                            @endforeach
+                            <?php $__currentLoopData = $errors->all(); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $error): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                <p class="text-red-700 text-sm"><?php echo e($error); ?></p>
+                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                         </div>
                     </div>
                 </div>
-            @endif
+            <?php endif; ?>
 
             <!-- Messages d'erreur JS -->
             <div id="errorMessages" class="hidden bg-red-50 border-l-4 border-red-500 p-4 mb-6 rounded-lg">
@@ -72,9 +72,9 @@
             </div>
 
             <!-- Formulaire de réinitialisation -->
-            <form method="POST" action="{{ route('security.password.update') }}" id="resetPasswordForm" class="space-y-6">
-                @csrf
-                <input type="hidden" name="token" value="{{ $token }}">
+            <form method="POST" action="<?php echo e(route('security.password.update')); ?>" id="resetPasswordForm" class="space-y-6">
+                <?php echo csrf_field(); ?>
+                <input type="hidden" name="token" value="<?php echo e($token); ?>">
 
                 <!-- Email -->
                 <div>
@@ -85,15 +85,29 @@
                         id="email"
                         type="email"
                         name="email"
-                        value="{{ old('email', request()->email) }}"
+                        value="<?php echo e(old('email', request()->email)); ?>"
                         required
                         autocomplete="email"
-                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition duration-200 @error('email') border-red-500 @enderror"
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition duration-200 <?php $__errorArgs = ['email'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?> border-red-500 <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>"
                         placeholder="exemple@email.com"
                     >
-                    @error('email')
-                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                    @enderror
+                    <?php $__errorArgs = ['email'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                        <p class="mt-1 text-sm text-red-600"><?php echo e($message); ?></p>
+                    <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
                 </div>
 
                 <!-- Nouveau mot de passe -->
@@ -108,16 +122,30 @@
                             name="password"
                             required
                             autocomplete="new-password"
-                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition duration-200 @error('password') border-red-500 @enderror"
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition duration-200 <?php $__errorArgs = ['password'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?> border-red-500 <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>"
                             placeholder="••••••••"
                         >
                         <button type="button" onclick="togglePassword('password')" class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700">
                             <i id="passwordToggleIcon" class="fas fa-eye"></i>
                         </button>
                     </div>
-                    @error('password')
-                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                    @enderror
+                    <?php $__errorArgs = ['password'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                        <p class="mt-1 text-sm text-red-600"><?php echo e($message); ?></p>
+                    <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
                 </div>
 
                 <!-- Confirmation mot de passe -->
@@ -159,7 +187,7 @@
 
             <!-- Retour à la connexion -->
             <div class="mt-6 text-center">
-                <a href="{{ route('security.login') }}" class="text-blue-600 hover:text-blue-800 font-semibold transition duration-200">
+                <a href="<?php echo e(route('security.login')); ?>" class="text-blue-600 hover:text-blue-800 font-semibold transition duration-200">
                     <i class="fas fa-arrow-left mr-2"></i>Retour à la connexion
                 </a>
             </div>
@@ -168,7 +196,7 @@
         <!-- Footer -->
         <div class="mt-8 text-center">
             <p class="text-gray-500 text-sm">
-                © {{ date('Y') }} Plateforme de l'Église. Tous droits réservés.
+                © <?php echo e(date('Y')); ?> Plateforme de l'Église. Tous droits réservés.
             </p>
         </div>
     </div>
@@ -570,3 +598,4 @@
     </script>
 </body>
 </html>
+<?php /**PATH C:\Users\Dell\Desktop\MICRISERVICES\methodiste_belle_ville\resources\views/components/auth/reset-password.blade.php ENDPATH**/ ?>

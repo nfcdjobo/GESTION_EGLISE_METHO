@@ -252,7 +252,7 @@
                         </div>
                     </div>
 
-                    <a href="#"
+                    <a href="{{route('private.profil.index')}}"
                         class="flex items-center px-4 py-3 text-sm text-slate-700 hover:bg-slate-50 transition-colors">
                         <i class="fas fa-user mr-3 text-slate-400"></i>
                         Mon profil

@@ -1,7 +1,7 @@
 <!-- Header -->
     <header>
         <div class="nav-container">
-            <a href="<?php echo e(route('public.accueil')); ?>" class="logo">
+            <a href="<?php echo e(route('public.accueil')); ?>#accueil" class="logo">
                 <img src="<?php echo e($AppParametres->logo ? Storage::url($AppParametres->logo) :  ''); ?>"
                     alt="Logo <?php echo e($AppParametres->nom_eglise ?? ''); ?>">
                 <div class="logo-text-v3"><?php echo e($AppParametres->nom_eglise ?? 'Méthodiste'); ?></div>
@@ -13,7 +13,8 @@
                     <li><a href="<?php echo e(url()->current() === route('public.accueil') ? '#accueil' : route('public.accueil') . '#accueil'); ?>" class="nav-link" data-section="accueil">Accueil</a></li>
                     <li><a href="<?php echo e(url()->current() === route('public.accueil') ? '#programmes' : route('public.accueil') . '#programmes'); ?>" class="nav-link" data-section="programmes">Programme</a></li>
                     <li><a href="<?php echo e(url()->current() === route('public.accueil') ? '#events' : route('public.accueil') . '#events'); ?>" class="nav-link" data-section="events">Événements</a></li>
-                    <li><a href="<?php echo e(route('public.donates.index')); ?>" class="nav-link external">Faire un don</a></li>
+                    
+                    <li><a href="<?php echo e(route('public.donates.index')); ?>" class="nav-link external <?php echo e(request()->routeIs('public.donates.*') ? 'active' : ''); ?>">Faire un don</a></li>
                     <li><a href="<?php echo e(url()->current() === route('public.accueil') ? '#contact' : route('public.accueil') . '#contact'); ?>" class="nav-link" data-section="contact">Contact</a></li>
                     <?php if(auth()->guard()->check()): ?>
                         <li>
@@ -39,7 +40,8 @@
                 <li><a href="<?php echo e(url()->current() === route('public.accueil') ? '#accueil' : route('public.accueil') . '#accueil'); ?>" class="mobile-link nav-link" data-section="accueil">Accueil</a></li>
                 <li><a href="<?php echo e(url()->current() === route('public.accueil') ? '#programmes' : route('public.accueil') . '#programmes'); ?>" class="mobile-link nav-link" data-section="programmes">Programme</a></li>
                 <li><a href="<?php echo e(url()->current() === route('public.accueil') ? '#events' : route('public.accueil') . '#events'); ?>" class="mobile-link nav-link" data-section="events">Événements</a></li>
-                <li><a href="<?php echo e(route('public.donates.index')); ?>" class="mobile-link nav-link external">Faire un don</a></li>
+                
+                <li><a href="<?php echo e(route('public.donates.index')); ?>" class="nav-link external <?php echo e(request()->routeIs('public.donates.*') ? 'active' : ''); ?>">Faire un don</a></li>
                 <li><a href="<?php echo e(url()->current() === route('public.accueil') ? '#contact' : route('public.accueil') . '#contact'); ?>" class="mobile-link nav-link" data-section="contact">Contact</a></li>
                 <?php if(auth()->guard()->check()): ?>
                     
@@ -348,6 +350,40 @@
         } else {
             initializeActiveState();
         }
+
+
+
+
+
+
+
+        // ✅ NOUVEAU : Détection des pages externes
+    function highlightExternalPages() {
+        const currentPath = window.location.pathname;
+        const currentRoute = currentPath.split('/')[1];
+
+        const externalRoutes = {
+            'donates': document.querySelector('a[href*="donates"]'),
+            'dashboard': document.querySelector('a[href*="dashboard"]'),
+            'login': document.querySelector('a[href*="login"]')
+        };
+
+        if (externalRoutes[currentRoute]) {
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('active');
+            });
+
+            externalRoutes[currentRoute].classList.add('active');
+            window.removeEventListener('scroll', handleScroll);
+        }
+    }
+
+    // ✅ Appeler la fonction
+    highlightExternalPages();
+
+
+
+
 
         // Mettre à jour lors du redimensionnement de la fenêtre
         window.addEventListener('resize', () => {

@@ -139,7 +139,7 @@ class Handler extends ExceptionHandler
                 return redirect($redirectUrl, 301);
             }
         }
-// dd($exception);
+dd($exception);
         // Rendu de la page d'erreur personnalisée
         return $this->renderErrorPage($request, $statusCode, $exception);
     }

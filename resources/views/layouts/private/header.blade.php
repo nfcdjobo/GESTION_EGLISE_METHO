@@ -364,7 +364,7 @@
                             id="pages-menu-icon"></i>
                     </button>
                     <div id="pages-menu" class="pl-6 space-y-1 max-h-0 overflow-hidden transition-all duration-300">
-                        <a href="#"
+                        <a href="{{route('private.profil.index')}}"
                             class="flex items-center px-3 py-2 text-sm text-slate-600 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition-colors">
                             <i class="fas fa-user-circle text-amber-500 mr-2 text-xs"></i>
                             Mon profil
