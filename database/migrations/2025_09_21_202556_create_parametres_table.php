@@ -31,7 +31,7 @@ return new class extends Migration
 
             // Médias
             $table->string('logo')->nullable(); // chemin vers le fichier logo
-            $table->json('images_hero')->nullable(); // array d'images pour la page d'accueil
+            $table->json('images_hero')->nullable(); /** Donnée json contenant un tableau d'objet dont les propriétés sont les suivantes: id, titre, url, active, ordre */
 
 
 

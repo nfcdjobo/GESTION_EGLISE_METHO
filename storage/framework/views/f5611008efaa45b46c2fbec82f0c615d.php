@@ -1,7 +1,6 @@
-@extends('layouts.private.main')
-@section('title', 'Détails des Paramètres')
+<?php $__env->startSection('title', 'Détails des Paramètres'); ?>
 
-@section('content')
+<?php $__env->startSection('content'); ?>
 <div class="space-y-8">
     <!-- Page Title & Breadcrumb -->
     <div class="mb-8">
@@ -9,7 +8,7 @@
         <nav class="flex mt-2" aria-label="Breadcrumb">
             <ol class="inline-flex items-center space-x-1 md:space-x-3">
                 <li class="inline-flex items-center">
-                    <a href="{{ route('private.parametres.index') }}" class="inline-flex items-center text-sm font-medium text-slate-700 hover:text-blue-600 transition-colors">
+                    <a href="<?php echo e(route('private.parametres.index')); ?>" class="inline-flex items-center text-sm font-medium text-slate-700 hover:text-blue-600 transition-colors">
                         <i class="fas fa-cogs mr-2"></i>
                         Paramètres
                     </a>
@@ -28,11 +27,11 @@
     <div class="bg-white/80 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
         <div class="p-6">
             <div class="flex flex-wrap gap-3">
-                @can('parametres.update')
-                    <a href="{{ route('private.parametres.edit') }}" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-sm font-medium rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-200 shadow-md hover:shadow-lg">
+                <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('parametres.update')): ?>
+                    <a href="<?php echo e(route('private.parametres.edit')); ?>" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-sm font-medium rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-200 shadow-md hover:shadow-lg">
                         <i class="fas fa-edit mr-2"></i> Modifier
                     </a>
-                @endcan
+                <?php endif; ?>
 
                 <button type="button" onclick="exportParametres()" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-emerald-600 to-green-600 text-white text-sm font-medium rounded-xl hover:from-emerald-700 hover:to-green-700 transition-all duration-200 shadow-md hover:shadow-lg">
                     <i class="fas fa-download mr-2"></i> Exporter
@@ -42,7 +41,7 @@
                     <i class="fas fa-print mr-2"></i> Imprimer
                 </button>
 
-                <a href="{{ route('private.parametres.index') }}" class="inline-flex items-center px-4 py-2 bg-slate-600 text-white text-sm font-medium rounded-xl hover:bg-slate-700 transition-colors">
+                <a href="<?php echo e(route('private.parametres.index')); ?>" class="inline-flex items-center px-4 py-2 bg-slate-600 text-white text-sm font-medium rounded-xl hover:bg-slate-700 transition-colors">
                     <i class="fas fa-arrow-left mr-2"></i> Retour
                 </a>
             </div>
@@ -62,39 +61,39 @@
                 </div>
                 <div class="p-6 space-y-6">
                     <div class="flex items-center space-x-6">
-                        @if($parametres->logo_url)
-                            <img src="{{ $parametres->logo_url }}" alt="Logo" class="w-24 h-24 object-cover rounded-xl shadow-lg">
-                        @else
+                        <?php if($parametres->logo_url): ?>
+                            <img src="<?php echo e($parametres->logo_url); ?>" alt="Logo" class="w-24 h-24 object-cover rounded-xl shadow-lg">
+                        <?php else: ?>
                             <div class="w-24 h-24 bg-gradient-to-r from-blue-500 to-purple-500 rounded-xl flex items-center justify-center shadow-lg">
                                 <i class="fas fa-church text-white text-3xl"></i>
                             </div>
-                        @endif
+                        <?php endif; ?>
                         <div>
-                            <h3 class="text-2xl font-bold text-slate-900">{{ $parametres->nom_eglise }}</h3>
-                            @if($parametres->date_fondation)
-                                <p class="text-slate-600 mt-1">Fondée le {{ $parametres->date_fondation->format('d/m/Y') }}</p>
-                                <p class="text-sm text-slate-500">{{ $parametres->date_fondation->diffInYears() }} années d'existence</p>
-                            @endif
+                            <h3 class="text-2xl font-bold text-slate-900"><?php echo e($parametres->nom_eglise); ?></h3>
+                            <?php if($parametres->date_fondation): ?>
+                                <p class="text-slate-600 mt-1">Fondée le <?php echo e($parametres->date_fondation->format('d/m/Y')); ?></p>
+                                <p class="text-sm text-slate-500"><?php echo e($parametres->date_fondation->diffInYears()); ?> années d'existence</p>
+                            <?php endif; ?>
 
-@if($parametres->nombre_membres)
-                                <p class="text-sm text-slate-500 mt-1">{{ number_format($parametres->nombre_membres) }} membres</p>
-                            @endif
+<?php if($parametres->nombre_membres): ?>
+                                <p class="text-sm text-slate-500 mt-1"><?php echo e(number_format($parametres->nombre_membres)); ?> membres</p>
+                            <?php endif; ?>
                         </div>
                     </div>
 
-                    @if($parametres->description_eglise)
+                    <?php if($parametres->description_eglise): ?>
                         <div class="p-4 bg-slate-50 rounded-xl">
                             <h4 class="font-semibold text-slate-900 mb-2">Description</h4>
-                            <p class="text-slate-700 leading-relaxed">{{ $parametres->description_eglise }}</p>
+                            <p class="text-slate-700 leading-relaxed"><?php echo e($parametres->description_eglise); ?></p>
                         </div>
-                    @endif
+                    <?php endif; ?>
 
-                    @if($parametres->histoire_eglise)
+                    <?php if($parametres->histoire_eglise): ?>
                         <div class="p-4 bg-blue-50 rounded-xl">
                             <h4 class="font-semibold text-blue-900 mb-2">Histoire</h4>
-                            <p class="text-blue-800 leading-relaxed">{{ $parametres->histoire_eglise }}</p>
+                            <p class="text-blue-800 leading-relaxed"><?php echo e($parametres->histoire_eglise); ?></p>
                         </div>
-                    @endif
+                    <?php endif; ?>
                 </div>
             </div>
 
@@ -107,37 +106,37 @@
                     </h2>
                 </div>
                 <div class="p-6 space-y-6">
-                    @if($parametres->verset_biblique)
+                    <?php if($parametres->verset_biblique): ?>
                         <div class="p-6 bg-amber-50 rounded-xl border-l-4 border-amber-500">
                             <h4 class="font-semibold text-amber-900 mb-3">Verset de l'Église</h4>
                             <blockquote class="text-amber-800 italic text-lg leading-relaxed">
-                                "{{ $parametres->verset_biblique }}"
+                                "<?php echo e($parametres->verset_biblique); ?>"
                             </blockquote>
-                            @if($parametres->reference_verset)
-                                <p class="text-amber-700 font-medium mt-3">- {{ $parametres->reference_verset }}</p>
-                            @endif
+                            <?php if($parametres->reference_verset): ?>
+                                <p class="text-amber-700 font-medium mt-3">- <?php echo e($parametres->reference_verset); ?></p>
+                            <?php endif; ?>
                         </div>
-                    @endif
+                    <?php endif; ?>
 
-                    @if($parametres->mission_statement)
+                    <?php if($parametres->mission_statement): ?>
                         <div class="p-4 bg-green-50 rounded-xl">
                             <h4 class="font-semibold text-green-900 mb-2 flex items-center">
                                 <i class="fas fa-bullseye text-green-600 mr-2"></i>
                                 Mission
                             </h4>
-                            <p class="text-green-800 leading-relaxed">{{ $parametres->mission_statement }}</p>
+                            <p class="text-green-800 leading-relaxed"><?php echo e($parametres->mission_statement); ?></p>
                         </div>
-                    @endif
+                    <?php endif; ?>
 
-                    @if($parametres->vision)
+                    <?php if($parametres->vision): ?>
                         <div class="p-4 bg-purple-50 rounded-xl">
                             <h4 class="font-semibold text-purple-900 mb-2 flex items-center">
                                 <i class="fas fa-eye text-purple-600 mr-2"></i>
                                 Vision
                             </h4>
-                            <p class="text-purple-800 leading-relaxed">{{ $parametres->vision }}</p>
+                            <p class="text-purple-800 leading-relaxed"><?php echo e($parametres->vision); ?></p>
                         </div>
-                    @endif
+                    <?php endif; ?>
                 </div>
             </div>
 
@@ -158,21 +157,21 @@
                                 </div>
                                 <div>
                                     <p class="text-sm text-slate-500">Téléphone principal</p>
-                                    <p class="font-medium text-slate-900">{{ $parametres->telephone_1 }}</p>
+                                    <p class="font-medium text-slate-900"><?php echo e($parametres->telephone_1); ?></p>
                                 </div>
                             </div>
 
-                            @if($parametres->telephone_2)
+                            <?php if($parametres->telephone_2): ?>
                                 <div class="flex items-center space-x-3">
                                     <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
                                         <i class="fas fa-phone-alt text-blue-600"></i>
                                     </div>
                                     <div>
                                         <p class="text-sm text-slate-500">Téléphone secondaire</p>
-                                        <p class="font-medium text-slate-900">{{ $parametres->telephone_2 }}</p>
+                                        <p class="font-medium text-slate-900"><?php echo e($parametres->telephone_2); ?></p>
                                     </div>
                                 </div>
-                            @endif
+                            <?php endif; ?>
                         </div>
 
                         <div class="space-y-4">
@@ -182,21 +181,21 @@
                                 </div>
                                 <div>
                                     <p class="text-sm text-slate-500">Email principal</p>
-                                    <p class="font-medium text-slate-900">{{ $parametres->email_principal }}</p>
+                                    <p class="font-medium text-slate-900"><?php echo e($parametres->email_principal); ?></p>
                                 </div>
                             </div>
 
-                            @if($parametres->email_secondaire)
+                            <?php if($parametres->email_secondaire): ?>
                                 <div class="flex items-center space-x-3">
                                     <div class="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center">
                                         <i class="fas fa-envelope-open text-indigo-600"></i>
                                     </div>
                                     <div>
                                         <p class="text-sm text-slate-500">Email secondaire</p>
-                                        <p class="font-medium text-slate-900">{{ $parametres->email_secondaire }}</p>
+                                        <p class="font-medium text-slate-900"><?php echo e($parametres->email_secondaire); ?></p>
                                     </div>
                                 </div>
-                            @endif
+                            <?php endif; ?>
                         </div>
                     </div>
 
@@ -205,7 +204,7 @@
                             <i class="fas fa-map-marker-alt text-red-600 mr-2"></i>
                             Adresse
                         </h4>
-                        <p class="text-slate-700">{{ $parametres->getAdresseComplete() }}</p>
+                        <p class="text-slate-700"><?php echo e($parametres->getAdresseComplete()); ?></p>
                     </div>
                 </div>
             </div>
@@ -217,123 +216,125 @@
                         <i class="fas fa-calendar-alt text-amber-600 mr-2"></i>
                         Programmes de l'Église
                         <span class="ml-auto text-sm font-normal text-slate-500">
-                            {{ count($parametres->getProgrammes()) }} programme(s)
+                            <?php echo e(count($parametres->getProgrammes())); ?> programme(s)
                         </span>
                     </h2>
                 </div>
                 <div class="p-6">
-                    @if($parametres->getProgrammes() && count($parametres->getProgrammes()) > 0)
+                    <?php if($parametres->getProgrammes() && count($parametres->getProgrammes()) > 0): ?>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            @foreach($parametres->getProgrammes() as $programme)
-                                <div class="p-4 bg-slate-50 rounded-xl border {{ ($programme['est_public'] ?? true) ? 'border-green-200' : 'border-orange-200' }}">
+                            <?php $__currentLoopData = $parametres->getProgrammes(); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $programme): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                <div class="p-4 bg-slate-50 rounded-xl border <?php echo e(($programme['est_public'] ?? true) ? 'border-green-200' : 'border-orange-200'); ?>">
                                     <div class="flex items-start space-x-3">
                                         <div class="w-12 h-12 bg-gradient-to-r from-amber-100 to-orange-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                                            <i class="{{ $programme['icone'] ?? 'fas fa-calendar' }} text-amber-600"></i>
+                                            <i class="<?php echo e($programme['icone'] ?? 'fas fa-calendar'); ?> text-amber-600"></i>
                                         </div>
                                         <div class="flex-1 min-w-0">
                                             <div class="flex items-start justify-between">
-                                                <h4 class="font-semibold text-slate-900 truncate">{{ $programme['titre'] ?? 'Programme sans titre' }}</h4>
+                                                <h4 class="font-semibold text-slate-900 truncate"><?php echo e($programme['titre'] ?? 'Programme sans titre'); ?></h4>
                                                 <div class="flex items-center space-x-1 ml-2">
-                                                    @if($programme['est_public'] ?? true)
+                                                    <?php if($programme['est_public'] ?? true): ?>
                                                         <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
                                                             <i class="fas fa-eye mr-1"></i> Public
                                                         </span>
-                                                    @else
+                                                    <?php else: ?>
                                                         <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
                                                             <i class="fas fa-lock mr-1"></i> Privé
                                                         </span>
-                                                    @endif
+                                                    <?php endif; ?>
 
-                                                    @if(!($programme['est_actif'] ?? true))
+                                                    <?php if(!($programme['est_actif'] ?? true)): ?>
                                                         <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
                                                             <i class="fas fa-pause mr-1"></i> Inactif
                                                         </span>
-                                                    @endif
+                                                    <?php endif; ?>
                                                 </div>
                                             </div>
 
-                                            @if($programme['description'] ?? '')
-                                                <p class="text-sm text-slate-600 mt-1 line-clamp-2">{{ Str::limit($programme['description'], 100) }}</p>
-                                            @endif
+                                            <?php if($programme['description'] ?? ''): ?>
+                                                <p class="text-sm text-slate-600 mt-1 line-clamp-2"><?php echo e(Str::limit($programme['description'], 100)); ?></p>
+                                            <?php endif; ?>
 
                                             <div class="mt-3 space-y-2">
                                                 <div class="flex items-center text-sm text-slate-700">
                                                     <i class="fas fa-tag text-slate-400 mr-2 w-4"></i>
-                                                    <span class="capitalize">{{ str_replace('_', ' ', $programme['type_horaire'] ?? 'regulier') }}</span>
+                                                    <span class="capitalize"><?php echo e(str_replace('_', ' ', $programme['type_horaire'] ?? 'regulier')); ?></span>
                                                 </div>
 
-                                                @if($programme['horaire_texte'] ?? '')
+                                                <?php if($programme['horaire_texte'] ?? ''): ?>
                                                     <div class="flex items-center text-sm text-slate-700">
                                                         <i class="fas fa-clock text-slate-400 mr-2 w-4"></i>
-                                                        <span>{{ $programme['horaire_texte'] }}</span>
+                                                        <span><?php echo e($programme['horaire_texte']); ?></span>
                                                     </div>
-                                                @endif
+                                                <?php endif; ?>
 
-                                                @if(($programme['jour'] ?? '') && ($programme['heure_debut'] ?? ''))
+                                                <?php if(($programme['jour'] ?? '') && ($programme['heure_debut'] ?? '')): ?>
                                                     <div class="flex items-center text-sm text-slate-700">
                                                         <i class="fas fa-calendar-day text-slate-400 mr-2 w-4"></i>
-                                                        <span>{{ $programme['jour'] }} à {{ $programme['heure_debut'] }}
-                                                            @if($programme['heure_fin'] ?? '')
-                                                                - {{ $programme['heure_fin'] }}
-                                                            @endif
+                                                        <span><?php echo e($programme['jour']); ?> à <?php echo e($programme['heure_debut']); ?>
+
+                                                            <?php if($programme['heure_fin'] ?? ''): ?>
+                                                                - <?php echo e($programme['heure_fin']); ?>
+
+                                                            <?php endif; ?>
                                                         </span>
                                                     </div>
-                                                @endif
+                                                <?php endif; ?>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
-                            @endforeach
+                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                         </div>
 
                         <!-- Statistiques des programmes -->
                         <div class="mt-6 pt-4 border-t border-slate-200">
                             <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
                                 <div class="p-3 bg-blue-50 rounded-lg">
-                                    <div class="text-lg font-bold text-blue-900">{{ count($parametres->getProgrammesPublics()) }}</div>
+                                    <div class="text-lg font-bold text-blue-900"><?php echo e(count($parametres->getProgrammesPublics())); ?></div>
                                     <div class="text-xs text-blue-700">Publics</div>
                                 </div>
                                 <div class="p-3 bg-green-50 rounded-lg">
-                                    <div class="text-lg font-bold text-green-900">{{ collect($parametres->getProgrammes())->where('est_actif', true)->count() }}</div>
+                                    <div class="text-lg font-bold text-green-900"><?php echo e(collect($parametres->getProgrammes())->where('est_actif', true)->count()); ?></div>
                                     <div class="text-xs text-green-700">Actifs</div>
                                 </div>
                                 <div class="p-3 bg-purple-50 rounded-lg">
-                                    <div class="text-lg font-bold text-purple-900">{{ collect($parametres->getProgrammes())->where('type_horaire', 'regulier')->count() }}</div>
+                                    <div class="text-lg font-bold text-purple-900"><?php echo e(collect($parametres->getProgrammes())->where('type_horaire', 'regulier')->count()); ?></div>
                                     <div class="text-xs text-purple-700">Réguliers</div>
                                 </div>
                                 <div class="p-3 bg-amber-50 rounded-lg">
-                                    <div class="text-lg font-bold text-amber-900">{{ collect($parametres->getProgrammes())->whereIn('type_horaire', ['sur_rendez_vous', 'permanent'])->count() }}</div>
+                                    <div class="text-lg font-bold text-amber-900"><?php echo e(collect($parametres->getProgrammes())->whereIn('type_horaire', ['sur_rendez_vous', 'permanent'])->count()); ?></div>
                                     <div class="text-xs text-amber-700">Spéciaux</div>
                                 </div>
                             </div>
                         </div>
-                    @else
+                    <?php else: ?>
                         <div class="text-center py-12">
                             <div class="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
                                 <i class="fas fa-calendar-alt text-2xl text-slate-400"></i>
                             </div>
                             <h3 class="text-lg font-medium text-slate-900 mb-2">Aucun programme configuré</h3>
                             <p class="text-slate-500 mb-4">Ajoutez des programmes pour organiser les activités de votre église.</p>
-                            @can('parametres.update')
-                                <a href="{{ route('private.parametres.edit') }}#programmes" class="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-xl hover:bg-blue-700 transition-colors">
+                            <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('parametres.update')): ?>
+                                <a href="<?php echo e(route('private.parametres.edit')); ?>#programmes" class="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-xl hover:bg-blue-700 transition-colors">
                                     <i class="fas fa-plus mr-2"></i> Ajouter des programmes
                                 </a>
-                            @endcan
+                            <?php endif; ?>
                         </div>
-                    @endif
+                    <?php endif; ?>
                 </div>
             </div>
 
            <!-- Carrousel Hero (Slides Page d'Accueil) -->
 
-@if($parametres->images_hero && count($parametres->images_hero) > 0)
+<?php if($parametres->images_hero && count($parametres->images_hero) > 0): ?>
     <div class="bg-white/80 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
         <div class="p-6 border-b border-slate-200">
             <h2 class="text-xl font-bold text-slate-800 flex items-center">
                 <i class="fas fa-sliders-h text-purple-600 mr-2"></i>
                 Carrousel Hero (Page d'Accueil)
                 <span class="ml-auto text-sm font-normal text-slate-500">
-                    {{ count($parametres->images_hero) }} slide(s)
+                    <?php echo e(count($parametres->images_hero)); ?> slide(s)
                 </span>
             </h2>
         </div>
@@ -341,23 +342,23 @@
             <!-- Statistiques rapides -->
             <div class="grid grid-cols-3 gap-4 mb-6">
                 <div class="p-3 bg-purple-50 rounded-lg text-center">
-                    <div class="text-2xl font-bold text-purple-900">{{ count($parametres->images_hero) }}</div>
+                    <div class="text-2xl font-bold text-purple-900"><?php echo e(count($parametres->images_hero)); ?></div>
                     <div class="text-xs text-purple-700">Total slides</div>
                 </div>
                 <div class="p-3 bg-green-50 rounded-lg text-center">
-                    <div class="text-2xl font-bold text-green-900">{{ collect($parametres->images_hero)->where('active', true)->count() }}</div>
+                    <div class="text-2xl font-bold text-green-900"><?php echo e(collect($parametres->images_hero)->where('active', true)->count()); ?></div>
                     <div class="text-xs text-green-700">Actifs</div>
                 </div>
                 <div class="p-3 bg-slate-50 rounded-lg text-center">
-                    <div class="text-2xl font-bold text-slate-900">{{ collect($parametres->images_hero)->where('active', false)->count() }}</div>
+                    <div class="text-2xl font-bold text-slate-900"><?php echo e(collect($parametres->images_hero)->where('active', false)->count()); ?></div>
                     <div class="text-xs text-slate-700">Inactifs</div>
                 </div>
             </div>
 
             <!-- Liste des slides -->
             <div class="space-y-4">
-                @foreach(collect($parametres->images_hero)->sortBy('ordre') as $slide)
-                    <div class="bg-gradient-to-r from-slate-50 to-purple-50 rounded-xl border-2 {{ $slide['active'] ? 'border-purple-200' : 'border-gray-300' }} p-4 hover:shadow-md transition-all">
+                <?php $__currentLoopData = collect($parametres->images_hero)->sortBy('ordre'); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $slide): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                    <div class="bg-gradient-to-r from-slate-50 to-purple-50 rounded-xl border-2 <?php echo e($slide['active'] ? 'border-purple-200' : 'border-gray-300'); ?> p-4 hover:shadow-md transition-all">
                         <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
                             <!-- Aperçu de l'image (ratio 16:9) -->
                             <div class="lg:col-span-4">
@@ -365,16 +366,17 @@
                                     <!-- Badge ordre -->
                                     <div class="absolute -top-2 -left-2 z-10">
                                         <span class="inline-flex items-center px-3 py-1 bg-purple-600 text-white text-sm font-bold rounded-full shadow-lg">
-                                            <i class="fas fa-layer-group mr-1"></i>#{{ $slide['ordre'] }}
+                                            <i class="fas fa-layer-group mr-1"></i>#<?php echo e($slide['ordre']); ?>
+
                                         </span>
                                     </div>
 
                                     <!-- Image avec ratio 16:9 -->
-                                    <div class="aspect-video relative rounded-lg overflow-hidden shadow-lg border-2 {{ $slide['active'] ? 'border-purple-300' : 'border-gray-400' }}">
-                                        <img src="{{ asset('storage/' . $slide['url']) }}"
-                                             alt="{{ $slide['titre'] }}"
+                                    <div class="aspect-video relative rounded-lg overflow-hidden shadow-lg border-2 <?php echo e($slide['active'] ? 'border-purple-300' : 'border-gray-400'); ?>">
+                                        <img src="<?php echo e(asset('storage/' . $slide['url'])); ?>"
+                                             alt="<?php echo e($slide['titre']); ?>"
                                              class="w-full h-full object-cover cursor-pointer hover:scale-105 transition-transform duration-300"
-                                             onclick="openImageModal('{{ asset('storage/' . $slide['url']) }}')">
+                                             onclick="openImageModal('<?php echo e(asset('storage/' . $slide['url'])); ?>')">
 
                                         <!-- Overlay avec gradient -->
                                         <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent opacity-0 hover:opacity-100 transition-opacity">
@@ -387,9 +389,10 @@
 
                                         <!-- Badge statut -->
                                         <div class="absolute top-2 right-2">
-                                            <span class="inline-flex items-center px-2 py-1 text-xs font-bold rounded-full shadow-lg {{ $slide['active'] ? 'bg-green-500 text-white' : 'bg-gray-600 text-white' }}">
-                                                <i class="fas fa-{{ $slide['active'] ? 'eye' : 'eye-slash' }} mr-1"></i>
-                                                {{ $slide['active'] ? 'Visible' : 'Masqué' }}
+                                            <span class="inline-flex items-center px-2 py-1 text-xs font-bold rounded-full shadow-lg <?php echo e($slide['active'] ? 'bg-green-500 text-white' : 'bg-gray-600 text-white'); ?>">
+                                                <i class="fas fa-<?php echo e($slide['active'] ? 'eye' : 'eye-slash'); ?> mr-1"></i>
+                                                <?php echo e($slide['active'] ? 'Visible' : 'Masqué'); ?>
+
                                             </span>
                                         </div>
 
@@ -411,20 +414,22 @@
                                         <div class="flex items-start justify-between mb-1">
                                             <h4 class="text-lg font-bold text-slate-900 flex items-center">
                                                 <i class="fas fa-heading text-purple-600 mr-2"></i>
-                                                {{ $slide['titre'] }}
+                                                <?php echo e($slide['titre']); ?>
+
                                             </h4>
                                         </div>
 
-                                        @if(!empty($slide['description']))
+                                        <?php if(!empty($slide['description'])): ?>
                                             <p class="text-sm text-slate-600 leading-relaxed mt-2 pl-6">
                                                 <i class="fas fa-quote-left text-slate-400 mr-1"></i>
-                                                {{ $slide['description'] }}
+                                                <?php echo e($slide['description']); ?>
+
                                             </p>
-                                        @else
+                                        <?php else: ?>
                                             <p class="text-sm text-slate-400 italic pl-6">
                                                 Aucune description
                                             </p>
-                                        @endif
+                                        <?php endif; ?>
                                     </div>
 
                                     <!-- Métadonnées -->
@@ -435,18 +440,19 @@
                                             </div>
                                             <div>
                                                 <p class="text-xs text-slate-500">Position</p>
-                                                <p class="font-semibold text-slate-900">Slide {{ $slide['ordre'] }}</p>
+                                                <p class="font-semibold text-slate-900">Slide <?php echo e($slide['ordre']); ?></p>
                                             </div>
                                         </div>
 
                                         <div class="flex items-center space-x-2 text-sm">
-                                            <div class="w-8 h-8 {{ $slide['active'] ? 'bg-green-100' : 'bg-gray-100' }} rounded-lg flex items-center justify-center">
-                                                <i class="fas fa-{{ $slide['active'] ? 'toggle-on' : 'toggle-off' }} {{ $slide['active'] ? 'text-green-600' : 'text-gray-600' }}"></i>
+                                            <div class="w-8 h-8 <?php echo e($slide['active'] ? 'bg-green-100' : 'bg-gray-100'); ?> rounded-lg flex items-center justify-center">
+                                                <i class="fas fa-<?php echo e($slide['active'] ? 'toggle-on' : 'toggle-off'); ?> <?php echo e($slide['active'] ? 'text-green-600' : 'text-gray-600'); ?>"></i>
                                             </div>
                                             <div>
                                                 <p class="text-xs text-slate-500">Statut</p>
-                                                <p class="font-semibold {{ $slide['active'] ? 'text-green-700' : 'text-gray-700' }}">
-                                                    {{ $slide['active'] ? 'Actif' : 'Inactif' }}
+                                                <p class="font-semibold <?php echo e($slide['active'] ? 'text-green-700' : 'text-gray-700'); ?>">
+                                                    <?php echo e($slide['active'] ? 'Actif' : 'Inactif'); ?>
+
                                                 </p>
                                             </div>
                                         </div>
@@ -465,32 +471,32 @@
                                     <!-- Actions rapides -->
                                     <div class="flex items-center space-x-2 pt-2 border-t border-slate-200 pl-6">
                                         <button type="button"
-                                                onclick="openImageModal('{{ asset('storage/' . $slide['url']) }}')"
+                                                onclick="openImageModal('<?php echo e(asset('storage/' . $slide['url'])); ?>')"
                                                 class="inline-flex items-center px-3 py-1.5 bg-blue-100 text-blue-700 text-xs font-medium rounded-lg hover:bg-blue-200 transition-colors">
                                             <i class="fas fa-search-plus mr-1"></i> Prévisualiser
                                         </button>
 
                                         <button type="button"
-                                                onclick="downloadSlideImage('{{ asset('storage/' . $slide['url']) }}', '{{ $slide['titre'] }}')"
+                                                onclick="downloadSlideImage('<?php echo e(asset('storage/' . $slide['url'])); ?>', '<?php echo e($slide['titre']); ?>')"
                                                 class="inline-flex items-center px-3 py-1.5 bg-green-100 text-green-700 text-xs font-medium rounded-lg hover:bg-green-200 transition-colors">
                                             <i class="fas fa-download mr-1"></i> Télécharger
                                         </button>
 
-                                        @if(!empty($slide['description']))
+                                        <?php if(!empty($slide['description'])): ?>
                                             <span class="inline-flex items-center px-3 py-1.5 bg-purple-100 text-purple-700 text-xs font-medium rounded-lg">
                                                 <i class="fas fa-align-left mr-1"></i> Avec texte
                                             </span>
-                                        @endif
+                                        <?php endif; ?>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                @endforeach
+                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
             </div>
 
             <!-- Message si aucune image active -->
-            @if(collect($parametres->images_hero)->where('active', true)->count() === 0)
+            <?php if(collect($parametres->images_hero)->where('active', true)->count() === 0): ?>
                 <div class="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
                     <div class="flex items-start space-x-3">
                         <i class="fas fa-exclamation-triangle text-yellow-600 mt-1"></i>
@@ -502,7 +508,7 @@
                         </div>
                     </div>
                 </div>
-            @endif
+            <?php endif; ?>
 
             <!-- Recommandations -->
             <div class="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
@@ -510,7 +516,7 @@
                     <i class="fas fa-lightbulb mr-1"></i> Conseils pour un carrousel optimal
                 </h5>
                 <ul class="text-xs text-blue-800 space-y-1">
-                    <li>✓ <strong>3-5 slides</strong> pour un bon équilibre (actuellement : {{ count($parametres->images_hero) }})</li>
+                    <li>✓ <strong>3-5 slides</strong> pour un bon équilibre (actuellement : <?php echo e(count($parametres->images_hero)); ?>)</li>
                     <li>✓ <strong>Format 16:9</strong> (1920x1080px recommandé) pour tous les écrans</li>
                     <li>✓ <strong>Poids optimisé</strong> : 500KB-1MB par image pour un chargement rapide</li>
                     <li>✓ <strong>Textes courts</strong> : titres percutants et descriptions concises</li>
@@ -519,7 +525,7 @@
             </div>
         </div>
     </div>
-@endif
+<?php endif; ?>
         </div>
 
         <!-- Sidebar -->
@@ -535,23 +541,23 @@
                 <div class="p-6 space-y-4">
                     <div class="flex items-center justify-between">
                         <span class="text-sm font-medium text-slate-700">Membres:</span>
-                        <span class="text-lg font-bold text-slate-900">{{ number_format($parametres->nombre_membres ?: 0) }}</span>
+                        <span class="text-lg font-bold text-slate-900"><?php echo e(number_format($parametres->nombre_membres ?: 0)); ?></span>
                     </div>
                     <div class="flex items-center justify-between">
                         <span class="text-sm font-medium text-slate-700">Fondation:</span>
-                        <span class="text-lg font-bold text-slate-900">{{ $parametres->date_fondation ? $parametres->date_fondation->format('Y') : 'N/A' }}</span>
+                        <span class="text-lg font-bold text-slate-900"><?php echo e($parametres->date_fondation ? $parametres->date_fondation->format('Y') : 'N/A'); ?></span>
                     </div>
                     <div class="flex items-center justify-between">
                         <span class="text-sm font-medium text-slate-700">Années:</span>
-                        <span class="text-lg font-bold text-slate-900">{{ $parametres->date_fondation ? $parametres->date_fondation->diffInYears() : '0' }}</span>
+                        <span class="text-lg font-bold text-slate-900"><?php echo e($parametres->date_fondation ? $parametres->date_fondation->diffInYears() : '0'); ?></span>
                     </div>
                     <div class="flex items-center justify-between">
                         <span class="text-sm font-medium text-slate-700">Programmes:</span>
-                        <span class="text-lg font-bold text-slate-900">{{ count($parametres->getProgrammes()) }}</span>
+                        <span class="text-lg font-bold text-slate-900"><?php echo e(count($parametres->getProgrammes())); ?></span>
                     </div>
                     <div class="flex items-center justify-between">
                         <span class="text-sm font-medium text-slate-700">Pays:</span>
-                        <span class="text-lg font-bold text-slate-900">{{ $parametres->pays }}</span>
+                        <span class="text-lg font-bold text-slate-900"><?php echo e($parametres->pays); ?></span>
                     </div>
                 </div>
             </div>
@@ -565,54 +571,54 @@
                     </h2>
                 </div>
                 <div class="p-6 space-y-3">
-                    @if($parametres->facebook_url)
-                        <a href="{{ $parametres->facebook_url }}" target="_blank" class="flex items-center space-x-3 p-3 bg-blue-50 rounded-xl hover:bg-blue-100 transition-colors">
+                    <?php if($parametres->facebook_url): ?>
+                        <a href="<?php echo e($parametres->facebook_url); ?>" target="_blank" class="flex items-center space-x-3 p-3 bg-blue-50 rounded-xl hover:bg-blue-100 transition-colors">
                             <i class="fab fa-facebook text-blue-600 text-xl"></i>
                             <span class="text-blue-800 font-medium">Facebook</span>
                             <i class="fas fa-external-link-alt text-blue-500 text-sm ml-auto"></i>
                         </a>
-                    @endif
+                    <?php endif; ?>
 
-                    @if($parametres->instagram_url)
-                        <a href="{{ $parametres->instagram_url }}" target="_blank" class="flex items-center space-x-3 p-3 bg-pink-50 rounded-xl hover:bg-pink-100 transition-colors">
+                    <?php if($parametres->instagram_url): ?>
+                        <a href="<?php echo e($parametres->instagram_url); ?>" target="_blank" class="flex items-center space-x-3 p-3 bg-pink-50 rounded-xl hover:bg-pink-100 transition-colors">
                             <i class="fab fa-instagram text-pink-600 text-xl"></i>
                             <span class="text-pink-800 font-medium">Instagram</span>
                             <i class="fas fa-external-link-alt text-pink-500 text-sm ml-auto"></i>
                         </a>
-                    @endif
+                    <?php endif; ?>
 
-                    @if($parametres->youtube_url)
-                        <a href="{{ $parametres->youtube_url }}" target="_blank" class="flex items-center space-x-3 p-3 bg-red-50 rounded-xl hover:bg-red-100 transition-colors">
+                    <?php if($parametres->youtube_url): ?>
+                        <a href="<?php echo e($parametres->youtube_url); ?>" target="_blank" class="flex items-center space-x-3 p-3 bg-red-50 rounded-xl hover:bg-red-100 transition-colors">
                             <i class="fab fa-youtube text-red-600 text-xl"></i>
                             <span class="text-red-800 font-medium">YouTube</span>
                             <i class="fas fa-external-link-alt text-red-500 text-sm ml-auto"></i>
                         </a>
-                    @endif
+                    <?php endif; ?>
 
-                    @if($parametres->twitter_url)
-                        <a href="{{ $parametres->twitter_url }}" target="_blank" class="flex items-center space-x-3 p-3 bg-sky-50 rounded-xl hover:bg-sky-100 transition-colors">
+                    <?php if($parametres->twitter_url): ?>
+                        <a href="<?php echo e($parametres->twitter_url); ?>" target="_blank" class="flex items-center space-x-3 p-3 bg-sky-50 rounded-xl hover:bg-sky-100 transition-colors">
                             <i class="fab fa-twitter text-sky-600 text-xl"></i>
                             <span class="text-sky-800 font-medium">Twitter</span>
                             <i class="fas fa-external-link-alt text-sky-500 text-sm ml-auto"></i>
                         </a>
-                    @endif
+                    <?php endif; ?>
 
-                    @if($parametres->website_url)
-                        <a href="{{ $parametres->website_url }}" target="_blank" class="flex items-center space-x-3 p-3 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors">
+                    <?php if($parametres->website_url): ?>
+                        <a href="<?php echo e($parametres->website_url); ?>" target="_blank" class="flex items-center space-x-3 p-3 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors">
                             <i class="fas fa-globe text-gray-600 text-xl"></i>
                             <span class="text-gray-800 font-medium">Site Web</span>
                             <i class="fas fa-external-link-alt text-gray-500 text-sm ml-auto"></i>
                         </a>
-                    @endif
+                    <?php endif; ?>
 
-                    @if(!$parametres->facebook_url && !$parametres->instagram_url && !$parametres->youtube_url && !$parametres->twitter_url && !$parametres->website_url)
+                    <?php if(!$parametres->facebook_url && !$parametres->instagram_url && !$parametres->youtube_url && !$parametres->twitter_url && !$parametres->website_url): ?>
                         <div class="text-center py-8">
                             <div class="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-3">
                                 <i class="fas fa-share-alt text-2xl text-slate-400"></i>
                             </div>
                             <p class="text-slate-500">Aucun réseau social configuré</p>
                         </div>
-                    @endif
+                    <?php endif; ?>
                 </div>
             </div>
 
@@ -625,45 +631,45 @@
                     </h2>
                 </div>
                 <div class="p-6">
-                    @php
+                    <?php
                         $programmesReguliers = collect($parametres->getProgrammesPublics())->where('type_horaire', 'regulier')->sortBy('ordre');
-                    @endphp
+                    ?>
 
-                    @if($programmesReguliers->count() > 0)
+                    <?php if($programmesReguliers->count() > 0): ?>
                         <div class="space-y-3">
-                            @foreach($programmesReguliers->take(5) as $programme)
+                            <?php $__currentLoopData = $programmesReguliers->take(5); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $programme): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                 <div class="flex items-center justify-between p-3 bg-slate-50 rounded-xl">
                                     <div class="flex items-center space-x-3">
                                         <div class="w-8 h-8 bg-amber-100 rounded-lg flex items-center justify-center">
-                                            <i class="{{ $programme['icone'] ?? 'fas fa-calendar' }} text-amber-600 text-sm"></i>
+                                            <i class="<?php echo e($programme['icone'] ?? 'fas fa-calendar'); ?> text-amber-600 text-sm"></i>
                                         </div>
                                         <div>
-                                            <p class="font-medium text-slate-900 text-sm">{{ Str::limit($programme['titre'], 20) }}</p>
-                                            <p class="text-xs text-slate-500">{{ $programme['jour'] ?? 'N/A' }}</p>
+                                            <p class="font-medium text-slate-900 text-sm"><?php echo e(Str::limit($programme['titre'], 20)); ?></p>
+                                            <p class="text-xs text-slate-500"><?php echo e($programme['jour'] ?? 'N/A'); ?></p>
                                         </div>
                                     </div>
                                     <div class="text-right">
-                                        <p class="font-medium text-slate-900 text-sm">{{ $programme['heure_debut'] ?? '' }}</p>
+                                        <p class="font-medium text-slate-900 text-sm"><?php echo e($programme['heure_debut'] ?? ''); ?></p>
                                     </div>
                                 </div>
-                            @endforeach
+                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                         </div>
 
-                        @if($programmesReguliers->count() > 5)
+                        <?php if($programmesReguliers->count() > 5): ?>
                             <div class="mt-4 text-center">
                                 <p class="text-sm text-slate-500">
-                                    et {{ $programmesReguliers->count() - 5 }} autre(s) programme(s)
+                                    et <?php echo e($programmesReguliers->count() - 5); ?> autre(s) programme(s)
                                 </p>
                             </div>
-                        @endif
-                    @else
+                        <?php endif; ?>
+                    <?php else: ?>
                         <div class="text-center py-6">
                             <div class="w-12 h-12 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-3">
                                 <i class="fas fa-calendar-week text-xl text-slate-400"></i>
                             </div>
                             <p class="text-slate-500 text-sm">Aucun programme régulier</p>
                         </div>
-                    @endif
+                    <?php endif; ?>
                 </div>
             </div>
 
@@ -680,7 +686,7 @@
                         <div class="p-3 bg-slate-50 rounded-xl">
                             <div class="flex items-center justify-between">
                                 <span class="text-sm font-medium text-slate-700">Devise</span>
-                                <span class="text-sm font-bold text-slate-900">{{ $parametres->devise }}</span>
+                                <span class="text-sm font-bold text-slate-900"><?php echo e($parametres->devise); ?></span>
                             </div>
                         </div>
 
@@ -688,12 +694,13 @@
                             <div class="flex items-center justify-between">
                                 <span class="text-sm font-medium text-slate-700">Langue</span>
                                 <span class="text-sm font-bold text-slate-900">
-                                    @switch($parametres->langue)
-                                        @case('fr') Français @break
-                                        @case('en') English @break
-                                        @case('es') Español @break
-                                        @default {{ ucfirst($parametres->langue) }}
-                                    @endswitch
+                                    <?php switch($parametres->langue):
+                                        case ('fr'): ?> Français <?php break; ?>
+                                        <?php case ('en'): ?> English <?php break; ?>
+                                        <?php case ('es'): ?> Español <?php break; ?>
+                                        <?php default: ?> <?php echo e(ucfirst($parametres->langue)); ?>
+
+                                    <?php endswitch; ?>
                                 </span>
                             </div>
                         </div>
@@ -701,7 +708,7 @@
                         <div class="p-3 bg-slate-50 rounded-xl">
                             <div class="flex items-center justify-between">
                                 <span class="text-sm font-medium text-slate-700">Fuseau horaire</span>
-                                <span class="text-sm font-bold text-slate-900">{{ $parametres->fuseau_horaire }}</span>
+                                <span class="text-sm font-bold text-slate-900"><?php echo e($parametres->fuseau_horaire); ?></span>
                             </div>
                         </div>
                     </div>
@@ -709,12 +716,12 @@
                     <div class="pt-4 border-t border-slate-200 space-y-3">
                         <div class="flex items-center justify-between">
                             <span class="text-xs text-slate-500">Créé le</span>
-                            <span class="text-xs text-slate-600">{{ $parametres->created_at->format('d/m/Y à H:i') }}</span>
+                            <span class="text-xs text-slate-600"><?php echo e($parametres->created_at->format('d/m/Y à H:i')); ?></span>
                         </div>
 
                         <div class="flex items-center justify-between">
                             <span class="text-xs text-slate-500">Modifié le</span>
-                            <span class="text-xs text-slate-600">{{ $parametres->updated_at->format('d/m/Y à H:i') }}</span>
+                            <span class="text-xs text-slate-600"><?php echo e($parametres->updated_at->format('d/m/Y à H:i')); ?></span>
                         </div>
 
                         <div class="flex items-center justify-between">
@@ -736,12 +743,12 @@
                     </h2>
                 </div>
                 <div class="p-6 space-y-3">
-                    @can('parametres.update')
-                        <a href="{{ route('private.parametres.edit') }}" class="flex items-center space-x-3 p-3 bg-blue-50 rounded-xl hover:bg-blue-100 transition-colors">
+                    <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('parametres.update')): ?>
+                        <a href="<?php echo e(route('private.parametres.edit')); ?>" class="flex items-center space-x-3 p-3 bg-blue-50 rounded-xl hover:bg-blue-100 transition-colors">
                             <i class="fas fa-edit text-blue-600"></i>
                             <span class="text-blue-800 font-medium">Modifier les paramètres</span>
                         </a>
-                    @endcan
+                    <?php endif; ?>
 
                     <button type="button" onclick="shareParametres()" class="w-full flex items-center space-x-3 p-3 bg-green-50 rounded-xl hover:bg-green-100 transition-colors">
                         <i class="fas fa-share text-green-600"></i>
@@ -789,7 +796,7 @@
                         <i class="fas fa-qrcode text-indigo-600 mr-2"></i>
                         QR Code - Informations Église
                     </h3>
-                    <p class="text-sm text-slate-600 mt-1">{{ $parametres->nom_eglise }}</p>
+                    <p class="text-sm text-slate-600 mt-1"><?php echo e($parametres->nom_eglise); ?></p>
                 </div>
                 <button type="button" onclick="closeQRModal()" class="text-slate-400 hover:text-slate-600 transition-colors">
                     <i class="fas fa-times text-xl"></i>
@@ -836,26 +843,26 @@
                     <div class="space-y-2 text-sm text-slate-700">
                         <div class="flex items-center space-x-2">
                             <i class="fas fa-church text-indigo-500 w-4"></i>
-                            <span>{{ $parametres->nom_eglise }}</span>
+                            <span><?php echo e($parametres->nom_eglise); ?></span>
                         </div>
                         <div class="flex items-center space-x-2">
                             <i class="fas fa-phone text-green-500 w-4"></i>
-                            <span>{{ $parametres->telephone_1 }}</span>
+                            <span><?php echo e($parametres->telephone_1); ?></span>
                         </div>
                         <div class="flex items-center space-x-2">
                             <i class="fas fa-envelope text-blue-500 w-4"></i>
-                            <span>{{ $parametres->email_principal }}</span>
+                            <span><?php echo e($parametres->email_principal); ?></span>
                         </div>
                         <div class="flex items-center space-x-2">
                             <i class="fas fa-map-marker-alt text-red-500 w-4"></i>
-                            <span>{{ $parametres->getAdresseComplete() }}</span>
+                            <span><?php echo e($parametres->getAdresseComplete()); ?></span>
                         </div>
-                        @if($parametres->website_url)
+                        <?php if($parametres->website_url): ?>
                         <div class="flex items-center space-x-2">
                             <i class="fas fa-globe text-purple-500 w-4"></i>
-                            <span>{{ $parametres->website_url }}</span>
+                            <span><?php echo e($parametres->website_url); ?></span>
                         </div>
-                        @endif
+                        <?php endif; ?>
                     </div>
                 </div>
             </div>
@@ -937,22 +944,22 @@ function generateQRCode() {
     document.getElementById('qrModal').classList.remove('hidden');
 
     const churchInfo = {
-        nom: "{{ $parametres->nom_eglise }}",
-        telephone: "{{ $parametres->telephone_1 }}",
-        email: "{{ $parametres->email_principal }}",
-        adresse: "{{ $parametres->getAdresseComplete() }}",
-        @if($parametres->website_url)
-        website: "{{ $parametres->website_url }}"
-        @endif
+        nom: "<?php echo e($parametres->nom_eglise); ?>",
+        telephone: "<?php echo e($parametres->telephone_1); ?>",
+        email: "<?php echo e($parametres->email_principal); ?>",
+        adresse: "<?php echo e($parametres->getAdresseComplete()); ?>",
+        <?php if($parametres->website_url): ?>
+        website: "<?php echo e($parametres->website_url); ?>"
+        <?php endif; ?>
     };
 
     let qrText = `${churchInfo.nom}\n`;
     qrText += `📞 ${churchInfo.telephone}\n`;
     qrText += `📧 ${churchInfo.email}\n`;
     qrText += `📍 ${churchInfo.adresse}`;
-    @if($parametres->website_url)
+    <?php if($parametres->website_url): ?>
     qrText += `\n🌐 ${churchInfo.website}`;
-    @endif
+    <?php endif; ?>
 
     window.qrCodeData = qrText;
 
@@ -1044,7 +1051,7 @@ function downloadQRCode() {
     if (window.qrCodeCanvas) {
         try {
             const link = document.createElement('a');
-            const fileName = `qr_code_${slugify("{{ $parametres->nom_eglise }}")}_${new Date().toISOString().slice(0, 10)}.png`;
+            const fileName = `qr_code_${slugify("<?php echo e($parametres->nom_eglise); ?>")}_${new Date().toISOString().slice(0, 10)}.png`;
             link.download = fileName;
 
             const dataURL = window.qrCodeCanvas.toDataURL('image/png', 1.0);
@@ -1068,13 +1075,13 @@ function shareQRCode() {
         if (navigator.share) {
             window.qrCodeCanvas.toBlob(function(blob) {
                 if (blob) {
-                    const file = new File([blob], `qr_code_${slugify("{{ $parametres->nom_eglise }}")}.png`, {
+                    const file = new File([blob], `qr_code_${slugify("<?php echo e($parametres->nom_eglise); ?>")}.png`, {
                         type: 'image/png'
                     });
 
                     navigator.share({
-                        title: "QR Code - {{ $parametres->nom_eglise }}",
-                        text: "Informations de contact de {{ $parametres->nom_eglise }}",
+                        title: "QR Code - <?php echo e($parametres->nom_eglise); ?>",
+                        text: "Informations de contact de <?php echo e($parametres->nom_eglise); ?>",
                         files: [file]
                     }).then(() => {
                         showNotification('QR Code partagé avec succès!', 'success');
@@ -1144,7 +1151,7 @@ function printQRCode() {
                 <!DOCTYPE html>
                 <html>
                 <head>
-                    <title>QR Code - {{ $parametres->nom_eglise }}</title>
+                    <title>QR Code - <?php echo e($parametres->nom_eglise); ?></title>
                     <style>
                         body {
                             font-family: Arial, sans-serif;
@@ -1189,7 +1196,7 @@ function printQRCode() {
                 </head>
                 <body>
                     <div class="qr-container">
-                        <div class="church-name">{{ $parametres->nom_eglise }}</div>
+                        <div class="church-name"><?php echo e($parametres->nom_eglise); ?></div>
                         <div class="subtitle">Informations de contact</div>
                         <div class="qr-image">
                             <img src="${qrDataURL}" alt="QR Code" style="max-width: 100%; height: auto;">
@@ -1232,44 +1239,44 @@ function slugify(text) {
 
 function exportParametres() {
     const data = {
-        nom_eglise: "{{ $parametres->nom_eglise }}",
-        date_fondation: "{{ $parametres->date_fondation?->format('Y-m-d') }}",
-        nombre_membres: {{ $parametres->nombre_membres ?: 0 }},
+        nom_eglise: "<?php echo e($parametres->nom_eglise); ?>",
+        date_fondation: "<?php echo e($parametres->date_fondation?->format('Y-m-d')); ?>",
+        nombre_membres: <?php echo e($parametres->nombre_membres ?: 0); ?>,
         contact: {
-            telephone_1: "{{ $parametres->telephone_1 }}",
-            telephone_2: "{{ $parametres->telephone_2 }}",
-            email_principal: "{{ $parametres->email_principal }}",
-            email_secondaire: "{{ $parametres->email_secondaire }}",
-            adresse: "{{ $parametres->getAdresseComplete() }}"
+            telephone_1: "<?php echo e($parametres->telephone_1); ?>",
+            telephone_2: "<?php echo e($parametres->telephone_2); ?>",
+            email_principal: "<?php echo e($parametres->email_principal); ?>",
+            email_secondaire: "<?php echo e($parametres->email_secondaire); ?>",
+            adresse: "<?php echo e($parametres->getAdresseComplete()); ?>"
         },
         spirituel: {
-            verset_biblique: `{{ $parametres->verset_biblique }}`,
-            reference_verset: "{{ $parametres->reference_verset }}",
-            mission: `{{ $parametres->mission_statement }}`,
-            vision: `{{ $parametres->vision }}`,
-            histoire: `{{ $parametres->histoire_eglise }}`
+            verset_biblique: `<?php echo e($parametres->verset_biblique); ?>`,
+            reference_verset: "<?php echo e($parametres->reference_verset); ?>",
+            mission: `<?php echo e($parametres->mission_statement); ?>`,
+            vision: `<?php echo e($parametres->vision); ?>`,
+            histoire: `<?php echo e($parametres->histoire_eglise); ?>`
         },
         reseaux_sociaux: {
-            facebook: "{{ $parametres->facebook_url }}",
-            instagram: "{{ $parametres->instagram_url }}",
-            youtube: "{{ $parametres->youtube_url }}",
-            twitter: "{{ $parametres->twitter_url }}",
-            website: "{{ $parametres->website_url }}"
+            facebook: "<?php echo e($parametres->facebook_url); ?>",
+            instagram: "<?php echo e($parametres->instagram_url); ?>",
+            youtube: "<?php echo e($parametres->youtube_url); ?>",
+            twitter: "<?php echo e($parametres->twitter_url); ?>",
+            website: "<?php echo e($parametres->website_url); ?>"
         },
-        programmes: @json($parametres->getProgrammes()),
+        programmes: <?php echo json_encode($parametres->getProgrammes(), 15, 512) ?>,
         parametres_systeme: {
-            devise: "{{ $parametres->devise }}",
-            langue: "{{ $parametres->langue }}",
-            fuseau_horaire: "{{ $parametres->fuseau_horaire }}"
+            devise: "<?php echo e($parametres->devise); ?>",
+            langue: "<?php echo e($parametres->langue); ?>",
+            fuseau_horaire: "<?php echo e($parametres->fuseau_horaire); ?>"
         },
-        export_date: "{{ now()->format('Y-m-d H:i:s') }}"
+        export_date: "<?php echo e(now()->format('Y-m-d H:i:s')); ?>"
     };
 
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'parametres_eglise_{{ now()->format("Y-m-d") }}.json';
+    a.download = 'parametres_eglise_<?php echo e(now()->format("Y-m-d")); ?>.json';
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -1306,9 +1313,9 @@ function downloadImage() {
 function shareParametres() {
     if (navigator.share) {
         navigator.share({
-            title: "{{ $parametres->nom_eglise }}",
-            text: "Découvrez les informations de {{ $parametres->nom_eglise }}",
-            url: "{{ $parametres->website_url }}"
+            title: "<?php echo e($parametres->nom_eglise); ?>",
+            text: "Découvrez les informations de <?php echo e($parametres->nom_eglise); ?>",
+            url: "<?php echo e($parametres->website_url); ?>"
         }).catch(console.error);
     } else {
         copyToClipboard();
@@ -1316,10 +1323,13 @@ function shareParametres() {
 }
 
 function copyToClipboard() {
-    const text = `{{ $parametres->nom_eglise }}
-Contact: {{ $parametres->telephone_1 }} | {{ $parametres->email_principal }}
-Adresse: {{ $parametres->getAdresseComplete() }}
-@if($parametres->website_url)Site web: {{ $parametres->website_url }}@endif`;
+    const text = `<?php echo e($parametres->nom_eglise); ?>
+
+Contact: <?php echo e($parametres->telephone_1); ?> | <?php echo e($parametres->email_principal); ?>
+
+Adresse: <?php echo e($parametres->getAdresseComplete()); ?>
+
+<?php if($parametres->website_url): ?>Site web: <?php echo e($parametres->website_url); ?><?php endif; ?>`;
 
     navigator.clipboard.writeText(text).then(() => {
         showNotification('Informations copiées dans le presse-papier!', 'success');
@@ -1390,7 +1400,9 @@ styleSheet.textContent = printStyles;
 document.head.appendChild(styleSheet);
 </script>
 
-@endsection
+<?php $__env->stopSection(); ?>
 
 
 
+
+<?php echo $__env->make('layouts.private.main', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH C:\Users\Dell\Desktop\MICRISERVICES\methodiste_belle_ville\resources\views/components/private/parametres/show.blade.php ENDPATH**/ ?>

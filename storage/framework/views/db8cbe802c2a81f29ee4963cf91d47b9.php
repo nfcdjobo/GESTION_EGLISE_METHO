@@ -262,6 +262,7 @@
         .hero {
             background: linear-gradient(rgba(45, 90, 45, 0.5), rgba(74, 124, 89, 0.5)),
                 url('https://www.yeclo.com/wp-content/uploads/2021/02/featured_aip_214907.jpg');
+                /* url('https://www.yeclo.com/wp-content/uploads/2021/02/featured_aip_214907.jpg'); */
             background-repeat: no-repeat;
             background-size: cover;
             height: 100vh;

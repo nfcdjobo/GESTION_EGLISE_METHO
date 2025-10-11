@@ -1637,6 +1637,7 @@ namespace App\Models{
  * @property bool $singleton
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read mixed $images_hero_actives
  * @property-read mixed $images_hero_urls
  * @property-read mixed $logo_url
  * @method static \Illuminate\Database\Eloquent\Builder|Parametres actif()
@@ -3426,15 +3427,6 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|User withoutTrashed()
  */
 	class User extends \Eloquent {}
-}
-
-namespace App\Models{
-/**
- * @method static \Illuminate\Database\Eloquent\Builder|UserClasse newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|UserClasse newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|UserClasse query()
- */
-	class UserClasse extends \Eloquent {}
 }
 
 namespace App\Models{

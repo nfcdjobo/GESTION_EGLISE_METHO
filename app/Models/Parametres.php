@@ -143,7 +143,7 @@ class Parametres extends Model
         return $this->logo ? asset('storage/' . $this->logo) : null;
     }
 
-    /**
+/**
      * Accessor pour les images hero avec URLs complètes
      */
     public function getImagesHeroUrlsAttribute()
@@ -152,9 +152,15 @@ class Parametres extends Model
             return [];
         }
 
-        return array_map(function($image) {
-            return asset('storage/' . $image);
-        }, $this->images_hero);
+        return collect($this->images_hero)->map(function($image) {
+            return [
+                'id' => $image['id'],
+                'titre' => $image['titre'],
+                'url' => asset('storage/' . $image['url']),
+                'active' => $image['active'],
+                'ordre' => $image['ordre'],
+            ];
+        })->toArray();
     }
 
     /**
@@ -170,15 +176,56 @@ class Parametres extends Model
     }
 
     /**
-     * Mutator pour s'assurer que les images hero sont au bon format
+     * Mutateur pour valider et formater images_hero
      */
     public function setImagesHeroAttribute($value)
     {
         if (is_string($value)) {
-            $this->attributes['images_hero'] = $value;
-        } else {
-            $this->attributes['images_hero'] = json_encode($value, JSON_UNESCAPED_UNICODE);
+            $value = json_decode($value, true);
         }
+
+        if (is_array($value)) {
+            $formatted = collect($value)->map(function ($image, $index) {
+                return [
+                    'id' => $image['id'] ?? Str::uuid()->toString(),
+                    'titre' => $image['titre'] ?? '',
+                    'url' => $image['url'] ?? '',
+                    'active' => $image['active'] ?? true,
+                    'ordre' => $image['ordre'] ?? $index + 1,
+                ];
+            })->sortBy('ordre')->values()->toArray();
+
+            $this->attributes['images_hero'] = json_encode($formatted, JSON_UNESCAPED_UNICODE);
+        } else {
+            $this->attributes['images_hero'] = null;
+        }
+    }
+
+
+        /**
+     * Accesseur pour récupérer images_hero formaté
+     */
+    public function getImagesHeroAttribute($value)
+    {
+        if (empty($value)) {
+            return [];
+        }
+
+        $images = json_decode($value, true);
+        return collect($images)->sortBy('ordre')->values()->toArray();
+    }
+
+
+     /**
+     * Récupérer uniquement les images actives
+     */
+    public function getImagesHeroActivesAttribute()
+    {
+        return collect($this->images_hero)
+            ->where('active', true)
+            ->sortBy('ordre')
+            ->values()
+            ->toArray();
     }
 
     /**
@@ -189,6 +236,113 @@ class Parametres extends Model
         return $query->where('actif', true);
     }
 
+
+        /**
+     * Récupérer toutes les images hero
+     */
+    public function getImagesHero()
+    {
+        return $this->images_hero ?? [];
+    }
+
+    /**
+     * Récupérer une image hero par son ID
+     */
+    public function getImageHeroById($id)
+    {
+        $images = $this->getImagesHero();
+        return collect($images)->firstWhere('id', $id);
+    }
+
+    /**
+     * Ajouter une nouvelle image hero
+     */
+    public function ajouterImageHero(array $imageData)
+    {
+        $images = $this->getImagesHero();
+
+        // Générer un UUID pour la nouvelle image
+        $imageData['id'] = Str::uuid()->toString();
+
+        // Définir l'ordre si non spécifié
+        if (!isset($imageData['ordre'])) {
+            $maxOrdre = collect($images)->max('ordre') ?? 0;
+            $imageData['ordre'] = $maxOrdre + 1;
+        }
+
+        // Valeurs par défaut
+        $imageData = array_merge([
+            'active' => true,
+        ], $imageData);
+
+        $images[] = $imageData;
+
+        $this->images_hero = $images;
+        $this->save();
+
+        return $imageData['id'];
+    }
+
+    /**
+     * Mettre à jour une image hero existante
+     */
+    public function mettreAJourImageHero($id, array $updateData)
+    {
+        $images = $this->getImagesHero();
+
+        $images = collect($images)->map(function ($image) use ($id, $updateData) {
+            if ($image['id'] === $id) {
+                return array_merge($image, $updateData);
+            }
+            return $image;
+        })->toArray();
+
+        $this->images_hero = $images;
+        $this->save();
+
+        return $this->getImageHeroById($id);
+    }
+
+    /**
+     * Supprimer une image hero
+     */
+    public function supprimerImageHero($id)
+    {
+        $images = $this->getImagesHero();
+
+        $images = collect($images)->reject(function ($image) use ($id) {
+            return $image['id'] === $id;
+        })->values()->toArray();
+
+        $this->images_hero = $images;
+        $this->save();
+
+        return true;
+    }
+
+    /**
+     * Réorganiser l'ordre des images hero
+     */
+    public function reordonnerImagesHero(array $ordreIds)
+    {
+        $images = $this->getImagesHero();
+        $imagesCollection = collect($images);
+
+        $imagesReordonnees = [];
+
+        foreach ($ordreIds as $index => $id) {
+            $image = $imagesCollection->firstWhere('id', $id);
+            if ($image) {
+                $image['ordre'] = $index + 1;
+                $imagesReordonnees[] = $image;
+            }
+        }
+
+        $this->images_hero = $imagesReordonnees;
+        $this->save();
+
+        return $this->getImagesHero();
+    }
 
 
 

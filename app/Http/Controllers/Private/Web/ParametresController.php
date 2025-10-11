@@ -88,74 +88,429 @@ class ParametresController extends Controller
      * @param Request $request
      * @return RedirectResponse|JsonResponse
      */
-    public function update(Request $request)
-    {
-        try {
-            $validator = $this->validateParametres($request);
+    /**
+ * Méthode update() complète et adaptée dans ParametresController.php
+ */
+public function update(Request $request)
+{
+    // dd($request->all());
+    try {
+        $validator = $this->validateParametres($request);
 
-            if ($validator->fails()) {
-                if ($request->expectsJson()) {
-                    return response()->json([
-                        'success' => false,
-                        'message' => 'Erreurs de validation',
-                        'errors' => $validator->errors()
-                    ], 422);
-                }
-
-                return back()
-                    ->withErrors($validator)
-                    ->withInput();
-            }
-
-            $data = $validator->validated();
-
-
-
-            // Gérer l'upload du logo
-            if ($request->hasFile('logo')) {
-                $data['logo'] = $this->handleFileUpload($request->file('logo'), 'logos');
-            }
-
-            // Gérer l'upload des images hero
-            if ($request->hasFile('images_hero')) {
-                $data['images_hero'] = $this->handleMultipleFileUpload($request->file('images_hero'), 'hero-images');
-            }
-
-            // Gérer les programmes (remplace horaires_cultes)
-            if ($request->has('programmes')) {
-                $data['programmes'] = $this->processProgrammes($request->input('programmes'));
-            }
-
-            $updated =  Parametres::updateParametres($data);
-            $parametres = Parametres::getInstance();
-
-            if ($request->expectsJson()) {
-                return response()->json([
-                    'success' => true,
-                    'data' => $parametres,
-                    'message' => 'Paramètres mis à jour avec succès'
-                ]);
-            }
-
-            return redirect()
-                ->route('private.parametres.index')
-                ->with('success', 'Paramètres mis à jour avec succès');
-
-        } catch (\Exception $e) {
-            dd($e->getmessage());
+        if ($validator->fails()) {
+            dd($validator->errors());
             if ($request->expectsJson()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Erreur lors de la mise à jour',
-                    'error' => $e->getMessage()
-                ], 500);
+                    'message' => 'Erreurs de validation',
+                    'errors' => $validator->errors()
+                ], 422);
             }
 
             return back()
-                ->with('error', 'Erreur lors de la mise à jour: ' . $e->getMessage())
+                ->withErrors($validator)
                 ->withInput();
         }
+
+        $data = $validator->validated();
+
+        // Gérer l'upload du logo
+        if ($request->hasFile('logo')) {
+            $parametres = Parametres::getInstance();
+
+            // Supprimer l'ancien logo
+            if ($parametres->logo && Storage::disk('public')->exists($parametres->logo)) {
+                Storage::disk('public')->delete($parametres->logo);
+            }
+
+            $data['logo'] = $this->handleFileUpload($request->file('logo'), 'logos');
+        }
+
+        // Gérer les images hero avec la structure complète (titre, description, url, active, ordre)
+        if ($request->has('images_hero_data')) {
+            $data['images_hero'] = $this->processImagesHeroFromForm($request);
+        }
+
+        // Gérer les programmes
+        if ($request->has('programmes')) {
+            $data['programmes'] = $this->processProgrammes($request->input('programmes'));
+        }
+
+        $updated = Parametres::updateParametres($data);
+        $parametres = Parametres::getInstance();
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'success' => true,
+                'data' => $parametres,
+                'message' => 'Paramètres mis à jour avec succès'
+            ]);
+        }
+
+        return redirect()
+            ->route('private.parametres.index')
+            ->with('success', 'Paramètres mis à jour avec succès');
+
+    } catch (\Exception $e) {
+        \Log::error('Erreur mise à jour paramètres: ' . $e->getMessage());
+dd($e->getMessage());
+        if ($request->expectsJson()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Erreur lors de la mise à jour',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+
+        return back()
+            ->with('error', 'Erreur lors de la mise à jour: ' . $e->getMessage())
+            ->withInput();
     }
+}
+
+
+
+
+
+
+     /**
+     * Récupérer toutes les images hero
+     */
+    public function getImagesHero(Request $request)
+    {
+        try {
+            $parametres = Parametres::getInstance();
+            $images = $parametres->getImagesHero();
+
+            return response()->json([
+                'success' => true,
+                'data' => $images,
+                'message' => 'Images hero récupérées avec succès'
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Erreur lors de la récupération des images hero',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+
+     /**
+     * Ajouter une nouvelle image hero
+     */
+    public function ajouterImageHero(Request $request)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                'titre' => 'required|string|max:255',
+                'image' => 'required|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
+                'active' => 'sometimes|boolean',
+                'ordre' => 'sometimes|integer|min:1',
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Erreurs de validation',
+                    'errors' => $validator->errors()
+                ], 422);
+            }
+
+            // Upload de l'image
+            $imagePath = $this->handleFileUpload($request->file('image'), 'hero-images');
+
+            $imageData = [
+                'titre' => $request->titre,
+                'url' => $imagePath,
+                'active' => $request->input('active', true),
+                'ordre' => $request->input('ordre'),
+            ];
+
+            $parametres = Parametres::getInstance();
+            $nouvelId = $parametres->ajouterImageHero($imageData);
+            $nouvelleImage = $parametres->getImageHeroById($nouvelId);
+
+            return response()->json([
+                'success' => true,
+                'data' => $nouvelleImage,
+                'message' => 'Image hero ajoutée avec succès'
+            ], 201);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Erreur lors de l\'ajout de l\'image hero',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+
+     /**
+     * Mettre à jour une image hero
+     */
+    public function mettreAJourImageHero(Request $request, $id)
+    {
+        try {
+            $parametres = Parametres::getInstance();
+
+            // Vérifier si l'image existe
+            if (!$parametres->getImageHeroById($id)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Image hero non trouvée'
+                ], 404);
+            }
+
+            $validator = Validator::make($request->all(), [
+                'titre' => 'sometimes|string|max:255',
+                'image' => 'sometimes|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
+                'active' => 'sometimes|boolean',
+                'ordre' => 'sometimes|integer|min:1',
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Erreurs de validation',
+                    'errors' => $validator->errors()
+                ], 422);
+            }
+
+            $updateData = $validator->validated();
+
+            // Si une nouvelle image est uploadée
+            if ($request->hasFile('image')) {
+                $ancienneImage = $parametres->getImageHeroById($id);
+
+                // Supprimer l'ancienne image
+                if ($ancienneImage && isset($ancienneImage['url']) && Storage::disk('public')->exists($ancienneImage['url'])) {
+                    Storage::disk('public')->delete($ancienneImage['url']);
+                }
+
+                $updateData['url'] = $this->handleFileUpload($request->file('image'), 'hero-images');
+            }
+
+            $imageModifiee = $parametres->mettreAJourImageHero($id, $updateData);
+
+            return response()->json([
+                'success' => true,
+                'data' => $imageModifiee,
+                'message' => 'Image hero mise à jour avec succès'
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Erreur lors de la mise à jour de l\'image hero',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+
+    /**
+     * Supprimer une image hero
+     */
+    public function supprimerImageHero(Request $request, $id)
+    {
+        try {
+            $parametres = Parametres::getInstance();
+
+            // Vérifier si l'image existe
+            $image = $parametres->getImageHeroById($id);
+            if (!$image) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Image hero non trouvée'
+                ], 404);
+            }
+
+            // Supprimer le fichier physique
+            if (isset($image['url']) && Storage::disk('public')->exists($image['url'])) {
+                Storage::disk('public')->delete($image['url']);
+            }
+
+            $parametres->supprimerImageHero($id);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Image hero supprimée avec succès'
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Erreur lors de la suppression de l\'image hero',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+
+
+      /**
+     * Réorganiser l'ordre des images hero
+     */
+    public function reordonnerImagesHero(Request $request)
+    {
+        try {
+            $request->validate([
+                'ordre' => 'required|array',
+                'ordre.*' => 'required|string|uuid'
+            ]);
+
+            $parametres = Parametres::getInstance();
+            $imagesReordonnees = $parametres->reordonnerImagesHero($request->input('ordre'));
+
+            return response()->json([
+                'success' => true,
+                'data' => $imagesReordonnees,
+                'message' => 'Images hero réordonnées avec succès'
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Erreur lors de la réorganisation des images hero',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+
+    /**
+ * Traiter les données des images hero depuis le formulaire
+ * Méthode complète à ajouter dans ParametresController.php
+ */
+private function processImagesHeroFromForm(Request $request)
+{
+    $parametres = Parametres::getInstance();
+    $imagesData = $request->input('images_hero_data', []);
+    $imagesFiles = $request->file('images_hero_files', []);
+
+    $processedImages = [];
+
+    foreach ($imagesData as $index => $imageData) {
+        // Vérifier si le titre existe (requis)
+        if (empty($imageData['titre'])) {
+            continue;
+        }
+
+        $imageInfo = [
+            'id' => $imageData['id'] ?? \Illuminate\Support\Str::uuid()->toString(),
+            'titre' => $imageData['titre'],
+            'description' => $imageData['description'] ?? '', // Description pour overlay
+            'active' => isset($imageData['active']) && $imageData['active'] == '1',
+            'ordre' => isset($imageData['ordre']) ? (int)$imageData['ordre'] : ($index + 1),
+        ];
+
+        // Gérer l'URL de l'image
+        if (isset($imagesFiles[$index]) && $imagesFiles[$index]->isValid()) {
+            // Nouvelle image uploadée
+            $imagePath = $this->handleFileUpload($imagesFiles[$index], 'hero-images');
+
+            // Supprimer l'ancienne image si elle existe
+            if (!empty($imageData['url']) && Storage::disk('public')->exists($imageData['url'])) {
+                Storage::disk('public')->delete($imageData['url']);
+            }
+
+            $imageInfo['url'] = $imagePath;
+        } elseif (!empty($imageData['url'])) {
+            // Conserver l'URL existante
+            $imageInfo['url'] = $imageData['url'];
+        } else {
+            // Pas d'image, ignorer cette entrée
+            continue;
+        }
+
+        $processedImages[] = $imageInfo;
+    }
+
+    // Trier par ordre
+    usort($processedImages, function($a, $b) {
+        return $a['ordre'] <=> $b['ordre'];
+    });
+
+    // Réassigner les ordres pour qu'ils soient consécutifs
+    foreach ($processedImages as $index => &$image) {
+        $image['ordre'] = $index + 1;
+    }
+
+    return $processedImages;
+}
+
+
+
+     /**
+     * Récupérer une image hero par son ID
+     */
+    public function getImageHero(Request $request, $id)
+    {
+        try {
+            $parametres = Parametres::getInstance();
+            $image = $parametres->getImageHeroById($id);
+
+            if (!$image) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Image hero non trouvée'
+                ], 404);
+            }
+
+            return response()->json([
+                'success' => true,
+                'data' => $image,
+                'message' => 'Image hero récupérée avec succès'
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Erreur lors de la récupération de l\'image hero',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+
+    /**
+     * Traiter l'upload des images hero avec structure JSON
+     */
+    private function processImagesHeroUpload(Request $request)
+    {
+        $parametres = Parametres::getInstance();
+        $imagesExistantes = $parametres->getImagesHero();
+
+        // Si on veut conserver les anciennes images et ajouter les nouvelles
+        if ($request->has('keep_existing') && $request->input('keep_existing')) {
+            $images = $imagesExistantes;
+        } else {
+            $images = [];
+        }
+
+        $files = $request->file('images_hero');
+        $titres = $request->input('images_hero_titres', []);
+        $actives = $request->input('images_hero_actives', []);
+
+        foreach ($files as $index => $file) {
+            $imagePath = $this->handleFileUpload($file, 'hero-images');
+
+            $images[] = [
+                'id' => \Illuminate\Support\Str::uuid()->toString(),
+                'titre' => $titres[$index] ?? 'Image ' . ($index + 1),
+                'url' => $imagePath,
+                'active' => isset($actives[$index]) ? (bool)$actives[$index] : true,
+                'ordre' => count($images) + 1,
+            ];
+        }
+
+        return $images;
+    }
+
 
     /**
      * Récupérer les informations complètes de l'église
@@ -563,65 +918,89 @@ class ParametresController extends Controller
      * @param Request $request
      * @return \Illuminate\Contracts\Validation\Validator
      */
-    private function validateParametres(Request $request)
-    {
-        $validator = Validator::make($request->all(), [
-            'nom_eglise' => 'required|string|max:255',
-            'telephone_1' => 'required|string|max:20',
-            'telephone_2' => 'nullable|string|max:20',
-            'email_principal' => 'required|email|max:255',
-            'email_secondaire' => 'nullable|email|max:255',
-            'adresse' => 'required|string',
-            'ville' => 'required|string|max:255',
-            'commune' => 'nullable|string|max:255',
-            'pays' => 'required|string|max:255',
-            'code_postal' => 'nullable|string|max:20',
-            'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-            'images_hero.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
-            'verset_biblique' => 'nullable|string',
-            'reference_verset' => 'nullable|string|max:255',
-            'mission_statement' => 'nullable|string',
-            'vision' => 'nullable|string',
-            'description_eglise' => 'nullable|string',
-            'facebook_url' => 'nullable|url',
-            'instagram_url' => 'nullable|url',
-            'youtube_url' => 'nullable|url',
-            'twitter_url' => 'nullable|url',
-            'website_url' => 'nullable|url',
-            'date_fondation' => 'nullable|date',
-            'nombre_membres' => 'nullable|integer|min:0',
-            'histoire_eglise' => 'nullable|string',
-            'devise' => 'nullable|string|in:EUR,USD,XOF,XAF',
-            'langue' => 'nullable|string|in:fr,en,es',
-            'fuseau_horaire' => 'nullable|string',
 
-            // Validation des programmes
-            'programmes' => 'required|array',
-            'programmes.*.id' => 'nullable|string|uuid',
-            'programmes.*.titre' => 'required_with:programmes.*|string|max:255',
-            'programmes.*.description' => 'required|string',
-            'programmes.*.icone' => 'required|string|max:255',
-            'programmes.*.type_horaire' => 'required|string|in:regulier,sur_rendez_vous,permanent,ponctuel',
-            'programmes.*.jour' => 'nullable|string|max:255',
-            'programmes.*.heure_debut' => 'nullable|date_format:H:i',
-            'programmes.*.heure_fin' => 'nullable|date_format:H:i|after:programmes.*.heure_debut',
-            'programmes.*.horaire_texte' => 'required|string|max:255',
-            'programmes.*.est_public' => 'sometimes|boolean',
-            'programmes.*.est_actif' => 'sometimes|boolean',
-            'programmes.*.ordre' => 'nullable|integer|min:1',
-        ]);
+private function validateParametres(Request $request)
+{
+    // dd($request->vision);
+    $validator = Validator::make($request->all(), [
+        'nom_eglise' => 'required|string|max:255',
+        'telephone_1' => 'required|string|max:20',
+        'telephone_2' => 'nullable|string|max:20',
+        'email_principal' => 'required|email|max:255',
+        'email_secondaire' => 'nullable|email|max:255',
+        'adresse' => 'required|string',
+        'ville' => 'required|string|max:255',
+        'commune' => 'nullable|string|max:255',
+        'pays' => 'required|string|max:255',
+        'code_postal' => 'nullable|string|max:20',
+        'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
 
-        // Si non défini => mettre false
-        $data = $validator->validated();
+        // Validation des images hero pour slider (avec description)
+        'images_hero_data' => 'nullable|array',
+        'images_hero_data.*.titre' => 'required_with:images_hero_data.*|string|max:255',
+        'images_hero_data.*.description' => 'nullable|string|max:500',
+        'images_hero_data.*.active' => 'nullable|in:0,1',
+        'images_hero_data.*.ordre' => 'nullable|integer|min:1',
+        'images_hero_data.*.id' => 'nullable|uuid',
+        'images_hero_data.*.url' => 'nullable|string',
+
+        // Validation des fichiers images hero (format optimisé pour slider)
+        'images_hero_files.*' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:5120|dimensions:min_width=1280,min_height=720',
+
+        'verset_biblique' => 'nullable|string',
+        'reference_verset' => 'nullable|string|max:255',
+        'mission_statement' => 'nullable|string',
+        'vision' => 'nullable|string|max:100',
+        'description_eglise' => 'nullable|string|max:50',
+        'facebook_url' => 'nullable|url',
+        'instagram_url' => 'nullable|url',
+        'youtube_url' => 'nullable|url',
+        'twitter_url' => 'nullable|url',
+        'website_url' => 'nullable|url',
+        'date_fondation' => 'nullable|date',
+        'nombre_membres' => 'nullable|integer|min:0',
+        'histoire_eglise' => 'nullable|string',
+        'devise' => 'nullable|string|in:EUR,USD,XOF,XAF,FCFA',
+        'langue' => 'nullable|string|in:fr,en,es',
+        'fuseau_horaire' => 'nullable|string',
+
+        // Validation des programmes
+        'programmes' => 'required|array',
+        'programmes.*.id' => 'nullable|string|uuid',
+        'programmes.*.titre' => 'required_with:programmes.*|string|max:255',
+        'programmes.*.description' => 'required|string',
+        'programmes.*.icone' => 'required|string|max:255',
+        'programmes.*.type_horaire' => 'required|string|in:regulier,sur_rendez_vous,permanent,ponctuel',
+        'programmes.*.jour' => 'nullable|string|max:255',
+        'programmes.*.heure_debut' => 'nullable|date_format:H:i',
+        'programmes.*.heure_fin' => 'nullable|date_format:H:i|after:programmes.*.heure_debut',
+        'programmes.*.horaire_texte' => 'required|string|max:255',
+        'programmes.*.est_public' => 'sometimes|boolean',
+        'programmes.*.est_actif' => 'sometimes|boolean',
+        'programmes.*.ordre' => 'nullable|integer|min:1',
+    ], [
+        // Messages personnalisés pour images hero
+        'images_hero_data.*.titre.required_with' => 'Le titre du slide est obligatoire',
+        'images_hero_data.*.description.max' => 'La description ne doit pas dépasser 500 caractères',
+        'images_hero_files.*.mimes' => 'L\'image doit être au format JPG, PNG ou WebP',
+        'images_hero_files.*.max' => 'L\'image ne doit pas dépasser 5 MB',
+        'images_hero_files.*.dimensions' => 'L\'image doit faire au minimum 1280x720 pixels (recommandé: 1920x1080)',
+    ]);
+
+    $data = $validator->validated();
+
+    // Traiter les programmes
+    if (isset($data['programmes'])) {
         foreach ($data['programmes'] as &$programme) {
             $programme['est_public'] = $programme['est_public'] ?? 0;
             $programme['est_actif'] = $programme['est_actif'] ?? 0;
         }
-
-        $validator->setData(array_merge($validator->getData(), ['programmes' => $data['programmes']]));
-
-        return $validator;
     }
+
+    $validator->setData(array_merge($validator->getData(), ['programmes' => $data['programmes'] ?? []]));
+
+    return $validator;
+}
 
     /**
      * Valider les données d'un programme
@@ -686,7 +1065,7 @@ class ParametresController extends Controller
      * @param mixed $programmes
      * @return array
      */
-    private function processProgrammes($programmes)
+    public function processProgrammes($programmes)
     {
         if (is_string($programmes)) {
             $programmes = json_decode($programmes, true) ?: [];
