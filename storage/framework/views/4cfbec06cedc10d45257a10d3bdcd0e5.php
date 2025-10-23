@@ -93,16 +93,25 @@
         </div>
     </div>
 
+
+
     <!-- Footer Bottom -->
-    <div class="footer-bottom">
-        <p>&copy; 2024 Église Méthodiste Unie - Côte d'Ivoire. Tous droits réservés.</p>
-        <p><i class="fas fa-heart" style="color: #d32f2f;"></i> "Allez donc et faites de toutes les nations des
-            disciples" - Matthieu 28:19</p>
-        <p style="font-size: 0.8rem; margin-top: 1rem;">
-            Développé avec <i class="fas fa-heart" style="color: #d32f2f;"></i> pour la communauté
-        </p>
-    </div>
+<div class="footer-bottom">
+    <p>&copy; <?php echo e(date('Y')); ?> <?php echo e($AppParametres->nom_eglise ?? "Église Méthodiste Côte d'Ivoire Dashboard"); ?>. Tous droits réservés.</p>
+    "Allez donc et faites de toutes les nations des
+        disciples" - Matthieu 28:19</p>
+    <p style="font-size: 0.8rem; margin-top: 1rem;">
+        Développé par
+        <a href="https://wa.me/+2250708948093" target="_blank" rel="noopener noreferrer"
+           style="color: #4a7c59; text-decoration: none; font-weight: 600; transition: color 0.3s ease;">
+            BarriServices
+        </a>
+        pour la communauté
+    </p>
+</div>
 </footer>
+
+
 
 <style>
 /* Styles pour les liens de navigation du footer */

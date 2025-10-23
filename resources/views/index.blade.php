@@ -489,31 +489,21 @@
             if (e.key === 'ArrowRight') changeSlide(1);
         });
 
-        // Pause lors du survol
-        const carousel = document.querySelector('.hero-carousel');
-        if (carousel && totalSlides > 1) {
-            carousel.addEventListener('mouseenter', () => {
-                clearInterval(autoPlayInterval);
-                clearInterval(progressInterval);
-            });
-
-            carousel.addEventListener('mouseleave', () => {
-                resetAutoPlay();
-            });
-        }
-
         // Support du swipe sur mobile
+        const carousel = document.querySelector('.hero-carousel');
         let touchStartX = 0;
         let touchEndX = 0;
 
-        carousel?.addEventListener('touchstart', (e) => {
-            touchStartX = e.changedTouches[0].screenX;
-        });
+        if (carousel) {
+            carousel.addEventListener('touchstart', (e) => {
+                touchStartX = e.changedTouches[0].screenX;
+            });
 
-        carousel?.addEventListener('touchend', (e) => {
-            touchEndX = e.changedTouches[0].screenX;
-            handleSwipe();
-        });
+            carousel.addEventListener('touchend', (e) => {
+                touchEndX = e.changedTouches[0].screenX;
+                handleSwipe();
+            });
+        }
 
         function handleSwipe() {
             if (touchEndX < touchStartX - 50) changeSlide(1);

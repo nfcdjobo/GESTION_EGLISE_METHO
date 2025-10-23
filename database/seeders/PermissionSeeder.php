@@ -16,49 +16,49 @@ class PermissionSeeder extends Seeder
     {
         DB::transaction(function () {
             // Créer les permissions par ressource
-            // $this->createUserPermissions();
-            // $this->createRolePermissions();
-            // $this->createPermissionPermissions();
-            // $this->createClassePermissions();
-            // $this->createCultePermissions();
-            // $this->createParticipantCultePermissions();
-            // $this->createEventPermissions();
-            // $this->createAnnoncePermissions();
-            // $this->createProgrammePermissions();
-            // $this->createReunionPermissions();
-            // $this->createTypeReunionPermissions();
-            // $this->createRapportReunionPermissions();
-            // $this->createContactPermissions();
-            // $this->createInterventionPermissions();
-            // $this->createMultimediaPermissions();
-            // $this->createProjetPermissions();
-            // $this->createFondsPermissions();
-            // $this->createFimecoPermissions();
-            // $this->createSubscriptionPermissions();
-            // $this->createPaymentPermissions();
-            // $this->createAuditLogPermissions();
-            // $this->createSystemPermissions();
+            $this->createUserPermissions();
+            $this->createRolePermissions();
+            $this->createPermissionPermissions();
+            $this->createClassePermissions();
+            $this->createCultePermissions();
+            $this->createParticipantCultePermissions();
+            $this->createEventPermissions();
+            $this->createAnnoncePermissions();
+            $this->createProgrammePermissions();
+            $this->createReunionPermissions();
+            $this->createTypeReunionPermissions();
+            $this->createRapportReunionPermissions();
+            $this->createContactPermissions();
+            $this->createInterventionPermissions();
+            $this->createMultimediaPermissions();
+            $this->createProjetPermissions();
+            $this->createFondsPermissions();
+            $this->createFimecoPermissions();
+            $this->createSubscriptionPermissions();
+            $this->createPaymentPermissions();
+            $this->createAuditLogPermissions();
+            $this->createSystemPermissions();
 
-            // $this->createPaiementPermissions();
+            $this->createPaiementPermissions();
 
 
-            // $this->createMoissonPermissions();
-            // $this->createEngagementMoissonPermissions();
-            // $this->createVenteMoissonPermissions();
-            // $this->createPassageMoissonPermissions();
-            // $this->createDonPermissions();
-            // $this->createParametreDonPermissions();
-            // $this->createParametrePermissions();
-            // $this->createDashboardPermissions();
+            $this->createMoissonPermissions();
+            $this->createEngagementMoissonPermissions();
+            $this->createVenteMoissonPermissions();
+            $this->createPassageMoissonPermissions();
+            $this->createDonPermissions();
+            $this->createParametreDonPermissions();
+            $this->createParametrePermissions();
+            $this->createDashboardPermissions();
 
             $this->createPaiementAlertes();
 
 
             // Créer les rôles de base
-            // $this->createRoles();
+            $this->createRoles();
 
             // Attribuer les permissions aux rôles
-            // $this->assignPermissionsToRoles();
+            $this->assignPermissionsToRoles();
         });
 
         $this->command->info('✅ Permissions et rôles créés avec succès !');
@@ -1175,27 +1175,27 @@ class PermissionSeeder extends Seeder
                 [
 
                     'dashboard.access',
-'admin.access',
-'reports.read',
-'reports.generate',
-'reports.export',
-'logs.read',
-'settings.manage',
-'backup.create',
-'backup.restore',
-'system.maintenance',
+                    'admin.access',
+                    'reports.read',
+                    'reports.generate',
+                    'reports.export',
+                    'logs.read',
+                    'settings.manage',
+                    'backup.create',
+                    'backup.restore',
+                    'system.maintenance',
 
 
-'audit-logs.export',
-'audit-logs.manage',
-'audit-logs.cleanup',
-'audit-logs.search',
-'audit-logs.bulk-delete',
-'audit-logs.show',
-'audit-logs.read',
-'audit-logs.realtime',
-'audit-logs.user-logs',
-'audit-logs.statistics',
+                    'audit-logs.export',
+                    'audit-logs.manage',
+                    'audit-logs.cleanup',
+                    'audit-logs.search',
+                    'audit-logs.bulk-delete',
+                    'audit-logs.show',
+                    'audit-logs.read',
+                    'audit-logs.realtime',
+                    'audit-logs.user-logs',
+                    'audit-logs.statistics',
 
                     // Users (Membres)
                     'users.read',

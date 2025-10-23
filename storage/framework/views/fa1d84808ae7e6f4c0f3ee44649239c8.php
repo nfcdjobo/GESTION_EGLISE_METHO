@@ -323,19 +323,27 @@ unset($__errorArgs, $__bag); ?>
         </div>
 
         <!-- Footer -->
-        <div class="mt-8 text-center">
-            <p class="text-gray-500 text-sm">
-                © 2024 Plateforme de l'Église. Tous droits réservés.
-            </p>
-            <div class="mt-2 space-x-4">
-                <a href="#" class="text-gray-400 hover:text-gray-600 text-sm transition duration-200">
-                    Conditions d'utilisation
-                </a>
-                <a href="#" class="text-gray-400 hover:text-gray-600 text-sm transition duration-200">
-                    Politique de confidentialité
-                </a>
-            </div>
-        </div>
+        <!-- Footer -->
+<div class="mt-8 text-center">
+    <p class="text-gray-500 text-sm">
+        © <?php echo e(date('Y')); ?> <?php echo e($AppParametres->nom_eglise ?? "Église Méthodiste Côte d'Ivoire"); ?>. Tous droits réservés.
+    </p>
+    <p class="text-gray-400 text-xs mt-2">
+        Développé par
+        <a href="https://wa.me/+2250708948093" target="_blank" rel="noopener noreferrer"
+           class="text-blue-500 hover:text-blue-600 font-medium transition duration-200">
+            BarriServices
+        </a>
+    </p>
+    <div class="mt-3 space-x-4">
+        <a href="#" class="text-gray-400 hover:text-gray-600 text-sm transition duration-200">
+            Conditions d'utilisation
+        </a>
+        <a href="#" class="text-gray-400 hover:text-gray-600 text-sm transition duration-200">
+            Politique de confidentialité
+        </a>
+    </div>
+</div>
     </div>
 
     <!-- MODAL CAPTCHA PUZZLE SLIDER -->
