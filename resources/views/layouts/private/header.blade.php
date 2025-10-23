@@ -18,13 +18,14 @@
         <div class="flex items-center space-x-3">
             <div class="relative">
                 <img class="h-10 w-10 rounded-full object-cover ring-2 ring-blue-500"
-                    src="{{ auth()->user()->photo_profil ? Storage::url(auth()->user()->photo_profil) : 'https://ui-avatars.com/api/?name=' . auth()->user()->nom . '+' . auth()->user()->prenom . '&background=3b82f6&color=fff' }}"
-                    alt="{{ auth()->user()->photo_profil }}" />
+    src="{{ auth()->check() && auth()->user()->photo_profil ? Storage::url(auth()->user()->photo_profil) : 'https://ui-avatars.com/api/?name=' . urlencode((auth()->user()?->nom ?? 'User') . ' ' . (auth()->user()?->prenom ?? '')) . '&background=3b82f6&color=fff' }}"
+    alt="{{ auth()->user()?->nom ?? 'User' }}" />
                 <span class="absolute bottom-0 right-0 h-3 w-3 bg-green-400 rounded-full border-2 border-white animate-pulse"></span>
             </div>
             <div>
-                <h6 class="text-sm font-semibold text-slate-900">
-                    {{ (auth()->user()->sexe == 'masculin' ? 'Mr. ' : 'Mme/Mlle. ') . auth()->user()->nom }}</h6>
+<h6 class="text-sm font-semibold text-slate-900">
+    {{ (auth()->check() && auth()->user()->sexe == 'masculin' ? 'Mr. ' : 'Mme/Mlle. ') . (auth()->user()?->nom ?? 'Utilisateur') }}
+</h6>
                 <div class="flex items-center space-x-1">
                     <span class="h-2 w-2 bg-green-400 rounded-full animate-pulse"></span>
                     <p class="text-xs text-slate-500">En ligne</p>

@@ -51,7 +51,7 @@ Route::prefix('dashboard')->name('private.')->middleware(['auth', 'verified', 'u
 
     Route::post('/export', [DashboardController::class, 'exporte'])->name('dashboard.exporte');
 
-     Route::get('/export', [DashboardController::class, 'exporte'])->name('dashboard.exporte');
+    Route::get('/export', [DashboardController::class, 'exporte'])->name('dashboard.export');
 
     Route::get('/periode', [DashboardController::class, 'getStatistiquesPeriode'])->name('getStatistiquesPeriode');
 });

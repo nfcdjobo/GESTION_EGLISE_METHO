@@ -256,7 +256,7 @@
                                         <td class="px-4 py-4">
                                             <div class="flex items-center">
                                                 <div class="flex-shrink-0 h-12 w-12">
-                                                    @if ($user->photo_profil)
+                                                    @if ($user?->photo_profil)
                                                         <img class="h-12 w-12 rounded-full object-cover ring-4 ring-white shadow-lg"
                                                             src="{{ Storage::url($user->photo_profil) }}"
                                                             alt="{{ $user->nom_complet }}">
