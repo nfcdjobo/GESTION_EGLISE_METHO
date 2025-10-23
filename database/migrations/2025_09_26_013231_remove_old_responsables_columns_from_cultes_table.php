@@ -17,32 +17,11 @@ public function up(): void
     // ÉTAPE 1: Supprimer d'abord la vue qui dépend des colonnes
     DB::statement("DROP VIEW IF EXISTS cultes_a_venir");
 
-    // ÉTAPE 2: Supprimer les contraintes et index
-    Schema::table('cultes', function (Blueprint $table) {
-        // Supprimer les foreign keys d'abord
-        $table->dropForeign(['pasteur_principal_id']);
-        $table->dropForeign(['predicateur_id']);
-        $table->dropForeign(['responsable_culte_id']);
-        $table->dropForeign(['dirigeant_louange_id']);
 
-        // Supprimer les index spécifiques
-        $table->dropIndex('idx_cultes_pasteur_date');
-        $table->dropIndex('idx_cultes_predicateur_date');
-    });
 
     // Attendre un peu pour la suppression des contraintes
     sleep(1);
 
-    // ÉTAPE 3: Supprimer les colonnes maintenant que la vue n'existe plus
-    Schema::table('cultes', function (Blueprint $table) {
-        $table->dropColumn([
-            'pasteur_principal_id',
-            'predicateur_id',
-            'responsable_culte_id',
-            'dirigeant_louange_id',
-            'equipe_culte'
-        ]);
-    });
 
     // ÉTAPE 4: Recréer la vue finale sans les anciennes colonnes
     DB::statement("
@@ -210,21 +189,21 @@ public function up(): void
 
         // Recréer les colonnes supprimées
         Schema::table('cultes', function (Blueprint $table) {
-            $table->uuid('pasteur_principal_id')->nullable()->comment('Pasteur principal du culte');
-            $table->uuid('predicateur_id')->nullable()->comment('Prédicateur/Orateur principal');
-            $table->uuid('responsable_culte_id')->nullable()->comment('Responsable de l\'organisation');
-            $table->uuid('dirigeant_louange_id')->nullable()->comment('Dirigeant de louange');
+            // $table->uuid('pasteur_principal_id')->nullable()->comment('Pasteur principal du culte');
+            // $table->uuid('predicateur_id')->nullable()->comment('Prédicateur/Orateur principal');
+            // $table->uuid('responsable_culte_id')->nullable()->comment('Responsable de l\'organisation');
+            // $table->uuid('dirigeant_louange_id')->nullable()->comment('Dirigeant de louange');
             $table->json('equipe_culte')->nullable()->comment('Équipe du culte (JSON: rôles et personnes)');
 
             // Recréer les foreign keys
-            $table->foreign('pasteur_principal_id')->references('id')->on('users')->onDelete('set null');
-            $table->foreign('predicateur_id')->references('id')->on('users')->onDelete('set null');
-            $table->foreign('responsable_culte_id')->references('id')->on('users')->onDelete('set null');
-            $table->foreign('dirigeant_louange_id')->references('id')->on('users')->onDelete('set null');
+            // $table->foreign('pasteur_principal_id')->references('id')->on('users')->onDelete('set null');
+            // $table->foreign('predicateur_id')->references('id')->on('users')->onDelete('set null');
+            // $table->foreign('responsable_culte_id')->references('id')->on('users')->onDelete('set null');
+            // $table->foreign('dirigeant_louange_id')->references('id')->on('users')->onDelete('set null');
 
             // Recréer les index
-            $table->index(['pasteur_principal_id', 'date_culte'], 'idx_cultes_pasteur_date');
-            $table->index(['predicateur_id', 'date_culte'], 'idx_cultes_predicateur_date');
+            // $table->index(['pasteur_principal_id', 'date_culte'], 'idx_cultes_pasteur_date');
+            // $table->index(['predicateur_id', 'date_culte'], 'idx_cultes_predicateur_date');
         });
 
         // Restaurer la vue avec les anciennes colonnes
@@ -257,10 +236,6 @@ public function up(): void
                 c.created_at,
                 c.updated_at
             FROM cultes c
-            LEFT JOIN users pp ON c.pasteur_principal_id = pp.id AND pp.deleted_at IS NULL
-            LEFT JOIN users pred ON c.predicateur_id = pred.id AND pred.deleted_at IS NULL
-            LEFT JOIN users resp ON c.responsable_culte_id = resp.id AND resp.deleted_at IS NULL
-            LEFT JOIN users dl ON c.dirigeant_louange_id = dl.id AND dl.deleted_at IS NULL
             WHERE c.date_culte >= CURRENT_DATE
               AND c.statut IN ('planifie', 'en_preparation')
               AND c.deleted_at IS NULL

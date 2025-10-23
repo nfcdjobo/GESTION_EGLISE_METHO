@@ -12,10 +12,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        // Étape 1: Ajouter la nouvelle colonne officiants
-        Schema::table('cultes', function (Blueprint $table) {
-            $table->json('officiants')->nullable()->comment('Liste des officiants du culte (JSON: [{user_id, titre, provenance}, ...])')->after('capacite_prevue');
-        });
+
+
+        if (!Schema::hasColumn('cultes', 'officiants')) {
+            Schema::table('cultes', function (Blueprint $table) {
+                $table->jsonb('officiants')->nullable()->comment('Liste des officiants du culte (JSON: [{user_id, titre, provenance}, ...])')->after('capacite_prevue');
+            });
+        }
 
         // Étape 2: Créer les fonctions de validation pour les officiants
         $this->createOfficiationsFunctions();
@@ -43,53 +46,18 @@ return new class extends Migration
     {
         // Récupérer tous les cultes avec des responsables
         $cultes = DB::table('cultes')
-            ->whereNotNull('pasteur_principal_id')
-            ->orWhereNotNull('predicateur_id')
-            ->orWhereNotNull('responsable_culte_id')
-            ->orWhereNotNull('dirigeant_louange_id')
             ->get();
 
         foreach ($cultes as $culte) {
             $officiants = [];
 
-            // Migrer le pasteur principal
-            if ($culte->pasteur_principal_id) {
-                $officiants[] = [
-                    'user_id' => $culte->pasteur_principal_id,
-                    'titre' => 'Pasteur Principal',
-                    'provenance' => 'Église Locale'
-                ];
-            }
 
-            // Migrer le prédicateur
-            if ($culte->predicateur_id && $culte->predicateur_id !== $culte->pasteur_principal_id) {
-                $officiants[] = [
-                    'user_id' => $culte->predicateur_id,
-                    'titre' => 'Prédicateur',
-                    'provenance' => 'Église Locale'
-                ];
-            }
 
-            // Migrer le responsable du culte
-            if ($culte->responsable_culte_id &&
-                $culte->responsable_culte_id !== $culte->pasteur_principal_id &&
-                $culte->responsable_culte_id !== $culte->predicateur_id) {
-                $officiants[] = [
-                    'user_id' => $culte->responsable_culte_id,
-                    'titre' => 'Responsable Organisation',
-                    'provenance' => 'Église Locale'
-                ];
-            }
 
-            // Migrer le dirigeant de louange
-            if ($culte->dirigeant_louange_id &&
-                !collect($officiants)->pluck('user_id')->contains($culte->dirigeant_louange_id)) {
-                $officiants[] = [
-                    'user_id' => $culte->dirigeant_louange_id,
-                    'titre' => 'Dirigeant de Louange',
-                    'provenance' => 'Église Locale'
-                ];
-            }
+
+
+
+
 
             // Migrer l'équipe du culte si elle existe
             if ($culte->equipe_culte) {
@@ -240,8 +208,15 @@ return new class extends Migration
     /**
      * Ajouter les contraintes pour les officiants
      */
-    private function addOfficiationsConstraints(): void
-    {
+private function addOfficiationsConstraints(): void
+{
+    // Vérifier si la contrainte existe déjà
+    $constraintExists = DB::select("
+        SELECT 1 FROM pg_constraint
+        WHERE conname = 'chk_officiants_valide'
+    ");
+
+    if (empty($constraintExists)) {
         DB::statement("
             ALTER TABLE cultes ADD CONSTRAINT chk_officiants_valide
             CHECK (
@@ -250,56 +225,48 @@ return new class extends Migration
             )
         ");
     }
+}
 
     /**
      * Mettre à jour les vues existantes
      */
-    private function updateExistingViews(): void
-    {
-        // Supprimer la vue existante d'abord
-        DB::statement("DROP VIEW IF EXISTS cultes_a_venir");
+private function updateExistingViews(): void
+{
+    // Supprimer la vue existante d'abord
+    DB::statement("DROP VIEW IF EXISTS cultes_a_venir");
 
-        // Recréer la vue avec la nouvelle structure
-        DB::statement("
-            CREATE VIEW cultes_a_venir AS
-            SELECT
-                c.id,
-                c.programme_id,
-                c.titre,
-                c.description,
-                c.date_culte,
-                c.heure_debut,
-                c.heure_fin,
-                c.type_culte,
-                c.categorie,
-                c.lieu,
-                c.capacite_prevue,
-                c.est_public,
-                c.necessite_invitation,
-                c.diffusion_en_ligne,
-                c.lien_diffusion_live,
-                c.statut,
-                c.officiants,
-                get_officiants_summary(c.officiants::jsonb) AS resume_officiants,
-                -- Conserver la compatibilité avec les anciennes colonnes
-                COALESCE(pp.prenom || ' ' || pp.nom, 'Non assigné') AS nom_pasteur_principal,
-                COALESCE(pred.prenom || ' ' || pred.nom, 'Non assigné') AS nom_predicateur,
-                COALESCE(resp.prenom || ' ' || resp.nom, 'Non assigné') AS nom_responsable,
-                COALESCE(dl.prenom || ' ' || dl.nom, 'Non assigné') AS nom_dirigeant_louange,
-                (c.date_culte - CURRENT_DATE) AS jours_restants,
-                c.created_at,
-                c.updated_at
-            FROM cultes c
-            LEFT JOIN users pp ON c.pasteur_principal_id = pp.id AND pp.deleted_at IS NULL
-            LEFT JOIN users pred ON c.predicateur_id = pred.id AND pred.deleted_at IS NULL
-            LEFT JOIN users resp ON c.responsable_culte_id = resp.id AND resp.deleted_at IS NULL
-            LEFT JOIN users dl ON c.dirigeant_louange_id = dl.id AND dl.deleted_at IS NULL
-            WHERE c.date_culte >= CURRENT_DATE
-              AND c.statut IN ('planifie', 'en_preparation')
-              AND c.deleted_at IS NULL
-            ORDER BY c.date_culte ASC, c.heure_debut ASC
-        ");
-    }
+    // Recréer la vue avec la nouvelle structure (SANS les anciennes colonnes)
+    DB::statement("
+        CREATE VIEW cultes_a_venir AS
+        SELECT
+            c.id,
+            c.programme_id,
+            c.titre,
+            c.description,
+            c.date_culte,
+            c.heure_debut,
+            c.heure_fin,
+            c.type_culte,
+            c.categorie,
+            c.lieu,
+            c.capacite_prevue,
+            c.est_public,
+            c.necessite_invitation,
+            c.diffusion_en_ligne,
+            c.lien_diffusion_live,
+            c.statut,
+            c.officiants,
+            get_officiants_summary(c.officiants::jsonb) AS resume_officiants,
+            (c.date_culte - CURRENT_DATE) AS jours_restants,
+            c.created_at,
+            c.updated_at
+        FROM cultes c
+        WHERE c.date_culte >= CURRENT_DATE
+          AND c.statut IN ('planifie', 'en_preparation')
+          AND c.deleted_at IS NULL
+        ORDER BY c.date_culte ASC, c.heure_debut ASC
+    ");
+}
 
     /**
      * Supprimer les anciennes colonnes (à décommenter après vérification)
@@ -307,29 +274,7 @@ return new class extends Migration
      */
     private function dropOldColumns(): void
     {
-        // À décommenter SEULEMENT après avoir vérifié que tout fonctionne bien
-        /*
-        Schema::table('cultes', function (Blueprint $table) {
-            // Supprimer les foreign keys d'abord
-            $table->dropForeign(['pasteur_principal_id']);
-            $table->dropForeign(['predicateur_id']);
-            $table->dropForeign(['responsable_culte_id']);
-            $table->dropForeign(['dirigeant_louange_id']);
 
-            // Supprimer les index
-            $table->dropIndex(['pasteur_principal_id', 'date_culte']);
-            $table->dropIndex(['predicateur_id', 'date_culte']);
-
-            // Supprimer les colonnes
-            $table->dropColumn([
-                'pasteur_principal_id',
-                'predicateur_id',
-                'responsable_culte_id',
-                'dirigeant_louange_id',
-                'equipe_culte'
-            ]);
-        });
-        */
     }
 
     /**
@@ -372,10 +317,8 @@ return new class extends Migration
                 c.created_at,
                 c.updated_at
             FROM cultes c
-            LEFT JOIN users pp ON c.pasteur_principal_id = pp.id AND pp.deleted_at IS NULL
-            LEFT JOIN users pred ON c.predicateur_id = pred.id AND pred.deleted_at IS NULL
+
             LEFT JOIN users resp ON c.responsable_culte_id = resp.id AND resp.deleted_at IS NULL
-            LEFT JOIN users dl ON c.dirigeant_louange_id = dl.id AND dl.deleted_at IS NULL
             WHERE c.date_culte >= CURRENT_DATE
               AND c.statut IN ('planifie', 'en_preparation')
               AND c.deleted_at IS NULL

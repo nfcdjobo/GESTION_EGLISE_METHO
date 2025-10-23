@@ -63,18 +63,18 @@ return new class extends Migration
             $table->integer('capacite_prevue')->nullable()->unsigned()->comment('Capacité prévue de participants');
 
             // Officiants du culte (remplace le bloc responsables et intervenants)
-            $table->json('officiants')->nullable()->comment('Liste des officiants du culte (JSON: [{user_id, titre, provenance}, ...])');
+            $table->jsonb('officiants')->nullable()->comment('Liste des officiants du culte (JSON: [{user_id, titre, provenance}, ...])');
 
             // Message et prédication
             $table->string('titre_message', 300)->nullable()->comment('Titre du message/prédication');
             $table->text('resume_message')->nullable()->comment('Résumé du message');
             $table->string('passage_biblique', 500)->nullable()->comment('Passage biblique principal');
-            $table->json('versets_cles')->nullable()->comment('Versets clés (JSON array)');
+            $table->jsonb('versets_cles')->nullable()->comment('Versets clés (JSON array)');
             $table->text('plan_message')->nullable()->comment('Plan détaillé du message');
 
             // Programme et ordre de service
-            $table->json('ordre_service')->nullable()->comment('Ordre de service détaillé (JSON)');
-            $table->json('cantiques_chantes')->nullable()->comment('Liste des cantiques/chants (JSON)');
+            $table->jsonb('ordre_service')->nullable()->comment('Ordre de service détaillé (JSON)');
+            $table->jsonb('cantiques_chantes')->nullable()->comment('Liste des cantiques/chants (JSON)');
             $table->time('duree_louange')->nullable()->comment('Durée de la louange');
             $table->time('duree_message')->nullable()->comment('Durée du message');
             $table->time('duree_priere')->nullable()->comment('Durée des prières');
@@ -89,7 +89,7 @@ return new class extends Migration
             $table->integer('nombre_baptemes')->default(0)->unsigned()->comment('Nombre de baptêmes');
 
             // Offrandes et finances
-            $table->json('detail_offrandes')->nullable()->comment("Détail des offrandes par type (JSON). Tout types d'offrande et leur montant respectif: offrande ordinaire sont obligatoire cette offrande qui contient les offrandes de chaque classe communautaire et les offrandes de culte d'enfant, les spéciales eux se situent dans un cadre imprévu il peut ne pas avoir d'offrande spéciale et il peut en avoir plusieurs");
+            $table->jsonb('detail_offrandes')->nullable()->comment("Détail des offrandes par type (JSON). Tout types d'offrande et leur montant respectif: offrande ordinaire sont obligatoire cette offrande qui contient les offrandes de chaque classe communautaire et les offrandes de culte d'enfant, les spéciales eux se situent dans un cadre imprévu il peut ne pas avoir d'offrande spéciale et il peut en avoir plusieurs");
             $table->decimal('offrande_totale', 15, 2)->nullable()->unsigned()->comment('Total des offrandes');
             $table->decimal('dime_totale', 15, 2)->nullable()->unsigned()->comment('Total des dîmes');
             $table->uuid('responsable_finances_id')->nullable()->comment('Responsable du comptage');
@@ -99,7 +99,7 @@ return new class extends Migration
             $table->string('lien_enregistrement_audio', 2048)->nullable()->comment('Lien vers l\'enregistrement audio');
             $table->string('lien_enregistrement_video', 2048)->nullable()->comment('Lien vers l\'enregistrement vidéo');
             $table->string('lien_diffusion_live', 2048)->nullable()->comment('Lien de diffusion en direct');
-            $table->json('photos_culte')->nullable()->comment('Photos du culte (JSON array de liens)');
+            $table->jsonb('photos_culte')->nullable()->comment('Photos du culte (JSON array de liens)');
             $table->boolean('diffusion_en_ligne')->default(false)->comment('Diffusé en ligne');
 
             // État et statut
@@ -173,9 +173,11 @@ return new class extends Migration
                 'nombre_conversions'
             ], 'idx_cultes_statistiques');
 
-            // Index pour les officiants (pour les recherches dans le JSON)
-            $table->index('officiants', 'idx_cultes_officiants');
+
         });
+
+        // Index pour les officiants (pour les recherches dans le JSON)
+        DB::statement('CREATE INDEX idx_cultes_officiants ON cultes USING GIN (officiants)');
 
         // Commentaire sur la table
         DB::statement("COMMENT ON TABLE cultes IS 'Gestion complète des cultes et services religieux de l''église';");
