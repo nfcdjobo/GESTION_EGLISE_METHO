@@ -5,7 +5,7 @@
 -- Dumped from database version 17.5
 -- Dumped by pg_dump version 17.4
 
--- Started on 2025-10-19 13:40:06
+-- Started on 2025-10-23 17:18:41
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -21935,7 +21935,7 @@ ALTER TABLE ONLY public.vente_moissons
 REFRESH MATERIALIZED VIEW public.moisson_statistics;
 
 
--- Completed on 2025-10-19 13:40:06
+-- Completed on 2025-10-23 17:18:42
 
 --
 -- PostgreSQL database dump complete
